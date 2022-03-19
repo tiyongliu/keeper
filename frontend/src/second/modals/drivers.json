@@ -1,0 +1,73 @@
+{
+  "drivers": [
+    {
+      "analyserClass": null,
+      "dialect": {
+        "limitSelect": true,
+        "rangeSelect": true,
+        "offsetFetchRangeSyntax": true,
+        "stringEscapeChar": "'",
+        "fallbackDataType": "nvarchar(max)"
+      },
+      "databaseEngineTypes": [
+        "document"
+      ],
+      "supportedCreateDatabase": true,
+      "engine": "mongo@dbgate-plugin-mongo",
+      "title": "MongoDB",
+      "editorMode": "javascript",
+      "defaultPort": 27017,
+      "supportsDatabaseUrl": true,
+      "databaseUrlPlaceholder": "e.g. mongodb://username:password@mongodb.mydomain.net/dbname",
+      "importExportArgs": [
+        {
+          "type": "checkbox",
+          "name": "createStringId",
+          "label": "Create string _id attribute",
+          "apiName": "createStringId",
+          "direction": "target"
+        }
+      ]
+    },
+    {
+      "analyserClass": null,
+      "dialect": {
+        "rangeSelect": true,
+        "stringEscapeChar": "\\",
+        "fallbackDataType": "longtext",
+        "enableConstraintsPerTable": false,
+        "anonymousPrimaryKey": true,
+        "explicitDropConstraint": true,
+        "createColumn": true,
+        "dropColumn": true,
+        "changeColumn": true,
+        "createIndex": true,
+        "dropIndex": true,
+        "createForeignKey": true,
+        "dropForeignKey": true,
+        "createPrimaryKey": true,
+        "dropPrimaryKey": true,
+        "dropIndexContainsTableSpec": true,
+        "createUnique": true,
+        "dropUnique": true,
+        "createCheck": true,
+        "dropCheck": true,
+        "dropReferencesWhenDropTable": false,
+        "columnProperties": {
+          "columnComment": true,
+          "isUnsigned": true,
+          "isZerofill": true
+        }
+      },
+      "databaseEngineTypes": [
+        "sql"
+      ],
+      "supportedCreateDatabase": true,
+      "defaultPort": 3306,
+      "readOnlySessions": true,
+      "supportsDatabaseDump": true,
+      "engine": "mysql@dbgate-plugin-mysql",
+      "title": "MySQL"
+    }
+  ]
+}
