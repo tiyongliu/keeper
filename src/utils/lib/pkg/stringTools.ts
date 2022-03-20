@@ -1,5 +1,4 @@
 export function safeJsonParse(json, defaultValue?, logError = false) {
-  console.log(json, defaultValue, logError)
   try {
     return JSON.parse(json);
   } catch (err) {
