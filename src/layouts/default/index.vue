@@ -82,6 +82,10 @@ export default defineComponent({
       varStore.subscribeCssVariable(varStore.getSelectedWidget,x => (x ? 1 : 0), '--dim-visible-left-panel')
       varStore.subscribeCssVariable(varStore.getLeftPanelWidth,x => `${x}px`, '--dim-left-panel-width')
       varStore.subscribeCssVariable(varStore.getVisibleTitleBar,x => (x ? 1 : 0), '--dim-visible-titlebar')
+
+      //https://www.npmjs.com/package/resize-observer-polyfill
+      // import ResizeObserver from 'resize-observer-polyfill';
+
     })
 
     return {
