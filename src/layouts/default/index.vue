@@ -3,7 +3,9 @@
     <div class="iconbar svelte-1veekw4">iconbar</div>
     <div class="statusbar svelte-1veekw4">iconbar</div>
     <div class="leftpanel svelte-1veekw4">
-      <AppDarkModeToggle class="mx-auto" />
+<!--      <AppDarkModeToggle class="mx-auto" />-->
+
+      <WidgetContainer />
     </div>
     <div class="tabs svelte-1veekw4">
       <LayoutHeader />
@@ -37,7 +39,10 @@ import { useAppInject } from '/@/hooks/web/useAppInject';
 
 import { AppDarkModeToggle } from '/@/components/Application';
 
+
+//todo
 import { variableStore } from "/@/store/modules/variable";
+import WidgetContainer from '/@/layouts/default/widgets/WidgetContainer.vue'
 export default defineComponent({
   name: 'DefaultLayout',
   components: {
@@ -50,6 +55,9 @@ export default defineComponent({
     Layout,
 
     AppDarkModeToggle,
+
+
+    WidgetContainer
   },
   setup() {
     const { prefixCls } = useDesign('default-layout');
