@@ -5,7 +5,7 @@
 </template>
 
 <script lang="ts">
-  import { defineComponent, computed, unref, ref, onMounted } from 'vue';
+  import { defineComponent, computed, unref, ref, onMounted, provide } from 'vue';
   export default defineComponent({
     name: "DatabaseWidget",
     components: {
@@ -13,7 +13,11 @@
     },
     setup() {
       const hidden = ref(false)
-
+      provide('pushWidgetItemDefinition', (item, dynamicProps) => {
+        dynamicPropsCollection.push(dynamicProps);
+        definitions = [...definitions, item];
+        return definitions.length - 1;
+      })
       return {
         hidden
       }
