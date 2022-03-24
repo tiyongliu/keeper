@@ -1,5 +1,8 @@
 <template>
-  <DatabaseWidget />
+  <!--
+  hidden={$selectedWidget != 'database'}
+  -->
+  <DatabaseWidget :hidden="false"/>
 </template>
 
 <script lang="ts">
