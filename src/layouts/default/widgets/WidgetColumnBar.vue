@@ -5,19 +5,33 @@
 </template>
 
 <script lang="ts">
-  import { defineComponent, computed, unref, ref, onMounted, provide } from 'vue';
+  import {defineComponent, computed, unref, ref, onMounted, provide, PropType} from 'vue';
   export default defineComponent({
     name: "DatabaseWidget",
+    props: {
+      hidden: {
+        type: [Boolean] as PropType<boolean>,
+        default: false,
+      }
+    },
     components: {
 
     },
     setup() {
       const hidden = ref(false)
+
+      const definitions = ref([])
+      const dynamicPropsCollection = []
+
+
       provide('pushWidgetItemDefinition', (item, dynamicProps) => {
+        console.log('pushWidgetItemDefinition')
+
         dynamicPropsCollection.push(dynamicProps);
-        definitions = [...definitions, item];
-        return definitions.length - 1;
+        definitions.value = [...definitions, item];
+        return definitions.value.length - 1;
       })
+
       return {
         hidden
       }
