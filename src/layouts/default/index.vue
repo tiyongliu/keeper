@@ -237,4 +237,14 @@ export default defineComponent({
 .horizontal-split-handle:hover {
   background-color: var(--theme-bg-2);
 }
+
+.vertical-split-handle {
+  background-color: var(--theme-border);
+  height: var(--dim-splitter-thickness);
+  cursor: row-resize;
+}
+.vertical-split-handle:hover {
+  background-color: var(--theme-bg-2);
+}
+
 </style>
