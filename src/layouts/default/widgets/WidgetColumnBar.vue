@@ -61,19 +61,18 @@
   })
 </script>
 
-<style>
-  .hidden {
-    display: none;
-  }
-
+<style lang="less">
   .main-container {
     position: relative;
     flex: 1;
     flex-direction: column;
     user-select: none;
-  }
+    &.hidden {
+      display: none;
+    }
 
-  .main-container:not(.hidden) {
-    display: flex;
+    &:not(.hidden) {
+      display: flex;
+    }
   }
 </style>

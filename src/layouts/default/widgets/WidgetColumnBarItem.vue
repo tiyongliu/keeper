@@ -1,6 +1,6 @@
 <template>
   <WidgetTitle v-if="!skip && show">{{ title }}</WidgetTitle>
-  <div class="wrapper" v-if="visible"
+  <div class="widgetColumnBarItem wrapper" v-if="visible"
        :style="dynamicProps.splitterVisible ? `height:${size}px` : 'flex: 1 1 0'">
     <slot/>
   </div>
@@ -155,8 +155,8 @@
   })
 </script>
 
-<style scoped>
-  .wrapper {
+<style>
+  .widgetColumnBarItem.wrapper {
     overflow: hidden;
     position: relative;
     flex-direction: column;

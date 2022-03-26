@@ -1,13 +1,25 @@
 <template>
-    <div>
+    <SearchBoxWrapper>
       ConnectionList
-    </div>
+    </SearchBoxWrapper>
 </template>
 
-<script>
-    export default {
-        name: "ConnectionList"
+<script lang="ts">
+  import SearchBoxWrapper from './SearchBoxWrapper.vue'
+  import { defineComponent, computed, unref, ref, onMounted } from 'vue';
+  export default defineComponent({
+    name: "ConnectionList",
+    components: {
+      SearchBoxWrapper
+    },
+    setup() {
+      const hidden = ref(false)
+
+      return {
+        hidden
+      }
     }
+  })
 </script>
 
 <style scoped>
