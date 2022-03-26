@@ -1,9 +1,9 @@
 <template>
-  <div><slot /></div>
+  <div class="widgetsInnerContainer"><slot /></div>
 </template>
 
-<style scoped>
-  div {
+<style lang="less">
+  .widgetsInnerContainer {
     flex: 1 1;
     overflow-x: auto;
     overflow-y: auto;

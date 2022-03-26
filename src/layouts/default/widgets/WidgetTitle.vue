@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="widgetTitle">
       <slot />
     </div>
 </template>
@@ -21,16 +21,16 @@
   })
 </script>
 
-<style scoped>
-  div {
+<style lang="less">
+  .widgetTitle {
     padding: 5px;
     font-weight: bold;
     text-transform: uppercase;
     background-color: var(--theme-bg-1);
     border: 2px solid var(--theme-border);
-  }
-  div:hover {
-    background-color: var(--theme-bg-2);
+    &:hover {
+       background-color: var(--theme-bg-2);
+     }
   }
 </style>
 
