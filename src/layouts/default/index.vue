@@ -1,5 +1,13 @@
 <template>
-  <Layout :class="prefixCls" v-bind="lockEvents">
+  <div class="not-supported">
+    <div class="m-5 big-icon">
+      <warning-outlined />
+    </div>
+    <div class="m-3">Sorry, DbGate is not supported on mobile devices.</div>
+    <div class="m-3">Please visit <a href="https://dbgate.org">DbGate web</a> for more info.</div>
+  </div>
+
+  <Layout :class="prefixCls" class="dbgate-screen" v-bind="lockEvents">
     <div class="iconbar svelte-1veekw4">iconbar</div>
     <div class="statusbar svelte-1veekw4">iconbar</div>
     <div class="leftpanel svelte-1veekw4">
@@ -43,6 +51,7 @@ import { AppDarkModeToggle } from '/@/components/Application';
 //todo
 import { variableStore } from "/@/store/modules/variable";
 import WidgetContainer from '/@/second/widgets/WidgetContainer.vue'
+import {WarningOutlined} from '@ant-design/icons-vue'
 export default defineComponent({
   name: 'DefaultLayout',
   components: {
@@ -53,11 +62,11 @@ export default defineComponent({
     LayoutSideBar,
     LayoutMultipleHeader,
     Layout,
-
     AppDarkModeToggle,
 
 
-    WidgetContainer
+    WidgetContainer,
+    WarningOutlined
   },
   setup() {
     const { prefixCls } = useDesign('default-layout');
