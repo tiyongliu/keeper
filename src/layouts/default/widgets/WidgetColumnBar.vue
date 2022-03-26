@@ -1,5 +1,5 @@
 <template>
-  <div class="main-container" :class="hidden ? 'hidden' : ''">
+  <div ref="r" class="main-container" :class="hidden ? 'hidden' : ''">
     <slot/>
   </div>
 </template>
@@ -17,12 +17,13 @@
     },
     components: {},
     setup() {
-
-
+      const r = ref()
       const hidden = ref(false)
       const widgetColumnBarHeight = ref(0)
-      const definitions = ref([])
-      const dynamicPropsCollection = ref([])
+
+      const definitions = ref<{ collapsed: boolean, height: number, skip: boolean }[]>([])
+      const dynamicPropsCollection = ref<{ splitterVisible: boolean }[]>([])
+
       provide('widgetColumnBarHeight', widgetColumnBarHeight)
       provide('pushWidgetItemDefinition', (item, dynamicProps) => {
         dynamicPropsCollection.value.push(dynamicProps)
@@ -42,16 +43,19 @@
 
       function computeDynamicProps(defs: any[]) {
         for (let index = 0; index < defs.length; index++) {
-          const definition = defs[index];
-          const splitterVisible = !!defs.slice(index + 1).find(x => x && !x.collapsed && !x.skip);
-          dynamicPropsCollection.value[index].splitterVisible = splitterVisible
+          // const definition = defs[index];
+          dynamicPropsCollection.value[index].splitterVisible = !!defs.slice(index + 1).find(x => x && !x.collapsed && !x.skip);
         }
       }
 
+      onMounted(() => {
+        widgetColumnBarHeight.value = r.value.clientHeight
+      })
 
       return {
         hidden,
         clientHeight: widgetColumnBarHeight,
+        r
       }
     }
   })

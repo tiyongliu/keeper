@@ -5,6 +5,16 @@
         <ConnectionList />
       </WidgetColumnBarItem>
 
+      <WidgetColumnBarItem
+        title="Pinned"
+        name="pinned"
+        height="15%"
+        storageName="pinnedItemsWidget"
+        :skip="[].length && [].some(x => x.conid == conid && x.database == '')"
+      >
+        <PinnedObjectsList />
+      </WidgetColumnBarItem>
+
       <!--数据库 table 列表-->
       <WidgetColumnBarItem
         title="Connections"
@@ -22,6 +32,7 @@
   import WidgetColumnBarItem from './WidgetColumnBarItem.vue'
   import ConnectionList from './ConnectionList.vue'
   import SqlObjectList from './SqlObjectList.vue'
+  import PinnedObjectsList from './PinnedObjectsList.vue'
   export default defineComponent({
     name: "DatabaseWidget",
     props: {
@@ -34,7 +45,8 @@
       WidgetColumnBar,
       WidgetColumnBarItem,
       ConnectionList,
-      SqlObjectList
+      SqlObjectList,
+      PinnedObjectsList
     },
     setup() {
 
