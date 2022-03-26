@@ -1,15 +1,10 @@
 <template>
   <WidgetTitle v-if="!skip && show">{{ title }}</WidgetTitle>
-  <div class="wrapper"
-       v-if="visible"
+  <div class="wrapper" v-if="visible"
        :style="dynamicProps.splitterVisible ? `height:${size}px` : 'flex: 1 1 0'">
     <slot/>
   </div>
-  <div
-    class="vertical-split-handle"
-    v-splitterDrag="'clientY'"
-
-  />
+  <div class="vertical-split-handle" v-splitterDrag="'clientY'"></div>
 </template>
 
 <script lang="ts">
@@ -71,21 +66,20 @@
         collapsed,
         storageName,
       } = unref(props) as unknown as {
-        title: Ref<string>,
-        name: Ref<string>,
-        height: Ref<string>,
-        collapsed: Ref<boolean>,
-        storageName: Ref<string>,
+        title: string,
+        name: string,
+        height: string,
+        collapsed: boolean,
+        storageName: string,
       }
 
       const dynamicProps = reactive({
         splitterVisible: false,
       })
 
-      const pushWidgetItemDefinition = inject('pushWidgetItemDefinition')
-      //todo 需要动态
-      const updateWidgetItemDefinition = inject('updateWidgetItemDefinition')
-      const widgetColumnBarHeight = inject('widgetColumnBarHeight')
+      const pushWidgetItemDefinition = inject('pushWidgetItemDefinition') as any
+      const updateWidgetItemDefinition = inject('updateWidgetItemDefinition') as any
+      const widgetColumnBarHeight = inject('widgetColumnBarHeight') as any
       const widgetItemIndex = pushWidgetItemDefinition({
         collapsed,
         height,
@@ -110,37 +104,30 @@
         },
       )
 
-      if (storageName && unref(widgetColumnBarHeight) > 0) {
-        setLocalStorage(storageName, {
-          relativeHeight: size.value / widgetColumnBarHeight,
-          visible: visible.value
-        })
-      }
+      watch(
+        () => [unref(storageName), unref(widgetColumnBarHeight)],
+        () => {
+          if (unref(storageName) && unref(widgetColumnBarHeight) > 0) {
+            setLocalStorage(storageName, {
+              relativeHeight: unref(size) / unref(widgetColumnBarHeight),
+              visible: visible.value
+            })
+          }
+        }
+      )
 
       function setInitialSize(initialSize, parentHeight) {
-        console.log(initialSize, parentHeight, '00')
-        // size.value = 105
-        console.log(storageName)
         if (storageName) {
           const storage = getLocalStorage(storageName)
           if (storage) {
             size.value = parentHeight * storage.relativeHeight;
-            console.log(size.value, '1')
             return;
           }
         }
-        if (isString(initialSize) && initialSize.endsWith('px')) {
-          size.value = parseInt(initialSize.slice(0, -2));
-          console.log(size.value, '2')
-        }
-        else if (isString(initialSize) && initialSize.endsWith('%')) {
+        if (isString(initialSize) && initialSize.endsWith('px')) size.value = parseInt(initialSize.slice(0, -2));
+        else if (isString(initialSize) && initialSize.endsWith('%'))
           size.value = (parentHeight * parseFloat(initialSize.slice(0, -1))) / 100;
-          console.log(size.value, '3')
-        }
-        else {
-          size.value = parentHeight / 3;
-          console.log(size.value, '4')
-        }
+        else size.value = parentHeight / 3;
       }
 
       onMounted(() => {
@@ -149,8 +136,6 @@
         } else {
           visible.value = !props.collapsed
         }
-
-        setInitialSize(unref(height), unref(widgetColumnBarHeight))
       })
 
       //VUE3中watch和watchEffect的用法
