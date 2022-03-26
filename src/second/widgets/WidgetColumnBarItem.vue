@@ -21,7 +21,7 @@
   } from 'vue';
   import {isString} from 'lodash-es'
   import WidgetTitle from './WidgetTitle.vue'
-  import {setLocalStorage, getLocalStorage} from '/@/utils/utility/storageCache'
+  import {setLocalStorage, getLocalStorage} from '/@/second/utility/storageCache'
 
   export default defineComponent({
     name: "WidgetColumnBarItem",

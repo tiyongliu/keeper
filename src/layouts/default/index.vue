@@ -42,7 +42,7 @@ import { AppDarkModeToggle } from '/@/components/Application';
 
 //todo
 import { variableStore } from "/@/store/modules/variable";
-import WidgetContainer from '/@/layouts/default/widgets/WidgetContainer.vue'
+import WidgetContainer from '/@/second/widgets/WidgetContainer.vue'
 export default defineComponent({
   name: 'DefaultLayout',
   components: {
