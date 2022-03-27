@@ -1,22 +1,15 @@
 <template>
-  <Input
+  <a-input
     size="small"
     :placeholder="placeholder"
     v-model:value="searchValue"
     @input="handleInput"
     @keydown="handleKeyDown"
     allow-clear/>
-  <!--
-  on:input={e => {
-    if (isDebounced) debouncedSet(domInput.value);
-    else value = domInput.value;
-  }}
-  -->
 </template>
 
 <script lang="ts">
   import {defineComponent, ref, unref, watch, onBeforeUnmount} from 'vue';
-  import {Input} from 'ant-design-vue'
   import {debounce} from 'lodash-es'
   import keycodes from '/@/second/utility/keycodes'
 
@@ -28,12 +21,15 @@
       },
       isDebounced: {
         type: Boolean as PropType<false>,
+      },
+      searchValue: {
+        type: String as PropType<string>,
+      },
+      value: {
+        type: String as PropType<string>,
       }
     },
-    components: {
-      Input
-    },
-    emits: ['update:value'],
+    emits: ['update:searchValue'],
     setup(props, {emit}) {
       const searchValue = ref<string>('');
       const value = ref<string>('');
@@ -43,13 +39,13 @@
         isDebounced: boolean,
       }
 
+
       const debouncedSet = debounce(x => (value.value = x), 500)
 
       function handleKeyDown(e) {
         if (e.keyCode == keycodes.escape) {
           searchValue.value = ''
           value.value = ''
-          emit('update:value', searchValue)
         }
       }
 
@@ -62,7 +58,13 @@
       }
 
       watch(() => unref(value), () => {
-        emit('update:value', unref(value))
+        emit('update:searchValue', unref(value))
+      })
+
+      watch(() => unref(props.searchValue), () => {
+        if (props.searchValue === '') {
+          searchValue.value = ''
+        }
       })
 
       onBeforeUnmount(() => {
