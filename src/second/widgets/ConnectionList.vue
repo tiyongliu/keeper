@@ -12,7 +12,13 @@
   </SearchBoxWrapper>
   <WidgetsInnerContainer>
     <AppObjectList
-      :list="sortBy(connectionsWithStatus, connection => (getConnectionLabel(connection) || '').toUpperCase())"/>
+      :filter="filter"
+      :list="sortBy(connectionsWithStatus, connection => (getConnectionLabel(connection) || '').toUpperCase())"
+      :isExpandable="(data) => [
+        'b0cf1450-a66d-11ec-a868-3720e8369945',
+        '065caa90-a8c6-11ec-9b4b-6f98950c4d7a'
+      ].includes(data._id) && !data.singleDatabase"
+    />
   </WidgetsInnerContainer>
 </template>
 
