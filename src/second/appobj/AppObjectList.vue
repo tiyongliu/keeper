@@ -1,34 +1,66 @@
 <template>
-
+  <AppObjectListItem />
 </template>
 
 <script lang="ts">
-  import {computed, defineComponent, PropType, unref} from 'vue';
-
+import {computed, defineComponent, onMounted, PropType, unref, watch} from 'vue'
+import {compact} from 'lodash-es'
+import AppObjectListItem from './AppObjectListItem.vue'
+import {createMatcher,createChildMatcher } from './AppObjectList'
+type fn = (data: {_id: string, singleDatabase: boolean}) => boolean
   export default defineComponent({
     name: "DatabaseWidget",
+    components: {AppObjectListItem},
     props: {
       list: {
         type: Array as unknown as PropType<[]>,
-        default: [{
-          "server": "localhost",
-          "engine": "mysql@dbgate-plugin-mysql",
-          "sshMode": "userPassword",
-          "sshPort": "22",
-          "sshKeyfile": "C:\\Users\\Administrator\\.ssh\\id_rsa",
-          "port": "5001",
-          "user": "root",
-          "password": "crypt:73305a0992fb1e75e1a1c231ec53b56b27edec6cdf2f23a9a2247e3a6bfe04a7fcb9681bae0a889796817983aa178e75r/sewk0ogrcB9PTXu01Vzw==",
-          "_id": "66436840-ad08-11ec-88e1-47c40318681c"
-        }],
+      },
+      groupFunc: {
+        type: String as PropType<string>,
+      },
+      expandOnClick: {
+        type: Boolean as PropType<boolean>,
+        default: false
+      },
+      isExpandable: {
+        type: Function as PropType<fn>
+      },
+      filter: {
+        type: String as PropType<string>,
       }
     },
-    components: {},
     setup(props) {
-      const dynamicList = computed(() => unref(props.list))
+      const {list, groupFunc, filter, isExpandable} = props
+
+      const filtered = computed(() => {
+        return !unref(groupFunc) ? (list!).filter(data => {
+          const matcher = createMatcher && createMatcher(data);
+          if (matcher && !matcher(filter)) return false;
+          return true;
+        }) : null
+      })
+
+      const childrenMatched = computed(() => {
+        !unref(groupFunc) ? (list!).filter(data => {
+          const matcher = createChildMatcher && createChildMatcher(data)
+          if (matcher && !matcher(filter)) return false;
+          return true
+        }) : null
+      })
+
+      const listGrouped = computed(() => {
+        unref(groupFunc) ? compact(
+          ((list!) || []).map(data => {
+            const matcher = createMatcher && createMatcher(data);
+            const isMatched = matcher && !matcher(filter) ? false : true;
+          })
+        ) : null
+      })
 
       return {
-        dynamicList
+        filtered,
+        childrenMatched,
+        listGrouped
       }
     }
   })

@@ -1,4 +1,4 @@
-import _compact from 'lodash/compact';
+import _compact from 'lodash-es/compact';
 
 // original C# variant
 // public bool Match(string value)

@@ -1,5 +1,5 @@
 import {computed, defineComponent, onMounted, PropType, unref} from 'vue'
-import {compact} from 'lodash'
+import {compact} from 'lodash-es'
 import AppObjectListItem from './AppObjectListItem.vue'
 
 type fn = (data: {_id: string, singleDatabase: boolean}) => boolean
@@ -27,11 +27,10 @@ export default defineComponent({
   },
   setup(props) {
     // const dynamicList = computed(() => unref(props.list))
-    const {list, groupFunc, filter, isExpandable} = props
+    const {list, groupFunc, filter, isExpandable, expandOnClick} = props
 
-    console.log(list, '18')
     const filtered = computed(() => {
-      !unref(groupFunc) ? (list!).filter(data => {
+      return !unref(groupFunc) ? (list!).filter(data => {
         const matcher = createMatcher && createMatcher(data);
         if (matcher && !matcher(filter)) return false;
         return true;
@@ -39,7 +38,7 @@ export default defineComponent({
     })
 
     const childrenMatched = computed(() => {
-      !unref(groupFunc) ? (list!).filter(data => {
+      return !unref(groupFunc) ? (list!).filter(data => {
         const matcher = createChildMatcher && createChildMatcher(data)
         if (matcher && !matcher(filter)) return false;
         return true
@@ -61,9 +60,11 @@ export default defineComponent({
     return () => (
       (list!).map(data => {
         return <AppObjectListItem
-          isHidden={!(filtered as unknown as []).includes(data)}
+          isHidden={!(filtered.value as []).includes(data)}
           data={data}
           isExpandable={isExpandable}
+          isExpandedBySearch={(childrenMatched.value as []).includes(data)}
+          expandOnClick={unref(expandOnClick)}
         />
       })
 

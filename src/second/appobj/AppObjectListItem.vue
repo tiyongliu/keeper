@@ -10,11 +10,29 @@
       data: {
         type: Array as unknown as PropType<[]>,
         default: [],
-      }
+      },
+      isHidden: {
+        type: Boolean as unknown as PropType<boolean>,
+      },
+      isExpandedBySearch: {
+        type: Boolean as unknown as PropType<boolean>,
+        default: false
+      },
+      expandOnClick: {
+        type: Boolean as PropType<boolean>,
+      },
     },
     components: {},
     setup(props) {
       // const dynamicList = computed(() => unref(props.list))
+      console.log(props)
+
+      async function handleExpand() {
+        // if (subItemsComponent && expandOnClick) {
+        //   await tick();
+        //   isExpanded = !isExpanded;
+        // }
+      }
 
       return {
 
