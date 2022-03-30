@@ -12,8 +12,9 @@
   </SearchBoxWrapper>
   <WidgetsInnerContainer>
     <AppObjectList
-      :filter="filter"
       :list="sortBy(connectionsWithStatus, connection => (getConnectionLabel(connection) || '').toUpperCase())"
+      :filter="filter"
+      :expandOnClick="false"
       :isExpandable="(data) => [
         'b0cf1450-a66d-11ec-a868-3720e8369945',
         '065caa90-a8c6-11ec-9b4b-6f98950c4d7a'
