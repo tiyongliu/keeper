@@ -6,6 +6,7 @@ interface IVariableBasic {
   selectedWidget: number
   leftPanelWidth: number
   visibleTitleBar: number
+  currentDatabase: any
 }
 
 const LEFTPANELWIDTH = "leftPanelWidth";
@@ -15,7 +16,9 @@ export const variableStore = defineStore({
   state: (): IVariableBasic => ({
     selectedWidget: 1,
     leftPanelWidth: getCssVariableCache(300, LEFTPANELWIDTH),
-    visibleTitleBar: 0
+    visibleTitleBar: 0,
+
+    currentDatabase: null
   }),
   getters: {
     getSelectedWidget(): number {
