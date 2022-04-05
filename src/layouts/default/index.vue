@@ -22,7 +22,7 @@
     </div>
     <div class="horizontal-split-handle splitter svelte-1veekw4"
          v-splitterDrag="'clientX'"
-         :resizeSplitter="(e) => varStore.setLeftPanelWidth(e.detail)">
+         :resizeSplitter="(e) => cssVariable.setLeftPanelWidth(e.detail)">
     </div>
     <div class="snackbar-container svelte-1veekw4">snackbar-container</div>
   </Layout>
@@ -42,14 +42,11 @@ import { useHeaderSetting } from '/@/hooks/setting/useHeaderSetting';
 import { useMenuSetting } from '/@/hooks/setting/useMenuSetting';
 import { useDesign } from '/@/hooks/web/useDesign';
 import { useLockPage } from '/@/hooks/web/useLockPage';
-
 import { useAppInject } from '/@/hooks/web/useAppInject';
-
 import { AppDarkModeToggle } from '/@/components/Application';
 
-
 //todo
-import { variableStore } from "/@/store/modules/variable";
+import { cssVariableStore } from "/@/store/modules/cssVariable";
 import WidgetContainer from '/@/second/widgets/WidgetContainer.vue'
 import {WarningOutlined} from '@ant-design/icons-vue'
 export default defineComponent({
@@ -85,12 +82,12 @@ export default defineComponent({
       return cls;
     });
 
-    const varStore = variableStore();
+    const cssVariable = cssVariableStore();
 
     onMounted(() => {
-      varStore.subscribeCssVariable(varStore.getSelectedWidget,x => (x ? 1 : 0), '--dim-visible-left-panel')
-      varStore.subscribeCssVariable(varStore.getLeftPanelWidth,x => `${x}px`, '--dim-left-panel-width')
-      varStore.subscribeCssVariable(varStore.getVisibleTitleBar,x => (x ? 1 : 0), '--dim-visible-titlebar')
+      cssVariable.subscribeCssVariable(cssVariable.getSelectedWidget,x => (x ? 1 : 0), '--dim-visible-left-panel')
+      cssVariable.subscribeCssVariable(cssVariable.getLeftPanelWidth,x => `${x}px`, '--dim-left-panel-width')
+      cssVariable.subscribeCssVariable(cssVariable.getVisibleTitleBar,x => (x ? 1 : 0), '--dim-visible-titlebar')
 
       //https://www.npmjs.com/package/resize-observer-polyfill
       // import ResizeObserver from 'resize-observer-polyfill';
@@ -105,7 +102,7 @@ export default defineComponent({
       getIsMixSidebar,
       layoutClass,
       lockEvents,
-      varStore
+      cssVariable
     };
   },
 });
