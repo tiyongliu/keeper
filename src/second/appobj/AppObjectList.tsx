@@ -1,8 +1,11 @@
 import {computed, defineComponent, onMounted, PropType, unref} from 'vue'
 import {compact} from 'lodash-es'
 import AppObjectListItem from './AppObjectListItem.vue'
+import ConnectionAppObject from './ConnectionAppObject'
+import SubDatabaseList from './SubDatabaseList'
+import {createChildMatcher, createMatcher} from './ConnectionAppObject'
 
-type fn = (data: {_id: string, singleDatabase: boolean}) => boolean
+type fn = (data: { _id: string, singleDatabase: boolean }) => boolean
 
 export default defineComponent({
   name: "DatabaseWidget",
@@ -57,33 +60,21 @@ export default defineComponent({
     onMounted(() => {
     })
 
-    return () => (
-      (list!).map(data => {
-        return <AppObjectListItem
-          isHidden={!(filtered.value as []).includes(data)}
-          data={data}
-          isExpandable={isExpandable}
-          isExpandedBySearch={(childrenMatched.value as []).includes(data)}
-          expandOnClick={unref(expandOnClick)}
-        />
-      })
+    // return () => (
+    //   (list!).map(data => {
+    //     console.log(data, 'dddd')
+    //     return <AppObjectListItem
+    //       isHidden={!(filtered.value as []).includes(data)}
+    //       data={data}
+    //       isExpandable={isExpandable}
+    //       isExpandedBySearch={(childrenMatched.value as []).includes(data)}
+    //       expandOnClick={unref(expandOnClick)}
+    //     />
+    //   })
+    //
+    // )
 
-    )
+    // return () => <ConnectionAppObject expandIcon={`icon minus-box`}/>
+    return () => <SubDatabaseList/>
   }
 })
-
-import getLocalStorage from '/@/second/utility/getConnectionLabel'
-import {filterName} from '/@/packages/tools/src/filterName'
-
-export const extractKey = data => data._id;
-export const createMatcher = props => filter => {
-  const { _id, displayName, server } = props;
-  const databases = getLocalStorage(`database_list_${_id}`) || [];
-  return filterName(filter, displayName, server, ...databases.map(x => x.name));
-};
-export const createChildMatcher = props => filter => {
-  if (!filter) return false;
-  const { _id } = props;
-  const databases = getLocalStorage(`database_list_${_id}`) || [];
-  return filterName(filter, ...databases.map(x => x.name));
-};

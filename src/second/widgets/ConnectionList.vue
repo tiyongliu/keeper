@@ -3,11 +3,11 @@
     <SearchInput placeholder="Search connection or database" v-model:searchValue="filter"/>
     <CloseSearchButton :filter="filter" @close="filter = ''"/>
     <InlineButton title="Add new connection">
-      <plus-outlined/>
+      <FontIcon icon="icon plus-thick" />
     </InlineButton>
 
     <InlineButton title="Add new connection">
-      <redo-outlined/>
+      <FontIcon icon="icon refresh" />
     </InlineButton>
   </SearchBoxWrapper>
   <WidgetsInnerContainer>
@@ -25,7 +25,6 @@
 
 <script lang="ts">
   import {defineComponent, ref, onMounted} from 'vue';
-  import {PlusOutlined, RedoOutlined} from '@ant-design/icons-vue'
   import {sortBy} from 'lodash-es'
   import SearchBoxWrapper from './SearchBoxWrapper.vue'
   import WidgetsInnerContainer from './WidgetsInnerContainer.vue'
@@ -35,7 +34,7 @@
   // import AppObjectList from '/@/second/appobj/AppObjectList.vue'
   import AppObjectList from '/@/second/appobj/AppObjectList'
 
-
+  import FontIcon from '/@/second/icons/FontIcon.vue'
   import getConnectionLabel from '/@/second/utility/getConnectionLabel'
   export default defineComponent({
     name: "ConnectionList",
@@ -45,9 +44,8 @@
       CloseSearchButton,
       SearchInput,
       InlineButton,
-      RedoOutlined,
-      PlusOutlined,
       AppObjectList,
+      FontIcon,
     },
     setup() {
       const hidden = ref(false)

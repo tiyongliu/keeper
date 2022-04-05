@@ -6,19 +6,16 @@ interface IVariableBasic {
   selectedWidget: number
   leftPanelWidth: number
   visibleTitleBar: number
-  currentDatabase: any
 }
 
 const LEFTPANELWIDTH = "leftPanelWidth";
 
-export const variableStore = defineStore({
-  id: "app-variable",
+export const cssVariableStore = defineStore({
+  id: "app-cssVariable",
   state: (): IVariableBasic => ({
+    visibleTitleBar: 0,
     selectedWidget: 1,
     leftPanelWidth: getCssVariableCache(300, LEFTPANELWIDTH),
-    visibleTitleBar: 0,
-
-    currentDatabase: null
   }),
   getters: {
     getSelectedWidget(): number {
@@ -40,17 +37,14 @@ export const variableStore = defineStore({
       setCssVariableCache(LEFTPANELWIDTH, String(this.leftPanelWidth));
       document.documentElement.style.setProperty("--dim-left-panel-width", `${this.leftPanelWidth}px`);
     },
-    setVisibleTitleBar() {
-
-    },
     subscribeCssVariable(value, transform, cssVariable) {
       document.documentElement.style.setProperty(cssVariable, transform(value));
-    }
+    },
   }
 });
 
-export function useVariableStoreWithOut() {
-  return variableStore(store);
+export function useCssVariableStoreWithOut() {
+  return cssVariableStore(store);
 }
 
 function getCssVariableCache<T>(defaultValue: T, storageName) {
