@@ -124,7 +124,7 @@ export default defineComponent({
         // statusIcon={unref(statusIconRef) || unref(engineStatusIconRef)}
         statusIcon={`img ok`}
         statusTitle={unref(statusTitleRef) || unref(engineStatusTitleRef)}
-        statusIconBefore={data.isReadOnly ? 'icon lock' : null}
+        statusIconBefore={data.isReadOnly ? 'icon lock' : undefined}
         // extInfo={unref(extInfoRef)}
         extInfo={`mysql`}
         menu={getContextMenu}

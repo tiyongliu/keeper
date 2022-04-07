@@ -24,7 +24,7 @@
       {{extInfo}}
     </span>
 
-    <span class="pin">
+    <span class="pin" v-if="onPin">
       <FontIcon icon="mdi mdi-pin"/>
     </span>
 
@@ -55,7 +55,6 @@ export default defineComponent({
     },
     statusIconBefore: {
       type: String as PropType<string>,
-      default: undefined
     },
     statusTitle: {
       type: String as PropType<string>,
@@ -80,12 +79,19 @@ export default defineComponent({
     },
     colorMark: {
 
+    },
+    onPin: {
+      type: Boolean as PropType<boolean>,
+    },
+    onUnpin: {
+
     }
   },
   components: {
     FontIcon
   },
   setup(props) {
+
     const handleExpand = () => {
       //todo dispatch('expand');
     }

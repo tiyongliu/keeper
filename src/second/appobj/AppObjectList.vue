@@ -6,6 +6,7 @@
 import {computed, defineComponent, onMounted, PropType, unref, watch} from 'vue'
 import {compact} from 'lodash-es'
 import AppObjectListItem from './AppObjectListItem.vue'
+import {createChildMatcher, createMatcher} from './ConnectionAppObject'
 type fn = (data: {_id: string, singleDatabase: boolean}) => boolean
   export default defineComponent({
     name: "DatabaseWidget",
