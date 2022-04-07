@@ -1,8 +1,10 @@
 import {computed, defineComponent, onMounted, PropType, unref} from 'vue'
 import {compact} from 'lodash-es'
 import AppObjectListItem from './AppObjectListItem.vue'
-import ConnectionAppObject from './ConnectionAppObject'
+
 import SubDatabaseList from './SubDatabaseList'
+import ConnectionAppObject from './ConnectionAppObject'
+
 import {createChildMatcher, createMatcher} from './ConnectionAppObject'
 
 type fn = (data: { _id: string, singleDatabase: boolean }) => boolean
@@ -60,21 +62,18 @@ export default defineComponent({
     onMounted(() => {
     })
 
-    // return () => (
-    //   (list!).map(data => {
-    //     console.log(data, 'dddd')
-    //     return <AppObjectListItem
-    //       isHidden={!(filtered.value as []).includes(data)}
-    //       data={data}
-    //       isExpandable={isExpandable}
-    //       isExpandedBySearch={(childrenMatched.value as []).includes(data)}
-    //       expandOnClick={unref(expandOnClick)}
-    //     />
-    //   })
-    //
-    // )
-
-    // return () => <ConnectionAppObject expandIcon={`icon minus-box`}/>
-    return () => <SubDatabaseList/>
+    return () => (
+      (list!).map(data => {
+        return <AppObjectListItem
+          isHidden={!(filtered.value as []).includes(data)}
+          data={data}
+          module={ConnectionAppObject}
+          subItemsComponent={SubDatabaseList}
+          isExpandable={isExpandable}
+          isExpandedBySearch={(childrenMatched.value as []).includes(data)}
+          expandOnClick={unref(expandOnClick)}
+        />
+      })
+    )
   }
 })

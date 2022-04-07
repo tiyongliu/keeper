@@ -1,11 +1,10 @@
 import {computed, defineComponent, onMounted, PropType, unref} from 'vue'
 import {sortBy} from 'lodash-es'
-import AppObjectList from './AppObjectList.vue'
 import {filterName} from '/@/packages/tools/src'
-
+// import AppObjectList from './AppObjectList'
 export default defineComponent({
   name: "SubDatabaseList",
-  components: {AppObjectList},
+  // components: {AppObjectList},
   props: {
     passProps: {
       type: Boolean as PropType<boolean>,
@@ -25,16 +24,29 @@ export default defineComponent({
       return [{"name":"information_schema"},{"name":"crmeb_java_beta"},{"name":"mysql"},{"name":"performance_schema"},{"name":"sys"}]
     })
 
+
+
+
+    console.log(computed(() => {
+      return sortBy(
+        (unref(databases) || []).filter(x => filterName(unref(filter!), x.name)),
+        x => x.sortOrder ?? x.name
+      ).map(db => ({ ...db, connection: unref(data) }))
+    }))
+
     onMounted(() => {
+
     })
 
-    return () => (
-      <AppObjectList
-        list={sortBy(
-          (unref(databases) || []).filter(x => filterName(unref(filter!), x.name)),
-          x => x.sortOrder ?? x.name
-        ).map(db => ({ ...db, connection: unref(data) }))}
-      />
-    )
+    return () => (<div>1</div>)
+
+    // return () => (
+    //   <AppObjectList
+    //     list={sortBy(
+    //       (unref(databases) || []).filter(x => filterName(unref(filter!), x.name)),
+    //       x => x.sortOrder ?? x.name
+    //     ).map(db => ({ ...db, connection: unref(data) }))}
+    //   />
+    // )
   }
 })
