@@ -26,6 +26,9 @@ export const dataBaseStore = defineStore({
     },
     subscribeCurrentDatabase(value) {
       this.currentDatabase = value
+    },
+    subscribeExtensions(value: ExtensionsDirectory) {
+      this.extensions = value
     }
   }
 });

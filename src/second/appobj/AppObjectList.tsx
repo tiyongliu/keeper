@@ -11,7 +11,11 @@ type fn = (data: { _id: string, singleDatabase: boolean }) => boolean
 
 export default defineComponent({
   name: "DatabaseWidget",
-  components: {AppObjectListItem},
+  components: {
+    AppObjectListItem,
+    ConnectionAppObject,
+    SubDatabaseList,
+  },
   props: {
     list: {
       type: Array as unknown as PropType<[]>,
