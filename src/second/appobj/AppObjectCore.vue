@@ -1,5 +1,5 @@
 <template>
-  <div class="main" :class="isBold && 'isBold'">
+  <div class="main" :class="isBold && 'isBold'" @click="handleClick">
 
     <span v-if="expandIcon" class="expand-icon" @click.stop="handleExpand">
       <FontIcon :icon="expandIcon"/>
@@ -90,15 +90,19 @@ export default defineComponent({
   components: {
     FontIcon
   },
-  setup(props) {
+  emits: ['click'],
+  setup(props, {emit}) {
 
     const handleExpand = () => {
       //todo dispatch('expand');
     }
 
+    const handleClick = () => emit('click')
+
     return {
       ...props,
       handleExpand,
+      handleClick
     }
   }
 })

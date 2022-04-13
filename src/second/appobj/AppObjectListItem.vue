@@ -6,12 +6,12 @@
     :is="module"
   />
   <div class="subitems" v-if="subItemsComponent">
-    <component :is="subItemsComponent" />
+    <component :is="subItemsComponent" :data="data"/>
   </div>
 </template>
 
 <script lang="ts">
-import {computed, defineComponent, PropType, unref} from 'vue'
+import {computed, defineComponent, PropType, unref, onMounted} from 'vue'
 import {Component} from '@vue/runtime-core/dist/runtime-core'
 
 import SubDatabaseList from './SubDatabaseList'
@@ -48,6 +48,7 @@ export default defineComponent({
     // const dynamicList = computed(() => unref(props.list))
     // const currentComp = computed(() => unref(currentComp))
     async function handleExpand() {
+      alert(`handleExpand`)
       // if (subItemsComponent && expandOnClick) {
       //   await tick();
       //   isExpanded = !isExpanded;
@@ -58,6 +59,9 @@ export default defineComponent({
 
     }
 
+    onMounted(() => {
+      console.log(`onMounted`, props.data)
+    })
     return {
       ...props,
       handleExpand,
