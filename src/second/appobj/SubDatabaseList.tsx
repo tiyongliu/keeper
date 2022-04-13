@@ -21,7 +21,7 @@ export default defineComponent({
     filter: {
       type: String as PropType<string>,
       default: ''
-    }
+    },
   },
   setup(props) {
     const {data, filter} = props
@@ -29,8 +29,9 @@ export default defineComponent({
       return [{"name":"information_schema"},{"name":"crmeb_java_beta"},{"name":"mysql"},{"name":"performance_schema"},{"name":"sys"}]
     })
 
-
-
+    const isPinned = computed(() => {
+      return true
+    })
 
     console.log(computed(() => {
       return sortBy(
@@ -43,13 +44,21 @@ export default defineComponent({
 
     })
 
+    const onPin = (e) => {
+      if (unref(isPinned)) {
+        e?.stopPropagation()
+        e?.preventDefault()
+        console.log(data, `收藏`)
+      }
+    }
+
     return () => (
 
       <div class="main" draggable="true">
         <FontIcon icon="mdi mdi-database color-icon-gold" />crmeb_java_beta
-        <span class="pin">
-         <FontIcon icon="mdi mdi-pin"/>
-      </span>
+        <span class="pin" >
+           <FontIcon icon="mdi mdi-pin" onClick={onPin}/>
+        </span>
       </div>
 
     )
