@@ -33,7 +33,7 @@
 </template>
 
 <script lang="ts">
-import {defineComponent, PropType} from 'vue'
+import {defineComponent, PropType, Ref} from 'vue'
 import FontIcon from '/@/second/icons/FontIcon.vue'
 export default defineComponent({
   name: "AppObjectCore",
@@ -57,11 +57,11 @@ export default defineComponent({
       type: String as PropType<string>,
     },
     statusTitle: {
-      type: String as PropType<string>,
+      type: [String, Object] as PropType<string | Ref<string>>,
       default: undefined
     },
     extInfo: {
-      type: String as PropType<string>,
+      type: [String, Object] as PropType<string | Ref<string>>,
       default: undefined
     },
     filter: {

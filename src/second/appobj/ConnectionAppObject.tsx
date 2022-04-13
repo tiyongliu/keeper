@@ -4,6 +4,8 @@ import {filterName} from "/@/packages/tools/src/filterName";
 import { dataBaseStore } from "/@/store/modules/dataBase";
 import {uniq, get} from 'lodash-es'
 
+import {buildExtensions} from '/@/second/plugins/PluginsProvider'
+
 import AppObjectCore from '/@/second/appobj/AppObjectCore.vue'
 import getConnectionLabel from '/@/second/utility/getConnectionLabel'
 
@@ -13,20 +15,20 @@ export default defineComponent({
     data: {
       type: Object as PropType<IConnectionAppObjectData>,
       //todo delete dynamic default
-      default: {
-        "server":"localhost",
-        "engine":"mysql@dbgate-plugin-mysql",
-        "sshMode":"userPassword",
-        "sshPort":"22",
-        "sshKeyfile":"C:\\Users\\Administrator\\.ssh\\id_rsa",
-        "port":"5001",
-        "user":"root",
-        "password":"crypt:6f4a500c408bce8261606389954de288bdb5d66c02d0e8b1ffe4275cba54d24a5942f62d29ae1703d1f9de29e468af72adlfTFoqebJEvRNqKoigxQ==",
-        "_id":"b9c51b10-b354-11ec-812a-3d58c681a37b",
-        "status":{
-          "name":"ok"
-        },
-      }
+      // default: {
+      //   "server":"localhost",
+      //   "engine":"mysql@dbgate-plugin-mysql",
+      //   "sshMode":"userPassword",
+      //   "sshPort":"22",
+      //   "sshKeyfile":"C:\\Users\\Administrator\\.ssh\\id_rsa",
+      //   "port":"5001",
+      //   "user":"root",
+      //   "password":"crypt:6f4a500c408bce8261606389954de288bdb5d66c02d0e8b1ffe4275cba54d24a5942f62d29ae1703d1f9de29e468af72adlfTFoqebJEvRNqKoigxQ==",
+      //   "_id":"b9c51b10-b354-11ec-812a-3d58c681a37b",
+      //   "status":{
+      //     "name":"ok"
+      //   },
+      // }
     },
     passProps: {
       type: Object as PropType<{ showPinnedInsteadOfUnpin: boolean }>,
@@ -65,9 +67,9 @@ export default defineComponent({
 
     const handleConnect = () => {
       if (unref(data!).singleDatabase) {
-        dataBase.subscribeCurrentDatabase({connection: data, name: data.defaultDatabase})
+        dataBase.subscribeCurrentDatabase({connection: data, name: data!.defaultDatabase})
       } else {
-        dataBase.subscribeOpenedConnections(uniq([... dataBase.$state.openedConnections, data._id]))
+        dataBase.subscribeOpenedConnections(uniq([... dataBase.$state.openedConnections, data!._id]))
       }
     }
 
@@ -75,21 +77,37 @@ export default defineComponent({
 
     }
 
-    watch(() => unref(dataBase.$state.extensions), () => {
-      if (unref(dataBase.$state.extensions!).drivers.find(x => x.engine == data.engine)) {
-        const match = (data.engine || '').match(/^([^@]*)@/)
-        extInfoRef.value = match ? match[1] : data.engine;
+    watch(() => unref(dataBase.$state.extensions), () => watchExtensions())
+
+    const watchExtensions = () => {
+
+
+        const match = (data!.engine || '').match(/^([^@]*)@/)
+
+
+
+        extInfoRef.value = match ? match[1] : data!.engine;
+      console.log(extInfoRef)
         engineStatusIconRef.value = null
         engineStatusTitleRef.value = null
-      } else {
-        extInfoRef.value = data.engine;
-        engineStatusIconRef.value = 'img warn'
-        engineStatusTitleRef.value = `Engine driver ${data.engine} not found, review installed plugins and change engine in edit connection dialog`
-      }
-    })
 
-    watch(() => unref(data), () => {
-      const {_id, status} = unref(data)
+      // if (unref(dataBase.$state.extensions!).drivers.find(x => x.engine == data!.engine)) {
+      //   const match = (data!.engine || '').match(/^([^@]*)@/)
+      //   extInfoRef.value = match ? match[1] : data!.engine;
+      //   engineStatusIconRef.value = null
+      //   engineStatusTitleRef.value = null
+      // } else {
+      //
+      //   extInfoRef.value = data!.engine;
+      //   engineStatusIconRef.value = 'img warn'
+      //   engineStatusTitleRef.value = `Engine driver ${data!.engine} not found, review installed plugins and change engine in edit connection dialog`
+      // }
+    }
+
+    watch(() => unref(data), () => watchStatus())
+
+    const watchStatus = () => {
+      const {_id, status} = unref(data)!
       if (dataBase.$state.openedConnections.includes(_id)) {
         if (!status) statusIconRef.value = 'icon loading'
         else if (status.name == 'pending') statusIconRef.value = 'icon loading';
@@ -102,31 +120,40 @@ export default defineComponent({
           statusTitleRef.value = null
         }
       }
-    })
+    }
 
 
     onMounted(() => {
+      // dataBase.subscribeExtensions(buildExtensions() as any)
+
+      console.log(data)
+
       statusTitleRef.value = unref(statusTitle)
       statusIconRef.value = unref(statusIcon)
       extInfoRef.value = unref(extInfo)
       engineStatusIconRef.value = unref(engineStatusIcon)
       engineStatusTitleRef.value = unref(engineStatusTitle)
+
+
+      watchExtensions()
+      watchStatus()
+
     })
 
     return () => {
       return <AppObjectCore
         data={data}
         title={getConnectionLabel(data)}
-        icon={data.singleDatabase ? 'img database' : 'img server'}
-        isBold={data.singleDatabase
-          ? get(dataBase.$state.currentDatabase, 'connection._id') == data._id && get(dataBase.$state.currentDatabase, 'name') == data.defaultDatabase
-          : get(dataBase.$state.currentDatabase, 'connection._id') == data._id}
+        icon={data!.singleDatabase ? 'img database' : 'img server'}
+        isBold={data!.singleDatabase
+          ? get(dataBase.$state.currentDatabase, 'connection._id') == data!._id && get(dataBase.$state.currentDatabase, 'name') == data!.defaultDatabase
+          : get(dataBase.$state.currentDatabase, 'connection._id') == data!._id}
         // statusIcon={unref(statusIconRef) || unref(engineStatusIconRef)}
         statusIcon={`img ok`}
         statusTitle={unref(statusTitleRef) || unref(engineStatusTitleRef)}
-        statusIconBefore={data.isReadOnly ? 'icon lock' : undefined}
-        // extInfo={unref(extInfoRef)}
-        extInfo={`mysql`}
+        statusIconBefore={data!.isReadOnly ? 'icon lock' : undefined}
+        extInfo={extInfoRef}
+        expandIcon={`mdi mdi-plus-box-outline`}
         menu={getContextMenu}
         onClick={handleConnect}
       />

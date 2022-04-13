@@ -13,6 +13,9 @@
 <script lang="ts">
 import {computed, defineComponent, PropType, unref} from 'vue'
 import {Component} from '@vue/runtime-core/dist/runtime-core'
+
+import SubDatabaseList from './SubDatabaseList'
+import ConnectionAppObject from './ConnectionAppObject'
 export default defineComponent({
   name: "AppObjectListItem",
   props: {
@@ -31,11 +34,15 @@ export default defineComponent({
       type: Boolean as PropType<boolean>,
     },
     module: {
-      type: String as PropType<Component>,
+      type: [Object, String] as PropType<string | Component>,
     },
     subItemsComponent: {
-      type: String as PropType<Component>,
+      type: [Object, String] as PropType<string | Component>,
     }
+  },
+  components: {
+    SubDatabaseList,
+    ConnectionAppObject
   },
   setup(props) {
     // const dynamicList = computed(() => unref(props.list))
