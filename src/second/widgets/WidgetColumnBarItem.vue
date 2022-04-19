@@ -1,10 +1,12 @@
 <template>
-  <WidgetTitle v-if="!skip && show">{{ title }}</WidgetTitle>
-  <div class="widgetColumnBarItem wrapper" v-if="visible"
-       :style="dynamicProps.splitterVisible ? `height:${size}px` : 'flex: 1 1 0'">
-    <slot/>
-  </div>
-  <div class="vertical-split-handle" v-splitterDrag="'clientY'"></div>
+  <template v-if="!skip && show">
+    <WidgetTitle>{{ title }}</WidgetTitle>
+    <div class="widgetColumnBarItem wrapper" v-if="visible"
+         :style="dynamicProps.splitterVisible ? `height:${size}px` : 'flex: 1 1 0'">
+      <slot/>
+    </div>
+    <div class="vertical-split-handle" v-splitterDrag="'clientY'"></div>
+  </template>
 </template>
 
 <script lang="ts">
@@ -36,21 +38,21 @@
         type: String as PropType<string>,
       },
       skip: {
-        type: [Boolean] as PropType<boolean>,
+        type: Boolean as PropType<boolean>,
         default: false
       },
       show: {
-        type: [Boolean] as PropType<boolean>,
+        type: Boolean as PropType<boolean>,
         default: true
       },
       height: {
-        type: [String] as PropType<string>,
+        type: String as PropType<string>,
       },
       collapsed: {
-        type: [Boolean] as PropType<boolean>,
+        type: Boolean as PropType<boolean>,
       },
       storageName: {
-        type: [String] as PropType<string>,
+        type: String as PropType<string>,
       }
     },
     setup(props) {

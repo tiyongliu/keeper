@@ -25,7 +25,7 @@
     </span>
 
     <span class="pin" v-if="onPin">
-      <FontIcon icon="mdi mdi-pin"/>
+      <FontIcon icon="mdi mdi-pin" @click="handleOnPin"/>
     </span>
     <template v-if="onUnpin">
       <span class="pin-active" v-if="showPinnedInsteadOfUnpin">
@@ -40,7 +40,7 @@
 </template>
 
 <script lang="ts">
-import {defineComponent, PropType, Ref, unref} from 'vue'
+import {defineComponent, PropType, Ref, unref, onMounted} from 'vue'
 import FontIcon from '/@/second/icons/FontIcon.vue'
 export default defineComponent({
   name: "AppObjectCore",
@@ -96,22 +96,29 @@ export default defineComponent({
     showPinnedInsteadOfUnpin: {
       type: Boolean as PropType<boolean>,
       default: false
-    }
+    },
   },
   components: {
     FontIcon
   },
   emits: ['click', 'expand'],
   setup(props, {emit}) {
+    const {onPin, onUnpin} = props
     const handleExpand = () => {
       //todo dispatch('expand');
       emit('expand')
     }
 
+    const handleOnPin = (e) => {
+      e.preventDefault()
+      e.stopPropagation()
+      onPin && onPin()
+    }
+
     const handleOnUnpin = (e) => {
       e.preventDefault()
       e.stopPropagation()
-      props.onUnpin && props.onUnpin()
+      onUnpin && onUnpin()
     }
 
     const handleClick = () => {
@@ -119,9 +126,13 @@ export default defineComponent({
       emit('click')
     }
 
+    onMounted(() => {
+    })
+
     return {
       ...props,
       handleExpand,
+      handleOnPin,
       handleOnUnpin,
       handleClick
     }

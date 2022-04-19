@@ -14,7 +14,12 @@ export default defineComponent({
           _id: string
         }
       }>,
-    }
+    },
+    passProps: {
+      type: Object as unknown as PropType<{
+        showPinnedInsteadOfUnpin: boolean
+      }>,
+    },
   },
   setup(props) {
     const {data, passProps} = props
@@ -24,15 +29,28 @@ export default defineComponent({
       return dataBase.$state.pinnedDatabases.find(x => x.name == unref(data!).name && x.connection?._id == unref(data!).connection?._id)
     })
 
-    console.log(props, `pppppppppppppppppppp`)
-    console.log(isPinned, `pppppppppppppppppppp`)
+    const ddddd = () => {
+      console.log(`3324234`)
+      console.log(unref(dataBase.$state.pinnedDatabases))
+      console.log(data)
+      dataBase.subscribePinnedDatabases([...unref(dataBase.$state.pinnedDatabases), data])
+      // return [...unref(dataBase.$state.pinnedDatabases), data]
+    }
+
     return () => (
       <AppObjectCore
         title={unref(data!).name}
         extInfo={unref(data!).extInfo}
         icon="img database"
         showPinnedInsteadOfUnpin={unref(passProps)?.showPinnedInsteadOfUnpin}
-        onPin={unref(isPinned) ? null : () => console.log(`22`)}
+
+        onPin={unref(isPinned) ? null : ddddd}
+
+
+        // onPin={unref(isPinned) ? null : () => dataBase.subscribePinnedDatabases([
+        //   ...dataBase.$state.pinnedDatabases,
+        //   unref(data)
+        // ])}
         onUnpin={unref(isPinned) ? () => {
           dataBase.subscribePinnedDatabases(
             dataBase.$state.pinnedDatabases.filter(x => x.name != unref(data!).name || x.connection?._id != unref(data!).connection?._id) as []

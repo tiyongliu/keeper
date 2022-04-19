@@ -15,7 +15,7 @@
 </template>
 
 <script lang="ts">
-import {computed, defineComponent, PropType, unref, watch, ref, nextTick} from 'vue'
+import {computed, defineComponent, PropType, unref, watch, ref, nextTick, onMounted} from 'vue'
 import {Component} from '@vue/runtime-core/dist/runtime-core'
 import SubDatabaseList from './SubDatabaseList'
 import ConnectionAppObject from './ConnectionAppObject'
@@ -69,8 +69,6 @@ export default defineComponent({
 
     const expandable = computed(() => unref(data) && unref(isExpandable) && isExpandable(data))
 
-    // const dynamicList = computed(() => unref(props.list))
-    // const currentComp = computed(() => unref(currentComp))
     async function handleExpand() {
       if (unref(subItemsComponent) && unref(expandOnClick)) {
         await nextTick(() => {
@@ -97,6 +95,7 @@ export default defineComponent({
       isExpanded,
       handleExpand,
       handleExpandButton,
+      getExpandIcon
     }
   }
 })

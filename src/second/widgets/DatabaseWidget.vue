@@ -28,6 +28,7 @@
 
 <script lang="ts">
   import {defineComponent, computed, unref, ref, onMounted, PropType} from 'vue';
+  import { dataBaseStore } from "/@/store/modules/dataBase"
   import WidgetColumnBar from './WidgetColumnBar.vue'
   import WidgetColumnBarItem from './WidgetColumnBarItem.vue'
   import ConnectionList from './ConnectionList.vue'
@@ -49,7 +50,11 @@
       PinnedObjectsList
     },
     setup() {
-
+      const dataBase = dataBaseStore()
+      return {
+        pinnedDatabases: dataBase.$state.pinnedDatabases,
+        pinnedTables: dataBase.$state.pinnedTables,
+      }
     }
   })
 </script>

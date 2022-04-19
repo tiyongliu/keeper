@@ -4,7 +4,6 @@ import AppObjectListItem from './AppObjectListItem.vue'
 import {createChildMatcher, createMatcher} from './ConnectionAppObject'
 import {Component} from "@vue/runtime-core";
 
-type fn = (data: { _id: string, singleDatabase: boolean }) => boolean
 import {IIsExpandable} from '/@/second/types/IStore.d'
 export default defineComponent({
   name: "DatabaseWidget",
@@ -42,7 +41,17 @@ export default defineComponent({
   },
   setup(props) {
     // const dynamicList = computed(() => unref(props.list))
-    const {list, groupFunc, filter, isExpandable, expandOnClick} = props
+    const {
+      list,
+      groupFunc,
+      filter,
+      isExpandable,
+      expandOnClick,
+      passProps,
+      subItemsComponent,
+      expandIconFunc,
+      module
+    } = props
 
     const filtered = computed(() => {
       return !unref(groupFunc) ? (list!).filter(data => {
@@ -69,24 +78,19 @@ export default defineComponent({
       ) : null
     })
 
-    onMounted(() => {
-
-    })
-
-    return (props) => (
-
+    return () => (
       (list!).map(data => {
         return <AppObjectListItem
           isHidden={!(filtered.value as []).includes(data)}
-          module={unref(props.module)}
-          subItemsComponent={unref(props.subItemsComponent)}
-          data={data}
+          module={unref(module)}
+          subItemsComponent={unref(subItemsComponent)}
+          data={unref(data)}
           isExpandable={isExpandable}
 
-          expandIconFunc={unref(props.expandIconFunc)}
+          expandIconFunc={unref(expandIconFunc)}
           isExpandedBySearch={(childrenMatched.value as []).includes(data)}
           expandOnClick={unref(expandOnClick)}
-          passProps={unref(props.passProps)}
+          passProps={unref(passProps)}
         />
       })
     )

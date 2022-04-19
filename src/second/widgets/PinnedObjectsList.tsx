@@ -1,4 +1,4 @@
-import {defineComponent, computed, unref} from 'vue';
+import {defineComponent, computed, unref, onMounted} from 'vue';
 import WidgetsInnerContainer from './WidgetsInnerContainer.vue'
 import AppObjectList from '../appobj/AppObjectList'
 import { dataBaseStore } from "/@/store/modules/dataBase";
@@ -11,7 +11,7 @@ export default defineComponent({
     return () => (
       <WidgetsInnerContainer>
         <AppObjectList
-          list={[...dataBase.$state.pinnedDatabases, ...unref(filteredTables)]}
+          list={[...dataBase.getPinnedDatabases, ...unref(filteredTables)]}
           module={PinnedAppObject}
         />
       </WidgetsInnerContainer>
