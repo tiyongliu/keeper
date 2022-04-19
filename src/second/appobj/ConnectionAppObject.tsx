@@ -88,7 +88,6 @@ export default defineComponent({
 
 
         extInfoRef.value = match ? match[1] : data!.engine;
-        console.log(extInfoRef)
         engineStatusIconRef.value = null
         engineStatusTitleRef.value = null
 
@@ -126,9 +125,6 @@ export default defineComponent({
 
     onMounted(() => {
       // dataBase.subscribeExtensions(buildExtensions() as any)
-
-      console.log(data)
-
       statusTitleRef.value = unref(statusTitle)
       statusIconRef.value = unref(statusIcon)
       extInfoRef.value = unref(extInfo)

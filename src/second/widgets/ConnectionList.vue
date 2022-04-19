@@ -24,7 +24,7 @@
 </template>
 
 <script lang="ts">
-  import {defineComponent, ref, onMounted} from 'vue';
+  import {defineComponent, ref, onMounted, unref} from 'vue';
   import {sortBy} from 'lodash-es'
   import SearchBoxWrapper from './SearchBoxWrapper.vue'
   import WidgetsInnerContainer from './WidgetsInnerContainer.vue'
@@ -58,7 +58,7 @@
       const filter = ref('')
       const dataBase = dataBaseStore()
 
-      const connectionsWithStatus = ref([
+      const connectionsWithStatus = [
         {
           engine: "mysql@dbgate-plugin-mysql",
           password: "crypt:7000413edf483ada3770dc5c4b9a69f0beea98f82c2e3b9ba243488a63c0fc056ee70323004cbfe3b5438a7297fcdfe3LC25uegcuz6H5UxZfY2UyA==",
@@ -69,7 +69,7 @@
           user: "root",
           _id: "065caa90-a8c6-11ec-9b4b-6f98950c4d7a",
         }
-      ])
+      ]
 
       onMounted(() => {})
 
