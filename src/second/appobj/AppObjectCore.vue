@@ -101,10 +101,11 @@ export default defineComponent({
   components: {
     FontIcon
   },
-  emits: ['click'],
+  emits: ['click', 'expand'],
   setup(props, {emit}) {
     const handleExpand = () => {
       //todo dispatch('expand');
+      emit('expand')
     }
 
     const handleOnUnpin = (e) => {
