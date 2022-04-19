@@ -4,6 +4,7 @@
       :is="module"
       :data="data"
       @click="handleExpand"
+      @expand="handleExpandButton"
       :expandIcon="getExpandIcon(!isExpandedBySearch && expandable, subItemsComponent, isExpanded, expandIconFunc)"
       :passProps="passProps"
     />
@@ -79,7 +80,7 @@ export default defineComponent({
     }
 
     function handleExpandButton() {
-
+      isExpanded.value = !isExpanded.value
     }
 
     const handle = () => {
@@ -96,7 +97,6 @@ export default defineComponent({
       isExpanded,
       handleExpand,
       handleExpandButton,
-      getExpandIcon,
     }
   }
 })
