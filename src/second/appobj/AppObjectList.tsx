@@ -1,21 +1,13 @@
 import {computed, defineComponent, onMounted, PropType, unref} from 'vue'
 import {compact} from 'lodash-es'
 import AppObjectListItem from './AppObjectListItem.vue'
-
-import SubDatabaseList from './SubDatabaseList'
-import ConnectionAppObject from './ConnectionAppObject'
-
 import {createChildMatcher, createMatcher} from './ConnectionAppObject'
+import {Component} from "@vue/runtime-core";
 
 type fn = (data: { _id: string, singleDatabase: boolean }) => boolean
-
+import {IIsExpandable} from '/@/second/types/IStore.d'
 export default defineComponent({
   name: "DatabaseWidget",
-  components: {
-    AppObjectListItem,
-    ConnectionAppObject,
-    SubDatabaseList,
-  },
   props: {
     list: {
       type: Array as unknown as PropType<[]>,
@@ -28,11 +20,25 @@ export default defineComponent({
       default: false
     },
     isExpandable: {
-      type: Function as PropType<fn>
+      type: Function as PropType<IIsExpandable>
     },
     filter: {
       type: String as PropType<string>,
-    }
+    },
+    expandIconFunc: {
+      type: [Function, Boolean] as PropType<(isExpanded: boolean) => string>,
+    },
+    passProps: {
+      type: Object as unknown as PropType<{
+        showPinnedInsteadOfUnpin: boolean
+      }>,
+    },
+    module: {
+      type: [Object, String] as PropType<string | Component>,
+    },
+    subItemsComponent: {
+      type: [Object, String] as PropType<string | Component>,
+    },
   },
   setup(props) {
     // const dynamicList = computed(() => unref(props.list))
@@ -64,18 +70,23 @@ export default defineComponent({
     })
 
     onMounted(() => {
+
     })
 
-    return () => (
+    return (props) => (
+
       (list!).map(data => {
         return <AppObjectListItem
           isHidden={!(filtered.value as []).includes(data)}
+          module={unref(props.module)}
+          subItemsComponent={unref(props.subItemsComponent)}
           data={data}
-          module={ConnectionAppObject}
-          subItemsComponent={SubDatabaseList}
           isExpandable={isExpandable}
+
+          expandIconFunc={unref(props.expandIconFunc)}
           isExpandedBySearch={(childrenMatched.value as []).includes(data)}
           expandOnClick={unref(expandOnClick)}
+          passProps={unref(props.passProps)}
         />
       })
     )

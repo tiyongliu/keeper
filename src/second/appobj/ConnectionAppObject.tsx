@@ -87,7 +87,7 @@ export default defineComponent({
 
 
         extInfoRef.value = match ? match[1] : data!.engine;
-      console.log(extInfoRef)
+        console.log(extInfoRef)
         engineStatusIconRef.value = null
         engineStatusTitleRef.value = null
 

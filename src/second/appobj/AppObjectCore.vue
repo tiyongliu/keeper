@@ -1,5 +1,5 @@
 <template>
-  <div class="main" :class="isBold && 'isBold'">
+  <div class="main" :class="isBold && 'isBold'" @click="handleClick">
 
     <span v-if="expandIcon" class="expand-icon" @click.stop="handleExpand">
       <FontIcon :icon="expandIcon"/>
@@ -27,13 +27,20 @@
     <span class="pin" v-if="onPin">
       <FontIcon icon="mdi mdi-pin"/>
     </span>
-
+    <template v-if="onUnpin">
+      <span class="pin-active" v-if="showPinnedInsteadOfUnpin">
+        <FontIcon icon="icon pin" />
+      </span>
+      <span class="unpin" v-else>
+        <FontIcon icon="icon close" @click="handleOnUnpin"/>
+      </span>
+    </template>
   </div>
   <slot />
 </template>
 
 <script lang="ts">
-import {defineComponent, PropType, Ref} from 'vue'
+import {defineComponent, PropType, Ref, unref} from 'vue'
 import FontIcon from '/@/second/icons/FontIcon.vue'
 export default defineComponent({
   name: "AppObjectCore",
@@ -81,24 +88,41 @@ export default defineComponent({
 
     },
     onPin: {
-      type: Boolean as PropType<boolean>,
+      type: Function as PropType<() => void | null>
     },
     onUnpin: {
-
+      type: Function as PropType<() => void | null>
+    },
+    showPinnedInsteadOfUnpin: {
+      type: Boolean as PropType<boolean>,
+      default: false
     }
   },
   components: {
     FontIcon
   },
-  setup(props) {
-
+  emits: ['click'],
+  setup(props, {emit}) {
     const handleExpand = () => {
       //todo dispatch('expand');
+    }
+
+    const handleOnUnpin = (e) => {
+      e.preventDefault()
+      e.stopPropagation()
+      props.onUnpin && props.onUnpin()
+    }
+
+    const handleClick = () => {
+      //todo if (checkedObjectsStore) {
+      emit('click')
     }
 
     return {
       ...props,
       handleExpand,
+      handleOnUnpin,
+      handleClick
     }
   }
 })
