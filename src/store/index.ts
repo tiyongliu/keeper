@@ -1,5 +1,6 @@
 import type { App } from 'vue';
 import { createPinia } from 'pinia';
+import {safeJsonParse} from "/@/utils/lib/pkg/stringTools";
 
 const store = createPinia();
 
@@ -8,3 +9,8 @@ export function setupStore(app: App<Element>) {
 }
 
 export { store };
+
+export function getWithStorageVariableCache<T>(defaultValue: T, storageName) {
+  const init = localStorage.getItem(storageName);
+  return (init ? safeJsonParse(init, defaultValue, true) : defaultValue);
+}

@@ -14,11 +14,11 @@
     <AppObjectList
       :list="sortBy(connectionsWithStatus, connection => (getConnectionLabel(connection) || '').toUpperCase())"
       :filter="filter"
-      :expandOnClick="false"
-      :isExpandable="(data) => [
-        'b0cf1450-a66d-11ec-a868-3720e8369945',
-        '065caa90-a8c6-11ec-9b4b-6f98950c4d7a'
-      ].includes(data._id) && !data.singleDatabase"
+      :module="`connectionAppObject`"
+      :subItemsComponent="`SubDatabaseList`"
+      expandOnClick
+      :isExpandable="(data) => openedConnections.includes(data._id) && !data.singleDatabase"
+      :passProps="{showPinnedInsteadOfUnpin: true}"
     />
   </WidgetsInnerContainer>
 </template>
@@ -33,9 +33,13 @@
   import CloseSearchButton from '/@/second/buttons/CloseSearchButton.vue'
   // import AppObjectList from '/@/second/appobj/AppObjectList.vue'
   import AppObjectList from '/@/second/appobj/AppObjectList'
-
   import FontIcon from '/@/second/icons/FontIcon.vue'
   import getConnectionLabel from '/@/second/utility/getConnectionLabel'
+  import ConnectionAppObject from '../appobj/ConnectionAppObject'
+  import SubDatabaseList from '../appobj/SubDatabaseList'
+
+
+  import {dataBaseStore} from '/@/store/modules/dataBase'
   export default defineComponent({
     name: "ConnectionList",
     components: {
@@ -46,23 +50,36 @@
       InlineButton,
       AppObjectList,
       FontIcon,
+      connectionAppObject: ConnectionAppObject,
+      SubDatabaseList
     },
     setup() {
       const hidden = ref(false)
       const filter = ref('')
-      const connectionsWithStatus = [{"server":"localhost","engine":"mongo@dbgate-plugin-mongo","sshMode":"userPassword","sshPort":"22","sshKeyfile":"C:\\Users\\Administrator\\.ssh\\id_rsa","useDatabaseUrl":"","_id":"b0cf1450-a66d-11ec-a868-3720e8369945","status":{"name":"ok"}}, {"server":"localhost","engine":"mysql@dbgate-plugin-mysql","sshMode":"userPassword","sshPort":"22","sshKeyfile":"C:\\Users\\Administrator\\.ssh\\id_rsa","user":"root","password":"crypt:7000413edf483ada3770dc5c4b9a69f0beea98f82c2e3b9ba243488a63c0fc056ee70323004cbfe3b5438a7297fcdfe3LC25uegcuz6H5UxZfY2UyA==","_id":"065caa90-a8c6-11ec-9b4b-6f98950c4d7a"}]
+      const dataBase = dataBaseStore()
 
-      onMounted(() => {
+      const connectionsWithStatus = ref([
+        {
+          engine: "mysql@dbgate-plugin-mysql",
+          password: "crypt:7000413edf483ada3770dc5c4b9a69f0beea98f82c2e3b9ba243488a63c0fc056ee70323004cbfe3b5438a7297fcdfe3LC25uegcuz6H5UxZfY2UyA==",
+          server: "localhost",
+          sshKeyfile: "C:\\Users\\Administrator\\.ssh\\id_rsa",
+          sshMode: "userPassword",
+          sshPort: "22",
+          user: "root",
+          _id: "065caa90-a8c6-11ec-9b4b-6f98950c4d7a",
+        }
+      ])
 
-      })
+      onMounted(() => {})
 
       return {
+        openedConnections: dataBase.$state.openedConnections,
         hidden,
         filter,
         connectionsWithStatus,
         sortBy,
         getConnectionLabel,
-
       }
     }
   })

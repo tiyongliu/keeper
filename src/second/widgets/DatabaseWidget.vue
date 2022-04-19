@@ -32,12 +32,12 @@
   import WidgetColumnBarItem from './WidgetColumnBarItem.vue'
   import ConnectionList from './ConnectionList.vue'
   import SqlObjectList from './SqlObjectList.vue'
-  import PinnedObjectsList from './PinnedObjectsList.vue'
+  import PinnedObjectsList from './PinnedObjectsList'
   export default defineComponent({
     name: "DatabaseWidget",
     props: {
       hidden: {
-        type: [Boolean] as PropType<boolean>,
+        type: Boolean as PropType<boolean>,
         default: false,
       }
     },
