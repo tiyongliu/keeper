@@ -7,7 +7,3 @@
         name: "SqlObjectList"
     }
 </script>
-
-<style scoped>
-
-</style>

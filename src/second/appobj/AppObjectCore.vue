@@ -42,9 +42,13 @@
 <script lang="ts">
 import {defineComponent, PropType, Ref, unref, onMounted} from 'vue'
 import FontIcon from '/@/second/icons/FontIcon.vue'
+import {IPinnedDatabasesItem} from '/@/second/types/standard.d'
 export default defineComponent({
   name: "AppObjectCore",
   props: {
+    data: {
+      type: Object as PropType<IPinnedDatabasesItem>
+    },
     icon: {
       type: String as PropType<string>,
     },

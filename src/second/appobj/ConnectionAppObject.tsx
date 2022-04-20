@@ -9,26 +9,11 @@ import {buildExtensions} from '/@/second/plugins/PluginsProvider'
 import AppObjectCore from '/@/second/appobj/AppObjectCore.vue'
 import getConnectionLabel from '/@/second/utility/getConnectionLabel'
 
-import {IConnectionAppObjectData} from '/@/second/types/IStore.d'
+import {IConnectionAppObjectData} from '/@/second/types/standard.d'
 export default defineComponent({
   props: {
     data: {
       type: Object as PropType<IConnectionAppObjectData>,
-      //todo delete dynamic default
-      // default: {
-      //   "server":"localhost",
-      //   "engine":"mysql@dbgate-plugin-mysql",
-      //   "sshMode":"userPassword",
-      //   "sshPort":"22",
-      //   "sshKeyfile":"C:\\Users\\Administrator\\.ssh\\id_rsa",
-      //   "port":"5001",
-      //   "user":"root",
-      //   "password":"crypt:6f4a500c408bce8261606389954de288bdb5d66c02d0e8b1ffe4275cba54d24a5942f62d29ae1703d1f9de29e468af72adlfTFoqebJEvRNqKoigxQ==",
-      //   "_id":"b9c51b10-b354-11ec-812a-3d58c681a37b",
-      //   "status":{
-      //     "name":"ok"
-      //   },
-      // }
     },
     passProps: {
       type: Object as PropType<{ showPinnedInsteadOfUnpin: boolean }>,
@@ -66,7 +51,6 @@ export default defineComponent({
     const dataBase = dataBaseStore()
 
     const handleConnect = () => {
-      alert(`handleConnect`)
       if (unref(data!).singleDatabase) {
         dataBase.subscribeCurrentDatabase({connection: data, name: data!.defaultDatabase})
       } else {
@@ -81,12 +65,7 @@ export default defineComponent({
     watch(() => unref(dataBase.$state.extensions), () => watchExtensions())
 
     const watchExtensions = () => {
-
-
         const match = (data!.engine || '').match(/^([^@]*)@/)
-
-
-
         extInfoRef.value = match ? match[1] : data!.engine;
         engineStatusIconRef.value = null
         engineStatusTitleRef.value = null
@@ -130,8 +109,6 @@ export default defineComponent({
       extInfoRef.value = unref(extInfo)
       engineStatusIconRef.value = unref(engineStatusIcon)
       engineStatusTitleRef.value = unref(engineStatusTitle)
-
-
       watchExtensions()
       watchStatus()
 
@@ -154,7 +131,6 @@ export default defineComponent({
         statusTitle={unref(statusTitleRef) || unref(engineStatusTitleRef)}
         statusIconBefore={data!.isReadOnly ? 'icon lock' : undefined}
         extInfo={extInfoRef}
-        menu={getContextMenu}
         onClick={handleConnect}
       />
     }

@@ -1,11 +1,16 @@
 import {defineComponent, onMounted, PropType, unref, watch} from 'vue'
 import DatabaseAppObject from './DatabaseAppObject'
-import {IIsExpandable, IPinnedDatabasesItem} from "/@/second/types/IStore";
+import {IIsExpandable, IPinnedDatabasesItem} from "/@/second/types/standard.d";
 import {Component} from "@vue/runtime-core";
 export const extractKey = props => props.name
 
 export default defineComponent({
   name: 'PinnedAppObject',
+  props: {
+    data: {
+      type: Object as PropType<IPinnedDatabasesItem>,
+    },
+  },
   setup(props) {
     // const props = {
     //   checkedObjectsStore: null,
@@ -27,6 +32,8 @@ export default defineComponent({
     //   disableContextMenu: false,
     //   expandIcon: null
     // }
+
+    watch(props, () => console.log(props, ` fsdfdsf `))
 
     return () => (
       <DatabaseAppObject
