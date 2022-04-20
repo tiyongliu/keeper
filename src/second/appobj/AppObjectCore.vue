@@ -25,14 +25,14 @@
     </span>
 
     <span class="pin" v-if="onPin">
-      <FontIcon icon="mdi mdi-pin" @click="handleOnPin"/>
+      <FontIcon icon="mdi mdi-pin" @click.stop.prevent="onPin"/>
     </span>
     <template v-if="onUnpin">
       <span class="pin-active" v-if="showPinnedInsteadOfUnpin">
         <FontIcon icon="icon pin" />
       </span>
       <span class="unpin" v-else>
-        <FontIcon icon="icon close" @click="handleOnUnpin"/>
+        <FontIcon icon="icon close" @click.stop.prevent="onUnpin"/>
       </span>
     </template>
   </div>
@@ -106,22 +106,9 @@ export default defineComponent({
   },
   emits: ['click', 'expand'],
   setup(props, {emit}) {
-    const {onPin, onUnpin} = props
     const handleExpand = () => {
       //todo dispatch('expand');
       emit('expand')
-    }
-
-    const handleOnPin = (e) => {
-      e.preventDefault()
-      e.stopPropagation()
-      onPin && onPin()
-    }
-
-    const handleOnUnpin = (e) => {
-      e.preventDefault()
-      e.stopPropagation()
-      onUnpin && onUnpin()
     }
 
     const handleClick = () => {
@@ -135,8 +122,6 @@ export default defineComponent({
     return {
       ...props,
       handleExpand,
-      handleOnPin,
-      handleOnUnpin,
       handleClick
     }
   }
