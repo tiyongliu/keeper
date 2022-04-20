@@ -41,6 +41,7 @@ export default defineComponent({
     },
     expandIconFunc: {
       type: Function as PropType<(isExpanded: boolean) => string>,
+      default: plusExpandIcon
     },
     expandOnClick: {
       type: Boolean as PropType<boolean>,

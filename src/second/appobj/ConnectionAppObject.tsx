@@ -137,20 +137,23 @@ export default defineComponent({
 
     })
 
+    const currentDatabase = computed(() => dataBase.$state.currentDatabase)
+
     return () => {
       return <AppObjectCore
         data={data}
         title={getConnectionLabel(data)}
         icon={data!.singleDatabase ? 'img database' : 'img server'}
         isBold={data!.singleDatabase
-          ? get(dataBase.$state.currentDatabase, 'connection._id') == data!._id && get(dataBase.$state.currentDatabase, 'name') == data!.defaultDatabase
-          : get(dataBase.$state.currentDatabase, 'connection._id') == data!._id}
+          ? get(unref(currentDatabase), 'connection._id') == data!._id && get(unref(currentDatabase), 'name') == data!.defaultDatabase
+          : get(unref(currentDatabase), 'connection._id') == data!._id}
+
         // statusIcon={unref(statusIconRef) || unref(engineStatusIconRef)}
         statusIcon={`img ok`}
+
         statusTitle={unref(statusTitleRef) || unref(engineStatusTitleRef)}
         statusIconBefore={data!.isReadOnly ? 'icon lock' : undefined}
         extInfo={extInfoRef}
-        expandIcon={`mdi mdi-plus-box-outline`}
         menu={getContextMenu}
         onClick={handleConnect}
       />
