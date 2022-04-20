@@ -1,6 +1,7 @@
-import {computed, defineComponent, onMounted, PropType, unref, watch} from 'vue'
+import {computed, defineComponent, onMounted, ref, PropType, unref, watch} from 'vue'
 import {compact} from 'lodash-es'
 import AppObjectListItem from './AppObjectListItem.vue'
+import { dataBaseStore } from "/@/store/modules/dataBase";
 import {createChildMatcher, createMatcher} from './ConnectionAppObject'
 import {Component} from "@vue/runtime-core";
 
@@ -9,7 +10,7 @@ export default defineComponent({
   name: "DatabaseWidget",
   props: {
     list: {
-      type: Array as unknown as PropType<IPinnedDatabasesItem[]>,
+      type: Array as PropType<IPinnedDatabasesItem[]>,
     },
     groupFunc: {
       type: String as PropType<string>,
@@ -40,7 +41,6 @@ export default defineComponent({
     },
   },
   setup(props) {
-    // const dynamicList = computed(() => unref(props.list))
     const {
       list,
       groupFunc,
@@ -78,21 +78,37 @@ export default defineComponent({
       ) : null
     })
 
-    return () => (
-      (unref(list)!).map(data => {
-        return <AppObjectListItem
-          isHidden={!(filtered.value as IPinnedDatabasesItem[]).includes(data)}
-          module={unref(module)}
-          subItemsComponent={unref(subItemsComponent)}
-          data={unref(data)}
-          isExpandable={isExpandable}
+    const dataBase = dataBaseStore()
 
-          expandIconFunc={unref(expandIconFunc)}
-          isExpandedBySearch={(childrenMatched.value as IPinnedDatabasesItem[]).includes(data)}
-          expandOnClick={unref(expandOnClick)}
-          passProps={unref(passProps)}
-        />
-      })
-    )
+    watch(() => unref(dataBase.$state.pinnedDatabases), () => {
+      // console.log(unref(list), ` unref(list)          unref(list)`)
+    })
+
+    watch(() => props.list, () => {
+      console.log(props.list, ` unref(list)          unref(list)`)
+    })
+
+
+    onMounted(() => {
+      // console.log(props.list, 'onMounted')
+    })
+
+    return () => (props.list || []).map(data => {
+
+      console.log((props.list || []).length, `344`)
+
+      return <AppObjectListItem
+        isHidden={!(filtered.value as IPinnedDatabasesItem[]).includes(data)}
+        module={unref(module)}
+        subItemsComponent={unref(subItemsComponent)}
+        data={unref(data)}
+        isExpandable={isExpandable}
+
+        expandIconFunc={unref(expandIconFunc)}
+        isExpandedBySearch={(childrenMatched.value as IPinnedDatabasesItem[]).includes(data)}
+        expandOnClick={unref(expandOnClick)}
+        passProps={unref(passProps)}
+      />
+    })
   }
 })

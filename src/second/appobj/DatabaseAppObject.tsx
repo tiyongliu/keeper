@@ -1,4 +1,4 @@
-import {defineComponent, unref, computed, PropType, Ref} from 'vue'
+import {defineComponent, unref, computed, PropType, Ref, watch} from 'vue'
 import AppObjectCore from './AppObjectCore.vue'
 import { dataBaseStore } from "/@/store/modules/dataBase";
 import {IPinnedDatabasesItem} from "/@/second/types/IStore";
@@ -15,6 +15,7 @@ export default defineComponent({
         showPinnedInsteadOfUnpin: boolean
       }>,
     },
+
   },
   setup(props) {
     const {data, passProps} = props
@@ -22,6 +23,11 @@ export default defineComponent({
 
     const isPinned = computed(() => {
       return dataBase.$state.pinnedDatabases.find(x => x.name == unref(data!).name && x.connection?._id == unref(data!).connection?._id)
+    })
+
+
+    watch(() => unref(props.list), () => {
+      console.log(unref(props), ` unref(list)          unref(list)`)
     })
 
     return () => (
