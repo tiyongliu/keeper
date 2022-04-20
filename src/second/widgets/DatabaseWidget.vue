@@ -5,12 +5,13 @@
         <ConnectionList />
       </WidgetColumnBarItem>
 
+<!--      :skip="[].length && [].some(x => x.conid == conid && x.database == '')"-->
       <WidgetColumnBarItem
         title="Pinned"
         name="pinned"
         height="15%"
         storageName="pinnedItemsWidget"
-        :skip="[].length && [].some(x => x.conid == conid && x.database == '')"
+       :skip="false"
       >
         <PinnedObjectsList />
       </WidgetColumnBarItem>
@@ -59,6 +60,3 @@
   })
 </script>
 
-<style scoped>
-
-</style>

@@ -1,7 +1,7 @@
 import {defineComponent, unref, computed, PropType, Ref, watch} from 'vue'
 import AppObjectCore from './AppObjectCore.vue'
 import { dataBaseStore } from "/@/store/modules/dataBase";
-import {IPinnedDatabasesItem} from "/@/second/types/IStore";
+import {IPinnedDatabasesItem} from "/@/second/types/standard.d";
 export const extractKey = props => props.name
 
 export default defineComponent({
@@ -26,12 +26,13 @@ export default defineComponent({
     })
 
 
-    watch(() => unref(props.list), () => {
-      console.log(unref(props), ` unref(list)          unref(list)`)
+    watch(() => unref(data!), () => {
+      console.log(unref(props.data), ` unref(list)          unref(list)`)
     })
 
     return () => (
       <AppObjectCore
+        data={unref(data)}
         title={unref(data!).name}
         extInfo={unref(data!).extInfo}
         icon="img database"

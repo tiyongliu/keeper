@@ -5,7 +5,7 @@ import { dataBaseStore } from "/@/store/modules/dataBase";
 import {createChildMatcher, createMatcher} from './ConnectionAppObject'
 import {Component} from "@vue/runtime-core";
 
-import {IIsExpandable, IPinnedDatabasesItem} from '/@/second/types/IStore.d'
+import {IIsExpandable, IPinnedDatabasesItem} from '/@/second/types/standard.d'
 export default defineComponent({
   name: "DatabaseWidget",
   props: {
@@ -94,9 +94,6 @@ export default defineComponent({
     })
 
     return () => (props.list || []).map(data => {
-
-      console.log((props.list || []).length, `344`)
-
       return <AppObjectListItem
         isHidden={!(filtered.value as IPinnedDatabasesItem[]).includes(data)}
         module={unref(module)}

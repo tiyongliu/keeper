@@ -2,9 +2,9 @@ import {computed, defineComponent, PropType, unref} from 'vue'
 import {sortBy} from 'lodash-es'
 import {filterName} from '/@/packages/tools/src'
 import './SubDatabaseList.less'
-import AppObjectList from './AppObjectList.vue'
+import AppObjectList from './AppObjectList'
 import databaseAppObject from './DatabaseAppObject'
-import {IPinnedDatabasesItem} from "/@/second/types/IStore";
+import {IPinnedDatabasesItem} from "/@/second/types/standard.d";
 
 export default defineComponent({
   name: "SubDatabaseList",

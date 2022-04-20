@@ -20,7 +20,7 @@ import {Component} from '@vue/runtime-core/dist/runtime-core'
 import SubDatabaseList from './SubDatabaseList'
 import ConnectionAppObject from './ConnectionAppObject'
 import { plusExpandIcon } from '/@/second/icons/expandIcons';
-import {IIsExpandable, IPinnedDatabasesItem} from '/@/second/types/IStore.d'
+import {IIsExpandable, IPinnedDatabasesItem} from '/@/second/types/standard.d'
 import {getExpandIcon} from './module'
 export default defineComponent({
   name: "AppObjectListItem",
@@ -40,7 +40,7 @@ export default defineComponent({
       default: undefined
     },
     expandIconFunc: {
-      type: Function as PropType<(isExpanded: boolean) => string>,
+      type: [Function, Boolean] as PropType<(isExpanded: boolean) => string>,
       default: plusExpandIcon
     },
     expandOnClick: {
@@ -57,6 +57,9 @@ export default defineComponent({
         showPinnedInsteadOfUnpin: boolean
       }>,
     },
+    filter: {
+      type: String as PropType<string>,
+    }
   },
   components: {
     SubDatabaseList,
