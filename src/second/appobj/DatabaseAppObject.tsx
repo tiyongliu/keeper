@@ -1,9 +1,9 @@
-import {defineComponent, unref, computed, PropType, Ref, watch} from 'vue'
+import {defineComponent, unref, computed, PropType, watch} from 'vue'
+import { isEqual, uniqWith } from 'lodash-es'
 import AppObjectCore from './AppObjectCore.vue'
 import { dataBaseStore } from "/@/store/modules/dataBase";
 import {IPinnedDatabasesItem} from "/@/second/types/standard.d";
 export const extractKey = props => props.name
-
 export default defineComponent({
   name: 'DatabaseAppObject',
   props: {
@@ -26,8 +26,9 @@ export default defineComponent({
     })
 
 
-    watch(() => unref(data!), () => {
-      console.log(unref(props.data), ` unref(list)          unref(list)`)
+    watch(props, () => {
+      console.log()
+      console.log(unref(props), ` unref(list)     00     unref(list)`)
     })
 
     return () => (
@@ -37,10 +38,10 @@ export default defineComponent({
         extInfo={unref(data!).extInfo}
         icon="img database"
         showPinnedInsteadOfUnpin={unref(passProps)?.showPinnedInsteadOfUnpin}
-        onPin={unref(isPinned) ? null : () => dataBase.subscribePinnedDatabases([
+        onPin={unref(isPinned) ? null : () => dataBase.subscribePinnedDatabases(uniqWith([
           ...unref(dataBase.$state.pinnedDatabases),
           unref(data!)
-        ])}
+        ], isEqual))}
         onUnpin={unref(isPinned) ? () => {
           dataBase.subscribePinnedDatabases(
             dataBase.$state.pinnedDatabases.filter(x => x.name != unref(data!).name || x.connection?._id != unref(data!).connection?._id) as []
