@@ -1,15 +1,15 @@
-import {computed, defineComponent, onMounted, PropType, unref} from 'vue'
+import {computed, defineComponent, onMounted, PropType, unref, watch} from 'vue'
 import {compact} from 'lodash-es'
 import AppObjectListItem from './AppObjectListItem.vue'
 import {createChildMatcher, createMatcher} from './ConnectionAppObject'
 import {Component} from "@vue/runtime-core";
 
-import {IIsExpandable} from '/@/second/types/IStore.d'
+import {IIsExpandable, IPinnedDatabasesItem} from '/@/second/types/IStore.d'
 export default defineComponent({
   name: "DatabaseWidget",
   props: {
     list: {
-      type: Array as unknown as PropType<[]>,
+      type: Array as unknown as PropType<IPinnedDatabasesItem[]>,
     },
     groupFunc: {
       type: String as PropType<string>,
@@ -79,16 +79,16 @@ export default defineComponent({
     })
 
     return () => (
-      (list!).map(data => {
+      (unref(list)!).map(data => {
         return <AppObjectListItem
-          isHidden={!(filtered.value as []).includes(data)}
+          isHidden={!(filtered.value as IPinnedDatabasesItem[]).includes(data)}
           module={unref(module)}
           subItemsComponent={unref(subItemsComponent)}
           data={unref(data)}
           isExpandable={isExpandable}
 
           expandIconFunc={unref(expandIconFunc)}
-          isExpandedBySearch={(childrenMatched.value as []).includes(data)}
+          isExpandedBySearch={(childrenMatched.value as IPinnedDatabasesItem[]).includes(data)}
           expandOnClick={unref(expandOnClick)}
           passProps={unref(passProps)}
         />

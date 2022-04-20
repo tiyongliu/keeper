@@ -20,14 +20,13 @@ import {Component} from '@vue/runtime-core/dist/runtime-core'
 import SubDatabaseList from './SubDatabaseList'
 import ConnectionAppObject from './ConnectionAppObject'
 import { plusExpandIcon } from '/@/second/icons/expandIcons';
-import {IIsExpandable} from '/@/second/types/IStore.d'
+import {IIsExpandable, IPinnedDatabasesItem} from '/@/second/types/IStore.d'
 import {getExpandIcon} from './module'
 export default defineComponent({
   name: "AppObjectListItem",
   props: {
     data: {
-      type: Array as unknown as PropType<[]>,
-      default: [],
+      type: Object as PropType<IPinnedDatabasesItem>,
     },
     isHidden: {
       type: Boolean as unknown as PropType<boolean>,
