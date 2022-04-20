@@ -64,8 +64,7 @@ export default defineComponent({
       type: String as PropType<string>,
     },
     statusTitle: {
-      type: [String, Object] as PropType<string | Ref<string>>,
-      default: undefined
+      type: [String, Object] as PropType<string>,
     },
     extInfo: {
       type: [String, Object] as PropType<string | Ref<string>>,
@@ -88,10 +87,10 @@ export default defineComponent({
 
     },
     onPin: {
-      type: Function as PropType<() => void | null>
+      type: Function as PropType<null | Function>
     },
     onUnpin: {
-      type: Function as PropType<() => void | null>
+      type: Function as PropType<null | Function>
     },
     showPinnedInsteadOfUnpin: {
       type: Boolean as PropType<boolean>,

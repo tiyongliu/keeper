@@ -2,7 +2,7 @@ import { defineStore } from "pinia";
 import { store } from "/@/store";
 
 import {getWithStorageVariableCache, setWithStorageVariableCache} from '../index'
-import {IConnectionAppObjectData} from '/@/second/types/IStore.d'
+import {IConnectionAppObjectData, IPinnedDatabasesItem} from '/@/second/types/IStore.d'
 import {ExtensionsDirectory} from '/@/second/types/extensions.d'
 interface IVariableBasic {
   openedConnections: string[]
@@ -11,10 +11,7 @@ interface IVariableBasic {
     connection: IConnectionAppObjectData
   },
   extensions: null | ExtensionsDirectory
-  pinnedDatabases: {
-    name: string,
-    connection: {_id: string}
-  }[],
+  pinnedDatabases: IPinnedDatabasesItem[],
   pinnedTables: []
 }
 
@@ -30,7 +27,7 @@ export const dataBaseStore = defineStore({
     pinnedTables: getWithStorageVariableCache([], 'pinnedTables'),
   }),
   getters: {
-    getPinnedDatabases() {
+    getPinnedDatabases(): IPinnedDatabasesItem[] {
       return this.pinnedDatabases
     }
   },
@@ -44,7 +41,7 @@ export const dataBaseStore = defineStore({
     subscribeExtensions(value: ExtensionsDirectory) {
       this.extensions = value
     },
-    subscribePinnedDatabases(value: []) {
+    subscribePinnedDatabases(value: IPinnedDatabasesItem[]) {
       this.pinnedDatabases = value
       setWithStorageVariableCache('pinnedDatabases', value)
     }

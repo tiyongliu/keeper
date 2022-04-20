@@ -1,19 +1,14 @@
 import {defineComponent, unref, computed, PropType, Ref} from 'vue'
 import AppObjectCore from './AppObjectCore.vue'
 import { dataBaseStore } from "/@/store/modules/dataBase";
+import {IPinnedDatabasesItem} from "/@/second/types/IStore";
 export const extractKey = props => props.name
 
 export default defineComponent({
   name: 'DatabaseAppObject',
   props: {
     data: {
-      type: Object as PropType<{
-        name: string,
-        extInfo?: PropType<string | Ref<string>>,
-        connection: {
-          _id: string
-        }
-      }>,
+      type: Object as PropType<IPinnedDatabasesItem>,
     },
     passProps: {
       type: Object as unknown as PropType<{
@@ -37,7 +32,7 @@ export default defineComponent({
         showPinnedInsteadOfUnpin={unref(passProps)?.showPinnedInsteadOfUnpin}
         onPin={unref(isPinned) ? null : () => dataBase.subscribePinnedDatabases([
           ...unref(dataBase.$state.pinnedDatabases),
-          unref(data)
+          unref(data!)
         ])}
         onUnpin={unref(isPinned) ? () => {
           dataBase.subscribePinnedDatabases(
