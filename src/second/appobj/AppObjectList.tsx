@@ -1,7 +1,11 @@
-import {computed, defineComponent, onMounted, ref, PropType, unref, watch, watchEffect, toRefs} from 'vue'
+import {computed,
+  defineComponent,
+  PropType,
+  unref,
+  toRef
+} from 'vue'
 import {compact} from 'lodash-es'
 import AppObjectListItem from './AppObjectListItem.vue'
-import { dataBaseStore } from "/@/store/modules/dataBase";
 import {createChildMatcher, createMatcher} from './ConnectionAppObject'
 import {Component} from "@vue/runtime-core";
 
@@ -42,7 +46,6 @@ export default defineComponent({
   },
   setup(props) {
     const {
-      list,
       groupFunc,
       filter,
       isExpandable,
@@ -51,7 +54,9 @@ export default defineComponent({
       subItemsComponent,
       expandIconFunc,
       module
-    } = toRefs(props)
+    } = props
+
+    const list = toRef(props, 'list')
 
     const filtered = computed(() => {
       return !unref(groupFunc) ? (unref(list)!).filter(data => {
@@ -78,32 +83,13 @@ export default defineComponent({
       ) : null
     })
 
-    const dataBase = dataBaseStore()
-
-    watch(() => unref(dataBase.$state.pinnedDatabases), () => {
-      // console.log(unref(list), ` unref(list)          unref(list)`)
-    })
-
-    const r = ref<IPinnedDatabasesItem[]>([])
-    // watch(() => props.list, () => {
-    //   console.log(props.list, ` unref(list)          unref(list)`)
-    // })
-
-    // watchEffect(() => {
-    //   r.value = props.list!
-    // })
-
-    onMounted(() => {
-      // console.log(props.list, 'onMounted')
-    })
-
     return () => (list.value || []).map(data => {
       return <AppObjectListItem
         isHidden={!(filtered.value as IPinnedDatabasesItem[]).includes(data)}
         module={unref(module)}
         subItemsComponent={unref(subItemsComponent)}
         data={unref(data)}
-        isExpandable={isExpandable}
+        isExpandable={unref(isExpandable)}
 
         expandIconFunc={unref(expandIconFunc)}
         isExpandedBySearch={(childrenMatched.value as IPinnedDatabasesItem[]).includes(data)}
