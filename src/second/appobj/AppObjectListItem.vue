@@ -15,7 +15,7 @@
 </template>
 
 <script lang="ts">
-import {computed, defineComponent, PropType, unref, watch, ref, nextTick, onMounted} from 'vue'
+import {computed, defineComponent, PropType, unref, watch, ref, nextTick, onMounted, toRefs} from 'vue'
 import {Component} from '@vue/runtime-core/dist/runtime-core'
 import SubDatabaseList from './SubDatabaseList'
 import ConnectionAppObject from './ConnectionAppObject'
@@ -66,11 +66,12 @@ export default defineComponent({
     ConnectionAppObject
   },
   setup(props) {
-    const {data, isExpandable, subItemsComponent, expandOnClick} = props
+    const {data, isExpandable, subItemsComponent, expandOnClick} = toRefs(props)
 
     const isExpanded = ref(false)
 
-    const expandable = computed(() => unref(data) && unref(isExpandable) && isExpandable(data))
+    // const expandable = computed(() => unref(data) && unref(isExpandable) && isExpandable(data))
+    const expandable = computed(() => unref(data) && unref(isExpandable))
 
     async function handleExpand() {
       if (unref(subItemsComponent) && unref(expandOnClick)) {
