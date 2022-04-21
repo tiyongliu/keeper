@@ -1,5 +1,5 @@
 import _compact from 'lodash-es/compact';
-
+import {unref} from 'vue'
 // original C# variant
 // public bool Match(string value)
 // {
@@ -55,10 +55,10 @@ function fuzzysearch(needle, haystack) {
 }
 
 export function filterName(filter: string, ...names: string[]) {
-  if (!filter) return true;
+  if (!unref(filter)) return true;
 
   // const camelVariants = [name.replace(/[^A-Z]/g, '')]
-  const tokens = filter.split(' ').map(x => x.trim());
+  const tokens = unref(filter).split(' ').map(x => x.trim());
 
   const namesCompacted = _compact(names);
   for (const token of tokens) {

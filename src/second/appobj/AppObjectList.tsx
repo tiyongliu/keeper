@@ -1,4 +1,4 @@
-import {computed, defineComponent, onMounted, ref, PropType, unref, watch} from 'vue'
+import {computed, defineComponent, onMounted, ref, PropType, unref, watch, watchEffect, toRefs} from 'vue'
 import {compact} from 'lodash-es'
 import AppObjectListItem from './AppObjectListItem.vue'
 import { dataBaseStore } from "/@/store/modules/dataBase";
@@ -51,10 +51,10 @@ export default defineComponent({
       subItemsComponent,
       expandIconFunc,
       module
-    } = props
+    } = toRefs(props)
 
     const filtered = computed(() => {
-      return !unref(groupFunc) ? (list!).filter(data => {
+      return !unref(groupFunc) ? (unref(list)!).filter(data => {
         const matcher = createMatcher && createMatcher(data);
         if (matcher && !matcher(filter)) return false;
         return true;
@@ -62,7 +62,7 @@ export default defineComponent({
     })
 
     const childrenMatched = computed(() => {
-      return !unref(groupFunc) ? (list!).filter(data => {
+      return !unref(groupFunc) ? (unref(list)!).filter(data => {
         const matcher = createChildMatcher && createChildMatcher(data)
         if (matcher && !matcher(filter)) return false;
         return true
@@ -71,7 +71,7 @@ export default defineComponent({
 
     const listGrouped = computed(() => {
       unref(groupFunc) ? compact(
-        ((list!) || []).map(data => {
+        ((unref(list)!) || []).map(data => {
           const matcher = createMatcher && createMatcher(data);
           const isMatched = matcher && !matcher(filter) ? false : true;
         })
@@ -84,16 +84,20 @@ export default defineComponent({
       // console.log(unref(list), ` unref(list)          unref(list)`)
     })
 
-    watch(() => props.list, () => {
-      console.log(props.list, ` unref(list)          unref(list)`)
-    })
+    const r = ref<IPinnedDatabasesItem[]>([])
+    // watch(() => props.list, () => {
+    //   console.log(props.list, ` unref(list)          unref(list)`)
+    // })
 
+    // watchEffect(() => {
+    //   r.value = props.list!
+    // })
 
     onMounted(() => {
       // console.log(props.list, 'onMounted')
     })
 
-    return () => (props.list || []).map(data => {
+    return () => (list.value || []).map(data => {
       return <AppObjectListItem
         isHidden={!(filtered.value as IPinnedDatabasesItem[]).includes(data)}
         module={unref(module)}
