@@ -11,7 +11,7 @@ export default defineComponent({
       type: Object as PropType<IPinnedDatabasesItem>,
     },
   },
-  setup(props) {
+  setup(props, {attrs}) {
     // const props = {
     //   checkedObjectsStore: null,
     //   data: {
@@ -35,10 +35,6 @@ export default defineComponent({
 
     watch(props, () => console.log(props, ` fsdfdsf `))
 
-    return () => (
-      <DatabaseAppObject
-        {...props}
-      />
-    )
+    return () => <DatabaseAppObject {...{...props, ...attrs}} />
   }
 })

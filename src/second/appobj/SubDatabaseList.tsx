@@ -1,4 +1,4 @@
-import {computed, defineComponent, PropType, unref} from 'vue'
+import {computed, defineComponent, PropType, unref, toRefs} from 'vue'
 import {sortBy} from 'lodash-es'
 import {filterName} from '/@/packages/tools/src'
 import './SubDatabaseList.less'
@@ -23,11 +23,10 @@ export default defineComponent({
     }
   },
   setup(props) {
-    const {data, filter, passProps} = props
+    const {data, filter, passProps} = toRefs(props)
     const databases = computed((): { name: string, sortOrder?: string }[] => {
       return [{"name": "crmeb"}, {"name": "erd"}, {"name": "information_schema"}, {"name": "kb-dms"}, {"name": "mallplusbak"}, {"name": "mysql"}, {"name": "performance_schema"}, {"name": "schema"}, {"name": "shop_go"}, {"name": "sql_join"}, {"name": "ssodb"}, {"name": "yami_shops"}]
     })
-
 
     return () => (
       <AppObjectList

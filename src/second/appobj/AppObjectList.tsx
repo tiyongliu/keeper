@@ -2,7 +2,8 @@ import {computed,
   defineComponent,
   PropType,
   unref,
-  toRef
+  toRef,
+  toRefs
 } from 'vue'
 import {compact} from 'lodash-es'
 import AppObjectListItem from './AppObjectListItem.vue'
@@ -48,15 +49,15 @@ export default defineComponent({
     const {
       groupFunc,
       filter,
+      list,
       isExpandable,
       expandOnClick,
       passProps,
       subItemsComponent,
       expandIconFunc,
       module
-    } = props
+    } = toRefs(props)
 
-    const list = toRef(props, 'list')
 
     const filtered = computed(() => {
       return !unref(groupFunc) ? (unref(list)!).filter(data => {

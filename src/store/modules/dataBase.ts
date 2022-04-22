@@ -41,7 +41,7 @@ export const dataBaseStore = defineStore({
     },
     subscribePinnedDatabases(value: IPinnedDatabasesItem[]) {
       this.pinnedDatabases = value
-      setWithStorageVariableCache('pinnedDatabases', value)
+      setWithStorageVariableCache('pinnedDatabases', this.pinnedDatabases)
     }
   }
 });
