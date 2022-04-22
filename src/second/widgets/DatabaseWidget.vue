@@ -28,7 +28,7 @@
 </template>
 
 <script lang="ts">
-  import {defineComponent, computed, unref, ref, onMounted, PropType} from 'vue';
+  import {defineComponent, PropType} from 'vue';
   import { dataBaseStore } from "/@/store/modules/dataBase"
   import WidgetColumnBar from './WidgetColumnBar.vue'
   import WidgetColumnBarItem from './WidgetColumnBarItem.vue'
