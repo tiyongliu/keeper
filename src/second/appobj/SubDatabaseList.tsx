@@ -22,7 +22,7 @@ export default defineComponent({
       default: ''
     }
   },
-  setup(props) {
+  setup(props, {attrs}) {
     const {data, filter, passProps} = toRefs(props)
     const databases = computed((): { name: string, sortOrder?: string }[] => {
       return [{"name": "crmeb"}, {"name": "erd"}, {"name": "information_schema"}, {"name": "kb-dms"}, {"name": "mallplusbak"}, {"name": "mysql"}, {"name": "performance_schema"}, {"name": "schema"}, {"name": "shop_go"}, {"name": "sql_join"}, {"name": "ssodb"}, {"name": "yami_shops"}]
@@ -30,6 +30,7 @@ export default defineComponent({
 
     return () => (
       <AppObjectList
+        {...attrs}
         module={databaseAppObject}
         list={sortBy(
           (unref(databases) || []).filter(x => filterName(unref(filter!), x.name)),

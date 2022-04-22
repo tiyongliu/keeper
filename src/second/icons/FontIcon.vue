@@ -2,7 +2,7 @@
   <span :class="[iconNames[icon] || icon, padLeft && 'padLeft', padRight && 'padRight']"
         :title="title"
         :style="style"
-        @click.stop="handleExpand" />
+  />
 </template>
 
 <script lang="ts">
@@ -23,12 +23,12 @@
       padRight: {
         type: String as PropType<string>,
       },
-
       style: {
         type: String as PropType<string>,
       },
     },
-    setup(props) {
+    emits: ['click'],
+    setup(props, {emit}) {
       return {
         iconNames: {
           'icon minus-box': 'mdi mdi-minus-box-outline',
@@ -206,7 +206,7 @@
           'img type-rejson': 'mdi mdi-color-json color-icon-blue',
           'img keydb': 'mdi mdi-key color-icon-blue',
         },
-        ...props
+        ...props,
       }
     }
   })

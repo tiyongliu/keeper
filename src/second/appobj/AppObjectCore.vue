@@ -23,27 +23,30 @@
     <span v-if="extInfo" class="ext-info">
       {{extInfo}}
     </span>
-
-    <span class="pin" v-if="onPin">
-      <FontIcon icon="mdi mdi-pin" @click.stop.prevent="onPin"/>
+    <template v-if="onPin">
+    <span class="pin" @click.stop.prevent="onPin">
+      <FontIcon icon="mdi mdi-pin"/>
     </span>
+    </template>
     <template v-if="onUnpin">
       <span class="pin-active" v-if="showPinnedInsteadOfUnpin">
         <FontIcon icon="icon pin" />
       </span>
-      <span class="unpin" v-else>
-        <FontIcon icon="icon close" @click.stop.prevent="onUnpin"/>
-      </span>
+      <template v-else>
+        <span class="unpin" @click.stop.prevent="onUnpin">
+          <FontIcon icon="icon close"/>
+        </span>
+      </template>
+
     </template>
   </div>
   <slot />
 </template>
 
 <script lang="ts">
-import {defineComponent, PropType, Ref, unref, onMounted} from 'vue'
+import {defineComponent, PropType, Ref, unref, onMounted, toRef, toRefs} from 'vue'
 import FontIcon from '/@/second/icons/FontIcon.vue'
 import {IPinnedDatabasesItem} from '/@/second/types/standard.d'
-import {toRefs} from "@vueuse/shared";
 export default defineComponent({
   name: "AppObjectCore",
   props: {
