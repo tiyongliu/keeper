@@ -2,7 +2,6 @@ import {computed,
   defineComponent,
   PropType,
   unref,
-  toRef,
   toRefs
 } from 'vue'
 import {compact} from 'lodash-es'
