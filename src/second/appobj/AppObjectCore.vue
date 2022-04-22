@@ -43,6 +43,7 @@
 import {defineComponent, PropType, Ref, unref, onMounted} from 'vue'
 import FontIcon from '/@/second/icons/FontIcon.vue'
 import {IPinnedDatabasesItem} from '/@/second/types/standard.d'
+import {toRefs} from "@vueuse/shared";
 export default defineComponent({
   name: "AppObjectCore",
   props: {
@@ -120,7 +121,7 @@ export default defineComponent({
     })
 
     return {
-      ...props,
+      ...toRefs(props),
       handleExpand,
       handleClick
     }
