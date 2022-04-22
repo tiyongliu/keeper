@@ -94,7 +94,7 @@ export default defineComponent({
     watch(() => [unref(expandable), unref(isExpanded)], handle)
 
     return {
-      ...props,
+      ...toRefs(props),
       expandable,
       isExpanded,
       handleExpand,
