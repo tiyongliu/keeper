@@ -1,11 +1,14 @@
-import { defineStore } from "pinia";
-import { store } from "/@/store";
-import { safeJsonParse } from "/@/utils/lib/pkg/stringTools";
+import {defineStore} from "pinia";
+import {store} from "/@/store";
+import {safeJsonParse} from "/@/utils/lib/pkg/stringTools";
 
 interface IVariableBasic {
   selectedWidget: number
   leftPanelWidth: number
   visibleTitleBar: number
+  dynamicProps: {
+    splitterVisible: boolean
+  }
 }
 
 const LEFTPANELWIDTH = "leftPanelWidth";
@@ -16,6 +19,9 @@ export const cssVariableStore = defineStore({
     visibleTitleBar: 0,
     selectedWidget: 1,
     leftPanelWidth: getCssVariableCache(300, LEFTPANELWIDTH),
+    dynamicProps: {
+      splitterVisible: false
+    }
   }),
   getters: {
     getSelectedWidget(): number {
@@ -26,6 +32,9 @@ export const cssVariableStore = defineStore({
     },
     getVisibleTitleBar(): number {
       return this.visibleTitleBar;
+    },
+    getDynamicProps(): { splitterVisible: boolean } {
+      return this.dynamicProps
     }
   },
   actions: {
@@ -40,6 +49,9 @@ export const cssVariableStore = defineStore({
     subscribeCssVariable(value, transform, cssVariable) {
       document.documentElement.style.setProperty(cssVariable, transform(value));
     },
+    subscribeDynamicProps(value: { splitterVisible: boolean }) {
+      this.dynamicProps = value
+    }
   }
 });
 
