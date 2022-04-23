@@ -1,5 +1,5 @@
 <template>
-  <div class="main" :class="isBold && 'isBold'" @click="handleClick">
+  <div class="main" :class="isBold && 'isBold'" @click="handleClick" @mouseup="handleMouseUp">
 
     <span v-if="expandIcon" class="expand-icon" @click.stop="handleExpand">
       <FontIcon :icon="expandIcon"/>
@@ -120,8 +120,15 @@ export default defineComponent({
       emit('click')
     }
 
+    const handleMouseUp = (e) => {
+
+      e.preventDefault()
+      e.stopPropagation()
+    }
+
     onMounted(() => {
     })
+
 
     return {
       ...toRefs(props),
