@@ -24,12 +24,13 @@
     onMounted,
     watch,
     toRefs,
-    reactive,
     unref
   } from 'vue';
   import {isString} from 'lodash-es'
   import WidgetTitle from './WidgetTitle.vue'
   import {setLocalStorage, getLocalStorage} from '/@/second/utility/storageCache'
+
+  import { cssVariableStore } from "/@/store/modules/cssVariable";
 
   export default defineComponent({
     name: "WidgetColumnBarItem",
@@ -62,6 +63,7 @@
       }
     },
     setup(props) {
+      const cssVariable = cssVariableStore()
       const show = ref(true)
       const size = ref(0)
       const visible = ref(false)
@@ -73,9 +75,7 @@
         storageName,
       } = toRefs(props)
 
-      const dynamicProps = reactive({
-        splitterVisible: false,
-      })
+      const dynamicProps = computed(() => cssVariable.getDynamicProps)
 
       const pushWidgetItemDefinition = inject('pushWidgetItemDefinition') as any
       const updateWidgetItemDefinition = inject('updateWidgetItemDefinition') as any
