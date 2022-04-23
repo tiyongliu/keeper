@@ -51,6 +51,8 @@ export default defineComponent({
     const dataBase = dataBaseStore()
 
     const handleConnect = () => {
+      console.log(`165161556`)
+
       if (unref(data!).singleDatabase) {
         dataBase.subscribeCurrentDatabase({connection: data, name: data!.defaultDatabase})
       } else {

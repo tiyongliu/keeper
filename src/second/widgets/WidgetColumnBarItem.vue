@@ -1,11 +1,17 @@
 <template>
   <template v-if="!skip && show">
-    <WidgetTitle>{{ title }}</WidgetTitle>
-    <div class="widgetColumnBarItem wrapper" v-if="visible"
-         :style="dynamicProps.splitterVisible ? `height:${size}px` : 'flex: 1 1 0'">
-      <slot/>
-    </div>
-    <div class="vertical-split-handle" v-splitterDrag="'clientY'"></div>
+    <WidgetTitle @click="visible = !visible">{{ title }}</WidgetTitle>
+    <template v-if="visible">
+      <div class="wrapper" :style="dynamicProps.splitterVisible ? `height:${size}px` : 'flex: 1 1 0'">
+        <slot/>
+      </div>
+
+      <div
+        v-if="dynamicProps.splitterVisible"
+        class="vertical-split-handle"
+        v-splitterDrag="'clientY'"
+        :resizeSplitter="(e) => (size += e.detail)" />
+    </template>
   </template>
 </template>
 
@@ -56,24 +62,16 @@
       }
     },
     setup(props) {
-      const skip = ref(false)
       const show = ref(true)
       const size = ref(0)
       const visible = ref(false)
 
       const {
-        title,
-        name,
+        skip,
         height,
         collapsed,
         storageName,
-      } = unref(props) as unknown as {
-        title: string,
-        name: string,
-        height: string,
-        collapsed: boolean,
-        storageName: string,
-      }
+      } = toRefs(props)
 
       const dynamicProps = reactive({
         splitterVisible: false,
@@ -144,21 +142,18 @@
       //svelte $ https://blog.csdn.net/qq_33325899/article/details/103554590
 
       return {
-        skip,
+        ...toRefs(props),
         show,
-        title: props.title,
-        height: props.height,
         size,
         visible,
-
         dynamicProps,
       }
     }
   })
 </script>
 
-<style>
-  .widgetColumnBarItem.wrapper {
+<style scoped>
+  .wrapper {
     overflow: hidden;
     position: relative;
     flex-direction: column;

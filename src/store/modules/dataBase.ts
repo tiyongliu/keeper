@@ -6,10 +6,7 @@ import {IConnectionAppObjectData, IPinnedDatabasesItem} from '/@/second/types/IS
 import {ExtensionsDirectory} from '/@/second/types/extensions.d'
 interface IVariableBasic {
   openedConnections: string[]
-  currentDatabase: null | {
-    name: string
-    connection: IConnectionAppObjectData
-  },
+  currentDatabase: null | IPinnedDatabasesItem,
   extensions: null | ExtensionsDirectory
   pinnedDatabases: IPinnedDatabasesItem[],
   pinnedTables: []
@@ -25,6 +22,9 @@ export const dataBaseStore = defineStore({
     pinnedTables: getWithStorageVariableCache([], 'pinnedTables'),
   }),
   getters: {
+    getCurrentDatabase(): IPinnedDatabasesItem | null {
+      return this.currentDatabase
+    },
     getPinnedDatabases(): IPinnedDatabasesItem[] {
       return this.pinnedDatabases
     }
@@ -33,7 +33,7 @@ export const dataBaseStore = defineStore({
     subscribeOpenedConnections(value: string[]) {
       this.openedConnections = value
     },
-    subscribeCurrentDatabase(value) {
+    subscribeCurrentDatabase(value: IPinnedDatabasesItem) {
       this.currentDatabase = value
     },
     subscribeExtensions(value: ExtensionsDirectory) {
