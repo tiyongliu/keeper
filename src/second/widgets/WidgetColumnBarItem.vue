@@ -5,7 +5,7 @@
       <div class="wrapper" :style="dynamicProps.splitterVisible ? `height:${size}px` : 'flex: 1 1 0'">
         <slot/>
       </div>
-
+      {{dynamicProps.splitterVisible}}
       <div
         v-if="dynamicProps.splitterVisible"
         class="vertical-split-handle"
