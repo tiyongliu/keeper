@@ -16,7 +16,7 @@ export default defineComponent({
       }>,
     },
   },
-  setup(props, {attrs}) {
+  setup(props) {
     const dataBase = dataBaseStore()
     const {data, passProps} = toRefs(props)
     const isPinned = computed(() => {
@@ -31,7 +31,6 @@ export default defineComponent({
 
     return () => (
       <AppObjectCore
-        {...toRefs(attrs)}
         data={unref(data)}
         title={unref(data)!.name}
         extInfo={unref(data)!.extInfo}
@@ -39,7 +38,7 @@ export default defineComponent({
         isBold={get(unref(currentDatabase), 'connection._id') == get(unref(data)!.connection, '_id') &&
             get(unref(currentDatabase), 'name') == unref(data)!.name
         }
-        onClick={() => dataBase.subscribeCurrentDatabase(unref(data))}
+        onClick={() => dataBase.subscribeCurrentDatabase(unref(data)!)}
         showPinnedInsteadOfUnpin={unref(passProps)?.showPinnedInsteadOfUnpin}
         onPin={unref(isPinned) ? null : () => dataBase.subscribePinnedDatabases(uniqWith([
           ...unref(dataBase.$state.pinnedDatabases),

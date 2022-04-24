@@ -24,13 +24,12 @@
     onMounted,
     watch,
     toRefs,
+    reactive,
     unref
   } from 'vue';
   import {isString} from 'lodash-es'
   import WidgetTitle from './WidgetTitle.vue'
   import {setLocalStorage, getLocalStorage} from '/@/second/utility/storageCache'
-
-  import { cssVariableStore } from "/@/store/modules/cssVariable";
 
   export default defineComponent({
     name: "WidgetColumnBarItem",
@@ -63,7 +62,6 @@
       }
     },
     setup(props) {
-      const cssVariable = cssVariableStore()
       const show = ref(true)
       const size = ref(0)
       const visible = ref(false)
@@ -75,7 +73,9 @@
         storageName,
       } = toRefs(props)
 
-      const dynamicProps = computed(() => cssVariable.getDynamicProps)
+      const dynamicProps = reactive({splitterVisible: false})
+
+      // const dynamicProps = computed(() => cssVariable.getDynamicProps)
 
       const pushWidgetItemDefinition = inject('pushWidgetItemDefinition') as any
       const updateWidgetItemDefinition = inject('updateWidgetItemDefinition') as any
@@ -87,7 +87,7 @@
       }, dynamicProps)
 
       watch(
-        () => updateWidgetItemDefinition,
+        () => [updateWidgetItemDefinition, unref(visible)],
         () => {
           updateWidgetItemDefinition(widgetItemIndex, {
             collapsed: !visible,
@@ -98,27 +98,27 @@
       )
 
       watch(
-        () => [unref(height), unref(widgetColumnBarHeight)],
+        () => [unref(height), unref(widgetColumnBarHeight), unref(visible)],
         () => {
           setInitialSize(unref(height), unref(widgetColumnBarHeight))
         },
       )
 
       watch(
-        () => [unref(storageName), unref(widgetColumnBarHeight)],
-        () => {
+        () => [unref(widgetColumnBarHeight), unref(visible), unref(size)],
+        ([watchHeight, watchVisible, watchSize]) => {
           if (unref(storageName) && unref(widgetColumnBarHeight) > 0) {
-            setLocalStorage(storageName, {
-              relativeHeight: unref(size) / unref(widgetColumnBarHeight),
-              visible: visible.value
+            setLocalStorage(unref(storageName), {
+              relativeHeight: watchSize / watchHeight,
+              visible: watchVisible
             })
           }
         }
       )
 
       function setInitialSize(initialSize, parentHeight) {
-        if (storageName) {
-          const storage = getLocalStorage(storageName)
+        if (unref(storageName)) {
+          const storage = getLocalStorage(unref(storageName))
           if (storage) {
             size.value = parentHeight * storage.relativeHeight;
             return;
@@ -131,10 +131,10 @@
       }
 
       onMounted(() => {
-        if (storageName && getLocalStorage(storageName) && getLocalStorage(storageName).visible != null) {
-          visible.value = getLocalStorage(storageName).visible
+        if (unref(storageName) && getLocalStorage(unref(storageName)) && getLocalStorage(unref(storageName)).visible != null) {
+          visible.value = getLocalStorage(unref(storageName)).visible
         } else {
-          visible.value = !props.collapsed
+          visible.value = !collapsed.value
         }
       })
 

@@ -2,7 +2,7 @@ import { defineStore } from "pinia";
 import { store } from "/@/store";
 
 import {getWithStorageVariableCache, setWithStorageVariableCache} from '../index'
-import {IConnectionAppObjectData, IPinnedDatabasesItem} from '/@/second/types/IStore.d'
+import {IPinnedDatabasesItem} from '/@/second/types/standard.d'
 import {ExtensionsDirectory} from '/@/second/types/extensions.d'
 interface IVariableBasic {
   openedConnections: string[]

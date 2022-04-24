@@ -5,8 +5,7 @@
 </template>
 
 <script lang="ts">
-  import {defineComponent, computed, unref, ref, onMounted, provide, PropType, watch} from 'vue';
-
+  import {defineComponent, computed, unref, ref, onMounted, provide, PropType, watch, toRefs } from 'vue';
   export default defineComponent({
     name: "DatabaseWidget",
     props: {
@@ -26,13 +25,15 @@
 
       provide('widgetColumnBarHeight', widgetColumnBarHeight)
       provide('pushWidgetItemDefinition', (item, dynamicProps) => {
+        console.log(`update pushWidgetItemDefinition line 28 前`)
+
         dynamicPropsCollection.value.push(dynamicProps)
-        definitions.value = [...definitions.value, item];
+        definitions.value = [...unref(definitions), item];
         return definitions.value.length - 1
       })
 
       provide('updateWidgetItemDefinition', (index, item) => {
-        console.log(`更新了`, index, item)
+        console.log(`update updateWidgetItemDefinition line 36 后`, index, item)
         definitions.value[index] = item
       })
 
@@ -43,8 +44,10 @@
 
       function computeDynamicProps(defs: any[]) {
         for (let index = 0; index < defs.length; index++) {
-          // const definition = defs[index];
-          dynamicPropsCollection.value[index].splitterVisible = !!defs.slice(index + 1).find(x => x && !x.collapsed && !x.skip);
+          const definition = defs[index];
+          const splitterVisible = !!defs.slice(index + 1).find(x => unref(x) && !unref(x.collapsed) && !unref(x.skip));
+          console.log(splitterVisible)
+          dynamicPropsCollection.value[index].splitterVisible = splitterVisible
         }
       }
 

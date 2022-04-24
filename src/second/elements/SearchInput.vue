@@ -9,7 +9,7 @@
 </template>
 
 <script lang="ts">
-  import {defineComponent, ref, unref, watch, onBeforeUnmount} from 'vue';
+  import {defineComponent, ref, unref, watch, onBeforeUnmount, toRef} from 'vue';
   import {debounce} from 'lodash-es'
   import keycodes from '/@/second/utility/keycodes'
 
@@ -33,11 +33,7 @@
     setup(props, {emit}) {
       const searchValue = ref<string>('');
       const value = ref<string>('');
-      const {
-        isDebounced,
-      } = unref(props) as unknown as {
-        isDebounced: boolean,
-      }
+      const isDebounced = toRef(props, 'isDebounced')
 
 
       const debouncedSet = debounce(x => (value.value = x), 500)

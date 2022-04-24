@@ -18,7 +18,7 @@
       <!--数据库 table 列表-->
       <template v-if="conid && (database || singleDatabase)">
         <WidgetColumnBarItem
-          title="Connections"
+          title="Tables, views, functions"
           name="dbObjects"
           storageName="dbObjectsWidget">
           <SqlObjectList :conid="conid" :database="database"/>
