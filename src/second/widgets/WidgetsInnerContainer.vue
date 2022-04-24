@@ -2,7 +2,7 @@
   <div class="widgetsInnerContainer"><slot /></div>
 </template>
 
-<style lang="less">
+<style scoped>
   .widgetsInnerContainer {
     flex: 1 1;
     overflow-x: auto;

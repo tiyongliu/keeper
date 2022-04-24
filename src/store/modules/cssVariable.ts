@@ -1,8 +1,10 @@
 import {defineStore} from "pinia";
 import {store} from "/@/store";
 import {safeJsonParse} from "/@/utils/lib/pkg/stringTools";
+import {reactive} from "vue";
 
 interface IVariableBasic {
+  currentDropDownMenu: null
   selectedWidget: number
   leftPanelWidth: number
   visibleTitleBar: number
@@ -11,11 +13,14 @@ interface IVariableBasic {
   }
 }
 
-const LEFTPANELWIDTH = "leftPanelWidth";
+const LEFTPANELWIDTH = "leftPanelWidth"
+
+export const dynamicProps = reactive({splitterVisible: false})
 
 export const cssVariableStore = defineStore({
   id: "app-cssVariable",
   state: (): IVariableBasic => ({
+    currentDropDownMenu: null,
     visibleTitleBar: 0,
     selectedWidget: 1,
     leftPanelWidth: getCssVariableCache(300, LEFTPANELWIDTH),
@@ -51,9 +56,12 @@ export const cssVariableStore = defineStore({
     },
     subscribeDynamicProps(value: { splitterVisible: boolean }) {
       this.dynamicProps = value
+    },
+    subscribeCurrentDropDownMenu() {
+
     }
   }
-});
+})
 
 export function useCssVariableStoreWithOut() {
   return cssVariableStore(store);

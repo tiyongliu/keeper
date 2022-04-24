@@ -5,7 +5,7 @@ import {computed,
   toRefs
 } from 'vue'
 import {compact} from 'lodash-es'
-import AppObjectListItem from './AppObjectListItem.vue'
+import AppObjectListItem from '/@/second/appobj/AppObjectListItem.vue'
 import {createChildMatcher, createMatcher} from './ConnectionAppObject'
 import {Component} from "@vue/runtime-core";
 
