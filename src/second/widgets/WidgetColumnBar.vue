@@ -5,7 +5,7 @@
 </template>
 
 <script lang="ts">
-  import {defineComponent, computed, unref, ref, onMounted, provide, PropType, watch, toRefs } from 'vue';
+  import {defineComponent, computed, unref, ref, onMounted, provide, PropType, watch, toRefs, toRef } from 'vue';
   export default defineComponent({
     name: "DatabaseWidget",
     props: {
@@ -25,7 +25,7 @@
 
       provide('widgetColumnBarHeight', widgetColumnBarHeight)
       provide('pushWidgetItemDefinition', (item, dynamicProps) => {
-        console.log(`update pushWidgetItemDefinition line 28 前`)
+        console.log(`update pushWidgetItemDefinition line 28 前`, item, dynamicProps)
 
         dynamicPropsCollection.value.push(dynamicProps)
         definitions.value = [...unref(definitions), item];
@@ -40,13 +40,15 @@
       watch(
         () => unref(definitions),
         (defs) => computeDynamicProps(defs),
+        {deep: true}
       );
 
       function computeDynamicProps(defs: any[]) {
         for (let index = 0; index < defs.length; index++) {
           const definition = defs[index];
           const splitterVisible = !!defs.slice(index + 1).find(x => unref(x) && !unref(x.collapsed) && !unref(x.skip));
-          console.log(splitterVisible)
+          console.log(index, splitterVisible)
+          console.log(dynamicPropsCollection.value)
           dynamicPropsCollection.value[index].splitterVisible = splitterVisible
         }
       }
