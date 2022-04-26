@@ -5,7 +5,6 @@
       <div class="wrapper" :style="dynamicProps.splitterVisible ? `height:${size}px` : 'flex: 1 1 0'">
         <slot/>
       </div>
-      {{dynamicProps.splitterVisible}}
       <div
         v-if="dynamicProps.splitterVisible"
         class="vertical-split-handle"
@@ -18,18 +17,17 @@
 <script lang="ts">
   import {
     defineComponent,
-    computed,
     inject,
     ref,
     onMounted,
     watch,
     toRefs,
     reactive,
-    unref
+    unref,
   } from 'vue';
   import {isString} from 'lodash-es'
-  import WidgetTitle from './WidgetTitle.vue'
   import {setLocalStorage, getLocalStorage} from '/@/second/utility/storageCache'
+  import WidgetTitle from './WidgetTitle.vue'
 
   export default defineComponent({
     name: "WidgetColumnBarItem",
@@ -75,8 +73,6 @@
 
       const dynamicProps = reactive({splitterVisible: false})
 
-      // const dynamicProps = computed(() => cssVariable.getDynamicProps)
-
       const pushWidgetItemDefinition = inject('pushWidgetItemDefinition') as any
       const updateWidgetItemDefinition = inject('updateWidgetItemDefinition') as any
       const widgetColumnBarHeight = inject('widgetColumnBarHeight') as any
@@ -87,10 +83,10 @@
       }, dynamicProps)
 
       watch(
-        () => [updateWidgetItemDefinition, unref(visible)],
-        () => {
+        () => [updateWidgetItemDefinition, unref(visible), unref(skip), unref(show)],
+        ([_, watchVisible]) => {
           updateWidgetItemDefinition(widgetItemIndex, {
-            collapsed: !visible,
+            collapsed: !watchVisible,
             height,
             skip: skip || !show
           })

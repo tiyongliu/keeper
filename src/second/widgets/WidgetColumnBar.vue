@@ -5,9 +5,9 @@
 </template>
 
 <script lang="ts">
-  import {defineComponent, computed, unref, ref, onMounted, provide, PropType, watch, toRefs, toRef } from 'vue';
+  import {defineComponent, unref, ref, onMounted, provide, PropType, reactive } from 'vue';
   export default defineComponent({
-    name: "DatabaseWidget",
+    name: "WidgetColumnBar",
     props: {
       hidden: {
         type: [Boolean] as PropType<boolean>,
@@ -20,36 +20,25 @@
       const hidden = ref(false)
       const widgetColumnBarHeight = ref(0)
 
-      const definitions = ref<{ collapsed: boolean, height: number, skip: boolean }[]>([])
-      const dynamicPropsCollection = ref<{ splitterVisible: boolean }[]>([])
+      let definitions = reactive<{ collapsed: boolean, height: number, skip: boolean }[]>([])
+      let dynamicPropsCollection = reactive<{ splitterVisible: boolean }[]>([])
 
       provide('widgetColumnBarHeight', widgetColumnBarHeight)
       provide('pushWidgetItemDefinition', (item, dynamicProps) => {
-        console.log(`update pushWidgetItemDefinition line 28 前`, item, dynamicProps)
-
-        dynamicPropsCollection.value.push(dynamicProps)
-        definitions.value = [...unref(definitions), item];
-        return definitions.value.length - 1
+        dynamicPropsCollection.push(dynamicProps)
+        definitions = [...unref(definitions), item];
+        return definitions.length - 1
       })
 
       provide('updateWidgetItemDefinition', (index, item) => {
-        console.log(`update updateWidgetItemDefinition line 36 后`, index, item)
-        definitions.value[index] = item
+        definitions[index] = item
+        computeDynamicProps(definitions)
       })
-
-      watch(
-        () => unref(definitions),
-        (defs) => computeDynamicProps(defs),
-        {deep: true}
-      );
 
       function computeDynamicProps(defs: any[]) {
         for (let index = 0; index < defs.length; index++) {
-          const definition = defs[index];
-          const splitterVisible = !!defs.slice(index + 1).find(x => unref(x) && !unref(x.collapsed) && !unref(x.skip));
-          console.log(index, splitterVisible)
-          console.log(dynamicPropsCollection.value)
-          dynamicPropsCollection.value[index].splitterVisible = splitterVisible
+          dynamicPropsCollection[index].splitterVisible = !!defs.slice(index + 1).
+          find(x => unref(x) && !unref(x.collapsed) && !unref(x.skip));
         }
       }
 
