@@ -84,11 +84,11 @@
 
       watch(
         () => [updateWidgetItemDefinition, unref(visible), unref(skip), unref(show)],
-        ([_, watchVisible]) => {
+        ([_, watchVisible, watchSkip, watchShow]) => {
           updateWidgetItemDefinition(widgetItemIndex, {
             collapsed: !watchVisible,
             height,
-            skip: skip || !show
+            skip: watchSkip || !watchShow
           })
         },
       )

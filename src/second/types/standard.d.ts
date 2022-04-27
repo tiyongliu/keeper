@@ -17,7 +17,7 @@ export interface IConnectionAppObjectData {
 
   singleDatabase?: string
 
-  defaultDatabase?: string
+  defaultDatabase: string
 
   isReadOnly?: boolean
 }

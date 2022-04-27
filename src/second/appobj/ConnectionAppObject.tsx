@@ -9,7 +9,7 @@ import {buildExtensions} from '/@/second/plugins/PluginsProvider'
 import AppObjectCore from '/@/second/appobj/AppObjectCore.vue'
 import getConnectionLabel from '/@/second/utility/getConnectionLabel'
 
-import {IConnectionAppObjectData} from '/@/second/types/standard.d'
+import {IConnectionAppObjectData, IPinnedDatabasesItem} from '/@/second/types/standard.d'
 export default defineComponent({
   props: {
     data: {
@@ -41,7 +41,7 @@ export default defineComponent({
     AppObjectCore
   },
   setup(props) {
-    const {data, extInfo, engineStatusIcon, engineStatusTitle, statusIcon, statusTitle} = props
+    const {data, extInfo, engineStatusIcon, engineStatusTitle, statusIcon, statusTitle} = toRefs(props)
 
     let statusTitleRef = ref()
     let statusIconRef = ref()
@@ -51,24 +51,20 @@ export default defineComponent({
     const dataBase = dataBaseStore()
 
     const handleConnect = () => {
-      console.log(`165161556`)
+      alert(`handleConnect`)
 
-      if (unref(data!).singleDatabase) {
-        dataBase.subscribeCurrentDatabase({connection: data, name: data!.defaultDatabase})
+      if (unref(data)!.singleDatabase) {
+        dataBase.subscribeCurrentDatabase({connection: unref(data)!, name: unref(data)!.defaultDatabase} as unknown as IPinnedDatabasesItem)
       } else {
-        dataBase.subscribeOpenedConnections(uniq([... dataBase.$state.openedConnections, data!._id]))
+        dataBase.subscribeOpenedConnections(uniq([... dataBase.$state.openedConnections, unref(data)!._id]))
       }
-    }
-
-    const getContextMenu = () => {
-
     }
 
     watch(() => unref(dataBase.$state.extensions), () => watchExtensions())
 
     const watchExtensions = () => {
-        const match = (data!.engine || '').match(/^([^@]*)@/)
-        extInfoRef.value = match ? match[1] : data!.engine;
+        const match = (unref(data)!.engine || '').match(/^([^@]*)@/)
+        extInfoRef.value = match ? match[1] : unref(data)!.engine;
         engineStatusIconRef.value = null
         engineStatusTitleRef.value = null
 
@@ -120,18 +116,18 @@ export default defineComponent({
 
     return () => {
       return <AppObjectCore
-        data={data}
-        title={getConnectionLabel(data)}
-        icon={data!.singleDatabase ? 'img database' : 'img server'}
-        isBold={data!.singleDatabase
-          ? get(unref(currentDatabase), 'connection._id') == data!._id && get(unref(currentDatabase), 'name') == data!.defaultDatabase
-          : get(unref(currentDatabase), 'connection._id') == data!._id}
+        data={unref(data) as unknown as IPinnedDatabasesItem}
+        title={getConnectionLabel(unref(data))}
+        icon={unref(data)!.singleDatabase ? 'img database' : 'img server'}
+        isBold={unref(data)!.singleDatabase
+          ? get(unref(currentDatabase), 'connection._id') == unref(data)!._id && get(unref(currentDatabase), 'name') == unref(data)!.defaultDatabase
+          : get(unref(currentDatabase), 'connection._id') == unref(data)!._id}
 
         // statusIcon={unref(statusIconRef) || unref(engineStatusIconRef)}
         statusIcon={`img ok`}
 
         statusTitle={unref(statusTitleRef) || unref(engineStatusTitleRef)}
-        statusIconBefore={data!.isReadOnly ? 'icon lock' : undefined}
+        // statusIconBefore={data!.isReadOnly ? 'icon lock' : null}
         extInfo={extInfoRef}
         onClick={handleConnect}
       />
