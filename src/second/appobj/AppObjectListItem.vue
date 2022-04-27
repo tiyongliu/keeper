@@ -8,6 +8,10 @@
       :expandIcon="getExpandIcon(!isExpandedBySearch && expandable, subItemsComponent, isExpanded, expandIconFunc)"
       :passProps="passProps"
     />
+
+    <span>isExpanded: {{ isExpanded }}</span> /
+    <span>isExpandedBySearch: {{ isExpandedBySearch }}</span> /
+    {{ subItemsComponent }}
     <div class="subitems" v-if="(isExpanded || isExpandedBySearch) && subItemsComponent">
       <component :is="subItemsComponent" :data="data" :filter="filter" :passProps="passProps" />
     </div>
@@ -76,8 +80,8 @@ export default defineComponent({
     async function handleExpand() {
       alert(`handleExpand-handleExpand`)
       if (unref(subItemsComponent) && unref(expandOnClick)) {
-        debugger
         isExpanded.value = !isExpanded.value
+        console.log(isExpanded.value, `1111`)
       }
     }
 
@@ -90,7 +94,8 @@ export default defineComponent({
       console.log(`isExpanded`, unref(isExpanded))
       console.log(`isExpandedBySearch`, unref(isExpandedBySearch))
       console.log(`subItemsComponent`, unref(subItemsComponent))
-      if (watchExpandable && watchIsExpanded) {
+      if (!watchExpandable && watchIsExpanded) {
+        debugger
         isExpanded.value = false
       }
     })
