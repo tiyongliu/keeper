@@ -32,7 +32,7 @@ export default defineComponent({
       type: Boolean as unknown as PropType<boolean>,
     },
     isExpandedBySearch: {
-      type: Boolean as unknown as PropType<boolean>,
+      type: Boolean as PropType<boolean>,
       default: false
     },
     isExpandable: {
@@ -66,7 +66,7 @@ export default defineComponent({
     ConnectionAppObject
   },
   setup(props) {
-    const {data, isExpandable, subItemsComponent, expandOnClick} = toRefs(props)
+    const {data, isExpandable, subItemsComponent, expandOnClick, isExpandedBySearch} = toRefs(props)
 
     const isExpanded = ref(false)
 
@@ -74,10 +74,10 @@ export default defineComponent({
     const expandable = computed(() => unref(data) && unref(isExpandable))
 
     async function handleExpand() {
+      alert(`handleExpand-handleExpand`)
       if (unref(subItemsComponent) && unref(expandOnClick)) {
-        await nextTick(() => {
-          isExpanded.value = !isExpanded.value
-        })
+        debugger
+        isExpanded.value = !isExpanded.value
       }
     }
 
@@ -85,13 +85,19 @@ export default defineComponent({
       isExpanded.value = !isExpanded.value
     }
 
-    const handle = () => {
-      if (unref(expandable) && unref(isExpandable)) {
+    watch(() => [unref(expandable), unref(isExpanded)], (watchExpandable, watchIsExpanded) => {
+      alert(`all`)
+      console.log(`isExpanded`, unref(isExpanded))
+      console.log(`isExpandedBySearch`, unref(isExpandedBySearch))
+      console.log(`subItemsComponent`, unref(subItemsComponent))
+      if (watchExpandable && watchIsExpanded) {
         isExpanded.value = false
       }
-    }
+    })
 
-    watch(() => [unref(expandable), unref(isExpanded)], handle)
+    watch(() => [unref(isExpandedBySearch), unref(isExpandable)], (a, b) => {
+      console.log(a, b)
+    })
 
     return {
       ...toRefs(props),

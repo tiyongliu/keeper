@@ -1,4 +1,4 @@
-import {defineComponent, PropType, toRefs} from 'vue';
+import {defineComponent, PropType, toRefs, unref} from 'vue';
 import InlineButton from '/@/second/buttons/InlineButton.vue'
 import FontIcon from '/@/second/icons/FontIcon.vue'
 import {cssVariableStore} from '/@/store/modules/cssVariable'
@@ -33,8 +33,8 @@ export default defineComponent({
     }
 
     return () => (
-      <InlineButton square narrow={narrow} onClick={handleClick}>
-        <FontIcon icon={icon}/>
+      <InlineButton square narrow={unref(narrow)} onClick={handleClick}>
+        <FontIcon icon={unref(icon)}/>
       </InlineButton>
     )
   }

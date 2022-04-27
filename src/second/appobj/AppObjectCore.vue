@@ -110,18 +110,25 @@ export default defineComponent({
   },
   emits: ['click', 'expand'],
   setup(props, {emit}) {
+    //todo
+    let checkedObjectsStore = null
+
     const handleExpand = () => {
       //todo dispatch('expand');
       emit('expand')
     }
 
     const handleClick = () => {
-      //todo if (checkedObjectsStore) {
-      emit('click')
+      alert(`handleClick`)
+      if (checkedObjectsStore) {
+
+      } else {
+        emit('click')
+      }
+
     }
 
     const handleMouseUp = (e) => {
-
       e.preventDefault()
       e.stopPropagation()
     }
@@ -133,7 +140,8 @@ export default defineComponent({
     return {
       ...toRefs(props),
       handleExpand,
-      handleClick
+      handleClick,
+      handleMouseUp
     }
   }
 })

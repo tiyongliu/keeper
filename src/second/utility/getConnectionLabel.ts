@@ -6,6 +6,7 @@ export function getDatabaseFileLabel(databaseFile) {
 }
 
 export default function getConnectionLabel(connection, { allowExplicitDatabase = true } = {}) {
+  console.log(connection, `conn`)
   if (!connection) {
     return null;
   }

@@ -31,6 +31,7 @@ export const dataBaseStore = defineStore({
   },
   actions: {
     subscribeOpenedConnections(value: string[]) {
+      console.log(value, `value`)
       this.openedConnections = value
     },
     subscribeCurrentDatabase(value: IPinnedDatabasesItem) {
