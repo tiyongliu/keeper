@@ -40,11 +40,11 @@ export default defineComponent({
       default: false
     },
     isExpandable: {
-      type: Function as PropType<IIsExpandable>,
+      type: Function as PropType<(IPinnedDatabasesItem) => any>,
       default: undefined
     },
     expandIconFunc: {
-      type: [Function, Boolean] as PropType<(isExpanded: boolean) => string>,
+      type: Function as PropType<(isExpanded: boolean) => string>,
       default: plusExpandIcon
     },
     expandOnClick: {
@@ -71,14 +71,13 @@ export default defineComponent({
   },
   setup(props) {
     const {data, isExpandable, subItemsComponent, expandOnClick, isExpandedBySearch} = toRefs(props)
+    console.log(isExpandedBySearch, `isExpandedBySearch-isExpandedBySearch`)
 
     const isExpanded = ref(false)
 
-    // const expandable = computed(() => unref(data) && unref(isExpandable) && isExpandable(data))
-    const expandable = computed(() => unref(data) && unref(isExpandable))
+    const expandable = computed(() => unref(data) && unref(isExpandable) && unref(isExpandable)!(data))
 
     async function handleExpand() {
-      alert(`handleExpand-handleExpand`)
       if (unref(subItemsComponent) && unref(expandOnClick)) {
         isExpanded.value = !isExpanded.value
         console.log(isExpanded.value, `1111`)
@@ -89,20 +88,14 @@ export default defineComponent({
       isExpanded.value = !isExpanded.value
     }
 
-    watch(() => [unref(expandable), unref(isExpanded)], (watchExpandable, watchIsExpanded) => {
-      alert(`all`)
-      console.log(`isExpanded`, unref(isExpanded))
-      console.log(`isExpandedBySearch`, unref(isExpandedBySearch))
-      console.log(`subItemsComponent`, unref(subItemsComponent))
+    watch(
+      () => [unref(expandable), unref(isExpanded)],
+      (watchExpandable, watchIsExpanded) => {
       if (!watchExpandable && watchIsExpanded) {
-        debugger
         isExpanded.value = false
       }
     })
 
-    watch(() => [unref(isExpandedBySearch), unref(isExpandable)], (a, b) => {
-      console.log(a, b)
-    })
 
     return {
       ...toRefs(props),
