@@ -40,7 +40,7 @@ export default defineComponent({
   components: {
     AppObjectCore
   },
-  setup(props) {
+  setup(props, {attrs}) {
     const {data, extInfo, engineStatusIcon, engineStatusTitle, statusIcon, statusTitle} = toRefs(props)
 
     let statusTitleRef = ref()
@@ -116,6 +116,7 @@ export default defineComponent({
 
     return () => {
       return <AppObjectCore
+        {...attrs}
         data={unref(data) as unknown as IPinnedDatabasesItem}
         title={getConnectionLabel(unref(data))}
         icon={unref(data)!.singleDatabase ? 'img database' : 'img server'}

@@ -30,7 +30,7 @@ export default defineComponent({
       type: String as PropType<string>,
     },
     expandIconFunc: {
-      type: [Function, Boolean] as PropType<(isExpanded: boolean) => string>,
+      type: Function as PropType<(isExpanded: boolean) => string>,
     },
     passProps: {
       type: Object as unknown as PropType<{
@@ -56,7 +56,6 @@ export default defineComponent({
       expandIconFunc,
       module
     } = toRefs(props)
-
 
     const filtered = computed(() => {
       return !unref(groupFunc) ? (unref(list)!).filter(data => {
