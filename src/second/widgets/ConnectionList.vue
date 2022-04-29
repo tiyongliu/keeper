@@ -14,8 +14,8 @@
     <AppObjectList
       :list="sortBy(connectionsWithStatus, connection => (getConnectionLabel(connection) || '').toUpperCase())"
       :filter="filter"
-      :module="`connectionAppObject`"
-      :subItemsComponent="`SubDatabaseList`"
+      :module="connectionAppObject"
+      :subItemsComponent="SubDatabaseList"
       expandOnClick
       :isExpandable="(data) => openedConnections.includes(data._id) && !data.singleDatabase"
       :passProps="{showPinnedInsteadOfUnpin: true}"
@@ -24,20 +24,18 @@
 </template>
 
 <script lang="ts">
-import {defineComponent, onMounted, ref} from 'vue';
+import {defineComponent, ref} from 'vue'
 import {sortBy} from 'lodash-es'
-import SearchBoxWrapper from './SearchBoxWrapper.vue'
-import WidgetsInnerContainer from './WidgetsInnerContainer.vue'
+import SearchBoxWrapper from '/@/second/widgets/SearchBoxWrapper.vue'
+import WidgetsInnerContainer from '/@/second/widgets//WidgetsInnerContainer.vue'
 import SearchInput from '/@/second/elements/SearchInput.vue'
 import CloseSearchButton from '/@/second/buttons/CloseSearchButton.vue'
 import InlineButton from '/@/second/buttons/InlineButton.vue'
-// import AppObjectList from '/@/second/appobj/AppObjectList.vue'
 import AppObjectList from '/@/second/appobj/AppObjectList'
 import FontIcon from '/@/second/icons/FontIcon.vue'
 import getConnectionLabel from '/@/second/utility/getConnectionLabel'
 import ConnectionAppObject from '/@/second/appobj/ConnectionAppObject'
 import SubDatabaseList from '/@/second/appobj/SubDatabaseList'
-
 
 import {dataBaseStore} from '/@/store/modules/dataBase'
 
@@ -51,8 +49,6 @@ export default defineComponent({
     InlineButton,
     AppObjectList,
     FontIcon,
-    connectionAppObject: ConnectionAppObject,
-    SubDatabaseList
   },
   setup() {
     const hidden = ref(false)
@@ -71,9 +67,6 @@ export default defineComponent({
       "status": {"name": "ok"}
     }]
 
-    onMounted(() => {
-    })
-
     return {
       openedConnections: dataBase.$state.openedConnections,
       hidden,
@@ -81,6 +74,8 @@ export default defineComponent({
       connectionsWithStatus,
       sortBy,
       getConnectionLabel,
+      connectionAppObject: ConnectionAppObject,
+      SubDatabaseList
     }
   }
 })

@@ -7,9 +7,8 @@ import {computed,
 import {compact} from 'lodash-es'
 import AppObjectListItem from '/@/second/appobj/AppObjectListItem.vue'
 import {createChildMatcher, createMatcher} from './ConnectionAppObject'
-import {Component} from "@vue/runtime-core";
-
 import {IIsExpandable, IPinnedDatabasesItem} from '/@/second/types/standard.d'
+import {Component} from "@vue/runtime-core";
 export default defineComponent({
   name: "DatabaseWidget",
   props: {
@@ -38,10 +37,10 @@ export default defineComponent({
       }>,
     },
     module: {
-      type: [Object, String] as PropType<string | Component>,
+      type: [String, Object] as PropType<string | Component>,
     },
     subItemsComponent: {
-      type: [Object, String] as PropType<string | Component>,
+      type: [String, Object] as PropType<string | Component>,
     },
   },
   setup(props) {
@@ -83,16 +82,19 @@ export default defineComponent({
     })
 
     return () => (list.value || []).map(data => {
+      console.log(list.value, `;list;`)
+      console.log(subItemsComponent.value, `;subItemsComponent;`)
       return <AppObjectListItem
         isHidden={!(filtered.value as IPinnedDatabasesItem[]).includes(data)}
         module={unref(module)}
         subItemsComponent={unref(subItemsComponent)}
+        expandOnClick={unref(expandOnClick)}
         data={unref(data)}
         isExpandable={unref(isExpandable)}
 
         expandIconFunc={unref(expandIconFunc)}
+        filter={unref(filter)}
         isExpandedBySearch={(childrenMatched.value as IPinnedDatabasesItem[]).includes(data)}
-        expandOnClick={unref(expandOnClick)}
         passProps={unref(passProps)}
       />
     })
