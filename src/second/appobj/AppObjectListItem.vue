@@ -9,23 +9,23 @@
       :passProps="passProps"
     />
 
-    <span>isExpanded: {{ isExpanded }}</span> /
-    <span>isExpandedBySearch: {{ isExpandedBySearch }}</span> /
-    {{ subItemsComponent }}
-    <div class="subitems" v-if="(isExpanded || isExpandedBySearch) && subItemsComponent">
-      <component :is="subItemsComponent" :data="data" :filter="filter" :passProps="passProps" />
-    </div>
+    <span>isExpandedBySearch: {{ isExpandedBySearch }}</span>
+
+    <template v-if="(isExpanded || isExpandedBySearch) && subItemsComponent">
+      <div class="subitems">
+        <component :is="subItemsComponent" :data="data" :filter="filter" :passProps="passProps"/>
+      </div>
+    </template>
   </template>
 </template>
 
 <script lang="ts">
-import {computed, defineComponent, PropType, unref, watch, ref, nextTick, onMounted, toRefs} from 'vue'
+import {computed, defineComponent, PropType, ref, toRefs, unref, watch} from 'vue'
 import {Component} from '@vue/runtime-core/dist/runtime-core'
-import SubDatabaseList from './SubDatabaseList'
-import ConnectionAppObject from './ConnectionAppObject'
-import { plusExpandIcon } from '/@/second/icons/expandIcons';
-import {IIsExpandable, IPinnedDatabasesItem} from '/@/second/types/standard.d'
+import {plusExpandIcon} from '/@/second/icons/expandIcons';
+import {IPinnedDatabasesItem} from '/@/second/types/standard.d'
 import {getExpandIcon} from './module'
+
 export default defineComponent({
   name: "AppObjectListItem",
   props: {
@@ -57,22 +57,14 @@ export default defineComponent({
       type: [Object, String] as PropType<string | Component>,
     },
     passProps: {
-      type: Object as unknown as PropType<{
-        showPinnedInsteadOfUnpin: boolean
-      }>,
+      type: Object as unknown as PropType<{ showPinnedInsteadOfUnpin: boolean }>,
     },
     filter: {
       type: String as PropType<string>,
     }
   },
-  components: {
-    SubDatabaseList,
-    ConnectionAppObject
-  },
   setup(props) {
-    const {data, isExpandable, subItemsComponent, expandOnClick, isExpandedBySearch} = toRefs(props)
-    console.log(isExpandedBySearch, `isExpandedBySearch-isExpandedBySearch`)
-
+    const {data, isExpandable, subItemsComponent, expandOnClick} = toRefs(props)
     const isExpanded = ref(false)
 
     const expandable = computed(() => unref(data) && unref(isExpandable) && unref(isExpandable)!(data))
@@ -80,7 +72,6 @@ export default defineComponent({
     async function handleExpand() {
       if (unref(subItemsComponent) && unref(expandOnClick)) {
         isExpanded.value = !isExpanded.value
-        console.log(isExpanded.value, `1111`)
       }
     }
 
@@ -91,10 +82,10 @@ export default defineComponent({
     watch(
       () => [unref(expandable), unref(isExpanded)],
       (watchExpandable, watchIsExpanded) => {
-      if (!watchExpandable && watchIsExpanded) {
-        isExpanded.value = false
-      }
-    })
+        if (!watchExpandable && watchIsExpanded) {
+          isExpanded.value = false
+        }
+      })
 
 
     return {

@@ -116,7 +116,6 @@ export default defineComponent({
 
     return () => {
       return <AppObjectCore
-        {...attrs}
         data={unref(data) as unknown as IPinnedDatabasesItem}
         title={getConnectionLabel(unref(data))}
         icon={unref(data)!.singleDatabase ? 'img database' : 'img server'}
