@@ -26,7 +26,7 @@ export default defineComponent({
 
     return () => (
       <AppObjectCore
-        {...unref(attrs)}
+        {...attrs}
         title={unref(data)!.name}
         extInfo={unref(data)!.extInfo}
         icon="img database"
@@ -45,7 +45,6 @@ export default defineComponent({
           )
         } : null}
       />
-
     )
   }
 })
