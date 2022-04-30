@@ -27,7 +27,6 @@ export default defineComponent({
     const databases = computed((): { name: string, sortOrder?: string }[] => {
       return [{"name": "crmeb"}, {"name": "erd"}, {"name": "information_schema"}, {"name": "kb-dms"}, {"name": "mallplusbak"}, {"name": "mysql"}, {"name": "performance_schema"}, {"name": "schema"}, {"name": "shop_go"}, {"name": "sql_join"}, {"name": "ssodb"}, {"name": "yami_shops"}]
     })
-
     return () => (
       <AppObjectList
         module={databaseAppObject}

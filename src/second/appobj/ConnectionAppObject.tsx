@@ -1,16 +1,14 @@
 import {computed, defineComponent, onMounted, PropType, unref, watch, ref, toRefs} from 'vue'
 import {getLocalStorage} from '/@/second/utility/storageCache'
 import {filterName} from "/@/packages/tools/src/filterName";
-import { dataBaseStore } from "/@/store/modules/dataBase";
+import { dataBaseStore } from "/@/store/modules/dataBase"
 import {uniq, get} from 'lodash-es'
-
-import {buildExtensions} from '/@/second/plugins/PluginsProvider'
-
 import AppObjectCore from '/@/second/appobj/AppObjectCore.vue'
 import getConnectionLabel from '/@/second/utility/getConnectionLabel'
 
 import {IConnectionAppObjectData, IPinnedDatabasesItem} from '/@/second/types/standard.d'
 export default defineComponent({
+  name: 'ConnectionAppObject',
   props: {
     data: {
       type: Object as PropType<IConnectionAppObjectData>,
@@ -35,14 +33,10 @@ export default defineComponent({
     },
     engineStatusTitle: {
       type: String as PropType<string>
-    }
-  },
-  components: {
-    AppObjectCore
+    },
   },
   setup(props, {attrs}) {
     const {data, extInfo, engineStatusIcon, engineStatusTitle, statusIcon, statusTitle} = toRefs(props)
-
     let statusTitleRef = ref()
     let statusIconRef = ref()
     let extInfoRef = ref()
@@ -51,8 +45,6 @@ export default defineComponent({
     const dataBase = dataBaseStore()
 
     const handleConnect = () => {
-      alert(`handleConnect`)
-
       if (unref(data)!.singleDatabase) {
         dataBase.subscribeCurrentDatabase({connection: unref(data)!, name: unref(data)!.defaultDatabase} as unknown as IPinnedDatabasesItem)
       } else {
@@ -115,8 +107,10 @@ export default defineComponent({
     const currentDatabase = computed(() => dataBase.$state.currentDatabase)
 
     return () => {
-      return <AppObjectCore
-        data={unref(data) as unknown as IPinnedDatabasesItem}
+      const {onClick, onExpand, ...restProps} = attrs
+       return <AppObjectCore
+         {...restProps}
+        data={unref(data) as IPinnedDatabasesItem}
         title={getConnectionLabel(unref(data))}
         icon={unref(data)!.singleDatabase ? 'img database' : 'img server'}
         isBold={unref(data)!.singleDatabase
@@ -142,7 +136,9 @@ export const createMatcher = props => filter => {
   return filterName(filter, displayName, server, ...databases.map(x => x.name));
 };
 export const createChildMatcher = props => filter => {
-  if (!filter) return false;
+  if (!filter) {
+    return false;
+  }
   const { _id } = props;
   const databases = getLocalStorage(`database_list_${_id}`) || [];
   return filterName(filter, ...databases.map(x => x.name));

@@ -1,8 +1,11 @@
-import {computed,
+import {
+  onMounted,
+  computed,
   defineComponent,
   PropType,
   unref,
-  toRefs
+  toRefs,
+  watch
 } from 'vue'
 import {compact} from 'lodash-es'
 import AppObjectListItem from '/@/second/appobj/AppObjectListItem.vue'
@@ -32,7 +35,7 @@ export default defineComponent({
       type: Function as PropType<(isExpanded: boolean) => string>,
     },
     passProps: {
-      type: Object as unknown as PropType<{
+      type: Object as PropType<{
         showPinnedInsteadOfUnpin: boolean
       }>,
     },
@@ -46,8 +49,8 @@ export default defineComponent({
   setup(props) {
     const {
       groupFunc,
-      filter,
       list,
+      filter,
       isExpandable,
       expandOnClick,
       passProps,
@@ -58,16 +61,16 @@ export default defineComponent({
 
     const filtered = computed(() => {
       return !unref(groupFunc) ? (unref(list)!).filter(data => {
-        const matcher = createMatcher && createMatcher(data);
-        if (matcher && !matcher(filter)) return false;
-        return true;
+        const matcher =  createMatcher && createMatcher(data);
+        if (matcher && !matcher(filter)) return false
+        return true
       }) : null
     })
 
     const childrenMatched = computed(() => {
       return !unref(groupFunc) ? (unref(list)!).filter(data => {
         const matcher = createChildMatcher && createChildMatcher(data)
-        if (matcher && !matcher(filter)) return false;
+        if (matcher && !matcher(filter.value)) return false
         return true
       }) : null
     })
@@ -76,20 +79,18 @@ export default defineComponent({
       unref(groupFunc) ? compact(
         ((unref(list)!) || []).map(data => {
           const matcher = createMatcher && createMatcher(data);
-          const isMatched = matcher && !matcher(filter) ? false : true;
+          const isMatched = matcher && !matcher(filter.value) ? false : true;
         })
       ) : null
     })
 
     return () => (list.value || []).map(data => {
-      console.log(list.value, `;list;`)
-      console.log(subItemsComponent.value, `;subItemsComponent;`)
       return <AppObjectListItem
         isHidden={!(filtered.value as IPinnedDatabasesItem[]).includes(data)}
         module={unref(module)}
         subItemsComponent={unref(subItemsComponent)}
         expandOnClick={unref(expandOnClick)}
-        data={unref(data)}
+        data={data}
         isExpandable={unref(isExpandable)}
 
         expandIconFunc={unref(expandIconFunc)}
