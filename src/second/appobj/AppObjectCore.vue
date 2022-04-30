@@ -44,7 +44,7 @@
 </template>
 
 <script lang="ts">
-import {defineComponent, PropType, Ref, unref, onMounted, toRef, toRefs} from 'vue'
+import {defineComponent, PropType, Ref, readonly, unref, onMounted, toRef, toRefs} from 'vue'
 import FontIcon from '/@/second/icons/FontIcon.vue'
 import {IPinnedDatabasesItem} from '/@/second/types/standard.d'
 export default defineComponent({
@@ -119,7 +119,6 @@ export default defineComponent({
     }
 
     const handleClick = () => {
-      alert(`handleClick`)
       if (checkedObjectsStore) {
 
       } else {
@@ -135,7 +134,6 @@ export default defineComponent({
 
     onMounted(() => {
     })
-
 
     return {
       ...toRefs(props),

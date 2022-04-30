@@ -1,9 +1,8 @@
-import {defineComponent, unref, computed, PropType, watch, toRefs} from 'vue'
+import {defineComponent, unref, computed, PropType, toRefs} from 'vue'
 import { isEqual, uniqWith, get } from 'lodash-es'
 import AppObjectCore from './AppObjectCore.vue'
 import { dataBaseStore } from "/@/store/modules/dataBase";
 import {IPinnedDatabasesItem} from "/@/second/types/standard.d";
-export const extractKey = props => props.name
 export default defineComponent({
   name: 'DatabaseAppObject',
   props: {
@@ -11,12 +10,12 @@ export default defineComponent({
       type: Object as PropType<IPinnedDatabasesItem>,
     },
     passProps: {
-      type: Object as unknown as PropType<{
+      type: Object as PropType<{
         showPinnedInsteadOfUnpin: boolean
       }>,
     },
   },
-  setup(props) {
+  setup(props, {attrs}) {
     const dataBase = dataBaseStore()
     const {data, passProps} = toRefs(props)
     const isPinned = computed(() => {
@@ -25,13 +24,9 @@ export default defineComponent({
 
     const currentDatabase = computed(() => dataBase.getCurrentDatabase)
 
-    watch(props, () => {
-      console.log(unref(props), ` unref(list)     00     unref(list)`)
-    })
-
     return () => (
       <AppObjectCore
-        data={unref(data)}
+        {...unref(attrs)}
         title={unref(data)!.name}
         extInfo={unref(data)!.extInfo}
         icon="img database"

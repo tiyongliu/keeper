@@ -8,19 +8,14 @@
       :expandIcon="getExpandIcon(!isExpandedBySearch && expandable, subItemsComponent, isExpanded, expandIconFunc)"
       :passProps="passProps"
     />
-
-    <span>isExpandedBySearch: {{ isExpandedBySearch }}</span>
-
-    <template v-if="(isExpanded || isExpandedBySearch) && subItemsComponent">
-      <div class="subitems">
-        <component :is="subItemsComponent" :data="data" :filter="filter" :passProps="passProps"/>
-      </div>
-    </template>
+    <div class="subitems" v-if="(isExpanded || isExpandedBySearch) && subItemsComponent">
+      <component :is="subItemsComponent" :data="data" :filter="filter" :passProps="passProps"/>
+    </div>
   </template>
 </template>
 
 <script lang="ts">
-import {computed, defineComponent, PropType, ref, toRefs, unref, watch} from 'vue'
+import {computed, defineComponent, PropType, ref, toRefs, unref, watch, nextTick} from 'vue'
 import {Component} from '@vue/runtime-core/dist/runtime-core'
 import {plusExpandIcon} from '/@/second/icons/expandIcons';
 import {IPinnedDatabasesItem} from '/@/second/types/standard.d'
@@ -80,7 +75,7 @@ export default defineComponent({
     }
 
     watch(
-      () => [unref(expandable), unref(isExpanded)],
+      () => [expandable.value, isExpanded.value],
       (watchExpandable, watchIsExpanded) => {
         if (!watchExpandable && watchIsExpanded) {
           isExpanded.value = false
