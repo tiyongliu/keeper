@@ -1,11 +1,9 @@
 import {
-  onMounted,
   computed,
   defineComponent,
   PropType,
   unref,
   toRefs,
-  watch
 } from 'vue'
 import {compact} from 'lodash-es'
 import AppObjectListItem from '/@/second/appobj/AppObjectListItem.vue'
@@ -51,13 +49,14 @@ export default defineComponent({
       groupFunc,
       list,
       filter,
-      isExpandable,
       expandOnClick,
       passProps,
-      subItemsComponent,
       expandIconFunc,
-      module
+      isExpandable,
     } = toRefs(props)
+
+    const module = props.module
+    const subItemsComponent = props.subItemsComponent
 
     const filtered = computed(() => {
       return !unref(groupFunc) ? (unref(list)!).filter(data => {
@@ -87,12 +86,11 @@ export default defineComponent({
     return () => (list.value || []).map(data => {
       return <AppObjectListItem
         isHidden={!(filtered.value as IPinnedDatabasesItem[]).includes(data)}
-        module={unref(module)}
-        subItemsComponent={unref(subItemsComponent)}
+        module={module}
+        subItemsComponent={subItemsComponent}
         expandOnClick={unref(expandOnClick)}
         data={data}
         isExpandable={unref(isExpandable)}
-
         expandIconFunc={unref(expandIconFunc)}
         filter={unref(filter)}
         isExpandedBySearch={(childrenMatched.value as IPinnedDatabasesItem[]).includes(data)}

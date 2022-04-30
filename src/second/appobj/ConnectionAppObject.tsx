@@ -1,12 +1,13 @@
-import {computed, defineComponent, onMounted, PropType, unref, watch, ref, toRefs} from 'vue'
+import {computed, defineComponent, onMounted, PropType, ref, toRefs, unref, watch} from 'vue'
 import {getLocalStorage} from '/@/second/utility/storageCache'
 import {filterName} from "/@/packages/tools/src/filterName";
-import { dataBaseStore } from "/@/store/modules/dataBase"
-import {uniq, get} from 'lodash-es'
+import {dataBaseStore} from "/@/store/modules/dataBase"
+import {get, uniq} from 'lodash-es'
 import AppObjectCore from '/@/second/appobj/AppObjectCore.vue'
 import getConnectionLabel from '/@/second/utility/getConnectionLabel'
 
 import {IConnectionAppObjectData, IPinnedDatabasesItem} from '/@/second/types/standard.d'
+
 export default defineComponent({
   name: 'ConnectionAppObject',
   props: {
@@ -46,19 +47,22 @@ export default defineComponent({
 
     const handleConnect = () => {
       if (unref(data)!.singleDatabase) {
-        dataBase.subscribeCurrentDatabase({connection: unref(data)!, name: unref(data)!.defaultDatabase} as unknown as IPinnedDatabasesItem)
+        dataBase.subscribeCurrentDatabase({
+          connection: unref(data)!,
+          name: unref(data)!.defaultDatabase
+        } as unknown as IPinnedDatabasesItem)
       } else {
-        dataBase.subscribeOpenedConnections(uniq([... dataBase.$state.openedConnections, unref(data)!._id]))
+        dataBase.subscribeOpenedConnections(uniq([...dataBase.$state.openedConnections, unref(data)!._id]))
       }
     }
 
     watch(() => unref(dataBase.$state.extensions), () => watchExtensions())
 
     const watchExtensions = () => {
-        const match = (unref(data)!.engine || '').match(/^([^@]*)@/)
-        extInfoRef.value = match ? match[1] : unref(data)!.engine;
-        engineStatusIconRef.value = null
-        engineStatusTitleRef.value = null
+      const match = (unref(data)!.engine || '').match(/^([^@]*)@/)
+      extInfoRef.value = match ? match[1] : unref(data)!.engine;
+      engineStatusIconRef.value = null
+      engineStatusTitleRef.value = null
 
       // if (unref(dataBase.$state.extensions!).drivers.find(x => x.engine == data!.engine)) {
       //   const match = (data!.engine || '').match(/^([^@]*)@/)
@@ -91,7 +95,6 @@ export default defineComponent({
       }
     }
 
-
     onMounted(() => {
       // dataBase.subscribeExtensions(buildExtensions() as any)
       statusTitleRef.value = unref(statusTitle)
@@ -108,9 +111,9 @@ export default defineComponent({
 
     return () => {
       const {onClick, onExpand, ...restProps} = attrs
-       return <AppObjectCore
-         {...restProps}
-        data={unref(data) as IPinnedDatabasesItem}
+      return <AppObjectCore
+        {...restProps}
+        data={unref(data) as unknown as IPinnedDatabasesItem}
         title={getConnectionLabel(unref(data))}
         icon={unref(data)!.singleDatabase ? 'img database' : 'img server'}
         isBold={unref(data)!.singleDatabase
@@ -119,10 +122,9 @@ export default defineComponent({
 
         // statusIcon={unref(statusIconRef) || unref(engineStatusIconRef)}
         statusIcon={`img ok`}
-
         statusTitle={unref(statusTitleRef) || unref(engineStatusTitleRef)}
         // statusIconBefore={data!.isReadOnly ? 'icon lock' : null}
-        extInfo={extInfoRef}
+        extInfo={unref(extInfoRef)}
         onClick={handleConnect}
       />
     }
@@ -131,7 +133,7 @@ export default defineComponent({
 
 export const extractKey = data => data._id;
 export const createMatcher = props => filter => {
-  const { _id, displayName, server } = props;
+  const {_id, displayName, server} = props;
   const databases = getLocalStorage(`database_list_${_id}`) || [];
   return filterName(filter, displayName, server, ...databases.map(x => x.name));
 };
@@ -139,7 +141,7 @@ export const createChildMatcher = props => filter => {
   if (!filter) {
     return false;
   }
-  const { _id } = props;
+  const {_id} = props;
   const databases = getLocalStorage(`database_list_${_id}`) || [];
   return filterName(filter, ...databases.map(x => x.name));
 };

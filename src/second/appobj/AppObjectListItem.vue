@@ -59,10 +59,13 @@ export default defineComponent({
     }
   },
   setup(props) {
-    const {data, isExpandable, subItemsComponent, expandOnClick} = toRefs(props)
+    const {data, isExpandable, expandOnClick} = toRefs(props)
+    const module = props.module
+    const subItemsComponent = props.subItemsComponent
     const isExpanded = ref(false)
-
-    const expandable = computed(() => unref(data) && unref(isExpandable) && unref(isExpandable)!(data))
+    const expandable = computed(() => {
+      return unref(data) && unref(isExpandable) && unref(isExpandable)!(data)
+    })
 
     async function handleExpand() {
       if (unref(subItemsComponent) && unref(expandOnClick)) {
@@ -82,14 +85,15 @@ export default defineComponent({
         }
       })
 
-
     return {
       ...toRefs(props),
+      module,
+      subItemsComponent,
       expandable,
       isExpanded,
       handleExpand,
       handleExpandButton,
-      getExpandIcon
+      getExpandIcon,
     }
   }
 })

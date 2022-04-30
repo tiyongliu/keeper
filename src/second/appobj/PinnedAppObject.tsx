@@ -12,7 +12,8 @@ export default defineComponent({
     },
   },
   setup(props, {attrs}) {
-    const $props = Object.assign(props, attrs)
+    const {onClick, expandIcon, onExpand, ...restProps} = attrs
+    const $props = Object.assign(props, restProps)
     return () => <DatabaseAppObject {...$props} />
   }
 })

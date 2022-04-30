@@ -17,14 +17,14 @@
       :module="connectionAppObject"
       :subItemsComponent="SubDatabaseList"
       expandOnClick
-      :isExpandable="(data) => openedConnections.includes(data._id) && !data.singleDatabase"
+      :isExpandable="handleExpandable"
       :passProps="{showPinnedInsteadOfUnpin: true}"
     />
   </WidgetsInnerContainer>
 </template>
 
 <script lang="ts">
-import {defineComponent, ref} from 'vue'
+import {defineComponent, ref, unref} from 'vue'
 import {sortBy} from 'lodash-es'
 import SearchBoxWrapper from '/@/second/widgets/SearchBoxWrapper.vue'
 import WidgetsInnerContainer from '/@/second/widgets//WidgetsInnerContainer.vue'
@@ -67,15 +67,18 @@ export default defineComponent({
       "status": {"name": "ok"}
     }]
 
+    const handleExpandable = (data) => dataBase.$state.openedConnections.includes(unref(data)._id)
+      && !unref(data).singleDatabase
+
     return {
-      openedConnections: dataBase.$state.openedConnections,
       hidden,
       filter,
       connectionsWithStatus,
       sortBy,
       getConnectionLabel,
       connectionAppObject: ConnectionAppObject,
-      SubDatabaseList
+      SubDatabaseList,
+      handleExpandable
     }
   }
 })

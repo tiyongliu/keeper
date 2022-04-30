@@ -44,7 +44,7 @@
 </template>
 
 <script lang="ts">
-import {defineComponent, PropType, Ref, readonly, unref, onMounted, toRef, toRefs} from 'vue'
+import {defineComponent, PropType, toRefs} from 'vue'
 import FontIcon from '/@/second/icons/FontIcon.vue'
 import {IPinnedDatabasesItem} from '/@/second/types/standard.d'
 export default defineComponent({
@@ -72,10 +72,10 @@ export default defineComponent({
       type: String as PropType<string>,
     },
     statusTitle: {
-      type: [String, Object] as PropType<string>,
+      type: String as PropType<string>,
     },
     extInfo: {
-      type: [String, Object] as PropType<string | Ref<string>>,
+      type: String as PropType<string>,
       default: undefined
     },
     filter: {
@@ -124,16 +124,12 @@ export default defineComponent({
       } else {
         emit('click')
       }
-
     }
 
     const handleMouseUp = (e) => {
       e.preventDefault()
       e.stopPropagation()
     }
-
-    onMounted(() => {
-    })
 
     return {
       ...toRefs(props),

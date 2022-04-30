@@ -2,11 +2,12 @@
   <span :class="[iconNames[icon] || icon, padLeft && 'padLeft', padRight && 'padRight']"
         :title="title"
         :style="style"
+        @click="handleClick"
   />
 </template>
 
 <script lang="ts">
-  import {defineComponent, PropType} from 'vue'
+  import {defineComponent, PropType, toRefs} from 'vue'
 
   export default defineComponent({
     name: "AppObjectCore",
@@ -29,7 +30,13 @@
     },
     emits: ['click'],
     setup(props, {emit}) {
+      const handleClick = () => {
+        emit('click')
+      }
+
       return {
+        handleClick,
+        ...toRefs(props),
         iconNames: {
           'icon minus-box': 'mdi mdi-minus-box-outline',
           'icon plus-box': 'mdi mdi-plus-box-outline',
@@ -206,7 +213,6 @@
           'img type-rejson': 'mdi mdi-color-json color-icon-blue',
           'img keydb': 'mdi mdi-key color-icon-blue',
         },
-        ...props,
       }
     }
   })
