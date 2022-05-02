@@ -63,7 +63,6 @@
     setup() {
       const dataBase = dataBaseStore()
 
-
       const pinnedDatabases = computed(() => dataBase.$state.pinnedDatabases)
       const pinnedTables = computed(() => dataBase.$state.pinnedTables)
       const conid = computed(() => dataBase.$state.currentDatabase?.connection._id)

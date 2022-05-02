@@ -6,7 +6,10 @@ import PinnedAppObject from '../appobj/PinnedAppObject'
 export default defineComponent({
   setup() {
     const dataBase = dataBaseStore()
-    const filteredTables = computed(() => [])
+
+    const filteredTables = computed(() => {
+      return dataBase.$state.pinnedTables
+    })
 
     const getPinnedDatabases = computed(() => {
       return dataBase.$state.pinnedDatabases

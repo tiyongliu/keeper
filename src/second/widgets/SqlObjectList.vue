@@ -1,10 +1,12 @@
 <template>
-  <!--<WidgetsInnerContainer v-if="status && status.name == 'error'">
+  <WidgetsInnerContainer v-if="status && status.name == 'error'">
     <ErrorInfo :message="`${status.message}`" icon="img error"/>
     <InlineButton @click="handleRefreshDatabase">Refresh</InlineButton>
   </WidgetsInnerContainer>
 
-  <WidgetsInnerContainer>
+  <WidgetsInnerContainer v-else-if="objectList.length == 0 &&
+  $status && $status.name != 'pending' && $status.name != 'checkStructure' && $status.name != 'loadStructure' &&
+ objects">
     <ErrorInfo
       :message="`Database ${database} is empty or structure is not loaded, press Refresh button to reload structure`"
       icon="img alert"/>
@@ -18,9 +20,8 @@
     <div class="m-1" />
     <InlineButton @click="runCommand('new.collection')">New collection</InlineButton>
   </WidgetsInnerContainer>
--->
 
-  <SearchBoxWrapper>
+  <SearchBoxWrapper v-else>
     <SearchInput placeholder="Search connection or database" v-model:searchValue="filter"/>
     <CloseSearchButton :filter="filter" @close="filter = ''"/>
     <DropDownButton icon="icon plus-thick"/>
@@ -29,12 +30,29 @@
     </InlineButton>
   </SearchBoxWrapper>
   <WidgetsInnerContainer>
-    <LoadingInfo message="Loading database structure" />
+<!--    <LoadingInfo message="Loading database structure" />-->
+
+
+
+    <!--
+          :groupFunc="handleGroupFunc"
+
+    -->
+    <AppObjectList
+      :list="objectList.map(x => ({ ...x, conid, database }))"
+      :module="databaseObjectAppObject"
+      :subItemsComponent="SubColumnParamList"
+      :groupFunc="handleGroupFunc"
+      :isExpandable="handleExpandable"
+      :expandIconFunc="chevronExpandIcon"
+      :filter="filter"
+      :passProps="{showPinnedInsteadOfUnpin: true}"
+    />
   </WidgetsInnerContainer>
 </template>
 
 <script lang="ts">
-  import {defineComponent, PropType, computed, watch, unref, toRefs, ref} from 'vue';
+  import {defineComponent, PropType, computed, unref, toRefs, ref} from 'vue';
   import AppObjectList from '/@/second/appobj/AppObjectList'
   import ErrorInfo from '/@/second/elements/ErrorInfo.vue'
   import FontIcon from '/@/second/icons/FontIcon.vue'
@@ -46,6 +64,14 @@
   import DropDownButton from '/@/second/buttons/DropDownButton'
   import runCommand from '/@/second/commands/runCommand'
   import WidgetsInnerContainer from './WidgetsInnerContainer.vue'
+  import DatabaseObjectAppObject from '/@/second/appobj/DatabaseObjectAppObject'
+  import SubColumnParamList from '/@/second/appobj/SubColumnParamList'
+  import {getObjectTypeFieldLabel} from '/@/second/utility/common'
+  import {chevronExpandIcon} from '/@/second/icons/expandIcons'
+
+  //todo api tables dataSource
+  import _objectList from './objectList.json'
+  import _objects from './objects.json'
   export default defineComponent({
     name: "SqlObjectList",
     props: {
@@ -79,12 +105,29 @@
         // todo apiCall('database-connections/refresh', { conid, database });
       }
 
+      const objectList = computed<any[]>(() => _objectList)
+      const objects = computed<{tables: any[]}>(() => _objects)
+
+      const handleGroupFunc = (data) => {
+        return getObjectTypeFieldLabel(unref(data).objectTypeField)
+      }
+
+      const handleExpandable = (data) => unref(data).objectTypeField  == 'tables' ||
+        unref(data).objectTypeField == 'views' || unref(data).objectTypeField == 'matviews'
+
       return {
         filter,
         status,
         ...toRefs(props),
         handleRefreshDatabase,
         runCommand,
+        objectList,
+        objects,
+        databaseObjectAppObject: DatabaseObjectAppObject,
+        SubColumnParamList,
+        handleGroupFunc,
+        handleExpandable,
+        chevronExpandIcon
       }
     }
   })

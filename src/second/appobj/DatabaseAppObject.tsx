@@ -2,7 +2,7 @@ import {defineComponent, unref, computed, PropType, toRefs} from 'vue'
 import { isEqual, uniqWith, get } from 'lodash-es'
 import AppObjectCore from './AppObjectCore.vue'
 import { dataBaseStore } from "/@/store/modules/dataBase";
-import {IPinnedDatabasesItem} from "/@/second/types/standard.d";
+import {IPinnedDatabasesItem} from "/@/second/typings/types/standard.d";
 export default defineComponent({
   name: 'DatabaseAppObject',
   props: {
