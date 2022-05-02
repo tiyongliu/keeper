@@ -10,7 +10,7 @@
     name: "WidgetColumnBar",
     props: {
       hidden: {
-        type: [Boolean] as PropType<boolean>,
+        type: Boolean as PropType<boolean>,
         default: false,
       }
     },

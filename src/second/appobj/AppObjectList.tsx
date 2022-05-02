@@ -4,20 +4,22 @@ import {
   PropType,
   unref,
   toRefs,
+  Component,
 } from 'vue'
-import {compact} from 'lodash-es'
+import {compact, keys, groupBy} from 'lodash-es'
 import AppObjectListItem from '/@/second/appobj/AppObjectListItem.vue'
+import AppObjectGroup from '/@/second/appobj/AppObjectGroup.vue'
 import {createChildMatcher, createMatcher} from './ConnectionAppObject'
-import {IIsExpandable, IPinnedDatabasesItem} from '/@/second/types/standard.d'
-import {Component} from "@vue/runtime-core";
+import {IIsExpandable} from '/@/second/typings/types/standard.d'
+
 export default defineComponent({
   name: "DatabaseWidget",
   props: {
     list: {
-      type: Array as PropType<IPinnedDatabasesItem[]>,
+      type: Array as PropType<unknown[]>,
     },
     groupFunc: {
-      type: String as PropType<string>,
+      type: Function as PropType<Function>,
     },
     expandOnClick: {
       type: Boolean as PropType<boolean>,
@@ -43,8 +45,12 @@ export default defineComponent({
     subItemsComponent: {
       type: [String, Object] as PropType<string | Component>,
     },
+    disableContextMenu: {
+      type: Boolean as PropType<boolean>,
+      default: false
+    }
   },
-  setup(props) {
+  setup(props, {attrs}) {
     const {
       groupFunc,
       list,
@@ -53,10 +59,10 @@ export default defineComponent({
       passProps,
       expandIconFunc,
       isExpandable,
+      disableContextMenu,
+      module,
+      subItemsComponent,
     } = toRefs(props)
-
-    const module = props.module
-    const subItemsComponent = props.subItemsComponent
 
     const filtered = computed(() => {
       return !unref(groupFunc) ? (unref(list)!).filter(data => {
@@ -74,28 +80,69 @@ export default defineComponent({
       }) : null
     })
 
-    const listGrouped = computed(() => {
-      unref(groupFunc) ? compact(
+    // const listGrouped = computed(() => {
+    //   groupFunc.value ? compact(
+    //     ((unref(list)!) || []).map(data => {
+    //       const matcher = createMatcher && createMatcher(data);
+    //       const isMatched = matcher && !matcher(filter.value) ? false : true;
+    //       const group = groupFunc.value!(data)
+    //       return { group, data, isMatched };
+    //     })
+    //   ) : null
+    // })
+
+
+    function listGrouped() {
+      return groupFunc.value ? compact(
         ((unref(list)!) || []).map(data => {
           const matcher = createMatcher && createMatcher(data);
           const isMatched = matcher && !matcher(filter.value) ? false : true;
+          const group = groupFunc.value!(data)
+          return { group, data, isMatched };
         })
       ) : null
-    })
+    }
 
-    return () => (list.value || []).map(data => {
-      return <AppObjectListItem
-        isHidden={!(filtered.value as IPinnedDatabasesItem[]).includes(data)}
-        module={module}
-        subItemsComponent={subItemsComponent}
+    function _AppObjectGroup() {
+      const groups = groupBy(listGrouped(), 'group')
+
+      return () => keys(groups).map(group => <AppObjectGroup
+        group={group}
+        module={unref(module)}
+        items={groups[group]}
+        expandIconFunc={unref(expandIconFunc)}
+        isExpandable={unref(isExpandable)}
+        subItemsComponent={unref(subItemsComponent)}
+
+
+        groupFunc={unref(groupFunc)}
+        disableContextMenu={unref(disableContextMenu)}
+        filter={unref(filter)}
+        passProps={unref(passProps)}
+      />)
+    }
+
+    function _AppObjectListItem() {
+      console.log(`22222222222`, module.value)
+      console.log(`22222222222`, subItemsComponent.value)
+
+
+
+      return () => (list.value || []).map(data => <AppObjectListItem
+        isHidden={!(filtered.value)!.includes(unref(data))}
+        module={unref(module)}
+        subItemsComponent={unref(subItemsComponent)}
         expandOnClick={unref(expandOnClick)}
-        data={data}
+        data={unref(data)}
         isExpandable={unref(isExpandable)}
         expandIconFunc={unref(expandIconFunc)}
+        disableContextMenu={unref(disableContextMenu)}
         filter={unref(filter)}
-        isExpandedBySearch={(childrenMatched.value as IPinnedDatabasesItem[]).includes(data)}
+        isExpandedBySearch={(childrenMatched.value)!.includes(unref(data))}
         passProps={unref(passProps)}
-      />
-    })
+      />)
+    }
+
+    return groupFunc.value ? _AppObjectGroup() : _AppObjectListItem()
   }
 })

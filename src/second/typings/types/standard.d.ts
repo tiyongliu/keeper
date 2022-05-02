@@ -13,15 +13,10 @@ export interface IConnectionAppObjectData {
     message?: string
   }
 
-
-
   singleDatabase?: string
-
   defaultDatabase: string
-
   isReadOnly?: boolean
 }
-
 
 export interface IConnections {
   engine: string
@@ -42,6 +37,28 @@ export interface IPinnedDatabasesItem {
 
 type IIsExpandable = (data: { _id: string, singleDatabase: boolean }) => boolean
 
+export interface IPinnedTablesItem {
+  pureName: string
+  tableRowCount: string
+  modifyDate: string
+  objectId: string
+  contentHash: string
+  columns: { [key in string] }[]
+  primaryKey: {
+    constraintName: string
+    pureName: string
+    constraintType: string
+    columns: { columnName: string }[]
+  }
+  foreignKeys: {
+    constraintName: string
+    constraintType: string
+    pureName: string
+    refTableName: string
+    updateAction: string
+    deleteAction: string
+  }[]
+}
 
 /*
 *

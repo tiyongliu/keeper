@@ -46,12 +46,12 @@
 <script lang="ts">
 import {defineComponent, PropType, toRefs} from 'vue'
 import FontIcon from '/@/second/icons/FontIcon.vue'
-import {IPinnedDatabasesItem} from '/@/second/types/standard.d'
+import {ConnectionsWithStatus} from '/@/second/typings/mysql'
 export default defineComponent({
   name: "AppObjectCore",
   props: {
     data: {
-      type: Object as PropType<IPinnedDatabasesItem>
+      type: Object as PropType<ConnectionsWithStatus>
     },
     icon: {
       type: String as PropType<string>,
@@ -104,6 +104,10 @@ export default defineComponent({
       type: Boolean as PropType<boolean>,
       default: false
     },
+    disableContextMenu: {
+      type: Boolean as PropType<boolean>,
+      default: false
+    }
   },
   components: {
     FontIcon

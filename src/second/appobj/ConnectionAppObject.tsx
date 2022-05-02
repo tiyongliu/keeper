@@ -5,14 +5,14 @@ import {dataBaseStore} from "/@/store/modules/dataBase"
 import {get, uniq} from 'lodash-es'
 import AppObjectCore from '/@/second/appobj/AppObjectCore.vue'
 import getConnectionLabel from '/@/second/utility/getConnectionLabel'
-
-import {IConnectionAppObjectData, IPinnedDatabasesItem} from '/@/second/types/standard.d'
+import {ConnectionsWithStatus} from '/@/second/typings/mysql'
+import {IPinnedDatabasesItem} from '/@/second/typings/types/standard.d'
 
 export default defineComponent({
   name: 'ConnectionAppObject',
   props: {
     data: {
-      type: Object as PropType<IConnectionAppObjectData>,
+      type: Object as PropType<ConnectionsWithStatus>,
     },
     passProps: {
       type: Object as PropType<{ showPinnedInsteadOfUnpin: boolean }>,
@@ -113,7 +113,7 @@ export default defineComponent({
       const {onClick, onExpand, ...restProps} = attrs
       return <AppObjectCore
         {...restProps}
-        data={unref(data) as unknown as IPinnedDatabasesItem}
+        data={unref(data) as ConnectionsWithStatus}
         title={getConnectionLabel(unref(data))}
         icon={unref(data)!.singleDatabase ? 'img database' : 'img server'}
         isBold={unref(data)!.singleDatabase
