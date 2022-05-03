@@ -26,7 +26,7 @@
 </template>
 
 <script lang="ts">
-  import {Component, defineComponent, PropType, ref, toRefs, computed, unref} from 'vue';
+  import {Component, defineComponent, PropType, ref, toRef, toRefs, computed, unref} from 'vue'
   import AppObjectListItem from '/@/second/appobj/AppObjectListItem.vue'
   import FontIcon from '/@/second/icons/FontIcon.vue'
   import Link from '/@/second/elements/Link.vue'
@@ -62,7 +62,7 @@
     setup(props) {
       const isExpanded = ref(true)
 
-      const {items} = toRefs(props)
+      const items = toRef(props, 'items')
 
       const filtered = computed(() => items.value!.filter(x => x.isMatched))
 

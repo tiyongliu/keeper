@@ -63,9 +63,12 @@
       }
     },
     setup(props) {
-      const {data, isExpandable, expandOnClick, subItemsComponent} = toRefs(props)
+      const {data, isExpandable, expandOnClick} = toRefs(props)
+      const module = props.module
+      const subItemsComponent = props.subItemsComponent
 
       const isExpanded = ref(false)
+
       const expandable = computed(() => {
         return unref(data) && unref(isExpandable) && unref(isExpandable)!(data)
       })
@@ -90,6 +93,8 @@
 
       return {
         ...toRefs(props),
+        module,
+        subItemsComponent,
         expandable,
         isExpanded,
         handleExpand,

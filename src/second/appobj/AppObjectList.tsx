@@ -60,9 +60,10 @@ export default defineComponent({
       expandIconFunc,
       isExpandable,
       disableContextMenu,
-      module,
-      subItemsComponent,
     } = toRefs(props)
+
+    const module = props.module
+    const subItemsComponent = props.subItemsComponent
 
     const filtered = computed(() => {
       return !unref(groupFunc) ? (unref(list)!).filter(data => {
