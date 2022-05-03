@@ -10,8 +10,6 @@ export default defineComponent({
   setup(props) {
     const data = toRef(props, 'data')
 
-    console.log(data.value!, `---------------------`)
-
     return () => (
       <AppObjectList
         list={(data.value!.columns || []).map(col => ({

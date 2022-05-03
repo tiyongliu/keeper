@@ -41,7 +41,7 @@
         type: Function as PropType<Function>,
       },
       items: {
-        type: Array  as PropType<{isMatched?: string}[]>
+        type: Array  as PropType<any>
       },
       passProps: {
         type: Object as PropType<{ showPinnedInsteadOfUnpin: boolean }>,
