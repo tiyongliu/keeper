@@ -75,7 +75,7 @@ export default defineComponent({
       type: String as PropType<string>,
     },
     extInfo: {
-      type: String as PropType<string>,
+      type: String as PropType<string | null>,
       default: undefined
     },
     filter: {

@@ -10,9 +10,6 @@
       :passProps="passProps"
     />
 
-    <div>isExpanded：{{isExpanded}}</div>
-    <div>isExpandedBySearch：{{isExpandedBySearch}}</div>
-    <div>subItemsComponent：{{!!subItemsComponent}}</div>
     <div class="subitems" v-if="(isExpanded || isExpandedBySearch) && subItemsComponent">
       <component :is="subItemsComponent" :data="data" :filter="filter" :passProps="passProps"/>
     </div>
@@ -68,8 +65,6 @@
     setup(props) {
       const {data, isExpandable, expandOnClick, subItemsComponent} = toRefs(props)
 
-      console.log(`33`, subItemsComponent.value)
-
       const isExpanded = ref(false)
       const expandable = computed(() => {
         return unref(data) && unref(isExpandable) && unref(isExpandable)!(data)
@@ -92,8 +87,6 @@
             isExpanded.value = false
           }
         })
-
-      // console.log(data.value, `data-data`)
 
       return {
         ...toRefs(props),

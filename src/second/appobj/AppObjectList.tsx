@@ -123,11 +123,6 @@ export default defineComponent({
     }
 
     function _AppObjectListItem() {
-      console.log(`22222222222`, module.value)
-      console.log(`22222222222`, subItemsComponent.value)
-
-
-
       return () => (list.value || []).map(data => <AppObjectListItem
         isHidden={!(filtered.value)!.includes(unref(data))}
         module={unref(module)}
