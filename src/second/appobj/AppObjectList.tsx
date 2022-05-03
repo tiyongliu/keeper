@@ -50,7 +50,7 @@ export default defineComponent({
       default: false
     }
   },
-  setup(props, {attrs}) {
+  setup(props) {
     const {
       groupFunc,
       list,
@@ -128,7 +128,7 @@ export default defineComponent({
         module={unref(module)}
         subItemsComponent={unref(subItemsComponent)}
         expandOnClick={unref(expandOnClick)}
-        data={unref(data)}
+        data={unref(data) as Record<string, any>}
         isExpandable={unref(isExpandable)}
         expandIconFunc={unref(expandIconFunc)}
         disableContextMenu={unref(disableContextMenu)}

@@ -51,10 +51,10 @@ export default defineComponent({
   name: "AppObjectCore",
   props: {
     data: {
-      type: Object as PropType<ConnectionsWithStatus>
+      type: Object as PropType<unknown>
     },
     icon: {
-      type: String as PropType<string>,
+      type: String as PropType<string | null>,
     },
     isBold: {
       type: Boolean as PropType<boolean>,
