@@ -1,4 +1,4 @@
-import {defineComponent, PropType, toRefs, unref,} from 'vue'
+import {defineComponent, PropType, toRef} from 'vue'
 import AppObjectList from './AppObjectList'
 import {findForeignKeyForColumn} from '/@/packages/tools/src/nameTools'
 import ColumnAppObject from '/@/second/appobj/ColumnAppObject'
@@ -8,16 +8,16 @@ export default defineComponent({
     data: Object as PropType<{ columns: any[] }>,
   },
   setup(props) {
-    const {data} = toRefs(props)
+    const data = toRef(props, 'data')
 
-    console.log(data, `---------------------`)
+    console.log(data.value!, `---------------------`)
 
     return () => (
       <AppObjectList
         list={(data.value!.columns || []).map(col => ({
-          ...data,
+          ...data.value,
           ...col,
-          foreignKey: findForeignKeyForColumn(data as any, col)
+          foreignKey: findForeignKeyForColumn(data.value as any, col)
         }))}
         module={ColumnAppObject}
       />

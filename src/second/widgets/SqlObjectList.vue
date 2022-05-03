@@ -32,12 +32,6 @@
   <WidgetsInnerContainer>
 <!--    <LoadingInfo message="Loading database structure" />-->
 
-
-
-    <!--
-          :groupFunc="handleGroupFunc"
-
-    -->
     <AppObjectList
       :list="objectList.map(x => ({ ...x, conid, database }))"
       :module="databaseObjectAppObject"

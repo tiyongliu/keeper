@@ -355,7 +355,7 @@ export default defineComponent({
   name: 'DatabaseObjectAppObject',
   props: {
     data: {
-      type: Object as PropType<{name: string,schemaName: string, objectTypeField: string, pureName: string, tableRowCount?: null}>,
+      type: Object as PropType<{name: string, schemaName: string, objectTypeField: string, pureName: string, tableRowCount?: null}>,
     },
     passProps: {
       type: Object as PropType<{
