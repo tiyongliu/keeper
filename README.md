@@ -1,169 +1,193 @@
-<div align="center"> <a href="https://github.com/anncwb/vue-vben-admin"> <img alt="VbenAdmin Logo" width="200" height="200" src="https://anncwb.github.io/anncwb/images/logo.png"> </a> <br> <br>
+# Wails + Vue 3 Typescript
 
-[![license](https://img.shields.io/github/license/anncwb/vue-vben-admin.svg)](LICENSE)
+## About
 
-<h1>Vue vben admin</h1>
-</div>
+This is a Wails template project with Vue 3 and TypeScript, using Vite for
+asset bundling. It comes with the bare minimum, and can be extended by following
+the guides in this README. 
 
-**English** | [中文](./README.zh-CN.md)
+If you would like a more feature packed version that includes all features
+documented below already added, please check out my
+[feature packed Vite + Vue3 TypeScript template](https://github.com/codydbentley/wails-vite-vue-the-works)
 
-## Introduction
+## Live Development
 
-Vue Vben Admin is a free and open source middle and back-end template. Using the latest `vue3`, `vite2`, `TypeScript` and other mainstream technology development, the out-of-the-box middle and back-end front-end solutions can also be used for learning reference.
+To run in live development mode, run `wails dev` in the project directory. In another terminal, go into the `frontend`
+directory and run `npm run dev`. Navigate to http://localhost:34115
+in your browser to connect to your application.
 
-## Feature
+Note: Typechecking is disabled. If you want to do type checking, use `npm run type-check`
 
-- **State of The Art Development**：Use front-end front-end technology development such as Vue3/vite2
-- **TypeScript**: Application-level JavaScript language
-- **Theming**: Configurable themes
-- **International**：Built-in complete internationalization program
-- **Mock Server** Built-in mock data scheme
-- **Authority** Built-in complete dynamic routing permission generation scheme.
-- **Component** Multiple commonly used components are encapsulated twice
+## Extending Features
 
-## 预览
+This template does not ship with things like routing, vuex, or sass.
+To add any of these features, simply follow the instructions below. Please
+note that all commands should be run in the `frontend` directory.
 
-- [vue-vben-admin](https://vvbin.cn/next/) - Full version Chinese site
-- [vue-vben-admin-gh-pages](https://anncwb.github.io/vue-vben-admin/) - Full version of the github site
-- [vben-admin-thin-next](https://vvbin.cn/thin/next/) - Simplified Chinese site
-- [vben-admin-thin-gh-pages](https://anncwb.github.io/vben-admin-thin-next/) -Simplified github site
+### Sass
 
-Test account: vben/123456
-
-<p align="center">
-    <img alt="VbenAdmin Logo" width="100%" src="https://anncwb.github.io/anncwb/images/preview1.png">
-    <img alt="VbenAdmin Logo" width="100%" src="https://anncwb.github.io/anncwb/images/preview2.png">
-    <img alt="VbenAdmin Logo" width="100%" src="https://anncwb.github.io/anncwb/images/preview3.png">
-</p>
-
-### Use Gitpod
-
-Open the project in Gitpod (free online dev environment for GitHub) and start coding immediately.
-
-[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/anncwb/vue-vben-admin)
-
-## Documentation
-
-[Document](https://vvbin.cn/doc-next/)
-
-## Preparation
-
-- [node](http://nodejs.org/) and [git](https://git-scm.com/) - Project development environment
-- [Vite](https://vitejs.dev/) - Familiar with vite features
-- [Vue3](https://v3.vuejs.org/) - Familiar with Vue basic syntax
-- [TypeScript](https://www.typescriptlang.org/) - Familiar with the basic syntax of `TypeScript`
-- [Es6+](http://es6.ruanyifeng.com/) - Familiar with es6 basic syntax
-- [Vue-Router-Next](https://next.router.vuejs.org/) - Familiar with the basic use of vue-router
-- [Ant-Design-Vue](https://2x.antdv.com/docs/vue/introduce-cn/) - ui basic use
-- [Mock.js](https://github.com/nuysoft/Mock) - mockjs basic syntax
-
-## Install and use
-
-- Get the project code
-
-```bash
-git clone https://github.com/anncwb/vue-vben-admin.git
+Installation:
+```shell
+$ npm install --save-dev sass
 ```
 
-- Installation dependencies
+Usage:
 
-```bash
-cd vue-vben-admin
-
-yarn install
-
+You can now add Sass to your single file component
+styling like this:
+```html
+<style lang="scss">
+  /* scss styling */
+</style>
 ```
 
-- run
+### ESLint + Prettier
 
-```bash
-yarn serve
+Installation:
+```shell
+$ npm install --save-dev eslint prettier eslint-plugin-vue eslint-config-prettier @vue/eslint-config-typescript @typescript-eslint/parser @typescript-eslint/eslint-plugin
+$ touch .eslintrc && touch .prettierrc
 ```
 
-- build
-
-```bash
-yarn build
+Usage: `eslintrc`
+```json
+{
+  "extends": [
+    "plugin:vue/vue3-essential",
+    "eslint:recommended",
+    "prettier",
+    "@vue/typescript/recommended"
+  ],
+    "rules": {
+    // override/add rules settings here, such as:
+    // "vue/no-unused-vars": "error"
+  }
+}
 ```
 
-## Change Log
+Usage: `.prettierrc`
+```json
+{
+  "semi": false,
+  "tabWidth": 2,
+  "useTabs": false,
+  "printWidth": 120,
+  "endOfLine": "auto",
+  "singleQuote": true,
+  "trailingComma": "all",
+  "bracketSpacing": true,
+  "arrowParens": "always"
+}
+```
 
-[CHANGELOG](./CHANGELOG.zh_CN.md)
+### Vuex
 
-## Project
+Installation:
+```shell
+$ npm install --save vuex@next
+$ touch src/store.ts
+```
 
-- [vue-vben-admin](https://github.com/anncwb/vue-vben-admin) - full version
-- [vue-vben-admin-thin-next](https://github.com/anncwb/vben-admin-thin-next) - Simplified version
+Usage: `src/store.ts`
+```ts
+import { InjectionKey } from 'vue'
+import { createStore, Store, useStore as baseUseStore } from 'vuex'
 
-## How to contribute
+// define your typings for the store state
+export interface State {
+  count: number
+}
 
-You are very welcome to join！[Raise an issue](https://github.com/anncwb/vue-vben-admin/issues/new/choose) Or submit a Pull Request。
+// define injection key
+export const key: InjectionKey<Store<State>> = Symbol()
 
-**Pull Request:**
+export const store = createStore<State>({
+  state() {
+    return {
+      count: 0
+    }
+  },
+  mutations: {
+    increment(state) {
+      state.count++
+    }
+  }
+})
 
-1. Fork code!
-2. Create your own branch: `git checkout -b feat/xxxx`
-3. Submit your changes: `git commit -am 'feat(function): add xxxxx'`
-4. Push your branch: `git push origin feat/xxxx`
-5. submit`pull request`
+export function useStore() {
+  return baseUseStore(key)
+}
+```
 
-## Git Contribution submission specification
+Usage: `src/main.ts`
+```ts
+import { createApp } from 'vue'
+import App from './App.vue'
+import { store, key } from './store'
 
-- reference [vue](https://github.com/vuejs/vue/blob/dev/.github/COMMIT_CONVENTION.md) specification ([Angular](https://github.com/conventional-changelog/conventional-changelog/tree/master/packages/conventional-changelog-angular))
+createApp(App).use(store, key).mount('#app')
+```
 
-  - `feat` Add new features
-  - `fix` Fix the problem/BUG
-  - `style` The code style is related and does not affect the running result
-  - `perf` Optimization/performance improvement
-  - `refactor` Refactor
-  - `revert` Undo edit
-  - `test` Test related
-  - `docs` Documentation/notes
-  - `chore` Dependency update/scaffolding configuration modification etc.
-  - `workflow` Workflow improvements
-  - `ci` Continuous integration
-  - `types` Type definition file changes
-  - `wip` In development
+Usage: `src/components/Home.vue`
+```ts
+import { useStore } from '../store'
+const store = useStore()
+const increment = () => store.commit('increment')
+```
 
-## Related warehouse
+### Vue Router
 
-If these plugins are helpful to you, you can give a star support
+Installation:
+```shell
+$ npm install --save vue-router@4
+$ touch src/router.ts
+```
 
-- [vite-plugin-mock](https://github.com/anncwb/vite-plugin-mock) - Used for local and development environment data mock
-- [vite-plugin-html](https://github.com/anncwb/vite-plugin-html) - Used for html template conversion and compression
-- [vite-plugin-style-import](https://github.com/anncwb/vite-plugin-style-import) - Used for component library style introduction on demand
-- [vite-plugin-theme](https://github.com/anncwb/vite-plugin-theme) - Used for online switching of theme colors and other color-related configurations
-- [vite-plugin-imagemin](https://github.com/anncwb/vite-plugin-imagemin) - Used to pack compressed image resources
-- [vite-plugin-compression](https://github.com/anncwb/vite-plugin-compression) - Used to pack input .gz|.brotil files
-- [vite-plugin-svg-icons](https://github.com/anncwb/vite-plugin-svg-icons) - Used to quickly generate svg sprite
+Usage: `src/router.ts`
+```ts
+import { createRouter, createWebHashHistory } from 'vue-router'
+import Home from './components/Home.vue'
 
-## Browser support
+const routes = [
+  {
+    path: '/',
+    name: 'Home',
+    component: Home,
+  }
+]
 
-The `Chrome 80+` browser is recommended for local development
+const router = createRouter({
+  history: createWebHashHistory(),
+  routes,
+})
 
-Support modern browsers, not IE
+export default router
+```
 
-| [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/edge/edge_48x48.png" alt=" Edge" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)</br>IE | [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/edge/edge_48x48.png" alt=" Edge" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)</br>Edge | [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/firefox/firefox_48x48.png" alt="Firefox" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)</br>Firefox | [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/chrome/chrome_48x48.png" alt="Chrome" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)</br>Chrome | [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/safari/safari_48x48.png" alt="Safari" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)</br>Safari |
-| :-: | :-: | :-: | :-: | :-: |
-| not support | last 2 versions | last 2 versions | last 2 versions | last 2 versions |
+Usage: `src/main.ts`
+```ts
+import { createApp } from 'vue'
+import App from './App.vue'
+import router from './router'
 
-## Maintainer
+createApp(App).use(router).mount('#app')
+```
 
-[@Vben](https://github.com/anncwb)
+Usage: `src/App.vue`
+```html
+<template>
+    <router-link to="/">Home</router-link>
+    <router-view />
+</template>
+```
 
-## Donate
+## Building 
 
-If you think this project is helpful to you, you can help the author buy a cup of coffee to show your support!
+To build this project in debug mode, use `wails build`. For production, use `wails build -production`.
+To generate a platform native package, add the `-package` flag.
 
-![donate](https://anncwb.github.io/anncwb/images/sponsor.png)
+## Known Issues
 
-<a style="display: block;width: 100px;height: 50px;line-height: 50px; color: #fff;text-align: center; background: #408aed;border-radius: 4px;" href="https://www.paypal.com/paypalme/cvvben">Paypal Me</a>
-
-## Discord
-
-- [github discussions](https://github.com/anncwb/vue-vben-admin/discussions)
-- [Discord](https://discord.gg/8GuAdwDhj6)
-
-## License
-
-[MIT © Vben-2020](./LICENSE)
+- When making changes to the frontend, the browser reload will often happen too fast, causes issues. A refresh will fix the page.
+- Typechecking is turned off due to Wails depending on the frontend to build before it will compile the backend and generate bindings.
+- If you find any other problems, please create an issue.
