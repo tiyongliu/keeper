@@ -1,0 +1,12 @@
+{
+  "name": "te",
+  "outputfilename": "te",
+  "assetdir": "package/web/dist/assets",
+  "wailsjsdir": "package/web/src",
+  "frontend:install": "pnpm install",
+  "frontend:build": "npm run build",
+  "author": {
+    "name": "l422720735",
+    "email": "422720735@qq.com"
+  }
+}
