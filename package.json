@@ -1,0 +1,22 @@
+{
+  "private": true,
+  "name": "dbbox",
+  "version": "1.0.0",
+  "description": "## About",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "start:web": "yarn workspace vben-admin dev",
+    "start": "yarn start:web"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://gitee.com/l422720735/dbtool.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "workspaces-run": "^1.0.1"
+  }
+}
