@@ -1,8 +1,8 @@
 {
-  "name": "te",
-  "outputfilename": "te",
-  "assetdir": "package/web/dist/assets",
-  "wailsjsdir": "package/web/src",
+  "name": "pandaria",
+  "outputfilename": "pandaria",
+  "assetdir": "packages/web/dist/assets",
+  "wailsjsdir": "packages/web/src",
   "frontend:install": "pnpm install",
   "frontend:build": "npm run build",
   "author": {
