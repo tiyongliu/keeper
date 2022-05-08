@@ -1,6 +1,6 @@
 import {computed, defineComponent, PropType, unref, toRefs} from 'vue'
 import {sortBy} from 'lodash-es'
-import {filterName} from '/@/packages/tools/src'
+import {filterName} from 'dbbox-tools'
 import './SubDatabaseList.less'
 import AppObjectList from './AppObjectList'
 import databaseAppObject from './DatabaseAppObject'
@@ -32,7 +32,7 @@ export default defineComponent({
       <AppObjectList
         module={databaseAppObject}
         list={sortBy(
-          (unref(databases) || []).filter(x => filterName(unref(filter!), x.name)),
+          (unref(databases) || []).filter(x => filterName(filter.value, x.name)),
             x => x.sortOrder ?? x.name
           ).map(db => ({...db, connection: data.value})
         )}

@@ -1,6 +1,6 @@
 import {defineComponent, PropType, toRef} from 'vue'
 import AppObjectList from './AppObjectList'
-import {findForeignKeyForColumn} from '/@/packages/tools/src/nameTools'
+import {findForeignKeyForColumn} from 'dbbox-tools'
 import ColumnAppObject from '/@/second/appobj/ColumnAppObject'
 export default defineComponent({
   name: 'SubColumnParamList',
