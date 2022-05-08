@@ -130,7 +130,8 @@
     "vite-plugin-vue-setup-extend": "^0.1.0",
     "vite-plugin-windicss": "^1.4.12",
     "vue-eslint-parser": "^8.0.1",
-    "vue-tsc": "^0.28.10"
+    "vue-tsc": "^0.28.10",
+    "dbbox-tools": "file:../tools"
   },
   "resolutions": {
     "bin-wrapper": "npm:bin-wrapper-china",

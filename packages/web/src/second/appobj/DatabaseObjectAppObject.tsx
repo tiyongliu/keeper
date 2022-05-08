@@ -1,11 +1,11 @@
 import {computed, defineComponent, PropType, unref, toRefs} from 'vue'
 import {isNaN} from 'lodash-es'
+import {filterName} from 'dbbox-tools'
 import AppObjectCore from '/@/second/appobj/AppObjectCore.vue'
-import {filterName} from '/@/packages/tools/src'
 import { dataBaseStore } from '/@/store/modules/dataBase'
 
 export const extractKey = ({ schemaName, pureName }) => (schemaName ? `${schemaName}.${pureName}` : pureName);
-export const createMatcher = ({ schemaName, pureName }) => filter => filterName(filter, pureName, schemaName);
+export const createMatcher = ({ schemaName, pureName }) => filter => filterName(unref(filter), pureName, schemaName);
 
 export const databaseObjectIcons = {
   tables: 'img table',

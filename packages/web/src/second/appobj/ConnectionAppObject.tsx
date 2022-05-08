@@ -1,6 +1,6 @@
 import {computed, defineComponent, onMounted, PropType, ref, toRefs, unref, watch} from 'vue'
+import {filterName} from 'dbbox-tools'
 import {getLocalStorage} from '/@/second/utility/storageCache'
-import {filterName} from "/@/packages/tools/src/filterName";
 import {dataBaseStore} from "/@/store/modules/dataBase"
 import {get, uniq} from 'lodash-es'
 import AppObjectCore from '/@/second/appobj/AppObjectCore.vue'
@@ -135,7 +135,7 @@ export const extractKey = data => data._id;
 export const createMatcher = props => filter => {
   const {_id, displayName, server} = props;
   const databases = getLocalStorage(`database_list_${_id}`) || [];
-  return filterName(filter, displayName, server, ...databases.map(x => x.name));
+  return filterName(unref(filter), displayName, server, ...databases.map(x => x.name));
 };
 export const createChildMatcher = props => filter => {
   if (!filter) {
@@ -143,5 +143,5 @@ export const createChildMatcher = props => filter => {
   }
   const {_id} = props;
   const databases = getLocalStorage(`database_list_${_id}`) || [];
-  return filterName(filter, ...databases.map(x => x.name));
+  return filterName(unref(filter), ...databases.map(x => x.name));
 };
