@@ -2,7 +2,7 @@
   <SearchBoxWrapper>
     <SearchInput placeholder="Search connection or database" v-model:searchValue="filter"/>
     <CloseSearchButton :filter="filter" @close="filter = ''"/>
-    <InlineButton title="Add new connection">
+    <InlineButton title="Add new connection" @click="runCommand('new.connection')">
       <FontIcon icon="icon plus-thick"/>
     </InlineButton>
 
@@ -36,8 +36,8 @@ import FontIcon from '/@/second/icons/FontIcon.vue'
 import getConnectionLabel from '/@/second/utility/getConnectionLabel'
 import ConnectionAppObject from '/@/second/appobj/ConnectionAppObject'
 import SubDatabaseList from '/@/second/appobj/SubDatabaseList'
-
 import {dataBaseStore} from '/@/store/modules/dataBase'
+import runCommand from '/@/second/commands/runCommand'
 
 export default defineComponent({
   name: "ConnectionList",
@@ -78,7 +78,8 @@ export default defineComponent({
       getConnectionLabel,
       connectionAppObject: ConnectionAppObject,
       SubDatabaseList,
-      handleExpandable
+      handleExpandable,
+      runCommand
     }
   }
 })
