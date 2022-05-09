@@ -24,16 +24,15 @@ export default defineComponent({
     const {tabs} = toRefs(props)
 
     const tabsVNode = () => compact(tabs.value).map((tab, index) => {
-      return <TabPane key={index} tab={tab} />
+      console.log(tab, `--`, index)
+      return <TabPane key={index} tab={tab.label} />
     })
 
     return () => (
       <div>
         <div>
           <Tabs defaultActiveKey="1">
-            <TabPane key="1" tab="Main"></TabPane>
-            <TabPane key="2" tab="SSH Tunnel"></TabPane>
-            <TabPane key="3" tab="SSL"></TabPane>
+            {tabsVNode()}
           </Tabs>
         </div>
 
