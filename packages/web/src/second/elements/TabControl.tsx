@@ -1,11 +1,11 @@
-import {defineComponent, ref, unref, watch, onBeforeUnmount, toRefs} from 'vue';
+import {defineComponent, Component, ref, unref, watch, onBeforeUnmount, toRefs} from 'vue';
 import {Tabs, TabPane} from 'ant-design-vue'
 import {compact} from 'lodash-es'
 // const TabPane = Tabs.TabPane
 interface TabDef {
   label: string;
   slot?: number;
-  component?: any;
+  component?: string | Component;
   props?: any;
 }
 
@@ -24,8 +24,9 @@ export default defineComponent({
     const {tabs} = toRefs(props)
 
     const tabsVNode = () => compact(tabs.value).map((tab, index) => {
-      console.log(tab, `--`, index)
-      return <TabPane key={index} tab={tab.label} />
+      return <TabPane key={index + 1} tab={tab.label}>
+        <component is={tab.component}/>
+      </TabPane>
     })
 
     return () => (
