@@ -1,7 +1,7 @@
 import {defineStore} from "pinia";
 import {store} from "/@/store";
-import {safeJsonParse} from "/@/utils/lib/pkg/stringTools";
 import {reactive} from "vue";
+import {getWithStorageVariableCache, setWithStorageVariableCache} from '../index'
 
 interface IVariableBasic {
   currentDropDownMenu: null
@@ -23,7 +23,7 @@ export const cssVariableStore = defineStore({
     currentDropDownMenu: null,
     visibleTitleBar: 0,
     selectedWidget: 1,
-    leftPanelWidth: getCssVariableCache(300, LEFTPANELWIDTH),
+    leftPanelWidth: getWithStorageVariableCache(300, LEFTPANELWIDTH),
     dynamicProps: {
       splitterVisible: false
     }
@@ -48,7 +48,7 @@ export const cssVariableStore = defineStore({
     },
     setLeftPanelWidth(value) {
       this.leftPanelWidth += value;
-      setCssVariableCache(LEFTPANELWIDTH, String(this.leftPanelWidth));
+      setWithStorageVariableCache(LEFTPANELWIDTH, String(this.leftPanelWidth));
       document.documentElement.style.setProperty("--dim-left-panel-width", `${this.leftPanelWidth}px`);
     },
     subscribeCssVariable(value, transform, cssVariable) {
@@ -65,13 +65,4 @@ export const cssVariableStore = defineStore({
 
 export function useCssVariableStoreWithOut() {
   return cssVariableStore(store);
-}
-
-function getCssVariableCache<T>(defaultValue: T, storageName) {
-  const init = localStorage.getItem(storageName);
-  return (init ? safeJsonParse(init, defaultValue, true) : defaultValue);
-}
-
-function setCssVariableCache(storageName, value: string) {
-  localStorage.setItem(storageName, value);
 }
