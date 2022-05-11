@@ -9,7 +9,7 @@ export function getFormContext(): any {
 }
 
 export default defineComponent({
-  name: 'FormProviderCore.tsx',
+  name: 'FormProviderCore',
   setup(_, {slots}) {
     const handleEnter = (e) => {
       if (e.keyCode == keycodes.enter) {
