@@ -43,6 +43,7 @@
     "axios": "^0.24.0",
     "crypto-js": "^4.1.1",
     "echarts": "^5.2.2",
+    "fast-safe-stringify": "^2.1.1",
     "lodash-es": "^4.17.21",
     "mockjs": "^1.1.0",
     "moment": "^2.29.1",
@@ -88,6 +89,7 @@
     "commitizen": "^4.2.4",
     "conventional-changelog-cli": "^2.1.1",
     "cross-env": "^7.0.3",
+    "dbbox-tools": "file:../tools",
     "dotenv": "^10.0.0",
     "eslint": "^8.1.0",
     "eslint-config-prettier": "^8.3.0",
@@ -130,8 +132,7 @@
     "vite-plugin-vue-setup-extend": "^0.1.0",
     "vite-plugin-windicss": "^1.4.12",
     "vue-eslint-parser": "^8.0.1",
-    "vue-tsc": "^0.28.10",
-    "dbbox-tools": "file:../tools"
+    "vue-tsc": "^0.28.10"
   },
   "resolutions": {
     "bin-wrapper": "npm:bin-wrapper-china",

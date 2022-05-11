@@ -9,7 +9,7 @@
 
   <Layout :class="prefixCls" class="dbgate-screen" v-bind="lockEvents">
     <div class="iconbar svelte-1veekw4">iconbar</div>
-    <div class="statusbar svelte-1veekw4">iconbar</div>
+    <div class="statusbar svelte-1veekw4"><StatusBar></StatusBar></div>
     <div class="leftpanel svelte-1veekw4">
 <!--      <AppDarkModeToggle class="mx-auto" />-->
 
@@ -37,6 +37,7 @@ import LayoutHeader from './header/index.vue';
 import LayoutContent from './content/index.vue';
 import LayoutSideBar from './sider/index.vue';
 import LayoutMultipleHeader from './header/MultipleHeader.vue';
+import StatusBar from "/@/second/widgets/StatusBar.vue";
 
 import { useHeaderSetting } from '/@/hooks/setting/useHeaderSetting';
 import { useMenuSetting } from '/@/hooks/setting/useMenuSetting';
@@ -60,7 +61,7 @@ export default defineComponent({
     LayoutMultipleHeader,
     Layout,
     AppDarkModeToggle,
-
+    StatusBar,
 
     WidgetContainer,
     WarningOutlined
