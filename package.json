@@ -7,7 +7,7 @@
     "packages/*"
   ],
   "scripts": {
-    "start:web": "yarn workspace vben-admin dev",
+    "start:web": "yarn workspace dbtool-web dev",
     "start": "yarn start:web"
   },
   "repository": {
