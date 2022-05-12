@@ -1,36 +1,33 @@
 <template>
   <!--  <div>ConnectionModalDriverFields</div>-->
 
-  <a-form>
+  <a-form layout="vertical">
     <a-form-item label="Database engine">
-      <a-select placeholder="please select your zone">
-        <a-select-option value="shanghai">Zone one</a-select-option>
-        <a-select-option value="beijing">Zone two</a-select-option>
-      </a-select>
+      <a-select placeholder="please select your zone" :options="engine"/>
     </a-form-item>
 
     <a-form-item label="Resources">
-      <a-radio-group>
-        <a-radio value="1">Fill database connection details</a-radio>
-        <a-radio value="2">Use database URL</a-radio>
-      </a-radio-group>
+      <a-radio-group v-model:value="resources" name="radioGroup" :options="[
+         { label: 'Fill database connection details', value: '' },
+         { label: 'Use database URL', value: '1' },
+      ]"/>
     </a-form-item>
 
-    <a-row type="flex" justify="center" align="top">
-      <a-col :span="12">
+    <a-row type="flex" justify="space-between" align="top">
+      <a-col :span="16">
         <a-form-item label="Server">
           <a-input/>
         </a-form-item>
       </a-col>
-      <a-col :span="12">
+      <a-col :span="8">
         <a-form-item label="Port">
-          <a-input/>
+          <a-input :placeholder="driver && driver.defaultPort"/>
         </a-form-item>
       </a-col>
     </a-row>
 
 
-    <a-row type="flex" justify="center" align="top">
+    <a-row type="flex" justify="space-between" align="top">
       <a-col :span="12">
         <a-form-item label="User">
           <a-input/>
@@ -38,16 +35,16 @@
       </a-col>
       <a-col :span="12">
         <a-form-item label="Password">
-          <a-input-password placeholder="input password" />
+          <a-input-password placeholder="input password"/>
         </a-form-item>
       </a-col>
     </a-row>
 
     <a-form-item label="Password mode">
-      <a-select placeholder="please select your zone">
-        <a-select-option value="saveEncrypted">Save and encrypt</a-select-option>
-        <a-select-option value="saveRaw">Save raw (UNSAFE!!)</a-select-option>
-      </a-select>
+      <a-select placeholder="please select your zone" :options="[
+      { value: 'saveEncrypted', label: 'Save and encrypt' },
+      { value: 'saveRaw', label: 'Save raw (UNSAFE!!)' },
+    ]"/>
     </a-form-item>
 
     <a-form-item label="">
@@ -61,8 +58,21 @@
 </template>
 
 <script lang="ts">
-import {defineComponent} from "vue"
-import {Col, Form, FormItem, Input, InputPassword, Radio, RadioGroup, Row, Select, SelectOption, Checkbox} from 'ant-design-vue'
+import {defineComponent, ref} from "vue"
+import {
+  Checkbox,
+  Col,
+  Form,
+  FormItem,
+  Input,
+  InputPassword,
+  Radio,
+  RadioGroup,
+  Row,
+  Select,
+  SelectOption
+} from 'ant-design-vue'
+import $extensions from './drivers.json'
 
 export default defineComponent({
   name: 'ConnectionModalDriverFields',
@@ -80,6 +90,23 @@ export default defineComponent({
     [Checkbox.name]: Checkbox,
   },
   setup() {
+    const electron = null
+
+    const engine = [
+      {label: '(select driver)', value: ''},
+      ...$extensions.drivers
+        .filter(driver => !driver.isElectronOnly || electron)
+        .map(driver => ({
+          value: driver.engine,
+          label: driver.title,
+        })),
+    ]
+
+    return {
+      engine,
+      resources: ref(''),
+      driver: $extensions.drivers.find(x => x.engine == engine)
+    }
 
   }
 })
