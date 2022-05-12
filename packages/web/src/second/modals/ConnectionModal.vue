@@ -1,13 +1,13 @@
 <template>
   <FormProviderCore>
-    <BasicModal class="connectionModal" @register="register" title="Add connection">
+    <BasicModal ref="ConnectionModal" class="connectionModal" @register="register" title="Add connection">
       <TabControl isInline :tabs="tabs"/>
     </BasicModal>
   </FormProviderCore>
 </template>
 
 <script lang="ts">
-import {defineComponent} from 'vue'
+import {defineComponent, ref, onMounted} from 'vue'
 import {Tabs} from 'ant-design-vue'
 // import {useModal} from '/@/components/Modal'
 import {BasicModal, useModalInner} from '/@/components/Modal'
@@ -30,6 +30,12 @@ export default defineComponent({
   emits: ['register'],
   setup() {
     const [register, {closeModal, setModalProps}] = useModalInner()
+    const connectionModal = ref()
+
+
+    onMounted(() => {
+      console.log(connectionModal.value, `connectionModal`)
+    })
 
     return {
       register,
@@ -55,7 +61,8 @@ export default defineComponent({
       ],
       bodyStyle: {
         padding: `0`
-      }
+      },
+      connectionModal
     }
   }
 })
