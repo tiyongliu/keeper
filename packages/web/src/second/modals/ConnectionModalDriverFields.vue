@@ -3,7 +3,7 @@
 
   <a-form layout="vertical">
     <a-form-item label="Database engine">
-      <a-select placeholder="please select your zone" :options="engine"/>
+      <a-select placeholder="please select your zone" :options="databaseEngine"/>
     </a-form-item>
 
     <a-form-item label="Resources">
@@ -58,7 +58,7 @@
 </template>
 
 <script lang="ts">
-import {defineComponent, ref} from "vue"
+import {defineComponent, ref, unref} from "vue"
 import {
   Checkbox,
   Col,
@@ -92,7 +92,7 @@ export default defineComponent({
   setup() {
     const electron = null
 
-    const engine = [
+    const databaseEngine = [
       {label: '(select driver)', value: ''},
       ...$extensions.drivers
         .filter(driver => !driver.isElectronOnly || electron)
@@ -102,10 +102,15 @@ export default defineComponent({
         })),
     ]
 
+    const $values = {"server":"localhost","engine":"mysql@dbgate-plugin-mysql","sshMode":"userPassword","sshPort":"22","sshKeyfile":"/Users/liuliutiyong/.ssh/id_rsa","useDatabaseUrl":""}
+
+    const engine = ref($values.engine)
+
     return {
+      databaseEngine,
       engine,
       resources: ref(''),
-      driver: $extensions.drivers.find(x => x.engine == engine)
+      driver: $extensions.drivers.find(x => x.engine == unref(engine))
     }
 
   }
