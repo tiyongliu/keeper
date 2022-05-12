@@ -5,7 +5,16 @@ const connectionListLoader = () =>({
   params: {},
   reloadTrigger: `connection-list-changed`
 })
-
+const databaseServerVersionLoader = ({ conid, database }) => ({
+  url: 'database-connections/server-version',
+  params: { conid, database },
+  reloadTrigger: `database-server-version-changed-${conid}-${database}`,
+});
+const databaseStatusLoader = ({ conid, database }) => ({
+  url: 'database-connections/status',
+  params: { conid, database },
+  reloadTrigger: `database-status-changed-${conid}-${database}`,
+});
 
 
 
@@ -13,6 +22,12 @@ export function useConnectionList(){
   // return useCore(connectionListLoader,{})
 
   return useCore(connectionListLoader,{})
+}
+export function useDatabaseServerVersion(args) {
+  return useCore(databaseServerVersionLoader, args);
+}
+export function useDatabaseStatus(args) {
+  return useCore(databaseStatusLoader, args);
 }
 
 
