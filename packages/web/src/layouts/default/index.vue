@@ -49,6 +49,7 @@
   //todo
   import { cssVariableStore } from "/@/store/modules/cssVariable"
   import WidgetContainer from '/@/second/widgets/WidgetContainer.vue'
+  import StatusBar from '/@/second/widgets/StatusBar.vue'
   import {WarningOutlined} from '@ant-design/icons-vue'
 
   export default defineComponent({
@@ -63,7 +64,8 @@
       Layout,
 
       WidgetContainer,
-      WarningOutlined
+      WarningOutlined,
+      StatusBar
     },
     setup() {
       const { prefixCls } = useDesign('default-layout');
