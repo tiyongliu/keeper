@@ -8,10 +8,8 @@
 <!--  todo 临时 方便调试     -->
       <div>
         <span @click="openModal"> 临时 方便调试 </span>
-
-        <ConnectionModal  @register="register"/>
+        <ConnectionModal @register="register"/>
       </div>
-
 
       <WidgetColumnBarItem
         title="Pinned"
@@ -96,8 +94,6 @@
         database,
         singleDatabase,
 
-
-        //
         register,
         openModal
       }

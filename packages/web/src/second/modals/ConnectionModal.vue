@@ -1,15 +1,7 @@
 <template>
   <FormProviderCore>
-    <BasicModal @register="register" title="Add connection">
-
-      <!--      <a-tabs default-active-key="1">-->
-      <!--        <a-tab-pane key="1" tab="Main" />-->
-      <!--        <a-tab-pane key="2" tab="SSH Tunnel" />-->
-      <!--        <a-tab-pane key="3" tab="SSL" />-->
-      <!--      </a-tabs>-->
-
+    <BasicModal class="connectionModal" @register="register" title="Add connection">
       <TabControl isInline :tabs="tabs"/>
-
     </BasicModal>
   </FormProviderCore>
 </template>
@@ -20,8 +12,10 @@ import {Tabs} from 'ant-design-vue'
 // import {useModal} from '/@/components/Modal'
 import {BasicModal, useModalInner} from '/@/components/Modal'
 import FormProviderCore from '/@/second/forms/FormProviderCore'
-import TabControl from '/@/second/elements/TabControl'
+import TabControl from '/@/second/elements/TabControl.vue'
 import ConnectionModalDriverFields from '/@/second/modals/ConnectionModalDriverFields.vue'
+import ConnectionModalSshTunnelFields from '/@/second/modals/ConnectionModalSshTunnelFields.vue'
+import ConnectionModalSslFields from '/@/second/modals/ConnectionModalSslFields.vue'
 
 const TabPane = Tabs.TabPane
 export default defineComponent({
@@ -31,7 +25,7 @@ export default defineComponent({
     TabControl,
     BasicModal,
     [Tabs.name]: Tabs,
-    [TabPane.name]: TabPane
+    [TabPane.name]: TabPane,
   },
   emits: ['register'],
   setup() {
@@ -41,7 +35,8 @@ export default defineComponent({
       register,
       closeModal,
       setModalProps: () => {
-        setModalProps({title: 'Modal New Title'});
+        //bodyStyle
+        setModalProps({title: 'Modal New Title', bodyStyle: {padding: `0`}});
       },
 
       tabs: [
@@ -51,14 +46,23 @@ export default defineComponent({
         },
         {
           label: 'SSH Tunnel',
+          component: ConnectionModalSshTunnelFields,
         },
         {
           label: 'SSL',
+          component: ConnectionModalSslFields
         },
-      ]
+      ],
+      bodyStyle: {
+        padding: `0`
+      }
     }
   }
 })
 </script>
 
-<style scoped></style>
+<style lang="less" scoped>
+::v-deep(.scrollbar.scroll-container) {
+  padding: 3px;
+}
+</style>

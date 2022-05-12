@@ -1,6 +1,6 @@
 import type { App } from 'vue';
 import { createPinia } from 'pinia';
-import {safeJsonParse} from "/@/utils/lib/pkg/stringTools";
+import {safeJsonParse} from 'dbbox-tools'
 
 const store = createPinia();
 
