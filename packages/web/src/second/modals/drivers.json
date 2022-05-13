@@ -1,0 +1,429 @@
+{
+  "drivers": [
+    {
+      "analyserClass": null,
+      "dialect": {
+        "limitSelect": true,
+        "rangeSelect": true,
+        "offsetFetchRangeSyntax": true,
+        "stringEscapeChar": "'",
+        "fallbackDataType": "nvarchar(max)"
+      },
+      "databaseEngineTypes": [
+        "document"
+      ],
+      "supportedCreateDatabase": true,
+      "engine": "mongo@dbgate-plugin-mongo",
+      "title": "MongoDB",
+      "editorMode": "javascript",
+      "defaultPort": 27017,
+      "supportsDatabaseUrl": true,
+      "databaseUrlPlaceholder": "e.g. mongodb://username:password@mongodb.mydomain.net/dbname",
+      "importExportArgs": [
+        {
+          "type": "checkbox",
+          "name": "createStringId",
+          "label": "Create string _id attribute",
+          "apiName": "createStringId",
+          "direction": "target"
+        }
+      ]
+    },
+    {
+      "analyserClass": null,
+      "dialect": {
+        "limitSelect": true,
+        "rangeSelect": true,
+        "offsetFetchRangeSyntax": true,
+        "rowNumberOverPaging": true,
+        "stringEscapeChar": "'",
+        "fallbackDataType": "nvarchar(max)",
+        "explicitDropConstraint": false,
+        "enableConstraintsPerTable": true,
+        "dropColumnDependencies": [
+          "default",
+          "dependencies",
+          "indexes",
+          "primaryKey",
+          "foreignKeys",
+          "uniques"
+        ],
+        "changeColumnDependencies": [
+          "indexes",
+          "dependencies",
+          "uniques"
+        ],
+        "anonymousPrimaryKey": false,
+        "dropIndexContainsTableSpec": true,
+        "createColumn": true,
+        "dropColumn": true,
+        "changeColumn": true,
+        "createIndex": true,
+        "dropIndex": true,
+        "createForeignKey": true,
+        "dropForeignKey": true,
+        "createPrimaryKey": true,
+        "dropPrimaryKey": true,
+        "createUnique": true,
+        "dropUnique": true,
+        "createCheck": true,
+        "dropCheck": true,
+        "dropReferencesWhenDropTable": true,
+        "columnProperties": {
+          "isSparse": true,
+          "isPersisted": true
+        }
+      },
+      "databaseEngineTypes": [
+        "sql"
+      ],
+      "supportedCreateDatabase": true,
+      "readOnlySessions": false,
+      "engine": "mssql@dbgate-plugin-mssql",
+      "title": "Microsoft SQL Server",
+      "defaultPort": 1433,
+      "defaultAuthTypeName": "tedious"
+    },
+    {
+      "analyserClass": null,
+      "dialect": {
+        "rangeSelect": true,
+        "stringEscapeChar": "\\",
+        "fallbackDataType": "longtext",
+        "enableConstraintsPerTable": false,
+        "anonymousPrimaryKey": true,
+        "explicitDropConstraint": true,
+        "createColumn": true,
+        "dropColumn": true,
+        "changeColumn": true,
+        "createIndex": true,
+        "dropIndex": true,
+        "createForeignKey": true,
+        "dropForeignKey": true,
+        "createPrimaryKey": true,
+        "dropPrimaryKey": true,
+        "dropIndexContainsTableSpec": true,
+        "createUnique": true,
+        "dropUnique": true,
+        "createCheck": true,
+        "dropCheck": true,
+        "dropReferencesWhenDropTable": false,
+        "columnProperties": {
+          "columnComment": true,
+          "isUnsigned": true,
+          "isZerofill": true
+        }
+      },
+      "databaseEngineTypes": [
+        "sql"
+      ],
+      "supportedCreateDatabase": true,
+      "defaultPort": 3306,
+      "readOnlySessions": true,
+      "supportsDatabaseDump": true,
+      "engine": "mysql@dbgate-plugin-mysql",
+      "title": "MySQL"
+    },
+    {
+      "analyserClass": null,
+      "dialect": {
+        "rangeSelect": true,
+        "stringEscapeChar": "\\",
+        "fallbackDataType": "longtext",
+        "enableConstraintsPerTable": false,
+        "anonymousPrimaryKey": true,
+        "explicitDropConstraint": true,
+        "createColumn": true,
+        "dropColumn": true,
+        "changeColumn": true,
+        "createIndex": true,
+        "dropIndex": true,
+        "createForeignKey": true,
+        "dropForeignKey": true,
+        "createPrimaryKey": true,
+        "dropPrimaryKey": true,
+        "dropIndexContainsTableSpec": true,
+        "createUnique": true,
+        "dropUnique": true,
+        "createCheck": true,
+        "dropCheck": true,
+        "dropReferencesWhenDropTable": false,
+        "columnProperties": {
+          "columnComment": true,
+          "isUnsigned": true,
+          "isZerofill": true
+        }
+      },
+      "databaseEngineTypes": [
+        "sql"
+      ],
+      "supportedCreateDatabase": true,
+      "defaultPort": 3306,
+      "readOnlySessions": true,
+      "supportsDatabaseDump": true,
+      "engine": "mariadb@dbgate-plugin-mysql",
+      "title": "MariaDB"
+    },
+    {
+      "analyserClass": null,
+      "dialect": {
+        "rangeSelect": true,
+        "ilike": true,
+        "stringEscapeChar": "'",
+        "fallbackDataType": "varchar",
+        "anonymousPrimaryKey": true,
+        "enableConstraintsPerTable": true,
+        "dropColumnDependencies": [
+          "dependencies"
+        ],
+        "stringAgg": true,
+        "createColumn": true,
+        "dropColumn": true,
+        "changeColumn": true,
+        "createIndex": true,
+        "dropIndex": true,
+        "createForeignKey": true,
+        "dropForeignKey": true,
+        "createPrimaryKey": true,
+        "dropPrimaryKey": true,
+        "createUnique": true,
+        "dropUnique": true,
+        "createCheck": true,
+        "dropCheck": true,
+        "dropReferencesWhenDropTable": true,
+        "materializedViews": true
+      },
+      "databaseEngineTypes": [
+        "sql"
+      ],
+      "supportedCreateDatabase": true,
+      "readOnlySessions": true,
+      "databaseUrlPlaceholder": "e.g. postgresql://user:password@localhost:5432/default_database",
+      "__analyserInternals": {
+        "refTableCond": ""
+      },
+      "engine": "postgres@dbgate-plugin-postgres",
+      "title": "PostgreSQL",
+      "defaultPort": 5432
+    },
+    {
+      "analyserClass": null,
+      "dialect": {
+        "rangeSelect": true,
+        "ilike": true,
+        "stringEscapeChar": "'",
+        "fallbackDataType": "varchar",
+        "anonymousPrimaryKey": true,
+        "enableConstraintsPerTable": true,
+        "dropColumnDependencies": [
+          "primaryKey",
+          "dependencies"
+        ],
+        "stringAgg": true,
+        "createColumn": true,
+        "dropColumn": true,
+        "changeColumn": true,
+        "createIndex": true,
+        "dropIndex": true,
+        "createForeignKey": true,
+        "dropForeignKey": true,
+        "createPrimaryKey": true,
+        "dropPrimaryKey": false,
+        "createUnique": true,
+        "dropUnique": true,
+        "createCheck": true,
+        "dropCheck": true,
+        "dropReferencesWhenDropTable": true,
+        "materializedViews": true
+      },
+      "databaseEngineTypes": [
+        "sql"
+      ],
+      "supportedCreateDatabase": true,
+      "readOnlySessions": true,
+      "databaseUrlPlaceholder": "e.g. postgresql://user:password@localhost:5432/default_database",
+      "__analyserInternals": {
+        "refTableCond": "and fk.referenced_table_name = ref.table_name"
+      },
+      "engine": "cockroach@dbgate-plugin-postgres",
+      "title": "CockroachDB",
+      "defaultPort": 26257
+    },
+    {
+      "analyserClass": null,
+      "dialect": {
+        "rangeSelect": true,
+        "ilike": true,
+        "stringEscapeChar": "'",
+        "fallbackDataType": "varchar",
+        "anonymousPrimaryKey": true,
+        "enableConstraintsPerTable": true,
+        "dropColumnDependencies": [
+          "dependencies"
+        ],
+        "stringAgg": false,
+        "createColumn": true,
+        "dropColumn": true,
+        "changeColumn": true,
+        "createIndex": true,
+        "dropIndex": true,
+        "createForeignKey": true,
+        "dropForeignKey": true,
+        "createPrimaryKey": true,
+        "dropPrimaryKey": true,
+        "createUnique": true,
+        "dropUnique": true,
+        "createCheck": true,
+        "dropCheck": true,
+        "dropReferencesWhenDropTable": true
+      },
+      "databaseEngineTypes": [
+        "sql"
+      ],
+      "supportedCreateDatabase": true,
+      "readOnlySessions": true,
+      "databaseUrlPlaceholder": "e.g. redshift-cluster-1.xxxx.redshift.amazonaws.com:5439/dev",
+      "__analyserInternals": {
+        "refTableCond": "",
+        "skipIndexes": true
+      },
+      "engine": "redshift@dbgate-plugin-postgres",
+      "title": "Amazon Redshift",
+      "defaultPort": 5439
+    },
+    {
+      "analyserClass": null,
+      "dialect": {
+        "limitSelect": true,
+        "rangeSelect": true,
+        "offsetFetchRangeSyntax": true,
+        "stringEscapeChar": "'",
+        "fallbackDataType": "nvarchar(max)"
+      },
+      "databaseEngineTypes": [
+        "keyvalue"
+      ],
+      "supportedCreateDatabase": false,
+      "engine": "redis@dbgate-plugin-redis",
+      "title": "Redis",
+      "defaultPort": 6379,
+      "editorMode": "text",
+      "databaseUrlPlaceholder": "e.g. redis://:authpassword@127.0.0.1:6380/4",
+      "supportedKeyTypes": [
+        {
+          "name": "string",
+          "label": "String",
+          "dbKeyFields": [
+            {
+              "name": "value"
+            }
+          ],
+          "addMethod": "set"
+        },
+        {
+          "name": "list",
+          "label": "List",
+          "dbKeyFields": [
+            {
+              "name": "value"
+            }
+          ],
+          "addMethod": "rpush",
+          "showItemList": true
+        },
+        {
+          "name": "set",
+          "label": "Set",
+          "dbKeyFields": [
+            {
+              "name": "value"
+            }
+          ],
+          "keyColumn": "value",
+          "addMethod": "sadd",
+          "showItemList": true
+        },
+        {
+          "name": "zset",
+          "label": "Sorted Set",
+          "dbKeyFields": [
+            {
+              "name": "score"
+            },
+            {
+              "name": "value"
+            }
+          ],
+          "keyColumn": "value",
+          "addMethod": "zadd",
+          "showItemList": true
+        },
+        {
+          "name": "hash",
+          "label": "Hash",
+          "dbKeyFields": [
+            {
+              "name": "key"
+            },
+            {
+              "name": "value"
+            }
+          ],
+          "keyColumn": "key",
+          "addMethod": "hset",
+          "showItemList": true
+        },
+        {
+          "name": "stream",
+          "label": "Stream",
+          "dbKeyFields": [
+            {
+              "name": "id"
+            },
+            {
+              "name": "value"
+            }
+          ],
+          "keyColumn": "id",
+          "addMethod": "xaddjson",
+          "showItemList": true
+        }
+      ]
+    },
+    {
+      "analyserClass": null,
+      "dialect": {
+        "limitSelect": true,
+        "rangeSelect": true,
+        "offsetFetchRangeSyntax": false,
+        "explicitDropConstraint": true,
+        "stringEscapeChar": "'",
+        "fallbackDataType": "nvarchar",
+        "dropColumnDependencies": [
+          "indexes",
+          "primaryKey",
+          "uniques"
+        ],
+        "anonymousPrimaryKey": true,
+        "disableExplicitTransaction": true,
+        "createColumn": true,
+        "dropColumn": true,
+        "createIndex": true,
+        "dropIndex": true,
+        "createForeignKey": false,
+        "dropForeignKey": false,
+        "createPrimaryKey": false,
+        "dropPrimaryKey": false,
+        "dropReferencesWhenDropTable": false
+      },
+      "databaseEngineTypes": [
+        "sql"
+      ],
+      "supportedCreateDatabase": true,
+      "engine": "sqlite@dbgate-plugin-sqlite",
+      "title": "SQLite",
+      "readOnlySessions": true,
+      "isElectronOnly": true
+    }
+  ]
+}
