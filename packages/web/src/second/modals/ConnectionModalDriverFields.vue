@@ -5,6 +5,16 @@
     <a-form-item label="Database engine">
       <a-select placeholder="please select your zone" :options="databaseEngine"/>
     </a-form-item>
+    <a-form-item label="Database file">
+      <a-row type="flex" justify="space-between" align="top">
+        <a-col :span="12">
+          <a-input/>
+        </a-col>
+        <a-col :span="12">
+          <a-button type="primary">browse</a-button>
+        </a-col>
+      </a-row>
+    </a-form-item>
 
     <a-form-item label="Resources">
       <a-radio-group v-model:value="resources" name="radioGroup" :options="[
@@ -60,6 +70,7 @@
 <script lang="ts">
 import {defineComponent, ref, unref} from "vue"
 import {
+  Button,
   Checkbox,
   Col,
   Form,
@@ -88,6 +99,7 @@ export default defineComponent({
     [Col.name]: Col,
     [InputPassword.name]: InputPassword,
     [Checkbox.name]: Checkbox,
+    [Button.name]: Button,
   },
   setup() {
     const electron = null
@@ -102,7 +114,14 @@ export default defineComponent({
         })),
     ]
 
-    const $values = {"server":"localhost","engine":"mysql@dbgate-plugin-mysql","sshMode":"userPassword","sshPort":"22","sshKeyfile":"/Users/liuliutiyong/.ssh/id_rsa","useDatabaseUrl":""}
+    const $values = {
+      "server": "localhost",
+      "engine": "mysql@dbgate-plugin-mysql",
+      "sshMode": "userPassword",
+      "sshPort": "22",
+      "sshKeyfile": "/Users/liuliutiyong/.ssh/id_rsa",
+      "useDatabaseUrl": ""
+    }
 
     const engine = ref($values.engine)
 
