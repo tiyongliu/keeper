@@ -73,7 +73,7 @@
 </template>
 <script lang="ts">
 import moment from 'moment';
-import { defineComponent, computed, computed, unref, toRefs, ref,reactive} from 'vue';
+import { defineComponent, computed} from 'vue';
 import FontIcon from '/@/second/icons/FontIcon.vue'
 import {dataBaseStore} from "/@/store/modules/dataBase"
 import { useConnectionColor } from "/@/second/utility/useConnectionColor"
@@ -120,7 +120,8 @@ export default defineComponent({
         status,
         serverVersion,
         handleSyncModel,
-        contextItems
+        contextItems,
+        moment
       }
     }
 
