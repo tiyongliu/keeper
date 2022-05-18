@@ -45,3 +45,5 @@ pnpm-debug.log*
 
 # Dependency directories (remove the comment below to include it)
 # vendor/
+packages/web/pnpm-lock.yaml
+pnpm-lock.yaml
