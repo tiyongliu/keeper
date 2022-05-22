@@ -2,7 +2,9 @@ package main
 
 import (
 	"embed"
+	"github.com/gin-gonic/gin"
 	"log"
+	"net/http"
 
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/logger"
@@ -13,13 +15,27 @@ import (
 //go:embed packages/web/dist
 var assets embed.FS
 
+func web() {
+	engine := gin.Default()
+	engine.GET("/", func(context *gin.Context) {
+		context.JSON(http.StatusOK, gin.H{
+			"msg": 1,
+		})
+	})
+	engine.Run(":34115")
+}
 func main() {
+
+	go func() {
+		web()
+	}()
+
 	// Create an instance of the app structure
 	app := NewApp()
 
 	// Create application with options
 	err := wails.Run(&options.App{
-		Title:  "te",
+		Title:  "wails",
 		Width:  1024,
 		Height: 768,
 		// MinWidth:          720,
@@ -47,8 +63,8 @@ func main() {
 			DisableWindowIcon:    false,
 		},
 	})
-
 	if err != nil {
 		log.Fatal(err)
 	}
+
 }
