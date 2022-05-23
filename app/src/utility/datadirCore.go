@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-const MkDir = "dbbox-data"
+const MkDir = "vaults-data"
 
 func dataDirCore() string {
 	dir, _ := os.UserHomeDir()
