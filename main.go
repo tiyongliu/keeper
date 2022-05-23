@@ -1,38 +1,26 @@
 package main
 
 import (
+	"dbbox/app"
 	"embed"
-	"github.com/gin-gonic/gin"
-	"log"
-	"net/http"
-
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/logger"
 	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/options/windows"
+	"log"
 )
 
 //go:embed packages/web/dist
 var assets embed.FS
 
-func web() {
-	engine := gin.Default()
-	engine.GET("/", func(context *gin.Context) {
-		context.JSON(http.StatusOK, gin.H{
-			"msg": 1,
-		})
-	})
-	engine.Run(":34115")
-}
 func main() {
 
-	go func() {
-		web()
+	defer func() {
+		app.RunApplication()
 	}()
 
 	// Create an instance of the app structure
 	app := NewApp()
-
 	// Create application with options
 	err := wails.Run(&options.App{
 		Title:  "wails",
