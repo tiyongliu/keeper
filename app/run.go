@@ -1,14 +1,22 @@
-package main
+package app
 
 import (
-	"fmt"
-	"reflect"
+	"dbbox/app/src/startup"
+	"dbbox/app/src/variable"
 )
 
-//reflect.TypeOf(connection).Kind().String()
-func main() {
-	r := map[string]string{"v": "1"}
-	d := reflect.TypeOf(r).Kind() == reflect.Map
-
-	fmt.Println(d)
+func RunApplication() {
+	application := &variable.SystemApplication{
+		Application: &variable.Application{
+			Port: 8980,
+		},
+		RegisterHandlerRoute: startup.RegisterHandlerRoute,
+	}
+	run(application)
 }
+
+//gin 参考
+//https://github.com/gin-gonic/examples
+
+//一个支持多存储的文件列表程序，使用 Gin 和 React
+//https://github.com/Xhofe/alist.git
