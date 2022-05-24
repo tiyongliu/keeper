@@ -1,6 +1,7 @@
 package utility
 
 import (
+	"dbbox/app/src/internal/tools"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -23,7 +24,7 @@ func LoadEncryptionKey() string {
 	keyFile := path.Join(defaultFile, ".key")
 
 	encryptor := CreateEncryptor(defaultEncryptionKey)
-	if !IsExist(filepath.Dir(keyFile)) {
+	if !tools.IsExist(filepath.Dir(keyFile)) {
 		if err := os.MkdirAll(filepath.Dir(keyFile), 0777); err != nil {
 			log.Fatalf("os.MkdirAll failed err: %v\n", err)
 			return ""
@@ -100,7 +101,7 @@ func MaskConnection(connection map[string]string) map[string]string {
 	if len(connection) == 0 {
 		return connection
 	}
-	return MapOmit(connection, []string{"password", "sshPassword", "sshKeyfilePassword"})
+	return tools.MapOmit(connection, []string{"password", "sshPassword", "sshKeyfilePassword"})
 }
 
 func DecryptConnection(connection map[string]string) map[string]string {
@@ -111,7 +112,7 @@ func DecryptConnection(connection map[string]string) map[string]string {
 }
 
 func PickSafeConnectionInfo(connection map[string]string) map[string]string {
-	return MapValues(connection, func(k, v interface{}) interface{} {
+	return tools.MapValues(connection, func(k, v interface{}) interface{} {
 		if k == "engine" || k == "port" || k == "authType" || k == "sshMode" || k == "passwordMode" {
 			return v
 		}

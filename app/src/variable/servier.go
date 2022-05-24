@@ -8,6 +8,5 @@ type Application struct {
 
 type SystemApplication struct {
 	*Application
-	RegisterHandlerRoute func() *gin.Engine
+	RegisterHttpRoute func() *gin.Engine
 }
-
