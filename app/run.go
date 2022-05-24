@@ -10,7 +10,7 @@ func RunApplication() {
 		Application: &variable.Application{
 			Port: 8980,
 		},
-		RegisterHandlerRoute: startup.RegisterHandlerRoute,
+		RegisterHttpRoute: startup.RegisterHttpRoute,
 	}
 	run(application)
 }

@@ -5,7 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func RegisterHandlerRoute() *gin.Engine {
+func RegisterHttpRoute() *gin.Engine {
 	gin.SetMode(gin.DebugMode)
 	return routers.InitRouter()
 }
