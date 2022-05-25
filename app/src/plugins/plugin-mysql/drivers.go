@@ -1,10 +1,10 @@
 package plugin_mysql
 
 import (
+	"dbbox/app/src/pkg/logger"
+	"dbbox/app/src/pkg/standard"
 	"fmt"
 	"regexp"
-	"system/pkg/logger"
-	"system/pkg/standard"
 )
 
 type MysqlDrivers struct {
