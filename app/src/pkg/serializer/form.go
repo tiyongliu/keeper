@@ -1,11 +1,11 @@
 package serializer
 
 import (
+	"dbbox/app/src/pkg/logger"
 	"errors"
 	"github.com/astaxie/beego/validation"
 	"github.com/gin-gonic/gin"
 	"strings"
-	"system/pkg/logger"
 )
 
 var (

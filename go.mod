@@ -19,7 +19,23 @@ require (
 )
 
 require (
-	github.com/fatih/structs v1.1.0 // indirect
+	github.com/go-ole/go-ole v1.2.6 // indirect
+	github.com/google/uuid v1.1.2 // indirect
+	github.com/jchv/go-winloader v0.0.0-20210711035445-715c2860da7e // indirect
+	github.com/labstack/echo/v4 v4.7.2 // indirect
+	github.com/leaanthony/go-ansi-parser v1.0.1 // indirect
+	github.com/leaanthony/go-common-file-dialog v1.0.3 // indirect
+	github.com/leaanthony/gosod v1.0.3 // indirect
+	github.com/pkg/browser v0.0.0-20210706143420-7d21f8c997e2 // indirect
+	github.com/tkrajina/go-reflector v0.5.5 // indirect
+	github.com/valyala/bytebufferpool v1.0.0 // indirect
+	github.com/valyala/fasttemplate v1.2.1 // indirect
+	github.com/wailsapp/mimetype v1.4.1 // indirect
+	golang.org/x/net v0.0.0-20211015210444-4f30a5c0130f // indirect
+)
+
+require (
+	github.com/fatih/structs v1.1.0
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/go-playground/locales v0.13.0 // indirect
 	github.com/go-playground/universal-translator v0.17.0 // indirect
@@ -32,7 +48,7 @@ require (
 	github.com/jinzhu/now v1.1.4 // indirect
 	github.com/json-iterator/go v1.1.10 // indirect
 	github.com/klauspost/compress v1.13.6 // indirect
-	github.com/labstack/gommon v0.3.1
+	github.com/labstack/gommon v0.3.1 // indirect
 	github.com/leaanthony/slicer v1.5.0 // indirect
 	github.com/leodido/go-urn v1.2.0 // indirect
 	github.com/mattn/go-colorable v0.1.11 // indirect
