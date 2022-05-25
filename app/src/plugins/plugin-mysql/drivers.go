@@ -4,25 +4,27 @@ import (
 	"dbbox/app/src/pkg/logger"
 	"dbbox/app/src/pkg/standard"
 	"fmt"
+	"gorm.io/gorm"
 	"regexp"
 )
 
 type MysqlDrivers struct {
+	DB *gorm.DB
 }
 
 func NewMysql() standard.SqlStandard {
 	return &MysqlDrivers{}
 }
 
+func (mysql *MysqlDrivers) GetPoolInfo() interface{} {
+	return mysql.DB
+}
+
 func (mysql *MysqlDrivers) GetVersion() (interface{}, error) {
-	connect, err := NewConnection("127.0.0.1", "3306", "root", "123456", "mysql")
-	if err != nil {
-		return nil, err
-	}
 
 	var rows []string
 
-	err = connect.Raw("select version()").Scan(&rows).Error
+	err := mysql.DB.Raw("select version()").Scan(&rows).Error
 	if err != nil {
 		logger.Errorf("get mysql version failed: %v", err)
 		return nil, err

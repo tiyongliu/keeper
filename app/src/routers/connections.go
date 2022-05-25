@@ -1,8 +1,11 @@
 package routers
 
-import "github.com/gin-gonic/gin"
+import (
+	"dbbox/app/src/controllers"
+	"github.com/gin-gonic/gin"
+)
 
 func publicConnections(router *gin.RouterGroup) {
-	router.GET("test")
+	router.GET("test", controllers.Test)
 	router.GET("list")
 }
