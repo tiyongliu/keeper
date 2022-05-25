@@ -6,8 +6,22 @@ type MysqlConnection struct {
 	SshMode    string `json:"sshMode"`
 	SshPort    string `json:"sshPort"`
 	SshKeyfile string `json:"sshKeyfile"`
-	User       string `json:"user"`
+	User       string `json:"username"`
 	Password   string `json:"password"`
+}
+
+type SimpleSettingMysql struct {
+	Host            string `yaml:"host" json:"host"`
+	Username        string `yaml:"username" json:"username"`
+	Password        string `yaml:"password" json:"password"`
+	DBName          string `yaml:"dBName" json:"dbName"`
+	Charset         string `yaml:"charset" json:"charset"`
+	MaxIdle         int    `yaml:"maxIdle" json:"maxIdle"`
+	MaxOpen         int    `yaml:"maxOpen" json:"maxOpen"`
+	Loc             string `yaml:"loc" json:"loc"`
+	MultiStatements bool   `yaml:"multiStatements" json:"multiStatements"`
+	ParseTime       bool   `yaml:"parseTime" json:"parseTime"`
+	ShowSql         bool   `yaml:"showSql" json:"showSql"`
 }
 
 /*
