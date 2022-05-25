@@ -1,6 +1,7 @@
 package plugin_mysql
 
 import (
+	"dbbox/app/src/modules"
 	"fmt"
 	"testing"
 )
@@ -30,4 +31,19 @@ func TestGetVersion(t *testing.T) {
 	result, err := NewMysql().GetVersion()
 	fmt.Println(err)
 	t.Logf("%v", result)
+}
+
+func Test_Pool(t *testing.T) {
+	pool, err := NewSimpleMysqlPool(&modules.SimpleSettingMysql{
+		Host:     "localhost",
+		Username: "root",
+		Password: "123456",
+		Port:     "3306",
+	})
+
+	if err != nil {
+		fmt.Printf("err: %v \n", err)
+	}
+
+	fmt.Println(pool)
 }

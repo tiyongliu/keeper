@@ -25,7 +25,7 @@ func run(application *variable.SystemApplication) {
 func callRunner(webApp *variable.Application) {
 	srvHandler := &http.Server{
 		Addr:      localAddr + strconv.Itoa(webApp.Port),
-		Handler:   startup.RegisterHandlerRoute(),
+		Handler:   startup.RegisterHttpRoute(),
 		TLSConfig: nil,
 		//ReadTimeout:       0,
 		//ReadHeaderTimeout: 0,
