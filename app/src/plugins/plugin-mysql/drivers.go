@@ -49,3 +49,11 @@ func (mysql *MysqlDrivers) GetVersion() (interface{}, error) {
 func (mysql *MysqlDrivers) ListDatabases() (interface{}, error) {
 	return nil, nil
 }
+
+func (mysql *MysqlDrivers) Close() error {
+	db, err := mysql.DB.DB()
+	if err != nil {
+		return err
+	}
+	return db.Close()
+}
