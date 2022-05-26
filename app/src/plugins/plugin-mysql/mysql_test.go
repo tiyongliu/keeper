@@ -45,5 +45,12 @@ func Test_Pool(t *testing.T) {
 		fmt.Printf("err: %v \n", err)
 	}
 
-	fmt.Println(pool)
+	defer pool.Close()
+
+	version, err := pool.GetVersion()
+	if err != nil {
+		fmt.Printf("err: %v \n", err)
+	}
+
+	fmt.Println(version)
 }
