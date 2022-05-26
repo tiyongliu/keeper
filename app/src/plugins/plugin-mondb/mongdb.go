@@ -35,16 +35,6 @@ func Connect() {
 	listDatabases()
 }
 
-type List struct {
-	Databases []*struct {
-		Name       string `bson:"name" json:"name"`
-		SizeOnDisk int    `bson:"sizeOnDisk" json:"sizeOnDisk"`
-		Empty      bool   `bson:"empty" json:"empty"`
-	} `bson:"databases" json:"databases"`
-	TotalSize int `bson:"totalSize" json:"totalSize"`
-	Ok        int `bson:"ok" json:"ok"`
-}
-
 func listDatabases() {
 	//db.adminCommand('listDatabases');
 	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017")

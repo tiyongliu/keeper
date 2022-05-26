@@ -1,6 +1,7 @@
 package plugin_mondb
 
 import (
+	"dbbox/app/src/internal/tools"
 	"dbbox/app/src/modules"
 	"fmt"
 	"testing"
@@ -21,6 +22,8 @@ func Test_Pool(t *testing.T) {
 		return
 	}
 
+	defer pool.Close()
+
 	version, err := pool.GetVersion()
 	if err != nil {
 		fmt.Printf("err: %v \n", err)
@@ -28,4 +31,13 @@ func Test_Pool(t *testing.T) {
 	}
 
 	fmt.Println(version)
+
+	databases, err := pool.ListDatabases()
+	if err != nil {
+		fmt.Printf("err: %v \n", err)
+		return
+	}
+
+	fmt.Printf("list: %s", tools.ToJsonStr(databases))
+
 }
