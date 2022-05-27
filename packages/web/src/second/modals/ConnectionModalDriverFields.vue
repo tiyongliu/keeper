@@ -11,7 +11,7 @@
           <a-input/>
         </a-col>
         <a-col :span="12">
-          <a-button type="primary">browse</a-button>
+          <a-button type="primary" @click="handleTest">browse</a-button>
         </a-col>
       </a-row>
     </a-form-item>
@@ -85,6 +85,7 @@ import {
 } from 'ant-design-vue'
 import $extensions from './drivers.json'
 
+import {handleDriverTestApi} from '/@/api/connection'
 export default defineComponent({
   name: 'ConnectionModalDriverFields',
   components: {
@@ -125,11 +126,24 @@ export default defineComponent({
 
     const engine = ref($values.engine)
 
+    const handleTest = () => {
+      handleDriverTestApi({
+        engine: "mysql",
+        password: "123456",
+        server: "localhost",
+        sshKeyfile: "/Users/liuliutiyong/.ssh/id_rsa",
+        sshMode: "userPassword",
+        sshPort: "22",
+        user: "root",
+        port: "3306"
+      })
+    }
     return {
       databaseEngine,
       engine,
       resources: ref(''),
-      driver: $extensions.drivers.find(x => x.engine == unref(engine))
+      driver: $extensions.drivers.find(x => x.engine == unref(engine)),
+      handleTest,
     }
 
   }

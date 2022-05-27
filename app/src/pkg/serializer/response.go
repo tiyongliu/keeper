@@ -32,9 +32,6 @@ func Fail(ctx *gin.Context, message string) {
 
 //成功
 func Success(ctx *gin.Context, message string) {
-	if message == "" {
-		message = "操作成功"
-	}
 	ctx.JSON(http.StatusOK, &Response{
 		Code:    Code_SUCCESS,
 		Result:  nil,
@@ -45,9 +42,6 @@ func Success(ctx *gin.Context, message string) {
 }
 
 func SuccessData(ctx *gin.Context, message string, data interface{}) {
-	if message == "" {
-		message = "操作成功"
-	}
 	ctx.JSON(http.StatusOK, &Response{
 		Code:    Code_SUCCESS,
 		Result:  data,
@@ -58,9 +52,6 @@ func SuccessData(ctx *gin.Context, message string, data interface{}) {
 }
 
 func Reply(ctx *gin.Context, res *Response) {
-	if res.Message == "" && res.Code == Code_SUCCESS {
-		res.Message = "操作成功"
-	}
 	res.Type = "success"
 	res.Time = time.Now().Unix()
 	ctx.JSON(http.StatusOK, res)
