@@ -6,8 +6,9 @@ type MysqlConnection struct {
 	SshMode    string `json:"sshMode"`
 	SshPort    string `json:"sshPort"`
 	SshKeyfile string `json:"sshKeyfile"`
-	User       string `json:"username"`
+	User       string `json:"user"`
 	Password   string `json:"password"`
+	Port       string `json:"port"`
 }
 
 type SimpleSettingMysql struct {
