@@ -1,10 +1,10 @@
 {
-  "name": "dbbox",
-  "assetdir": "packages/web/dist/assets",
-  "frontend:dev:serverUrl": "https://localhost:3100",
-  "version": "0.0.1",
+  "name": "keeper",
+  "outputfilename": "keeper",
+  "frontend:dev:watcher": "pnpm run dev",
+  "frontend:dev:serverUrl": "http://localhost:3100",
   "author": {
-    "name": "l422720735",
+    "name": "liutiyong",
     "email": "422720735@qq.com"
   }
 }
