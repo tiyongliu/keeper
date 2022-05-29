@@ -7,7 +7,7 @@ export async function apiCall<T>(relativePath: string, params?: T): Promise<T> {
   //读取环境变量
   console.log('>>> API CALL', relativePath, params)
 
-  if (environment !== 'web') {
+  if (environment === 'web') {
     const resp = await defHttp.post({url: relativePath, params})
     return resp
   } else {
@@ -20,10 +20,5 @@ export async function apiCall<T>(relativePath: string, params?: T): Promise<T> {
      return e
    }
   }
-}
-
-function processApiResponse(route, args, resp) {
-  console.log('<<< API RESPONSE', route, args, resp)
-
-
+  return
 }
