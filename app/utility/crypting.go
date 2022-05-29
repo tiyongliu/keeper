@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"keeper/app/src/internal/tools"
+	"keeper/app/internal/tools"
 	"log"
 	"os"
 	"path"

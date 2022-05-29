@@ -21,9 +21,7 @@ func (mg *MongoDBDrivers) GetPoolInfo() interface{} {
 }
 
 func (mg *MongoDBDrivers) GetVersion() (interface{}, error) {
-	//defer mg.DB.Disconnect(keeperCtx.Background())
 	db := mg.DB.Database("local")
-
 	buildInfoCmd := bson.D{bson.E{Key: "buildInfo", Value: 1}}
 	var buildInfoDoc bson.M
 	if err := db.RunCommand(context.TODO(), buildInfoCmd).Decode(&buildInfoDoc); err != nil {
@@ -48,8 +46,6 @@ type List struct {
 func (mg *MongoDBDrivers) ListDatabases() (interface{}, error) {
 	buildInfoCmd := bson.D{bson.E{Key: "listDatabases", Value: 1}}
 	var buildInfoDoc List
-
-	//databases, err := mg.DB.ListDatabaseNames(keeperCtx.Background(), bson.M{})
 	db := mg.DB.Database("admin")
 	err := db.RunCommand(context.TODO(), buildInfoCmd).Decode(&buildInfoDoc)
 	return buildInfoDoc, err

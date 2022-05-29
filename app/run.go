@@ -1,8 +1,8 @@
 package app
 
 import (
-	"keeper/app/src/startup"
-	"keeper/app/src/variable"
+	"keeper/app/startup"
+	"keeper/app/variable"
 )
 
 func RunApplication() {
