@@ -4,6 +4,13 @@ import {apiCall} from '/@/second/utility/api'
 * @description 测试连接池
 * @param {Object} params 连接信息
 */
-export async function handleDriverTestApi(params) {
+
+var a = {
+  relativePath: '/connections/test',
+  params: function () {}
+}
+
+
+export async function handleDriverTestApi(params: Function) {
   const resp = await apiCall('/connections/test', params)
 }
