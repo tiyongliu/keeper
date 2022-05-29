@@ -9,7 +9,7 @@ type MMMM struct {
 	ctx context.Context
 }
 
-func NewMMMM() *MMMM {
+func New() *MMMM {
 	return &MMMM{}
 }
 
