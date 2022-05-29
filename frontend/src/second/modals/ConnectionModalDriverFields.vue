@@ -86,6 +86,8 @@ import {
 import $extensions from './drivers.json'
 
 import {handleDriverTestApi} from '/@/api/connection'
+
+import {Greet} from '/@/wailsjs/go/main/App'
 export default defineComponent({
   name: 'ConnectionModalDriverFields',
   components: {
@@ -127,6 +129,9 @@ export default defineComponent({
     const engine = ref($values.engine)
 
     const handleTest = () => {
+      Greet("123").then(res => {
+        alert(res)
+      })
       handleDriverTestApi({
         engine: "mysql",
         password: "123456",
