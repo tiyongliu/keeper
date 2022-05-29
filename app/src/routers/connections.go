@@ -1,8 +1,8 @@
 package routers
 
 import (
-	"dbbox/app/src/controllers"
 	"github.com/gin-gonic/gin"
+	"keeper/app/src/controllers"
 )
 
 func publicConnections(router *gin.RouterGroup) {

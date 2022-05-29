@@ -2,12 +2,12 @@ package plugin_mysql
 
 import (
 	"bytes"
-	"dbbox/app/src/modules"
-	"dbbox/app/src/pkg/standard"
 	"fmt"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
+	"keeper/app/src/modules"
+	"keeper/app/src/pkg/standard"
 	"log"
 	"os"
 	"time"

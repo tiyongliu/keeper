@@ -31,7 +31,7 @@ func Connect() {
 		return
 	}
 	log.Println("Database version:", buildInfoDoc)
-	//client.Ping(context.Background(), nil)
+	//client.Ping(keeperCtx.Background(), nil)
 	listDatabases()
 }
 

@@ -15,10 +15,9 @@ func NewApp() *App {
 	return &App{}
 }
 
-// startup is called when the app starts. The context is saved
+// startup is called when the app starts. The keeperCtx is saved
 // so we can call the runtime methods
 func (a *App) startup(ctx context.Context) {
-	fmt.Println(ctx)
 	a.ctx = ctx
 }
 
@@ -31,12 +30,6 @@ func (a *App) shutdown(ctx context.Context) {
 func (a *App) Greet(name string) string {
 	return fmt.Sprintf("Hello %s, It's show time!", name)
 }
-
-
-
-
-
-
 
 // domReady is called after the front-end dom has been loaded
 func (a App) domReady(ctx context.Context) {

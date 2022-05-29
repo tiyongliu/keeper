@@ -1,12 +1,12 @@
 package main
 
 import (
-	"changeme/app"
 	"embed"
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/logger"
 	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/options/windows"
+	"keeper/app/src/plugins/plugin-mondb/src/backend"
 	"log"
 )
 
@@ -14,12 +14,10 @@ import (
 var assets embed.FS
 
 func main() {
-
-	defer func() {
-		app.RunApplication()
-	}()
+	//go app.RunApplication()
 
 	// Create an instance of the app structure
+	a := backend.NewMMMM()
 	app := NewApp()
 	// Create application with options
 	err := wails.Run(&options.App{
@@ -43,6 +41,7 @@ func main() {
 		OnShutdown:        app.shutdown,
 		Bind: []interface{}{
 			app,
+			a,
 		},
 		// Windows platform specific options
 		Windows: &windows.Options{
