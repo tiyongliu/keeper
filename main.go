@@ -1,12 +1,12 @@
 package main
 
 import (
+	"changeme/app"
 	"embed"
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/logger"
 	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/options/windows"
-	"keeper/app/src/plugins/plugin-mondb/src/backend"
 	"log"
 )
 
@@ -41,7 +41,6 @@ func main() {
 		OnShutdown:        app.shutdown,
 		Bind: []interface{}{
 			app,
-			a,
 		},
 		// Windows platform specific options
 		Windows: &windows.Options{
