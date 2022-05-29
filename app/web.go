@@ -2,12 +2,11 @@ package app
 
 import (
 	"context"
-	"dbbox/app/src/startup"
-	"dbbox/app/src/variable"
-	"log"
+	"keeper/app/src/keeperContext"
+	"keeper/app/src/pkg/logger"
+	"keeper/app/src/startup"
+	"keeper/app/src/variable"
 	"net/http"
-	"os"
-	"os/signal"
 	"strconv"
 	"time"
 )
@@ -22,6 +21,45 @@ func run(application *variable.SystemApplication) {
 	callRunner(application.Application)
 }
 
+func callRunner(webApp *variable.Application) error {
+	srv := &http.Server{
+		Addr:      localAddr + strconv.Itoa(webApp.Port),
+		Handler:   startup.RegisterHttpRoute(),
+		TLSConfig: nil,
+		//ReadTimeout:       0,
+		//ReadHeaderTimeout: 0,
+		WriteTimeout:   time.Duration(10) * time.Second,
+		IdleTimeout:    time.Duration(10) * time.Second,
+		MaxHeaderBytes: 1 << 20,
+		//TLSNextProto:      nil,
+		//ConnState:         nil,
+		//ErrorLog:          nil,
+		//BaseContext:       nil,
+		//ConnContext:       nil,
+	}
+
+	ctx, _ := keeperContext.WithCancelAndSignalHandler()
+
+	go func() {
+		<-ctx.Done()
+
+		timeout, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		if err := srv.Shutdown(timeout); err != nil {
+			logger.Fatalf("Server Shutdown Error: %v", err)
+		}
+		select {
+		case <-timeout.Done():
+			logger.Error("Shutting down HTTP server timeout")
+		default:
+			logger.Info("Server exited")
+		}
+	}()
+
+	return srv.ListenAndServe()
+}
+
+/*
 func callRunner(webApp *variable.Application) {
 	srvHandler := &http.Server{
 		Addr:      localAddr + strconv.Itoa(webApp.Port),
@@ -38,6 +76,8 @@ func callRunner(webApp *variable.Application) {
 		//BaseContext:       nil,
 		//ConnContext:       nil,
 	}
+
+	ctx, _ := keeperContext.WithCancelAndSignalHandler()
 
 	go func() {
 		if err := srvHandler.ListenAndServe(); err != nil {
@@ -60,3 +100,4 @@ func callRunner(webApp *variable.Application) {
 
 	log.Println("Server exiting")
 }
+*/

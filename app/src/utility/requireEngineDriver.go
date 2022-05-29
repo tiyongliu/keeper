@@ -1,7 +1,7 @@
 package utility
 
 import (
-	"dbbox/app/src/pkg/logger"
+	"keeper/app/src/pkg/logger"
 	"reflect"
 	"strings"
 )

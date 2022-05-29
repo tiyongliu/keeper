@@ -1,8 +1,8 @@
 package app
 
 import (
-	"dbbox/app/src/startup"
-	"dbbox/app/src/variable"
+	"keeper/app/src/startup"
+	"keeper/app/src/variable"
 )
 
 func RunApplication() {
