@@ -2,7 +2,7 @@ package startup
 
 import (
 	"github.com/gin-gonic/gin"
-	"keeper/app/src/routers"
+	"keeper/app/internal/routers"
 )
 
 func RegisterHttpRoute() *gin.Engine {
