@@ -2,8 +2,8 @@ package app
 
 import (
 	"context"
-	"dbbox/app/src/startup"
-	"dbbox/app/src/variable"
+	"keeper/app/startup"
+	"keeper/app/variable"
 	"log"
 	"net/http"
 	"os"
@@ -38,8 +38,6 @@ func callRunner(webApp *variable.Application) {
 		//BaseContext:       nil,
 		//ConnContext:       nil,
 	}
-
-	ctx, _ := keeperContext.WithCancelAndSignalHandler()
 
 	go func() {
 		if err := srvHandler.ListenAndServe(); err != nil {

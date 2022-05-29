@@ -1,7 +1,6 @@
 package main
 
 import (
-	"changeme/app"
 	"embed"
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/logger"
@@ -17,7 +16,6 @@ func main() {
 	//go app.RunApplication()
 
 	// Create an instance of the app structure
-	a := backend.NewMMMM()
 	app := NewApp()
 	// Create application with options
 	err := wails.Run(&options.App{
