@@ -1,7 +1,7 @@
 package utility
 
 import (
-	"keeper/app/src/pkg/logger"
+	"keeper/app/pkg/logger"
 	"reflect"
 	"strings"
 )
