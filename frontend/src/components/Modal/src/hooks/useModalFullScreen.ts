@@ -19,7 +19,7 @@ export function useFullScreen(context: UseFullScreenContext) {
     e && e.stopPropagation();
     fullScreenRef.value = !unref(fullScreenRef);
 
-    // const modalWrapper = unref(context.modalWrapperRef);
+    // const modalWrapper = unref(keeperCtx.modalWrapperRef);
 
     // if (!modalWrapper) return;
 
@@ -34,7 +34,7 @@ export function useFullScreen(context: UseFullScreenContext) {
     // }
 
     // if (unref(fullScreenRef)) {
-    //   modalWrapSpinEl.style.height = `${window.innerHeight - unref(context.extHeightRef)}px`;
+    //   modalWrapSpinEl.style.height = `${window.innerHeight - unref(keeperCtx.extHeightRef)}px`;
     // } else {
     //   modalWrapSpinEl.style.height = `${unref(formerHeightRef)}px`;
     // }

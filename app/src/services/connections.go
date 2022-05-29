@@ -1,9 +1,9 @@
 package services
 
 import (
-	"dbbox/app/src/modules"
-	plugin_mondb "dbbox/app/src/plugins/plugin-mondb"
 	"fmt"
+	"keeper/app/src/modules"
+	plugin_mondb "keeper/app/src/plugins/plugin-mondb"
 )
 
 func ProcessMessage(connection *modules.MysqlConnection) {

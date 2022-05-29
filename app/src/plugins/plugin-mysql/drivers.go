@@ -1,10 +1,10 @@
 package plugin_mysql
 
 import (
-	"dbbox/app/src/pkg/logger"
-	"dbbox/app/src/pkg/standard"
 	"fmt"
 	"gorm.io/gorm"
+	"keeper/app/src/pkg/logger"
+	"keeper/app/src/pkg/standard"
 	"regexp"
 )
 
