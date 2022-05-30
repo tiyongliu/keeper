@@ -3,7 +3,7 @@
 
   <a-form layout="vertical">
     <a-form-item label="Database engine">
-      <a-select placeholder="please select your zone" :options="databaseEngine"/>
+      <a-select placeholder="please select your zone" :options="databaseEngine" v-model:value="driverForm.engine"/>
     </a-form-item>
     <a-form-item label="Database file">
       <a-row type="flex" justify="space-between" align="top">
@@ -11,7 +11,7 @@
           <a-input/>
         </a-col>
         <a-col :span="12">
-          <a-button type="primary" @click="handleTest">browse</a-button>
+          <a-button type="primary">browse</a-button>
         </a-col>
       </a-row>
     </a-form-item>
@@ -26,12 +26,12 @@
     <a-row type="flex" justify="space-between" align="top">
       <a-col :span="16">
         <a-form-item label="Server">
-          <a-input/>
+          <a-input v-model:value="driverForm.server"/>
         </a-form-item>
       </a-col>
       <a-col :span="8">
         <a-form-item label="Port">
-          <a-input :placeholder="driver && driver.defaultPort"/>
+          <a-input v-model:value="driverForm.server" :placeholder="driver && driver.defaultPort"/>
         </a-form-item>
       </a-col>
     </a-row>
@@ -68,7 +68,7 @@
 </template>
 
 <script lang="ts">
-import {defineComponent, ref, unref} from "vue"
+import {defineComponent, ref, unref, reactive} from "vue"
 import {
   Button,
   Checkbox,
@@ -126,6 +126,12 @@ export default defineComponent({
       "useDatabaseUrl": ""
     }
 
+    const driverForm = reactive({
+      engine: '',
+      server: '',
+      port: '',
+    })
+
     const engine = ref($values.engine)
 
     const handleTest = () => {
@@ -151,6 +157,7 @@ export default defineComponent({
       resources: ref(''),
       driver: $extensions.drivers.find(x => x.engine == unref(engine)),
       handleTest,
+      driverForm
     }
 
   }
