@@ -130,15 +130,20 @@ export default defineComponent({
 
     const handleTest = () => {
       handleDriverTestApi({
-        engine: "mysql",
-        password: "123456",
+        engine: "mongo",
         server: "localhost",
-        sshKeyfile: "/Users/liuliutiyong/.ssh/id_rsa",
-        sshMode: "userPassword",
-        sshPort: "22",
-        user: "root",
-        port: "3306"
+        port: "27017"
       })
+      // handleDriverTestApi({
+      //   engine: "mysql",
+      //   password: "123456",
+      //   server: "localhost",
+      //   sshKeyfile: "/Users/liuliutiyong/.ssh/id_rsa",
+      //   sshMode: "userPassword",
+      //   sshPort: "22",
+      //   user: "root",
+      //   port: "3306"
+      // })
     }
     return {
       databaseEngine,

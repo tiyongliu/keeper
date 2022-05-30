@@ -12,8 +12,8 @@ type MongoDBDrivers struct {
 	DB *mongo.Client
 }
 
-func NewMongoDB() standard.SqlStandard {
-	return &MongoDBDrivers{}
+func NewMongoDB(db *mongo.Client) standard.SqlStandard {
+	return &MongoDBDrivers{db}
 }
 
 func (mg *MongoDBDrivers) GetPoolInfo() interface{} {
