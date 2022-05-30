@@ -8,7 +8,7 @@ import (
 func RunApplication() {
 	application := &variable.SystemApplication{
 		Application: &variable.Application{
-			Port: 8980,
+			Port: 8888,
 		},
 		RegisterHttpRoute: startup.RegisterHttpRoute,
 	}
