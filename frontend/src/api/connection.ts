@@ -11,6 +11,6 @@ var a = {
 }
 
 
-export async function handleDriverTestApi(params: Function) {
-  const resp = await apiCall('/connections/test', params)
+export async function handleDriverTestApi<T>(params) {
+  const resp = await apiCall<T>('/connections/test', params)
 }
