@@ -17,7 +17,7 @@
     components: {},
     setup() {
       const r = ref()
-      const hidden = ref(false)
+      // const hidden = ref(false)
       const widgetColumnBarHeight = ref(0)
 
       let definitions = reactive<{ collapsed: boolean, height: number, skip: boolean }[]>([])
@@ -47,7 +47,7 @@
       })
 
       return {
-        hidden,
+        // hidden,
         clientHeight: widgetColumnBarHeight,
         r
       }
