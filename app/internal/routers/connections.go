@@ -6,6 +6,6 @@ import (
 )
 
 func publicConnections(router *gin.RouterGroup) {
-	router.POST("test", controllers.Test)
+	router.POST("Test", controllers.Test)
 	router.GET("list")
 }

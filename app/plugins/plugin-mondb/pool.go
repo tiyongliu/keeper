@@ -43,5 +43,5 @@ func NewSimpleMongoDBPool(setting *modules.SimpleSettingMongoDB) (standard.SqlSt
 		return nil, err
 	}
 
-	return &MongoDBDrivers{db}, nil
+	return NewMongoDB(db), nil
 }
