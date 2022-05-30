@@ -9,7 +9,11 @@ export async function apiCall<T>(relativePath: string, params?: T): Promise<T | 
 
   if (environment === 'web') {
     return await defHttp.post({url: relativePath, params})
-  }
+  } else {
 
-  // const resp = await window['go']['backend']['MMMM']['GetVersion'](params)
+    // window['go']['proc']
+
+    // const resp = await window['go']['backend']['MMMM']['GetVersion'](params)
+    // window['go']['proc']['ConnectProcess']['Test']()
+  }
 }

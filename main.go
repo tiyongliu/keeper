@@ -6,6 +6,7 @@ import (
 	"github.com/wailsapp/wails/v2/pkg/logger"
 	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/options/windows"
+	"keeper/app/proc"
 	"log"
 )
 
@@ -17,6 +18,7 @@ func main() {
 
 	// Create an instance of the app structure
 	app := NewApp()
+	conn := proc.NewConnectProcess()
 	// Create application with options
 	err := wails.Run(&options.App{
 		Title:  "wails",
@@ -39,6 +41,7 @@ func main() {
 		OnShutdown:        app.shutdown,
 		Bind: []interface{}{
 			app,
+			conn,
 		},
 		// Windows platform specific options
 		Windows: &windows.Options{

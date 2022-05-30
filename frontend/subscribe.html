@@ -9,69 +9,9 @@
 <body>
 <h3>This is a subscribe and publish demo!</h3>
 <script>
-  function SubPub(){
-    this.allFunObj = {}
-  }
-  SubPub.prototype = {
-    // 收集某个key的所有函数
-    on: function(key,fun){
-      // let self = this;
-      // 首先判断是否已经存在该key了，将所有注册函数收集起来
-      if(this.allFunObj.hasOwnProperty(key)){
-        this.allFunObj[key].push(fun)
-      }else{
-        this.allFunObj[key] = [];
-        this.allFunObj[key].push(fun)
-      }
-    },
-    // 触发事件
-    emit: function(key){
-      // 截取从第二个开始到结束的所有参数，返回一个参数数组
-      // let args = Array.prototype.slice.call(arguments,1);
-      // 相当于将数组第二项之后的截取出来
-      console.log('--arguments',arguments)
-      let [firstOne,...args] = arguments
-      console.log('##key:',firstOne,',args:',args)
-      for(let i=0;i<this.allFunObj[key].length;i++){
-        // 此处的apply和call的区别就是传入的参数不一样，前者是传入参数数组，后者将参数一个个传入。
-        // this.allFunObj[key][i].apply(this,args);
-        this.allFunObj[key][i].call(this,...args);
-      }
-    },
-    // 删除事件
-    off: function(key,fun){
-      for(let i=0;i<this.allFunObj[key].length;i++){
-        if(this.allFunObj[key][i] == fun){
-          this.allFunObj[key].splice(i,1)
-        }
-      }
-    }
-  }
+  var a = 'connect/test'
 
-  // 创建实例
-  let sp = new SubPub();
-
-  // 注册事件
-  sp.on('a',function(data){
-    console.log('--data1',data)
-  })
-  sp.on('a',function(data,data1){
-    console.log('--data2',data,data1)
-  })
-  var cb = function(data){
-    console.log(data)
-  }
-  sp.on('a',cb);
-
-  sp.on('b',function(data,data1){
-    console.log('--data2',data,data1)
-  })
-
-  // 触发事件
-  sp.emit('a',123,455);
-  sp.off('a',cb) // 删除cb事件
-  sp.emit('a','第二次调用','第3次调用')
-  sp.emit('b','第1次调用','第2次调用')
+  console.log(a.split('/'))
 </script>
 </body>
 </html>
