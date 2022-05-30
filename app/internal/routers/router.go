@@ -7,7 +7,7 @@ func InitRouter() *gin.Engine {
 }
 
 func addRouter(router *gin.Engine) *gin.Engine {
-	connections := router.Group("connections")
+	connections := router.Group("Connections")
 	publicConnections(connections)
 
 	return router
