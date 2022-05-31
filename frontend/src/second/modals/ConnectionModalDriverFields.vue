@@ -143,11 +143,12 @@ export default defineComponent({
     const engine = ref($values.engine)
 
     const handleTest = () => {
-      handleDriverTestApi({
+      const resp = handleDriverTestApi({
         engine: "mongo",
         server: "localhost",
         port: "27017"
       })
+
       // handleDriverTestApi({
       //   engine: "mysql",
       //   password: "123456",
