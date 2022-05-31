@@ -1,12 +1,11 @@
 {
-  "name": "pandaria",
-  "outputfilename": "pandaria",
-  "assetdir": "packages/web/dist/assets",
-  "wailsjsdir": "packages/web/src",
-  "frontend:install": "pnpm install",
-  "frontend:build": "npm run build",
+  "name": "keeper",
+  "outputfilename": "keeper",
+  "frontend:dev:watcher": "pnpm run dev:native",
+  "frontend:dev:serverUrl": "http://localhost:3100",
   "author": {
-    "name": "l422720735",
+    "name": "liutiyong",
     "email": "422720735@qq.com"
-  }
+  },
+  "wailsjsdir": "frontend"
 }
