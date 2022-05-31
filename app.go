@@ -15,15 +15,10 @@ func NewApp() *App {
 	return &App{}
 }
 
-// startup is called at application startup
+// startup is called when the app starts. The keeperCtx is saved
+// so we can call the runtime methods
 func (a *App) startup(ctx context.Context) {
-	// Perform your setup here
 	a.ctx = ctx
-}
-
-// domReady is called after the front-end dom has been loaded
-func (a App) domReady(ctx context.Context) {
-	// Add your action here
 }
 
 // shutdown is called at application termination
@@ -33,5 +28,10 @@ func (a *App) shutdown(ctx context.Context) {
 
 // Greet returns a greeting for the given name
 func (a *App) Greet(name string) string {
-	return fmt.Sprintf("Hello %s!", name)
+	return fmt.Sprintf("Hello %s, It's show time!", name)
+}
+
+// domReady is called after the front-end dom has been loaded
+func (a App) domReady(ctx context.Context) {
+	// Add your action here
 }
