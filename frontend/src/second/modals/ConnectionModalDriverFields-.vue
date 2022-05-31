@@ -4,7 +4,7 @@
       <a-select placeholder="please select your zone" :options="databaseEngine"
                 v-model:value="driverForm.engine"/>
     </a-form-item>
-    <a-form-item label="Database file" v-if="false">
+    <a-form-item label="Database file">
       <a-row type="flex" justify="space-between" align="top">
         <a-col :span="12">
           <a-input/>
@@ -60,15 +60,9 @@
       <a-checkbox value="1" name="type">Is read only</a-checkbox>
     </a-form-item>
 
-
-    <a-form-item label="Database URL" v-if="false">
+    <a-form-item label="Database URL">
       <a-input/>
     </a-form-item>
-
-    <a-form-item label="Default database">
-      <a-input/>
-    </a-form-item>
-
   </a-form>
 </template>
 

@@ -1,19 +1,33 @@
 import {useGlobSetting} from '/@/hooks/setting';
-import {defHttp} from '/@/utils/http/axios';
 
 const {environment} = useGlobSetting()
 
+let apiLogging = true
+
 export async function apiCall<T>(relativePath: string, params?: T): Promise<T | void> {
   //读取环境变量
-  console.log('>>> API CALL', relativePath, params)
+  if (apiLogging) {
+    console.log('>>> API CALL', relativePath, params)
+  }
 
   if (environment === 'web') {
-    return await defHttp.post({url: relativePath, params})
+    //todo 暂时不支持http方式访问
+    // return await defHttp.post({url: relativePath, params})
   } else {
-
-    // window['go']['proc']
-
-    // const resp = await window['go']['backend']['MMMM']['GetVersion'](params)
-    // window['go']['proc']['ConnectProcess']['Test']()
+    let self: Function = window['go']['proc'];
+    relativePath.split(/[.|\/]/).filter(item => item).forEach(key => self = self[key])
+    const resp = await self(params)
+    return processApiResponse(relativePath, params, resp)
   }
+}
+
+function processApiResponse(relativePath, params, resp) {
+  if (apiLogging) {
+    console.log('<<< API RESPONSE', relativePath, params, resp)
+  }
+
+  if (resp.code === 0) {
+    return resp.result.message
+  }
+  return resp.result
 }

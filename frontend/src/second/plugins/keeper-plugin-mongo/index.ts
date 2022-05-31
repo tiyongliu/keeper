@@ -1,4 +1,4 @@
-import * as driver from './driver';
+import driver from './driver';
 
 export default {
     packageName: 'keeper-plugin-mongo',
