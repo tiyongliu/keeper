@@ -1,9 +1,8 @@
 <template>
-  <!--  <div>ConnectionModalDriverFields</div>-->
-
   <a-form layout="vertical">
     <a-form-item label="Database engine">
-      <a-select placeholder="please select your zone" :options="databaseEngine" v-model:value="driverForm.engine"/>
+      <a-select placeholder="please select your zone" :options="databaseEngine"
+                v-model:value="driverForm.engine"/>
     </a-form-item>
     <a-form-item label="Database file">
       <a-row type="flex" justify="space-between" align="top">
@@ -68,7 +67,7 @@
 </template>
 
 <script lang="ts">
-import {defineComponent, ref, unref, reactive} from "vue"
+import {computed, defineComponent, reactive, ref, unref} from "vue"
 import {
   Button,
   Checkbox,
@@ -81,13 +80,12 @@ import {
   RadioGroup,
   Row,
   Select,
-  SelectOption
+  SelectOption,
 } from 'ant-design-vue'
 import $extensions from './drivers.json'
 
 import {handleDriverTestApi} from '/@/api/connection'
 
-import {Greet} from '/@/wailsjs/go/main/App'
 export default defineComponent({
   name: 'ConnectionModalDriverFields',
   components: {
@@ -151,11 +149,16 @@ export default defineComponent({
       //   port: "3306"
       // })
     }
+
+    const driver = computed(() => {
+      return $extensions.drivers.find(x => x.engine == unref(engine))
+    })
+
     return {
       databaseEngine,
       engine,
       resources: ref(''),
-      driver: $extensions.drivers.find(x => x.engine == unref(engine)),
+      driver,
       handleTest,
       driverForm
     }
