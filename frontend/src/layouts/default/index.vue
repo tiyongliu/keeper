@@ -8,12 +8,14 @@
   </div>
 
   <Layout :class="prefixCls" v-bind="lockEvents">
-    <div class="iconbar svelte-1veekw4">iconbar</div>
+    <div class="iconbar svelte-1veekw4">
+      <WidgetIconPanel @con="con"/>
+    </div>
     <div class="statusbar svelte-1veekw4">iconbar</div>
     <div class="leftpanel svelte-1veekw4">
       <!--      <AppDarkModeToggle class="mx-auto" />-->
 
-      <WidgetContainer />
+      <WidgetContainer :isShow="isShow"/>
     </div>
     <div class="tabs svelte-1veekw4">
       <LayoutHeader />
@@ -29,7 +31,7 @@
 </template>
 
 <script lang="ts">
-  import { defineComponent, computed, unref, onMounted } from 'vue';
+  import { defineComponent, computed, unref, onMounted ,ref} from 'vue';
   import { Layout } from 'ant-design-vue';
   import { createAsyncComponent } from '/@/utils/factory/createAsyncComponent';
 
@@ -50,6 +52,8 @@
   import WidgetContainer from '/@/second/widgets/WidgetContainer.vue'
   import {WarningOutlined} from '@ant-design/icons-vue'
 
+  import WidgetIconPanel from '../../second/widgets/WidgetIconPanel.vue'
+
   export default defineComponent({
     name: 'DefaultLayout',
     components: {
@@ -62,7 +66,8 @@
       Layout,
 
       WidgetContainer,
-      WarningOutlined
+      WarningOutlined,
+      WidgetIconPanel
     },
     setup() {
       const { prefixCls } = useDesign('default-layout');
@@ -93,6 +98,8 @@
 
 
       })
+      const isShow = ref('database')
+      
 
       return {
         getShowFullHeaderRef,
@@ -102,9 +109,15 @@
         getIsMixSidebar,
         layoutClass,
         lockEvents,
-        cssVariable
+        cssVariable,
+        isShow
       };
     },
+    methods:{
+      con(val){
+        this.isShow = val
+      }
+    }
   });
 </script>
 <style lang="less">
