@@ -5,13 +5,14 @@
       <TabControl isInline :tabs="tabs"/>
       <template #insertFooter>
         <a-button class="float-left" type="default" @click="handleTest">测试连接</a-button>
+        {{sqlConnectResult}}
       </template>
     </BasicModal>
   </FormProviderCore>
 </template>
 
 <script lang="ts">
-import {defineComponent, onMounted, ref} from 'vue'
+import {defineComponent, onMounted, reactive, ref} from 'vue'
 import {Alert, Tabs} from 'ant-design-vue'
 // import {useModal} from '/@/components/Modal'
 import {BasicModal, useModalInner} from '/@/components/Modal'
@@ -38,7 +39,7 @@ export default defineComponent({
   setup() {
     const [register, {closeModal, setModalProps}] = useModalInner()
     const connectionModal = ref()
-
+    const sqlConnectResult = ref(null)
 
     onMounted(() => {
       console.log(connectionModal.value, `connectionModal`)
@@ -63,6 +64,13 @@ export default defineComponent({
         port: "3306"
       })
 
+      sqlConnectResult.value = resp
+      if (Object.keys(sqlConnectResult.value).length > 1) {
+        window['go']['main']['App']['OpenDirectoryDialog']({
+          engine: "mysql",
+          password: "123456",
+        })
+      }
       console.log(resp, `resp`)
     }
 
@@ -74,7 +82,7 @@ export default defineComponent({
         //bodyStyle
         setModalProps({title: 'Modal New Title', bodyStyle: {padding: `0`}});
       },
-
+      sqlConnectResult,
       tabs: [
         {
           label: 'Main',

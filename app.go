@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
 // App struct
@@ -34,4 +35,13 @@ func (a *App) Greet(name string) string {
 // domReady is called after the front-end dom has been loaded
 func (a App) domReady(ctx context.Context) {
 	// Add your action here
+}
+
+func (a *App) OpenDirectoryDialog(ctx context.Context) {
+	runtime.MessageDialog(a.ctx, runtime.MessageDialogOptions{
+		Title:         "It's your turn!",
+		Message:       "Select a number",
+		Buttons:       []string{"one", "two", "three", "four"},
+		DefaultButton: "two",
+	})
 }
