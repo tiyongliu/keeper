@@ -1,6 +1,10 @@
 import { defineStore } from "pinia";
 import { store } from "/@/store";
 
+import pluginMongoDrivers from '/@/second/plugins/keeper-plugin-mongo'
+import pluginMysqlDrivers from '/@/second/plugins/keeper-plugin-mysql'
+import pluginRedisDrivers from '/@/second/plugins/keeper-plugin-redis'
+
 import {getWithStorageVariableCache, setWithStorageVariableCache} from '../index'
 import {IPinnedDatabasesItem} from '/@/second/typings/types/standard.d'
 import {ExtensionsDirectory} from '/@/second/typings/types/extensions.d'
@@ -17,7 +21,9 @@ export const dataBaseStore = defineStore({
   state: (): IVariableBasic => ({
     currentDatabase: null,
     openedConnections: [],
-    extensions: null,
+    extensions: {
+      drivers: [].concat(pluginMongoDrivers.drivers).concat(pluginMysqlDrivers.drivers).concat(pluginRedisDrivers.drivers)
+    },
     pinnedDatabases: getWithStorageVariableCache([], 'pinnedDatabases'),
     pinnedTables: getWithStorageVariableCache([], 'pinnedTables'),
   }),
@@ -30,6 +36,9 @@ export const dataBaseStore = defineStore({
     },
     getPinnedTables(): [] {
       return this.pinnedTables
+    },
+    getPinnedExtensions() {
+      return this.extensions
     }
   },
   actions: {

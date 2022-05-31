@@ -4,7 +4,7 @@
       <a-select placeholder="please select your zone" :options="databaseEngine"
                 v-model:value="driverForm.engine"/>
     </a-form-item>
-    <a-form-item label="Database file">
+    <a-form-item label="Database file" v-if="false">
       <a-row type="flex" justify="space-between" align="top">
         <a-col :span="12">
           <a-input/>
@@ -60,14 +60,20 @@
       <a-checkbox value="1" name="type">Is read only</a-checkbox>
     </a-form-item>
 
-    <a-form-item label="Database URL">
+
+    <a-form-item label="Database URL" v-if="false">
       <a-input/>
     </a-form-item>
+
+    <a-form-item label="Default database">
+      <a-input/>
+    </a-form-item>
+
   </a-form>
 </template>
 
 <script lang="ts">
-import {computed, defineComponent, reactive, ref, unref} from "vue"
+import {computed, defineComponent, reactive, ref, unref, onMounted} from "vue"
 import {
   Button,
   Checkbox,
@@ -85,7 +91,11 @@ import {
 import $extensions from './drivers.json'
 
 import {handleDriverTestApi} from '/@/api/connection'
+import pluginMongo from '/@/second/plugins/keeper-plugin-mongo'
+import pluginMysql from '/@/second/plugins/keeper-plugin-mysql'
+import pluginRedis from '/@/second/plugins/keeper-plugin-redis'
 
+import { dataBaseStore } from "/@/store/modules/dataBase";
 export default defineComponent({
   name: 'ConnectionModalDriverFields',
   components: {
@@ -152,6 +162,13 @@ export default defineComponent({
 
     const driver = computed(() => {
       return $extensions.drivers.find(x => x.engine == unref(engine))
+    })
+
+    const dataBase = dataBaseStore()
+    onMounted(() => {
+      setTimeout(() => {
+        console.log(dataBase.$state.extensions?.drivers)
+      }, 2000)
     })
 
     return {
