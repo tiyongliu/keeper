@@ -6,7 +6,7 @@ import (
 	"github.com/wailsapp/wails/v2/pkg/logger"
 	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/options/windows"
-	"keeper/app/proc"
+	"keeper/app/bridge"
 	"log"
 )
 
@@ -17,8 +17,9 @@ func main() {
 	//go app.RunApplication()
 
 	// Create an instance of the app structure
-	app := NewApp()
-	conn := proc.NewConnectProcess()
+	app := bridge.NewApp()
+	conn := bridge.NewConnectProcess()
+
 	// Create application with options
 	err := wails.Run(&options.App{
 		Title:  "wails",
@@ -36,9 +37,9 @@ func main() {
 		RGBA:              &options.RGBA{R: 255, G: 255, B: 255, A: 255},
 		Assets:            assets,
 		LogLevel:          logger.DEBUG,
-		OnStartup:         app.startup,
-		OnDomReady:        app.domReady,
-		OnShutdown:        app.shutdown,
+		OnStartup:         app.Startup,
+		OnDomReady:        app.DomReady,
+		OnShutdown:        app.Shutdown,
 		Bind: []interface{}{
 			app,
 			conn,
@@ -55,3 +56,6 @@ func main() {
 	}
 
 }
+
+//https://github.com/samber/lo
+//A Lodash-style Go library based on Go 1.18+ Generics (map, filter, contains, find...)

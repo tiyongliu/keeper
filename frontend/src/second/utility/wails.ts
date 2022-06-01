@@ -1,3 +1,3 @@
 export default function getWails() {
-  return window['go']['proc']
+  return window['go']['bootstrap']
 }
