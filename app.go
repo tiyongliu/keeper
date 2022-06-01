@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
+	"keeper/app/pkg/logger"
 )
 
 // App struct
@@ -20,6 +21,7 @@ func NewApp() *App {
 // so we can call the runtime methods
 func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
+	logger.Infof("Starting up October")
 }
 
 // shutdown is called at application termination
@@ -37,11 +39,17 @@ func (a App) domReady(ctx context.Context) {
 	// Add your action here
 }
 
-func (a *App) OpenDirectoryDialog(ctx context.Context) {
-	runtime.MessageDialog(a.ctx, runtime.MessageDialogOptions{
-		Title:         "It's your turn!",
+func (a *App) OpenDirectoryDialog(name string) interface{} {
+	selection, err := runtime.MessageDialog(a.ctx, runtime.MessageDialogOptions{
+		Title:         name,
 		Message:       "Select a number",
 		Buttons:       []string{"one", "two", "three", "four"},
 		DefaultButton: "two",
 	})
+
+	if err != nil {
+		return err.Error()
+	}
+
+	return selection
 }

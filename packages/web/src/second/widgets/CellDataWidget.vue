@@ -71,7 +71,7 @@
 
 <script lang="ts">
 import { reactive, toRefs, markRaw } from 'vue';
-import _ from 'lodash';
+import {isString, isPlainObject, isArray} from 'lodash-es';
 import WidgetColumnBar from './WidgetColumnBar.vue';
 // import SelectField from '../forms/SelectField.vue';
 // import { Select } from 'ant-design-vue';
@@ -196,10 +196,10 @@ export default {
                 return 'jsonRow';
             }
             const value = selection.length == 1 ? selection[0].value : null;
-            if (_.isString(value)) {
+            if (isString(value)) {
                 if (value.startsWith('[') || value.startsWith('{')) return 'json';
             }
-            if (_.isPlainObject(value) || _.isArray(value)) {
+            if (isPlainObject(value) || isArray(value)) {
                 return 'json';
             }
             return 'textWrap';

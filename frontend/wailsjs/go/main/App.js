@@ -7,5 +7,5 @@ export function Greet(arg1) {
 }
 
 export function OpenDirectoryDialog(arg1) {
-  window['go']['main']['App']['OpenDirectoryDialog'](arg1);
+  return window['go']['main']['App']['OpenDirectoryDialog'](arg1);
 }
