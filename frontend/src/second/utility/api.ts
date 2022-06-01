@@ -15,7 +15,7 @@ export async function apiCall<T>(relativePath: string, params?: T): Promise<T | 
     // return await defHttp.post({url: relativePath, params})
   } else {
     try {
-      let self: Function = window['go']['proc'];
+      let self: Function = window['go'];
       relativePath.split(/[.|\/]/).filter(item => item).forEach(key => self = self[key])
       const resp = await self(params)
       return processApiResponse(relativePath, params, resp)

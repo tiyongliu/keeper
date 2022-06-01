@@ -46,21 +46,11 @@ export default defineComponent({
     })
 
     const handleTest = async () => {
-
-
-      console.log(`handleTest`)
-      const resp = await window['go']['main']['App']['OpenDirectoryDialog']("11651")
-      console.log(resp, `resp`)
-      // "It's your turn!"
-
-
-
-
-      // const resp = await handleDriverTestApi({
-      //   engine: "mongo",
-      //   server: "localhost",
-      //   port: "27017"
-      // })
+      const resp = await handleDriverTestApi({
+        engine: "mongo",
+        server: "localhost",
+        port: "27017"
+      })
 
       // const resp = await handleDriverTestApi({
       //   engine: "mysql",
@@ -72,9 +62,9 @@ export default defineComponent({
       //   user: "root",
       //   port: "3306"
       // })
-      //
+
       // sqlConnectResult.value = resp
-      // console.log(resp, `resp`)
+      console.log(resp, `resp`)
     }
 
     return {

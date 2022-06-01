@@ -30,3 +30,7 @@ pnpm-debug.log*
 
 build/bin/*exe
 build/bin/*exe~
+
+wails.exe
+
+wails

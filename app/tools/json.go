@@ -1,6 +1,14 @@
-package utility
+package tools
 
 import "encoding/json"
+
+func ToJsonStr(o interface{}) string {
+	jsonBytes, err := json.Marshal(o)
+	if err != nil {
+		return err.Error()
+	}
+	return string(jsonBytes)
+}
 
 //解析json
 func JSONUnmarshal(data []byte) (map[string]interface{}, error) {

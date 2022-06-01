@@ -1,11 +1,9 @@
 package main
 
-import (
-	"context"
-	"fmt"
-	"github.com/wailsapp/wails/v2/pkg/runtime"
-	"keeper/app/pkg/logger"
-)
+/*
+
+var Application *App
+var applicationOnce sync.Once
 
 // App struct
 type App struct {
@@ -14,13 +12,17 @@ type App struct {
 
 // NewApp creates a new App application struct
 func NewApp() *App {
-	return &App{}
+	applicationOnce.Do(func() {
+		Application = &App{}
+	})
+	return Application
 }
 
 // startup is called when the app starts. The keeperCtx is saved
 // so we can call the runtime methods
 func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
+	Application.ctx = ctx
 	logger.Infof("Starting up October")
 }
 
@@ -41,11 +43,19 @@ func (a App) domReady(ctx context.Context) {
 
 func (a *App) OpenDirectoryDialog(name string) interface{} {
 	selection, err := runtime.MessageDialog(a.ctx, runtime.MessageDialogOptions{
-		Title:         name,
-		Message:       "Select a number",
-		Buttons:       []string{"one", "two", "three", "four"},
-		DefaultButton: "two",
+		Type:          runtime.InfoDialog,
+		Title:         "连接成功",
+		Message:       "连接成功",
+		Buttons:       []string{"确认"},
+		DefaultButton: "确认",
 	})
+	//selection, err := runtime.MessageDialog(a.ctx, runtime.MessageDialogOptions{
+	//	Type:          runtime.ErrorDialog,
+	//	Title:         "测试失败",
+	//	Message:       "1045 - Access denied for user 'roo'@'localhost' (using password: YES)",
+	//	Buttons:       []string{"确认"},
+	//	DefaultButton: "确认",
+	//})
 
 	if err != nil {
 		return err.Error()
@@ -53,3 +63,5 @@ func (a *App) OpenDirectoryDialog(name string) interface{} {
 
 	return selection
 }
+
+*/
