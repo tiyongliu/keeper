@@ -14,10 +14,14 @@ export async function apiCall<T>(relativePath: string, params?: T): Promise<T | 
     //todo 暂时不支持http方式访问
     // return await defHttp.post({url: relativePath, params})
   } else {
-    let self: Function = window['go']['proc'];
-    relativePath.split(/[.|\/]/).filter(item => item).forEach(key => self = self[key])
-    const resp = await self(params)
-    return processApiResponse(relativePath, params, resp)
+    try {
+      let self: Function = window['go']['proc'];
+      relativePath.split(/[.|\/]/).filter(item => item).forEach(key => self = self[key])
+      const resp = await self(params)
+      return processApiResponse(relativePath, params, resp)
+    } catch (e) {
+      return Promise.reject(e)
+    }
   }
 }
 
