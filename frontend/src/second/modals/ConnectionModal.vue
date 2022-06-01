@@ -46,32 +46,35 @@ export default defineComponent({
     })
 
     const handleTest = async () => {
+
+
       console.log(`handleTest`)
+      const resp = await window['go']['main']['App']['OpenDirectoryDialog']("11651")
+      console.log(resp, `resp`)
+      // "It's your turn!"
+
+
+
+
       // const resp = await handleDriverTestApi({
       //   engine: "mongo",
       //   server: "localhost",
       //   port: "27017"
       // })
 
-      const resp = await handleDriverTestApi({
-        engine: "mysql",
-        password: "123456",
-        server: "localhost",
-        sshKeyfile: "/Users/liuliutiyong/.ssh/id_rsa",
-        sshMode: "userPassword",
-        sshPort: "22",
-        user: "root",
-        port: "3306"
-      })
-
-      sqlConnectResult.value = resp
-      if (Object.keys(sqlConnectResult.value).length > 1) {
-        window['go']['main']['App']['OpenDirectoryDialog']({
-          engine: "mysql",
-          password: "123456",
-        })
-      }
-      console.log(resp, `resp`)
+      // const resp = await handleDriverTestApi({
+      //   engine: "mysql",
+      //   password: "123456",
+      //   server: "localhost",
+      //   sshKeyfile: "/Users/liuliutiyong/.ssh/id_rsa",
+      //   sshMode: "userPassword",
+      //   sshPort: "22",
+      //   user: "root",
+      //   port: "3306"
+      // })
+      //
+      // sqlConnectResult.value = resp
+      // console.log(resp, `resp`)
     }
 
     return {

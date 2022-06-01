@@ -142,24 +142,27 @@ export default defineComponent({
 
     const engine = ref($values.engine)
 
-    const handleTest = () => {
-      const resp = handleDriverTestApi({
-        engine: "mongo",
+    const handleTest = async () => {
+      // const resp = handleDriverTestApi({
+      //   engine: "mongo",
+      //   server: "localhost",
+      //   port: "27017"
+      // })
+
+      const resp = await handleDriverTestApi({
+        engine: "mysql",
+        password: "123456",
         server: "localhost",
-        port: "27017"
+        sshKeyfile: "/Users/liuliutiyong/.ssh/id_rsa",
+        sshMode: "userPassword",
+        sshPort: "22",
+        user: "root",
+        port: "3306"
       })
 
-      // handleDriverTestApi({
-      //   engine: "mysql",
-      //   password: "123456",
-      //   server: "localhost",
-      //   sshKeyfile: "/Users/liuliutiyong/.ssh/id_rsa",
-      //   sshMode: "userPassword",
-      //   sshPort: "22",
-      //   user: "root",
-      //   port: "3306"
-      // })
+      console.log(resp, `rrrrr`)
     }
+
 
     const driver = computed(() => {
       return $extensions.drivers.find(x => x.engine == unref(engine))
