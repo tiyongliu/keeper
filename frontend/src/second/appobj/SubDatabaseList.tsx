@@ -1,6 +1,6 @@
 import {computed, defineComponent, PropType, unref, toRefs} from 'vue'
 import {sortBy} from 'lodash-es'
-import {filterName} from 'dbbox-tools'
+import {filterName} from 'keeper-tools'
 import './SubDatabaseList.less'
 import AppObjectList from './AppObjectList'
 import databaseAppObject from './DatabaseAppObject'

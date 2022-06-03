@@ -25,7 +25,7 @@
 
     <a-row type="flex" justify="space-between" align="top">
       <a-col :span="16">
-        <a-form-item label="Server">
+        <a-form-item label="Server2222222">
           <a-input/>
         </a-form-item>
       </a-col>
