@@ -3,6 +3,7 @@ package bridge
 import (
 	"context"
 	"fmt"
+	"github.com/mitchellh/mapstructure"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"keeper/app/modules"
 	"keeper/app/pkg/standard"
@@ -34,12 +35,13 @@ func NewConnectProcess() *Connections {
 
 func (conn *Connections) Test(req map[string]interface{}) interface{} {
 	if req["engine"].(string) == mysql_alias {
-		pool, err := plugin_mysql.NewSimpleMysqlPool(&modules.SimpleSettingMysql{
-			Host:     req["server"].(string),
-			Username: req["user"].(string),
-			Password: req["password"].(string),
-			Port:     req["port"].(string),
-		})
+		simpleSettingMysql := &modules.SimpleSettingMysql{}
+		err := mapstructure.Decode(req, simpleSettingMysql)
+		if err != nil {
+			return err.Error()
+		}
+
+		pool, err := plugin_mysql.NewSimpleMysqlPool(simpleSettingMysql)
 
 		if err != nil {
 			selection, _ := runtime.MessageDialog(Application.ctx, runtime.MessageDialogOptions{
@@ -78,7 +80,7 @@ func (conn *Connections) Test(req map[string]interface{}) interface{} {
 
 	} else if req["engine"].(string) == mongo_alias {
 		pool, err := plugin_mondb.NewSimpleMongoDBPool(&modules.SimpleSettingMongoDB{
-			Host: req["server"].(string),
+			Host: req["host"].(string),
 			Port: req["port"].(string),
 		})
 
