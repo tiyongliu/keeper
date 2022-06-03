@@ -29,7 +29,7 @@
       <a-col :span="16">
         <a-form-item label="Server"
                      :rules="[{ required: true, message: 'Please input your username!' }]">
-          <a-input v-model:value="driverForm.server"/>
+          <a-input v-model:value="driverForm.host"/>
         </a-form-item>
       </a-col>
       <a-col :span="8">
@@ -43,7 +43,7 @@
     <a-row type="flex" justify="space-between" align="top">
       <a-col :span="12">
         <a-form-item label="User">
-          <a-input v-model:value="driverForm.user"/>
+          <a-input v-model:value="driverForm.username"/>
         </a-form-item>
       </a-col>
       <a-col :span="12">
@@ -144,8 +144,8 @@ export default defineComponent({
     }
     const driverForm = reactive<{ [key in string]: string } & { port: string | number }>({
       engine: '',
-      server: 'localhost',
-      user: '',
+      host: 'localhost',
+      username: '',
       password: '',
       port: '',
     })
@@ -193,26 +193,27 @@ export default defineComponent({
     }
 
 
+    const notificationTest = () => {
+      const dynamicProps = {
+        ...driverForm
+      }
+      const [shortName] = unref(engine).split('@')
+      dynamicProps.engine = shortName
+      if (!dynamicProps.port) {
+        dynamicProps.port = `${driver.value!.defaultPort}`
+      }
+      dispatchConnections(dynamicProps)
+    }
+
+
     watch(() => [unref(driver), toRefs(driverForm)],
-      useDebounceFn(() => {
-        const dynamicProps = {
-          ...driverForm
-        }
-        const [shortName] = unref(engine).split('@')
-        dynamicProps.engine = shortName
-        if (!dynamicProps.port) {
-          dynamicProps.port = `${driver.value!.defaultPort}`
-        }
-        dispatchConnections(dynamicProps)
-      }, 300),
+      useDebounceFn(() => notificationTest(), 300),
       {deep: true}
     )
 
 
     onMounted(() => {
-      setTimeout(() => {
-
-      }, 4000)
+      notificationTest()
     })
 
     return {
