@@ -1,18 +1,20 @@
 <template>
   <FormProviderCore>
-    <BasicModal ref="ConnectionModal" class="connectionModal" @register="register"
-                title="Add connection">
+    <BasicModal
+      @register="register"
+      class="connectionModal"
+      title="Add connection">
       <TabControl isInline :tabs="tabs"/>
       <template #insertFooter>
         <a-button class="float-left" type="default" @click="handleTest">测试连接</a-button>
-        {{sqlConnectResult}}
       </template>
     </BasicModal>
   </FormProviderCore>
 </template>
 
 <script lang="ts">
-import {defineComponent, onMounted, reactive, ref} from 'vue'
+import {defineComponent, onMounted, reactive, ref, provide, unref} from 'vue'
+import {pickBy} from 'lodash-es'
 import {Alert, Tabs} from 'ant-design-vue'
 // import {useModal} from '/@/components/Modal'
 import {BasicModal, useModalInner} from '/@/components/Modal'
@@ -38,31 +40,16 @@ export default defineComponent({
   emits: ['register'],
   setup() {
     const [register, {closeModal, setModalProps}] = useModalInner()
-    const connectionModal = ref()
     const sqlConnectResult = ref(null)
+    let connParams = reactive<{[key in string]: any}>({})
 
-    onMounted(() => {
-      console.log(connectionModal.value, `connectionModal`)
+    provide('dispatchConnections', (dynamicProps) => {
+      console.log(`dynamicProps`, dynamicProps)
+      connParams = dynamicProps
     })
 
     const handleTest = async () => {
-      // const resp = await handleDriverTestApi({
-      //   engine: "mongo",
-      //   server: "localhost",
-      //   port: "27017"
-      // })
-
-      const resp = await handleDriverTestApi({
-        engine: "mysql",
-        password: "123456",
-        server: "localhost",
-        sshKeyfile: "/Users/liuliutiyong/.ssh/id_rsa",
-        sshMode: "userPassword",
-        sshPort: "22",
-        user: "root",
-        port: "3306"
-      })
-
+      const resp = await handleDriverTestApi(pickBy(unref(connParams), (item) => !!item))
       // sqlConnectResult.value = resp
       console.log(resp, `resp`)
     }
@@ -93,7 +80,6 @@ export default defineComponent({
       bodyStyle: {
         padding: `0`
       },
-      connectionModal
     }
   }
 })
