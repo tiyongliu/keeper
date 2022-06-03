@@ -1,9 +1,12 @@
 <template>
   <a-form layout="vertical">
     <a-form-item label="Database engine">
-      <a-select placeholder="please select your zone" :options="databaseEngine"
-                v-model:value="driverForm.engine"/>
+      <a-select
+        placeholder="please select your zone"
+        :options="databaseEngine"
+        v-model:value="engine"/>
     </a-form-item>
+
     <a-form-item label="Database file" v-if="false">
       <a-row type="flex" justify="space-between" align="top">
         <a-col :span="12">
@@ -15,7 +18,7 @@
       </a-row>
     </a-form-item>
 
-    <a-form-item label="Resources">
+    <a-form-item label="Resources" v-if="false">
       <a-radio-group v-model:value="resources" name="radioGroup" :options="[
          { label: 'Fill database connection details', value: '' },
          { label: 'Use database URL', value: '1' },
@@ -24,13 +27,14 @@
 
     <a-row type="flex" justify="space-between" align="top">
       <a-col :span="16">
-        <a-form-item label="Server">
+        <a-form-item label="Server"
+                     :rules="[{ required: true, message: 'Please input your username!' }]">
           <a-input v-model:value="driverForm.server"/>
         </a-form-item>
       </a-col>
       <a-col :span="8">
         <a-form-item label="Port">
-          <a-input v-model:value="driverForm.server" :placeholder="driver && driver.defaultPort"/>
+          <a-input v-model:value="driverForm.port" :placeholder="driver && driver.defaultPort"/>
         </a-form-item>
       </a-col>
     </a-row>
@@ -39,12 +43,12 @@
     <a-row type="flex" justify="space-between" align="top">
       <a-col :span="12">
         <a-form-item label="User">
-          <a-input/>
+          <a-input v-model:value="driverForm.user"/>
         </a-form-item>
       </a-col>
       <a-col :span="12">
         <a-form-item label="Password">
-          <a-input-password placeholder="input password"/>
+          <a-input-password v-model:value="driverForm.password" placeholder=""/>
         </a-form-item>
       </a-col>
     </a-row>
@@ -73,7 +77,18 @@
 </template>
 
 <script lang="ts">
-import {computed, defineComponent, reactive, ref, unref, onMounted} from "vue"
+import {
+  computed,
+  defineComponent,
+  inject,
+  onMounted,
+  reactive,
+  ref,
+  toRefs,
+  unref,
+  watch
+} from "vue"
+import {useDebounceFn} from '@vueuse/core'
 import {
   Button,
   Checkbox,
@@ -90,12 +105,6 @@ import {
 } from 'ant-design-vue'
 import $extensions from './drivers.json'
 
-import {handleDriverTestApi} from '/@/api/connection'
-import pluginMongo from '/@/second/plugins/keeper-plugin-mongo'
-import pluginMysql from '/@/second/plugins/keeper-plugin-mysql'
-import pluginRedis from '/@/second/plugins/keeper-plugin-redis'
-
-import { dataBaseStore } from "/@/store/modules/dataBase";
 export default defineComponent({
   name: 'ConnectionModalDriverFields',
   components: {
@@ -133,54 +142,85 @@ export default defineComponent({
       "sshKeyfile": "/Users/liuliutiyong/.ssh/id_rsa",
       "useDatabaseUrl": ""
     }
-
-    const driverForm = reactive({
+    const driverForm = reactive<{ [key in string]: string } & { port: string | number }>({
       engine: '',
-      server: '',
+      server: 'localhost',
+      user: '',
+      password: '',
       port: '',
     })
-
-    const engine = ref($values.engine)
-
-    const handleTest = async () => {
-      // const resp = handleDriverTestApi({
-      //   engine: "mongo",
-      //   server: "localhost",
-      //   port: "27017"
-      // })
-
-      const resp = await handleDriverTestApi({
-        engine: "mysql",
-        password: "123456",
-        server: "localhost",
-        sshKeyfile: "/Users/liuliutiyong/.ssh/id_rsa",
-        sshMode: "userPassword",
-        sshPort: "22",
-        user: "root",
-        port: "3306"
-      })
-
-      console.log(resp, `rrrrr`)
-    }
-
 
     const driver = computed(() => {
       return $extensions.drivers.find(x => x.engine == unref(engine))
     })
 
-    const dataBase = dataBaseStore()
+
+    const engine = ref($values.engine)
+
+
+    const dispatchConnections = inject('dispatchConnections') as any
+
+    const handleTest = () => {
+      // emit('handlerConnections', {
+      //   engine: "mysql",
+      //   password: "123456",
+      //   server: "localhost",
+      //   sshKeyfile: "/Users/liuliutiyong/.ssh/id_rsa",
+      //   sshMode: "userPassword",
+      //   sshPort: "22",
+      //   user: "root",
+      //   port: "3306"
+      // })
+
+
+      // const resp = handleDriverTestApi({
+      //   engine: "mongo",
+      //   server: "localhost",
+      //   port: "27017"
+      // })
+      // const resp = await handleDriverTestApi({
+      //   engine: "mysql",
+      //   password: "123456",
+      //   server: "localhost",
+      //   sshKeyfile: "/Users/liuliutiyong/.ssh/id_rsa",
+      //   sshMode: "userPassword",
+      //   sshPort: "22",
+      //   user: "root",
+      //   port: "3306"
+      // })
+
+
+    }
+
+
+    watch(() => [unref(driver), toRefs(driverForm)],
+      useDebounceFn(() => {
+        const dynamicProps = {
+          ...driverForm
+        }
+        const [shortName] = unref(engine).split('@')
+        dynamicProps.engine = shortName
+        if (!dynamicProps.port) {
+          dynamicProps.port = `${driver.value!.defaultPort}`
+        }
+        dispatchConnections(dynamicProps)
+      }, 300),
+      {deep: true}
+    )
+
+
     onMounted(() => {
       setTimeout(() => {
-        console.log(dataBase.$state.extensions?.drivers)
-      }, 2000)
+
+      }, 4000)
     })
 
     return {
+      handleTest,
       databaseEngine,
       engine,
       resources: ref(''),
       driver,
-      handleTest,
       driverForm
     }
 
