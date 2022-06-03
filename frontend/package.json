@@ -1,5 +1,5 @@
 {
-  "name": "dbtool-web",
+  "name": "keeper-web",
   "version": "2.8.0",
   "author": {
     "name": "vben",
@@ -143,7 +143,7 @@
     "vite-plugin-windicss": "^1.8.4",
     "vue-eslint-parser": "^8.3.0",
     "vue-tsc": "^0.33.9",
-    "dbbox-tools": "file:../tools"
+    "keeper-tools": "file:../packages/tools"
   },
   "resolutions": {
     "bin-wrapper": "npm:bin-wrapper-china",
