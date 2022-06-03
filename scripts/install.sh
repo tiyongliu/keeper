@@ -4,7 +4,7 @@ cd ../packages/tools
 pnpm install
 pnpm build
 
-cd ../web
+cd ../frontend
 pnpm install
 pnpm build
 
