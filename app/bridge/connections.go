@@ -33,7 +33,6 @@ func NewConnectProcess() *Connections {
 }
 
 func (conn *Connections) Test(req map[string]interface{}) interface{} {
-
 	if req["engine"].(string) == mysql_alias {
 		pool, err := plugin_mysql.NewSimpleMysqlPool(&modules.SimpleSettingMysql{
 			Host:     req["server"].(string),
