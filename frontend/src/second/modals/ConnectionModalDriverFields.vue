@@ -29,12 +29,15 @@
       <a-col :span="16">
         <a-form-item label="Server"
                      :rules="[{ required: true, message: 'Please input your username!' }]">
-          <a-input v-model:value="driverForm.host"/>
+          <a-input v-model:value="driverForm.host" autocomplete="off"/>
         </a-form-item>
       </a-col>
       <a-col :span="8">
         <a-form-item label="Port">
-          <a-input v-model:value="driverForm.port" :placeholder="driver && driver.defaultPort"/>
+          <a-input
+            v-model:value="driverForm.port"
+            :placeholder="driver && driver.defaultPort"
+            autocomplete="off"/>
         </a-form-item>
       </a-col>
     </a-row>
@@ -43,7 +46,7 @@
     <a-row type="flex" justify="space-between" align="top">
       <a-col :span="12">
         <a-form-item label="User">
-          <a-input v-model:value="driverForm.username"/>
+          <a-input v-model:value="driverForm.username" autocomplete="off"/>
         </a-form-item>
       </a-col>
       <a-col :span="12">
