@@ -1,6 +1,6 @@
 import type { App } from 'vue';
 import { createPinia } from 'pinia';
-import {safeJsonParse} from 'dbbox-tools'
+import {safeJsonParse} from 'keeper-tools'
 
 const store = createPinia();
 
