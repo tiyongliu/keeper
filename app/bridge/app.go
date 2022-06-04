@@ -1,11 +1,14 @@
-package main
+package bridge
 
 import (
 	"context"
 	"fmt"
-	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"keeper/app/pkg/logger"
+	"sync"
 )
+
+var Application *App
+var applicationOnce sync.Once
 
 // App struct
 type App struct {
@@ -14,18 +17,22 @@ type App struct {
 
 // NewApp creates a new App application struct
 func NewApp() *App {
-	return &App{}
+	applicationOnce.Do(func() {
+		Application = &App{}
+	})
+	return Application
 }
 
 // startup is called when the app starts. The keeperCtx is saved
 // so we can call the runtime methods
-func (a *App) startup(ctx context.Context) {
+func (a *App) Startup(ctx context.Context) {
 	a.ctx = ctx
+	Application.ctx = ctx
 	logger.Infof("Starting up October")
 }
 
 // shutdown is called at application termination
-func (a *App) shutdown(ctx context.Context) {
+func (a *App) Shutdown(ctx context.Context) {
 	// Perform your teardown here
 }
 
@@ -35,21 +42,6 @@ func (a *App) Greet(name string) string {
 }
 
 // domReady is called after the front-end dom has been loaded
-func (a App) domReady(ctx context.Context) {
+func (a App) DomReady(ctx context.Context) {
 	// Add your action here
-}
-
-func (a *App) OpenDirectoryDialog(name string) interface{} {
-	selection, err := runtime.MessageDialog(a.ctx, runtime.MessageDialogOptions{
-		Title:         name,
-		Message:       "Select a number",
-		Buttons:       []string{"one", "two", "three", "four"},
-		DefaultButton: "two",
-	})
-
-	if err != nil {
-		return err.Error()
-	}
-
-	return selection
 }
