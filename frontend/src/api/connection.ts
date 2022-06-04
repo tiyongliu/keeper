@@ -5,6 +5,5 @@ import {apiCall} from '/@/second/utility/api'
 * @param {Object} params 连接信息
 */
 export async function handleDriverTestApi(params) {
-  // return await apiCall('Connections.Test', params)
-  return await apiCall('Connections.Message', params)
+  return await apiCall('bridge.Connections.Test', params)
 }

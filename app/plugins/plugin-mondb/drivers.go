@@ -28,14 +28,10 @@ func (mg *MongoDBDrivers) GetVersion() (interface{}, error) {
 		return nil, err
 	}
 
-	return map[string]string{
-		"version":     fmt.Sprintf("%s", buildInfoDoc["version"]),
-		"versionText": fmt.Sprintf("MongoDB %s", buildInfoDoc["version"]),
+	return &standard.VersionMsg{
+		Version:     fmt.Sprintf("%s", buildInfoDoc["version"]),
+		VersionText: fmt.Sprintf("MongoDB %s", buildInfoDoc["version"]),
 	}, nil
-	//return &standard.VersionMsg{
-	//	Version:     fmt.Sprintf("%s", buildInfoDoc["version"]),
-	//	VersionText: fmt.Sprintf("MongoDB %s", buildInfoDoc["version"]),
-	//}, nil
 }
 
 type List struct {
