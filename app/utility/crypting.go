@@ -2,7 +2,6 @@ package utility
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"keeper/app/tools"
 	"log"
@@ -82,8 +81,9 @@ func encryptPasswordField(connection map[string]string, field string) map[string
 }
 
 func decryptPasswordField(connection map[string]string, field string) map[string]string {
-	fmt.Println(connection != nil && connection[field] != "" && strings.HasPrefix(connection[field], "crypt:"))
-	if connection != nil && connection[field] != "" && strings.HasPrefix(connection[field], "crypt:") {
+	if connection != nil &&
+		connection[field] != "" &&
+		strings.HasPrefix(connection[field], "crypt:") {
 		connection[field] = getEncryptor().decrypt(strings.Split(connection[field], "crypt:")[1])
 	}
 

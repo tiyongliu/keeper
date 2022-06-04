@@ -11,7 +11,7 @@ func ToJsonStr(o interface{}) string {
 }
 
 //解析json
-func JSONUnmarshal(data []byte) (map[string]interface{}, error) {
+func JsonUnmarshal(data []byte) (map[string]interface{}, error) {
 	msg := make(map[string]interface{})
 	err := json.Unmarshal(data, &msg)
 	if err != nil {
@@ -21,7 +21,7 @@ func JSONUnmarshal(data []byte) (map[string]interface{}, error) {
 }
 
 //编码json
-func JSONMarshal(data interface{}) ([]byte, error) {
+func JsonMarshal(data interface{}) ([]byte, error) {
 	msg, err := json.Marshal(&data)
 	if err != nil {
 		return nil, err
