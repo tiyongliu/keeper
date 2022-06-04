@@ -7,3 +7,7 @@ import {apiCall} from '/@/second/utility/api'
 export async function handleDriverTestApi(params) {
   return await apiCall('bridge.Connections.Test', params)
 }
+
+export async function handleDriverSaveApi(params) {
+  return await apiCall('bridge.Connections.Save', params)
+}
