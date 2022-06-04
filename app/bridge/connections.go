@@ -9,6 +9,7 @@ import (
 	"keeper/app/pkg/standard"
 	plugin_mondb "keeper/app/plugins/plugin-mondb"
 	plugin_mysql "keeper/app/plugins/plugin-mysql"
+	"keeper/app/utility"
 	"sync"
 )
 
@@ -33,10 +34,10 @@ func NewConnectProcess() *Connections {
 	return ConnectionsBridge
 }
 
-func (conn *Connections) Test(req map[string]interface{}) interface{} {
-	if req["engine"].(string) == mysql_alias {
+func (conn *Connections) Test(connection map[string]interface{}) interface{} {
+	if connection["engine"].(string) == mysql_alias {
 		simpleSettingMysql := &modules.SimpleSettingMysql{}
-		err := mapstructure.Decode(req, simpleSettingMysql)
+		err := mapstructure.Decode(connection, simpleSettingMysql)
 		if err != nil {
 			return err.Error()
 		}
@@ -78,10 +79,10 @@ func (conn *Connections) Test(req map[string]interface{}) interface{} {
 		})
 		return selection
 
-	} else if req["engine"].(string) == mongo_alias {
+	} else if connection["engine"].(string) == mongo_alias {
 		pool, err := plugin_mondb.NewSimpleMongoDBPool(&modules.SimpleSettingMongoDB{
-			Host: req["host"].(string),
-			Port: req["port"].(string),
+			Host: connection["host"].(string),
+			Port: connection["port"].(string),
 		})
 
 		defer pool.Close()
@@ -122,6 +123,14 @@ func (conn *Connections) Test(req map[string]interface{}) interface{} {
 	return nil
 }
 
-func (conn *Connections) Save() {
+func (conn *Connections) Save(connection map[string]string) interface{} {
+	encrypted := utility.EncryptConnection(connection)
+	fmt.Printf("encrypted: %s\n", encrypted)
 
+	_id := connection["_id"]
+
+	fmt.Println("_id: ", _id)
+	fmt.Printf("_id 134:  %v \n", _id)
+
+	return connection
 }

@@ -1,7 +1,11 @@
 package utility
 
 import (
+	"bufio"
 	"fmt"
+	"io"
+	"os"
+	"path"
 	"testing"
 )
 
@@ -41,6 +45,9 @@ func Test_MaskConnection(t *testing.T) {
 }
 
 func Test_PickSafeConnectionInfo(t *testing.T) {
+
+	fmt.Println(path.Join(dataDirCore(), "connections.jsonl"))
+
 	fmt.Println(PickSafeConnectionInfo(map[string]string{
 		"server":     "localhost",
 		"engine":     "mysql@dbgate-plugin-mysql",
@@ -50,4 +57,28 @@ func Test_PickSafeConnectionInfo(t *testing.T) {
 		"user":       "root",
 		"password":   "123456",
 	}))
+}
+
+func Test_Read(t *testing.T) {
+	read3 := Read3()
+	fmt.Println(read3)
+}
+
+func Test_Read2(t *testing.T) {
+	// 第二种
+	fd, err := os.Open("/Users/liuliutiyong/keeper-data/connections.jsonl")
+	defer fd.Close()
+	if err != nil {
+		fmt.Println("read error:", err)
+	}
+	buff := bufio.NewReader(fd)
+
+	for {
+		data, _, eof := buff.ReadLine()
+		if eof == io.EOF {
+			break
+		}
+
+		fmt.Println(string(data))
+	}
 }

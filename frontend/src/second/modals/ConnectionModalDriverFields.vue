@@ -126,7 +126,6 @@ export default defineComponent({
   },
   setup() {
     const electron = null
-
     const databaseEngine = [
       {label: '(select driver)', value: ''},
       ...$extensions.drivers
@@ -157,44 +156,8 @@ export default defineComponent({
       return $extensions.drivers.find(x => x.engine == unref(engine))
     })
 
-
     const engine = ref($values.engine)
-
-
     const dispatchConnections = inject('dispatchConnections') as any
-
-    const handleTest = () => {
-      // emit('handlerConnections', {
-      //   engine: "mysql",
-      //   password: "123456",
-      //   server: "localhost",
-      //   sshKeyfile: "/Users/liuliutiyong/.ssh/id_rsa",
-      //   sshMode: "userPassword",
-      //   sshPort: "22",
-      //   user: "root",
-      //   port: "3306"
-      // })
-
-
-      // const resp = handleDriverTestApi({
-      //   engine: "mongo",
-      //   server: "localhost",
-      //   port: "27017"
-      // })
-      // const resp = await handleDriverTestApi({
-      //   engine: "mysql",
-      //   password: "123456",
-      //   server: "localhost",
-      //   sshKeyfile: "/Users/liuliutiyong/.ssh/id_rsa",
-      //   sshMode: "userPassword",
-      //   sshPort: "22",
-      //   user: "root",
-      //   port: "3306"
-      // })
-
-
-    }
-
 
     const notificationTest = () => {
       const dynamicProps = {
@@ -220,7 +183,6 @@ export default defineComponent({
     })
 
     return {
-      handleTest,
       databaseEngine,
       engine,
       resources: ref(''),
