@@ -5,6 +5,7 @@ import (
 	"fmt"
 	uuid "github.com/satori/go.uuid"
 	"io/ioutil"
+	"keeper/app/pkg/logger"
 	"keeper/app/tools"
 	"os"
 	"sync"
@@ -32,7 +33,7 @@ func NewJsonLinesDatabase(filename string) *JsonLinesDatabase {
 	}
 }
 
-func (j *JsonLinesDatabase) Insert(obj map[string]interface{}) {
+func (j *JsonLinesDatabase) Insert(obj map[string]interface{}) (map[string]interface{}, error) {
 	/*
 	 if (obj._id && (await this.get(obj._id))) {
 	      throw new Error(`Cannot insert duplicate ID ${obj._id} into ${this.filename}`);
@@ -41,17 +42,68 @@ func (j *JsonLinesDatabase) Insert(obj map[string]interface{}) {
 	j.ensureLoaded()
 	_id, ok := obj["_id"]
 	if ok && _id.(string) != "" {
-		fmt.Errorf("Cannot insert duplicate ID %s into %s", _id.(string), j.Filename)
+		logger.Errorf("Cannot insert duplicate ID %s into %s", _id.(string), j.Filename)
+		return nil, fmt.Errorf("Cannot insert duplicate ID %s into %s", _id.(string), j.Filename)
 	}
 
 	elem := make(map[string]interface{})
 	if err := tools.DeepCopy(elem, obj); err != nil {
-		return
+
+		return nil, err
 	}
 
 	elem["_id"] = uuid.NewV4().String()
 	j.Data = append(j.Data, elem)
 	j.save()
+
+	return elem, nil
+}
+
+func (j *JsonLinesDatabase) Get(id string) map[string]interface{} {
+	j.ensureLoaded()
+	for _, obj := range j.Data {
+		if obj["_id"] != nil && obj["_id"].(string) == id {
+			return obj
+		}
+	}
+
+	return nil
+}
+
+//todo
+func (j *JsonLinesDatabase) Find() {
+	j.ensureLoaded()
+
+}
+
+func (j *JsonLinesDatabase) Update(obj map[string]interface{}) (map[string]interface{}, error) {
+	j.ensureLoaded()
+	for _, x := range j.Data {
+		if obj["_id"] != nil && x["_id"] != nil && x["_id"] == obj["_id"] {
+			x = obj
+		}
+	}
+
+	j.save()
+	return obj, nil
+}
+
+//todo
+func (j *JsonLinesDatabase) Path(id string, values ...interface{}) {
+
+}
+
+func (j *JsonLinesDatabase) Remove(id string) (map[string]interface{}, error) {
+	j.ensureLoaded()
+	var removed map[string]interface{}
+	for i, obj := range j.Data {
+		if obj["_id"] != nil && obj["_id"].(string) == id {
+			removed = obj
+			j.Data = append(j.Data[:i], j.Data[i+1:]...) // 删除中间N个元素
+		}
+	}
+
+	return removed, nil
 }
 
 func (j *JsonLinesDatabase) ensureLoaded() {
@@ -79,8 +131,11 @@ func (j *JsonLinesDatabase) save() {
 	if !j.LoadedOk {
 		return
 	}
-	//写文件
 
+	//写文件
+	if err := tools.WriteFileAllPool(j.Filename, j.Data); err != nil {
+		logger.Infof("write connections.jsonl failed err:  %v", err)
+	}
 }
 
 func WriteToFile(fileName string, content string) error {
