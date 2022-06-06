@@ -6,9 +6,11 @@ import (
 	"github.com/mitchellh/mapstructure"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"keeper/app/modules"
+	"keeper/app/pkg/serializer"
 	"keeper/app/pkg/standard"
 	plugin_mondb "keeper/app/plugins/plugin-mondb"
 	plugin_mysql "keeper/app/plugins/plugin-mysql"
+	"keeper/app/tools"
 	"keeper/app/utility"
 	"sync"
 )
@@ -16,6 +18,8 @@ import (
 var ConnectionsBridge *Connections
 
 var bridgeOnce sync.Once
+
+var JsonLinesDatabase *utility.JsonLinesDatabase
 
 type Connections struct {
 	Ctx context.Context
@@ -25,6 +29,10 @@ const (
 	mysql_alias = "mysql"
 	mongo_alias = "mongo"
 )
+
+func init() {
+	JsonLinesDatabase = utility.NewJsonLinesDatabase("connections.jsonl")
+}
 
 func NewConnectProcess() *Connections {
 	bridgeOnce.Do(func() {
@@ -125,12 +133,26 @@ func (conn *Connections) Test(connection map[string]interface{}) interface{} {
 
 func (conn *Connections) Save(connection map[string]string) interface{} {
 	encrypted := utility.EncryptConnection(connection)
-	fmt.Printf("encrypted: %s\n", encrypted)
+	obj, ok := connection["_id"]
+	var res map[string]interface{}
+	var err error
+	if ok && obj != "" {
+		res, err = JsonLinesDatabase.Update(tools.LooseMapValue(encrypted))
+	} else {
+		res, err = JsonLinesDatabase.Insert(tools.LooseMapValue(encrypted))
+	}
 
-	_id := connection["_id"]
+	if err != nil {
+		runtime.MessageDialog(Application.ctx, runtime.MessageDialogOptions{
+			Type:          runtime.ErrorDialog,
+			Title:         "连接失败",
+			Message:       err.Error(),
+			Buttons:       []string{"确认"},
+			DefaultButton: "确认",
+		})
 
-	fmt.Println("_id: ", _id)
-	fmt.Printf("_id 134:  %v \n", _id)
+		return err
+	}
 
-	return connection
+	return serializer.SuccessData(Application.ctx, "", res)
 }
