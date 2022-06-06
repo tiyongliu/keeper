@@ -12,6 +12,7 @@ import (
 	plugin_mysql "keeper/app/plugins/plugin-mysql"
 	"keeper/app/tools"
 	"keeper/app/utility"
+	"path"
 	"sync"
 )
 
@@ -31,7 +32,7 @@ const (
 )
 
 func init() {
-	JsonLinesDatabase = utility.NewJsonLinesDatabase("connections.jsonl")
+	JsonLinesDatabase = utility.NewJsonLinesDatabase(path.Join(tools.DataDirCore(), "connections.jsonl"))
 }
 
 func NewConnectProcess() *Connections {
