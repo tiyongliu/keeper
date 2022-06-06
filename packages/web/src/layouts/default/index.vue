@@ -12,11 +12,11 @@
     <div class="statusbar svelte-1veekw4"><StatusBar></StatusBar></div>
     <div class="leftpanel svelte-1veekw4">
       <!--      <AppDarkModeToggle class="mx-auto" />-->
-
       <WidgetContainer />
     </div>
     <div class="tabs svelte-1veekw4">
-      <LayoutHeader />
+<!--      <LayoutHeader />-->
+     <TabsPanel/>
     </div>
     <div class="content svelte-1veekw4">content
     </div>
@@ -49,6 +49,7 @@
   //todo
   import { cssVariableStore } from "/@/store/modules/cssVariable"
   import WidgetContainer from '/@/second/widgets/WidgetContainer.vue'
+  import TabsPanel from '/@/second/widgets/TabsPanel.vue'
   import StatusBar from '/@/second/widgets/StatusBar.vue'
   import {WarningOutlined} from '@ant-design/icons-vue'
 
@@ -65,7 +66,8 @@
 
       WidgetContainer,
       WarningOutlined,
-      StatusBar
+      StatusBar,
+      TabsPanel
     },
     setup() {
       const { prefixCls } = useDesign('default-layout');
