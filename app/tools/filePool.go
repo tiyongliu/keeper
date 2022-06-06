@@ -3,7 +3,6 @@ package tools
 import (
 	"bufio"
 	"io"
-	"io/ioutil"
 	"os"
 	"strings"
 )
@@ -35,19 +34,14 @@ func ReadFileAllPool(name string) ([]map[string]interface{}, error) {
 }
 
 func WriteFileAllPool(name string, dataSource []map[string]interface{}) error {
-	//list, err := os.OpenFile(name, os.O_RDWR|os.O_TRUNC|os.O_CREATE, 0644)
-	//if err != nil {
-	//	return
-	//}
-	//
-	//for _, item := range dataSource {
-	//
-	//}
-
-	content, err := JsonMarshal(dataSource)
+	f, err := os.OpenFile(name, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0644)
 	if err != nil {
 		return err
 	}
-
-	return ioutil.WriteFile("test.txt", content, 0644)
+	n, _ := f.Seek(0, os.SEEK_END)
+	if content, err := JsonMarshal(dataSource); err == nil {
+		_, err = f.WriteAt(content, n)
+	}
+	defer f.Close()
+	return err
 }

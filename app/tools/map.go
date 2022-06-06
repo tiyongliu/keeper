@@ -18,3 +18,11 @@ func LooseMapValue(m map[string]string) map[string]interface{} {
 
 	return nm
 }
+
+func DeepCopyLooseMap(valueMap map[string]interface{}) map[string]interface{} {
+	newMap := make(map[string]interface{})
+	for k, v := range valueMap {
+		newMap[k] = v
+	}
+	return newMap
+}
