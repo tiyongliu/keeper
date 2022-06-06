@@ -9,7 +9,20 @@ interface IVariableBasic {
   currentDatabase: null | IPinnedDatabasesItem,
   extensions: null | ExtensionsDirectory
   pinnedDatabases: IPinnedDatabasesItem[],
+  openedTabs: IPinnedDatabasesItem[],
   pinnedTables: []
+}
+
+export interface TabDefinition{
+  title: string;
+  closedTime?: number;
+  icon: string;
+  props: any;
+  selected: boolean;
+  busy: boolean;
+  tabid: string;
+  tabComponent: string;
+  tabOrder?: number;
 }
 
 export const dataBaseStore = defineStore({
@@ -18,8 +31,9 @@ export const dataBaseStore = defineStore({
     currentDatabase: null,
     openedConnections: [],
     extensions: null,
-    pinnedDatabases: getWithStorageVariableCache([], 'pinnedDatabases'),
+    pinnedDatabases: getWithStorageVariableCache([], 'pinnedDatabases'), // writableWithStorage
     pinnedTables: getWithStorageVariableCache([], 'pinnedTables'),
+    openedTabs: getWithStorageVariableCache<TabDefinition[]>([], 'openedTabs')
   }),
   getters: {
     getCurrentDatabase(): IPinnedDatabasesItem | null {
@@ -27,6 +41,9 @@ export const dataBaseStore = defineStore({
     },
     getPinnedDatabases(): IPinnedDatabasesItem[] {
       return this.pinnedDatabases
+    },
+    getOpenedTabs(): IPinnedDatabasesItem[] {
+      return this.openedTabs
     },
     getPinnedTables(): [] {
       return this.pinnedTables
@@ -46,6 +63,10 @@ export const dataBaseStore = defineStore({
       this.pinnedDatabases = value
       setWithStorageVariableCache('pinnedDatabases', this.pinnedDatabases)
     },
+    subscribeOpenedTabs(value: IPinnedDatabasesItem[]) {
+      this.openedTabs = value
+      setWithStorageVariableCache('openedTabs', this.openedTabs)
+    },
     subscribePinnedTables(value: any) {
       this.pinnedTables = value
     }
@@ -55,3 +76,7 @@ export const dataBaseStore = defineStore({
 export function useDataBaseStoreWithOut() {
   return dataBaseStore(store);
 }
+// export function writableWithStorage<T>(defaultValue: T,storageName){
+//   const init  = localStorage.getItem(storageName);
+//   // const res =
+// }
