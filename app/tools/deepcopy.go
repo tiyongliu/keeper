@@ -14,11 +14,11 @@ func DeepCopy(dst interface{}, src interface{}) error {
 	}
 	bytes, err := json.Marshal(src)
 	if err != nil {
-		return fmt.Errorf("Unable to marshal src: %s", err)
+		return fmt.Errorf("17 Unable to marshal src %s", err)
 	}
 	err = json.Unmarshal(bytes, dst)
 	if err != nil {
-		return fmt.Errorf("Unable to unmarshal into dst: %s", err)
+		return fmt.Errorf("21 Unable to unmarshal into dst %s", err)
 	}
 	return nil
 }

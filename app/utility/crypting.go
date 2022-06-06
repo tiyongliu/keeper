@@ -19,7 +19,7 @@ func LoadEncryptionKey() string {
 	if _encryptionKey != "" {
 		return _encryptionKey
 	}
-	defaultFile := dataDirCore()
+	defaultFile := tools.DataDirCore()
 	keyFile := path.Join(defaultFile, ".key")
 
 	encryptor := CreateEncryptor(defaultEncryptionKey)
