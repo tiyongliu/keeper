@@ -34,3 +34,5 @@ build/bin/*exe~
 wails.exe
 
 wails
+
+bin/dbbox.exe
