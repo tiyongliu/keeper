@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-const MkDir = "keeper-data"
+const MkDir = ".keeper"
 
 func DataDirCore() string {
 	dir, _ := os.UserHomeDir()
