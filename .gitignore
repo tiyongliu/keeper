@@ -34,3 +34,4 @@ build/bin/*exe~
 wails.exe
 
 wails
+build/bin/
