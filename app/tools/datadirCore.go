@@ -1,13 +1,13 @@
-package utility
+package tools
 
 import (
 	"os"
 	"strings"
 )
 
-const MkDir = "keeper-data"
+const MkDir = ".keeper"
 
-func dataDirCore() string {
+func DataDirCore() string {
 	dir, _ := os.UserHomeDir()
 	return strings.Join([]string{dir, MkDir}, "/")
 }

@@ -37,3 +37,14 @@ func MapValues(object map[string]string, iteratee func(k, v interface{}) interfa
 
 	return result
 }
+
+func FilterUnknownMap(object map[string]interface{}, keys ...string) map[string]interface{} {
+	result := map[string]interface{}{}
+	for key, value := range object {
+		if !StringsIncludes(keys, key) {
+			result[key] = value
+		}
+	}
+
+	return result
+}

@@ -2,6 +2,8 @@
   <FormProviderCore>
     <BasicModal
       @register="register"
+      @cancel="handleCancelTest"
+      @ok="handleSubmit"
       class="connectionModal"
       title="Add connection">
       <TabControl isInline :tabs="tabs"/>
@@ -23,7 +25,7 @@ import TabControl from '/@/second/elements/TabControl.vue'
 import ConnectionModalDriverFields from '/@/second/modals/ConnectionModalDriverFields.vue'
 import ConnectionModalSshTunnelFields from '/@/second/modals/ConnectionModalSshTunnelFields.vue'
 import ConnectionModalSslFields from '/@/second/modals/ConnectionModalSslFields.vue'
-import {handleDriverTestApi} from '/@/api/connection'
+import {handleDriverTestApi, handleDriverSaveApi} from '/@/api/connection'
 
 const TabPane = Tabs.TabPane
 
@@ -40,7 +42,6 @@ export default defineComponent({
   emits: ['register'],
   setup() {
     const [register, {closeModal, setModalProps}] = useModalInner()
-    const sqlConnectResult = ref(null)
     let connParams = reactive<{[key in string]: any}>({})
 
     provide('dispatchConnections', (dynamicProps) => {
@@ -50,7 +51,13 @@ export default defineComponent({
 
     const handleTest = async () => {
       const resp = await handleDriverTestApi(pickBy(unref(connParams), (item) => !!item))
-      // sqlConnectResult.value = resp
+      console.log(resp, `resp`)
+    }
+
+    const handleCancelTest = () => {}
+
+    const handleSubmit = async () => {
+      const resp = await handleDriverSaveApi(pickBy(unref(connParams), (item) => !!item))
       console.log(resp, `resp`)
     }
 
@@ -58,11 +65,12 @@ export default defineComponent({
       register,
       closeModal,
       handleTest,
+      handleCancelTest,
+      handleSubmit,
       setModalProps: () => {
         //bodyStyle
         setModalProps({title: 'Modal New Title', bodyStyle: {padding: `0`}});
       },
-      sqlConnectResult,
       tabs: [
         {
           label: 'Main',
