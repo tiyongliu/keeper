@@ -132,15 +132,30 @@ func (conn *Connections) Test(connection map[string]interface{}) interface{} {
 	return nil
 }
 
+//下一步连接数据库对接
 func (conn *Connections) Save(connection map[string]string) interface{} {
 	encrypted := utility.EncryptConnection(connection)
+	//验证obj的唯一性，除去key字段，所有key对应的值都要一致。
+	unknownMap := tools.TransformUnknownMap(encrypted)
+	if exists := tools.UnknownMapExists(JsonLinesDatabase.Find(), unknownMap); exists {
+		runtime.MessageDialog(Application.ctx, runtime.MessageDialogOptions{
+			Type:          runtime.ErrorDialog,
+			Title:         "错误",
+			Message:       "Connection with same connection name already exists in the project.",
+			Buttons:       []string{"确认"},
+			DefaultButton: "确认",
+		})
+		return nil
+	}
+
 	obj, ok := connection["_id"]
 	var res map[string]interface{}
 	var err error
+
 	if ok && obj != "" {
-		res, err = JsonLinesDatabase.Update(tools.LooseMapValue(encrypted))
+		res, err = JsonLinesDatabase.Update(unknownMap)
 	} else {
-		res, err = JsonLinesDatabase.Insert(tools.LooseMapValue(encrypted))
+		res, err = JsonLinesDatabase.Insert(unknownMap)
 	}
 
 	if err != nil {

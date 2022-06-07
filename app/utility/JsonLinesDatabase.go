@@ -10,6 +10,8 @@ import (
 
 var lock sync.RWMutex
 
+const database_key = "_id"
+
 type JsonLinesDatabase struct {
 	Filename      string                   `json:"filename"`
 	LoadedOk      bool                     `json:"loadedOk"`
@@ -25,15 +27,13 @@ func NewJsonLinesDatabase(filename string) *JsonLinesDatabase {
 
 func (j *JsonLinesDatabase) Insert(obj map[string]interface{}) (map[string]interface{}, error) {
 	j.ensureLoaded()
-	_id, ok := obj["_id"]
-	if ok && _id.(string) != "" {
-		return nil, fmt.Errorf("Cannot insert duplicate ID %s into %s", _id.(string), j.Filename)
+	dynamicId, ok := obj[database_key]
+	if ok && dynamicId.(string) != "" {
+		return nil, fmt.Errorf("Cannot insert duplicate ID %s into %s", dynamicId.(string), j.Filename)
 	}
 
-	elem := tools.DeepCopyLooseMap(obj)
-	elem["_id"] = uuid.NewV4().String()
-
-	//验证obj的唯一性，除去key字段，所有key对应的值都要一致。
+	elem := tools.DeepCopyUnknownMap(obj)
+	elem[database_key] = uuid.NewV4().String()
 	//unique
 	j.Data = append(j.Data, elem)
 	if err := j.save(); err != nil {
@@ -46,7 +46,7 @@ func (j *JsonLinesDatabase) Insert(obj map[string]interface{}) (map[string]inter
 func (j *JsonLinesDatabase) Get(id string) map[string]interface{} {
 	j.ensureLoaded()
 	for _, obj := range j.Data {
-		if obj["_id"] != nil && obj["_id"].(string) == id {
+		if obj[database_key] != nil && obj[database_key].(string) == id {
 			return obj
 		}
 	}
@@ -54,16 +54,15 @@ func (j *JsonLinesDatabase) Get(id string) map[string]interface{} {
 	return nil
 }
 
-//todo
-func (j *JsonLinesDatabase) Find() {
+func (j *JsonLinesDatabase) Find() []map[string]interface{} {
 	j.ensureLoaded()
-
+	return j.Data
 }
 
 func (j *JsonLinesDatabase) Update(obj map[string]interface{}) (map[string]interface{}, error) {
 	j.ensureLoaded()
 	for _, x := range j.Data {
-		if obj["_id"] != nil && x["_id"] != nil && x["_id"] == obj["_id"] {
+		if obj[database_key] != nil && x[database_key] != nil && x[database_key] == obj[database_key] {
 			x = obj
 		}
 	}
@@ -85,7 +84,7 @@ func (j *JsonLinesDatabase) Remove(id string) (map[string]interface{}, error) {
 	j.ensureLoaded()
 	var removed map[string]interface{}
 	for i, obj := range j.Data {
-		if obj["_id"] != nil && obj["_id"].(string) == id {
+		if obj[database_key] != nil && obj[database_key].(string) == id {
 			removed = obj
 			j.Data = append(j.Data[:i], j.Data[i+1:]...) // 删除中间N个元素
 		}
