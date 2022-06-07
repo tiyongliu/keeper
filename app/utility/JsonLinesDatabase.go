@@ -32,6 +32,9 @@ func (j *JsonLinesDatabase) Insert(obj map[string]interface{}) (map[string]inter
 
 	elem := tools.DeepCopyLooseMap(obj)
 	elem["_id"] = uuid.NewV4().String()
+
+	//验证obj的唯一性，除去key字段，所有key对应的值都要一致。
+	//unique
 	j.Data = append(j.Data, elem)
 	if err := j.save(); err != nil {
 		logger.Errorf("insert database failed %v", err)
