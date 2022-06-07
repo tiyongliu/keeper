@@ -42,7 +42,6 @@
       </a-col>
     </a-row>
 
-
     <a-row type="flex" justify="space-between" align="top">
       <a-col :span="12">
         <a-form-item label="User">
