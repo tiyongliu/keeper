@@ -3,9 +3,15 @@ package tools
 import (
 	"encoding/json"
 	"fmt"
+	"reflect"
 )
 
-func MapBoundString(m map[string]interface{}) map[string]string {
+const (
+	database_key = "_id"
+	password_key = "password"
+)
+
+func TransformStringMap(m map[string]interface{}) map[string]string {
 	ret := make(map[string]string, len(m))
 	for k, v := range m {
 		ret[k] = fmt.Sprint(v)
@@ -13,7 +19,7 @@ func MapBoundString(m map[string]interface{}) map[string]string {
 	return ret
 }
 
-func LooseMapValue(m map[string]string) map[string]interface{} {
+func TransformUnknownMap(m map[string]string) map[string]interface{} {
 	nm := make(map[string]interface{})
 	for k, v := range m {
 		nm[k] = v
@@ -22,7 +28,7 @@ func LooseMapValue(m map[string]string) map[string]interface{} {
 	return nm
 }
 
-func DeepCopyLooseMap(valueMap map[string]interface{}) map[string]interface{} {
+func DeepCopyUnknownMap(valueMap map[string]interface{}) map[string]interface{} {
 	newMap := make(map[string]interface{})
 	for k, v := range valueMap {
 		newMap[k] = v
@@ -30,12 +36,14 @@ func DeepCopyLooseMap(valueMap map[string]interface{}) map[string]interface{} {
 	return newMap
 }
 
-func UniqueMap(list []map[string]interface{}, valueMap map[string]interface{}) bool {
+func UnknownMapExists(list []map[string]interface{}, valueMap map[string]interface{}) bool {
 	for _, item := range list {
-		CompareTwoMapInterface(item, valueMap)
+		if reflect.DeepEqual(FilterUnknownMap(item, database_key, password_key), FilterUnknownMap(valueMap, database_key, password_key)) {
+			return true
+		}
 	}
 
-	return true
+	return false
 }
 
 func CompareTwoMapInterface(data1 map[string]interface{}, data2 map[string]interface{}) bool {
