@@ -6,15 +6,21 @@ import (
 	"github.com/mitchellh/mapstructure"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"keeper/app/modules"
+	"keeper/app/pkg/serializer"
 	"keeper/app/pkg/standard"
 	plugin_mondb "keeper/app/plugins/plugin-mondb"
 	plugin_mysql "keeper/app/plugins/plugin-mysql"
+	"keeper/app/tools"
+	"keeper/app/utility"
+	"path"
 	"sync"
 )
 
 var ConnectionsBridge *Connections
 
 var bridgeOnce sync.Once
+
+var JsonLinesDatabase *utility.JsonLinesDatabase
 
 type Connections struct {
 	Ctx context.Context
@@ -25,6 +31,10 @@ const (
 	mongo_alias = "mongo"
 )
 
+func init() {
+	JsonLinesDatabase = utility.NewJsonLinesDatabase(path.Join(tools.DataDirCore(), "connections.jsonl"))
+}
+
 func NewConnectProcess() *Connections {
 	bridgeOnce.Do(func() {
 		ConnectionsBridge = &Connections{}
@@ -33,10 +43,10 @@ func NewConnectProcess() *Connections {
 	return ConnectionsBridge
 }
 
-func (conn *Connections) Test(req map[string]interface{}) interface{} {
-	if req["engine"].(string) == mysql_alias {
+func (conn *Connections) Test(connection map[string]interface{}) interface{} {
+	if connection["engine"].(string) == mysql_alias {
 		simpleSettingMysql := &modules.SimpleSettingMysql{}
-		err := mapstructure.Decode(req, simpleSettingMysql)
+		err := mapstructure.Decode(connection, simpleSettingMysql)
 		if err != nil {
 			return err.Error()
 		}
@@ -78,10 +88,10 @@ func (conn *Connections) Test(req map[string]interface{}) interface{} {
 		})
 		return selection
 
-	} else if req["engine"].(string) == mongo_alias {
+	} else if connection["engine"].(string) == mongo_alias {
 		pool, err := plugin_mondb.NewSimpleMongoDBPool(&modules.SimpleSettingMongoDB{
-			Host: req["host"].(string),
-			Port: req["port"].(string),
+			Host: connection["host"].(string),
+			Port: connection["port"].(string),
 		})
 
 		defer pool.Close()
@@ -122,6 +132,43 @@ func (conn *Connections) Test(req map[string]interface{}) interface{} {
 	return nil
 }
 
-func (conn *Connections) Save() {
+//下一步连接数据库对接
+func (conn *Connections) Save(connection map[string]string) interface{} {
+	encrypted := utility.EncryptConnection(connection)
+	//验证obj的唯一性，除去key字段，所有key对应的值都要一致。
+	unknownMap := tools.TransformUnknownMap(encrypted)
+	if exists := tools.UnknownMapExists(JsonLinesDatabase.Find(), unknownMap); exists {
+		runtime.MessageDialog(Application.ctx, runtime.MessageDialogOptions{
+			Type:          runtime.ErrorDialog,
+			Title:         "错误",
+			Message:       "Connection with same connection name already exists in the project.",
+			Buttons:       []string{"确认"},
+			DefaultButton: "确认",
+		})
+		return nil
+	}
 
+	obj, ok := connection["_id"]
+	var res map[string]interface{}
+	var err error
+
+	if ok && obj != "" {
+		res, err = JsonLinesDatabase.Update(unknownMap)
+	} else {
+		res, err = JsonLinesDatabase.Insert(unknownMap)
+	}
+
+	if err != nil {
+		runtime.MessageDialog(Application.ctx, runtime.MessageDialogOptions{
+			Type:          runtime.ErrorDialog,
+			Title:         "连接失败",
+			Message:       err.Error(),
+			Buttons:       []string{"确认"},
+			DefaultButton: "确认",
+		})
+
+		return err
+	}
+
+	return serializer.SuccessData(Application.ctx, "", res)
 }
