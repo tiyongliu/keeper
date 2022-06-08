@@ -36,7 +36,7 @@ func DeepCopyUnknownMap(valueMap map[string]interface{}) map[string]interface{} 
 	return newMap
 }
 
-func UnknownMapExists(list []map[string]interface{}, valueMap map[string]interface{}) bool {
+func UnknownMapSome(list []map[string]interface{}, valueMap map[string]interface{}) bool {
 	for _, item := range list {
 		if reflect.DeepEqual(FilterUnknownMap(item, database_key, password_key), FilterUnknownMap(valueMap, database_key, password_key)) {
 			return true
