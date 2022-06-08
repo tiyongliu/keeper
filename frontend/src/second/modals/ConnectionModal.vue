@@ -59,6 +59,7 @@ export default defineComponent({
     const handleSubmit = async () => {
       const resp = await handleDriverSaveApi(pickBy(unref(connParams), (item) => !!item))
       console.log(resp, `resp`)
+      // closeCurrentModal()
     }
 
     return {
