@@ -16,6 +16,18 @@ interface IVariableBasic {
   pinnedTables: []
 }
 
+export interface TabDefinition{
+  title: string;
+  closedTime?: number;
+  icon: string;
+  props: any;
+  selected: boolean;
+  busy: boolean;
+  tabid: string;
+  tabComponent: string;
+  tabOrder?: number;
+}
+
 export const dataBaseStore = defineStore({
   id: "app-dataBase",
   state: (): IVariableBasic => ({
@@ -26,6 +38,8 @@ export const dataBaseStore = defineStore({
     },
     pinnedDatabases: getWithStorageVariableCache([], 'pinnedDatabases'),
     pinnedTables: getWithStorageVariableCache([], 'pinnedTables'),
+
+    openedTabs: getWithStorageVariableCache<TabDefinition[]>([], 'openedTabs')
   }),
   getters: {
     getCurrentDatabase(): IPinnedDatabasesItem | null {
@@ -33,6 +47,9 @@ export const dataBaseStore = defineStore({
     },
     getPinnedDatabases(): IPinnedDatabasesItem[] {
       return this.pinnedDatabases
+    },
+    getOpenedTabs(): IPinnedDatabasesItem[] {
+      return this.openedTabs
     },
     getPinnedTables(): [] {
       return this.pinnedTables
