@@ -137,7 +137,7 @@ func (conn *Connections) Save(connection map[string]string) interface{} {
 	encrypted := utility.EncryptConnection(connection)
 	//验证obj的唯一性，除去key字段，所有key对应的值都要一致。
 	unknownMap := tools.TransformUnknownMap(encrypted)
-	if exists := tools.UnknownMapExists(JsonLinesDatabase.Find(), unknownMap); exists {
+	if exists := tools.UnknownMapSome(JsonLinesDatabase.Find(), unknownMap); exists {
 		runtime.MessageDialog(Application.ctx, runtime.MessageDialogOptions{
 			Type:          runtime.ErrorDialog,
 			Title:         "错误",
