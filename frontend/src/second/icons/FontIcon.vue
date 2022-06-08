@@ -22,7 +22,7 @@
         type: String as PropType<string>,
       },
       padRight: {
-        type: String as PropType<string>,
+        type: Boolean as PropType<boolean>,
       },
       style: {
         type: String as PropType<string>,
