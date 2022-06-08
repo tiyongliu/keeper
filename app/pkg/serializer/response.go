@@ -28,3 +28,12 @@ func SuccessData(ctx context.Context, message string, data interface{}) *Respons
 		Time:    time.Now().Unix(),
 	}
 }
+
+func Fail(ctx context.Context, message string) *Response {
+	return &Response{
+		Code:    Code_ERROR,
+		Result:  nil,
+		Message: message,
+		Time:    time.Now().Unix(),
+	}
+}
