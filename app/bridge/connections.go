@@ -145,7 +145,7 @@ func (conn *Connections) Save(connection map[string]string) interface{} {
 			Buttons:       []string{"确认"},
 			DefaultButton: "确认",
 		})
-		return nil
+		return serializer.Fail(Application.ctx, "")
 	}
 
 	obj, ok := connection["_id"]
@@ -167,8 +167,13 @@ func (conn *Connections) Save(connection map[string]string) interface{} {
 			DefaultButton: "确认",
 		})
 
-		return err
+		return serializer.Fail(Application.ctx, "")
 	}
 
 	return serializer.SuccessData(Application.ctx, "", res)
+}
+
+func (conn *Connections) List() interface{} {
+	find := JsonLinesDatabase.Find()
+	return serializer.SuccessData(Application.ctx, "", find)
 }
