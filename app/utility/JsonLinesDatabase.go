@@ -118,9 +118,7 @@ func (j *JsonLinesDatabase) save() error {
 	if !j.LoadedOk {
 		return fmt.Errorf("not laded")
 	}
-
 	lock.Lock()
 	defer lock.Unlock()
-
 	return tools.WriteFileAllPool(j.Filename, j.Data)
 }
