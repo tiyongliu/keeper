@@ -47,7 +47,7 @@ func ReadFileAllPool(name string) ([]map[string]interface{}, error) {
 }
 
 func WriteFileAllPool(name string, dataSource []map[string]interface{}) error {
-	file, err := os.OpenFile(name, os.O_WRONLY|os.O_APPEND, SecondFilePerm)
+	file, err := os.OpenFile(name, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, SecondFilePerm)
 	if err != nil {
 		return err
 	}
@@ -58,10 +58,9 @@ func WriteFileAllPool(name string, dataSource []map[string]interface{}) error {
 	for _, x := range dataSource {
 		if marshal, err := JsonMarshal(x); err == nil {
 			write.WriteString(string(marshal) + "\n")
-			//Flush将缓存的文件真正写入到文件中
-			write.Flush()
 		}
 	}
 
-	return nil
+	//Flush将缓存的文件真正写入到文件中
+	return write.Flush()
 }
