@@ -2,6 +2,7 @@
   <a-form layout="vertical">
     <a-form-item label="Database engine">
       <a-select
+        @change="resetFields"
         placeholder="please select your zone"
         :options="databaseEngine"
         v-model:value="engine"/>
@@ -106,6 +107,7 @@ import {
   SelectOption,
 } from 'ant-design-vue'
 import $extensions from './drivers.json'
+const useForm = Form.useForm
 
 export default defineComponent({
   name: 'ConnectionModalDriverFields',
@@ -143,7 +145,8 @@ export default defineComponent({
       "sshKeyfile": "/Users/liuliutiyong/.ssh/id_rsa",
       "useDatabaseUrl": ""
     }
-    const driverForm = reactive<{ [key in string]: string } & { port: string | number }>({
+
+    let driverForm = reactive<{ [key in string]: string } & { port: string | number }>({
       engine: '',
       host: 'localhost',
       username: '',
@@ -170,6 +173,8 @@ export default defineComponent({
       dispatchConnections(dynamicProps)
     }
 
+    const { resetFields, validate, validateInfos } = useForm(driverForm)
+
 
     watch(() => [unref(driver), toRefs(driverForm)],
       useDebounceFn(() => notificationTest(), 300),
@@ -186,7 +191,8 @@ export default defineComponent({
       engine,
       resources: ref(''),
       driver,
-      driverForm
+      driverForm,
+      resetFields
     }
 
   }
