@@ -3,7 +3,6 @@ package utility
 import (
 	"fmt"
 	uuid "github.com/satori/go.uuid"
-	"io/ioutil"
 	"keeper/app/pkg/logger"
 	"keeper/app/tools"
 	"sync"
@@ -27,7 +26,7 @@ func NewJsonLinesDatabase(filename string) *JsonLinesDatabase {
 }
 
 func (j *JsonLinesDatabase) Insert(obj map[string]interface{}) (map[string]interface{}, error) {
-	j.EnsureLoaded()
+	j.ensureLoaded()
 	dynamicId, ok := obj[database_key]
 	if ok && dynamicId.(string) != "" {
 		return nil, fmt.Errorf("Cannot insert duplicate ID %s into %s", dynamicId.(string), j.Filename)
@@ -45,7 +44,7 @@ func (j *JsonLinesDatabase) Insert(obj map[string]interface{}) (map[string]inter
 }
 
 func (j *JsonLinesDatabase) Get(id string) map[string]interface{} {
-	j.EnsureLoaded()
+	j.ensureLoaded()
 	for _, obj := range j.Data {
 		if obj[database_key] != nil && obj[database_key].(string) == id {
 			return obj
@@ -56,12 +55,12 @@ func (j *JsonLinesDatabase) Get(id string) map[string]interface{} {
 }
 
 func (j *JsonLinesDatabase) Find() []map[string]interface{} {
-	j.EnsureLoaded()
+	j.ensureLoaded()
 	return j.Data
 }
 
 func (j *JsonLinesDatabase) Update(obj map[string]interface{}) (map[string]interface{}, error) {
-	j.EnsureLoaded()
+	j.ensureLoaded()
 	for _, x := range j.Data {
 		if obj[database_key] != nil && x[database_key] != nil && x[database_key] == obj[database_key] {
 			x = obj
@@ -82,7 +81,7 @@ func (j *JsonLinesDatabase) Path(id string, values ...interface{}) {
 }
 
 func (j *JsonLinesDatabase) Remove(id string) (map[string]interface{}, error) {
-	j.EnsureLoaded()
+	j.ensureLoaded()
 	var removed map[string]interface{}
 	for i, obj := range j.Data {
 		if obj[database_key] != nil && obj[database_key].(string) == id {
@@ -94,8 +93,7 @@ func (j *JsonLinesDatabase) Remove(id string) (map[string]interface{}, error) {
 	return removed, nil
 }
 
-func (j *JsonLinesDatabase) EnsureLoaded() {
-	fmt.Printf("LoadPerformed: ----------: %v", j.LoadPerformed)
+func (j *JsonLinesDatabase) ensureLoaded() {
 	if !j.LoadPerformed {
 		lock.Lock()
 		defer lock.Unlock()
@@ -108,20 +106,11 @@ func (j *JsonLinesDatabase) EnsureLoaded() {
 
 		line, err := tools.ReadFileAllPool(j.Filename)
 		if err != nil {
-			fmt.Printf("err110: ----------: %s\n", err)
-
 			return
 		}
 		j.Data = line
 		j.LoadedOk = true
 		j.LoadPerformed = true
-
-		f, err := ioutil.ReadFile(j.Filename)
-		if err != nil {
-			fmt.Println("read fail", err)
-		}
-
-		fmt.Printf("string(f)string(f): ----------: %s", string(f))
 	}
 }
 
@@ -132,11 +121,6 @@ func (j *JsonLinesDatabase) save() error {
 
 	lock.Lock()
 	defer lock.Unlock()
-	if err := tools.WriteFileAllPool(j.Filename, j.Data); err != nil {
-		return err
-	}
 
-	return nil
+	return tools.WriteFileAllPool(j.Filename, j.Data)
 }
-
-//

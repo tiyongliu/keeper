@@ -9,32 +9,6 @@ import (
 )
 
 //读取所有文件读连接池
-func ReadFileAllPool1(name string) ([]map[string]interface{}, error) {
-	fd, err := os.Open(name)
-	defer fd.Close()
-	if err != nil {
-		return nil, err
-	}
-	buff := bufio.NewReader(fd)
-
-	var list []map[string]interface{}
-	for {
-		data, _, eof := buff.ReadLine()
-		if eof == io.EOF {
-			break
-		}
-		text := strings.TrimSpace(string(data))
-		if unmarshal, err := JsonUnmarshal([]byte(text)); err != nil {
-			fmt.Printf("err: ----------: %v\n", err)
-			break
-		} else {
-			list = append(list, unmarshal)
-		}
-	}
-
-	return list, nil
-}
-
 func ReadFileAllPool(name string) ([]map[string]interface{}, error) {
 	file, err := os.Open(name)
 	if err != nil {
@@ -57,13 +31,11 @@ func ReadFileAllPool(name string) ([]map[string]interface{}, error) {
 	//循环的读取文件的内容
 	for {
 		str, err := reader.ReadString('\n') // 读到一个换行就结束
-		fmt.Printf("bufio.NewReader(file): ----------: %s\n", str)
-		if err == io.EOF { // io.EOF表示文件的末尾
+		if err == io.EOF {                  // io.EOF表示文件的末尾
 			break
 		}
 		text := strings.TrimSpace(str)
 		if unmarshal, err := JsonUnmarshal([]byte(text)); err != nil {
-			fmt.Printf("err: ----------: %v\n", err)
 			break
 		} else {
 			list = append(list, unmarshal)
@@ -73,14 +45,21 @@ func ReadFileAllPool(name string) ([]map[string]interface{}, error) {
 }
 
 func WriteFileAllPool(name string, dataSource []map[string]interface{}) error {
-	f, err := os.OpenFile(name, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0644)
+	file, err := os.OpenFile(name, os.O_WRONLY|os.O_APPEND, 0666)
 	if err != nil {
 		return err
 	}
-	n, _ := f.Seek(0, os.SEEK_END)
-	if content, err := JsonMarshal(dataSource); err == nil {
-		_, err = f.WriteAt(content, n)
+
+	defer file.Close()
+	//写入文件时，使用带缓存的 *Writer
+	write := bufio.NewWriter(file)
+	for _, x := range dataSource {
+		if marshal, err := JsonMarshal(x); err == nil {
+			write.WriteString(string(marshal) + "\n")
+			//Flush将缓存的文件真正写入到文件中
+			write.Flush()
+		}
 	}
-	defer f.Close()
-	return err
+
+	return nil
 }
