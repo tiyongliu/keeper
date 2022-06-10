@@ -24,7 +24,7 @@
 </template>
 
 <script lang="ts">
-import {defineComponent, ref, unref} from 'vue'
+import {defineComponent, ref, unref, onMounted} from 'vue'
 import {sortBy} from 'lodash-es'
 import SearchBoxWrapper from '/@/second/widgets/SearchBoxWrapper.vue'
 import WidgetsInnerContainer from '/@/second/widgets//WidgetsInnerContainer.vue'
@@ -39,6 +39,7 @@ import SubDatabaseList from '/@/second/appobj/SubDatabaseList'
 import {dataBaseStore} from '/@/store/modules/dataBase'
 import runCommand from '/@/second/commands/runCommand'
 
+import {useConnectionList} from '/@/second/utility/metadataLoaders'
 export default defineComponent({
   name: "ConnectionList",
   components: {
@@ -69,6 +70,10 @@ export default defineComponent({
 
     const handleExpandable = (data) => dataBase.$state.openedConnections.includes(unref(data)._id)
       && !unref(data).singleDatabase
+
+    onMounted(() => {
+      useConnectionList()
+    })
 
     return {
       hidden,

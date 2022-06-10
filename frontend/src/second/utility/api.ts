@@ -35,7 +35,8 @@ function processApiResponse(relativePath, params, resp) {
   }
 
   if (resp.code === 1) {
-    return resp.result.message
+    // return resp.result.message
+    return
   }
   return resp.result
 }
