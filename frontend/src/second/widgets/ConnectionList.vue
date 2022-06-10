@@ -72,7 +72,9 @@ export default defineComponent({
       && !unref(data).singleDatabase
 
     onMounted(() => {
-      useConnectionList()
+      const connections = useConnectionList()
+      const {subscribe} = connections
+      console.log(subscribe(), `connnnnnnnnnnnnnnnnnnnn`)
     })
 
     return {
