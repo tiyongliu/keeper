@@ -34,3 +34,9 @@ onMounted(() => {
   // loadApi()
 })
 </script>
+
+<!--
+https://vueuse.org/rxjs/useObservable/#usage
+
+https://cn.rx.js.org/manual/tutorial.html#h22
+-->
