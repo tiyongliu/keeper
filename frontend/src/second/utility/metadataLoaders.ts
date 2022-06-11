@@ -24,20 +24,24 @@ async function getCore(loader, args) {
   const key = stableStringify({url, ...params})
 
   async function doLoad() {
-    const resp = await apiCall(url, params);
-    return resp
+    return await apiCall(url, params)
   }
-  // const res = await doLoad()
-  const res = await loadCachedValue(key, doLoad)
-  console.log(`line 32 `, res)
-  return res
+
+  return await loadCachedValue(key, doLoad)
 }
 
-// export function useConnectionList(){
-//   // return useCore(connectionListLoader,{})
-//
-//   return useCore(connectionListLoader,{})
-// }
+export function useCore(loader, args) {
+  const { url, params, reloadTrigger, transform, onLoaded } = loader(args);
+  const cacheKey = stableStringify({ url, ...params });
+  let closed = false;
+  async function handleReload() {
+    const res = await getCore(loader, args);
+    if (!closed) {
+      return res
+    }
+  }
+  return handleReload()
+}
 
 export function useDatabaseServerVersion(args) {
   return useCore(databaseServerVersionLoader, args);
@@ -47,36 +51,28 @@ export function useDatabaseStatus(args) {
   return useCore(databaseStatusLoader, args);
 }
 
-function useCore(loader, args) {
-  const {url, params, reloadTrigger, transform, onLoaded} = loader(args);
-  console.log(url, params, `line 51-51`)
-  const cacheKey = stableStringify({url, ...params});
-  console.log(cacheKey, `cacheKey-cacheKey`)
-
-  let closed = false
-
-  return {
-    subscribe: onChange => {
-      async function handleReload() {
-
-        console.log(loader, args, `rrrrrrrrrrrrrrrrr`)
-        const res = await getCore(loader, args);
-
-        if (!closed) {
-          console.log(res, `res`)
-          console.log(onChange, `oooo`)
-
-          // onChange(res);
-        }
-      }
-
-      void handleReload()
-    }
-  }
-}
-
 export function useConnectionList() {
   return useCore(connectionListLoader, {})
 }
 
-import { defineStore } from 'pinia'
+
+
+
+export function useConnectionList1() {
+  return useCore1(connectionListLoader, {})
+}
+
+export function useCore1(loader, args) {
+  const { url, params, reloadTrigger, transform, onLoaded } = loader(args);
+  const cacheKey = stableStringify({ url, ...params });
+  let closed = false
+  async function handleReload() {
+    const res = await getCore(loader, args);
+    if (!closed) {
+      return res
+    }
+  }
+  return {
+
+  }
+}
