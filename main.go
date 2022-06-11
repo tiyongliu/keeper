@@ -18,7 +18,7 @@ func main() {
 
 	// Create an instance of the app structure
 	app := bridge.NewApp()
-	conn := bridge.NewConnectProcess()
+	conn := bridge.NewConnections()
 
 	// Create application with options
 	err := wails.Run(&options.App{
