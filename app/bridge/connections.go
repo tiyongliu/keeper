@@ -35,7 +35,7 @@ func init() {
 	JsonLinesDatabase = utility.NewJsonLinesDatabase(path.Join(tools.DataDirCore(), "connections.jsonl"))
 }
 
-func NewConnectProcess() *Connections {
+func NewConnections() *Connections {
 	bridgeOnce.Do(func() {
 		ConnectionsBridge = &Connections{}
 	})
@@ -132,7 +132,6 @@ func (conn *Connections) Test(connection map[string]interface{}) interface{} {
 	return nil
 }
 
-//下一步连接数据库对接
 func (conn *Connections) Save(connection map[string]string) interface{} {
 	encrypted := utility.EncryptConnection(connection)
 	//验证obj的唯一性，除去key字段，所有key对应的值都要一致。
@@ -148,11 +147,11 @@ func (conn *Connections) Save(connection map[string]string) interface{} {
 		return serializer.Fail(Application.ctx, "")
 	}
 
-	obj, ok := connection["_id"]
+	uuid, ok := connection["_id"]
 	var res map[string]interface{}
 	var err error
 
-	if ok && obj != "" {
+	if ok && uuid != "" {
 		res, err = JsonLinesDatabase.Update(unknownMap)
 	} else {
 		res, err = JsonLinesDatabase.Insert(unknownMap)
@@ -176,4 +175,26 @@ func (conn *Connections) Save(connection map[string]string) interface{} {
 func (conn *Connections) List() interface{} {
 	find := JsonLinesDatabase.Find()
 	return serializer.SuccessData(Application.ctx, "", find)
+}
+
+func (conn *Connections) Delete(connection map[string]interface{}) interface{} {
+	uuid, ok := connection["_id"]
+	if ok {
+		res, err := JsonLinesDatabase.Remove(uuid.(string))
+		if err != nil {
+			runtime.MessageDialog(Application.ctx, runtime.MessageDialogOptions{
+				Type:          runtime.ErrorDialog,
+				Title:         "删除失败",
+				Message:       err.Error(),
+				Buttons:       []string{"确认"},
+				DefaultButton: "确认",
+			})
+
+			return serializer.Fail(Application.ctx, err.Error())
+		}
+
+		return serializer.SuccessData(Application.ctx, "", res)
+	}
+
+	return serializer.Fail(Application.ctx, "参数错误")
 }
