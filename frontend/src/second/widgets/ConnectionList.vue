@@ -24,7 +24,7 @@
 </template>
 
 <script lang="ts">
-import {defineComponent, ref, unref, onMounted} from 'vue'
+import {defineComponent, onMounted, ref, unref, computed} from 'vue'
 import {sortBy} from 'lodash-es'
 import SearchBoxWrapper from '/@/second/widgets/SearchBoxWrapper.vue'
 import WidgetsInnerContainer from '/@/second/widgets//WidgetsInnerContainer.vue'
@@ -37,9 +37,8 @@ import getConnectionLabel from '/@/second/utility/getConnectionLabel'
 import ConnectionAppObject from '/@/second/appobj/ConnectionAppObject'
 import SubDatabaseList from '/@/second/appobj/SubDatabaseList'
 import {dataBaseStore} from '/@/store/modules/dataBase'
+import {metadataLoadersStore} from '/@/store/modules/metadataLoaders'
 import runCommand from '/@/second/commands/runCommand'
-
-import {useConnectionList} from '/@/second/utility/metadataLoaders'
 export default defineComponent({
   name: "ConnectionList",
   components: {
@@ -56,7 +55,9 @@ export default defineComponent({
     const filter = ref('')
     const dataBase = dataBaseStore()
 
-    const connectionsWithStatus = [{
+    const metadataLoaders = metadataLoadersStore()
+
+    const connectionsWithStatus1 = [{
       "server": "localhost",
       "engine": "mysql@dbgate-plugin-mysql",
       "sshMode": "userPassword",
@@ -68,13 +69,17 @@ export default defineComponent({
       "status": {"name": "ok"}
     }]
 
+    // const connections = ref(metadataLoaders.connections)
+
     const handleExpandable = (data) => dataBase.$state.openedConnections.includes(unref(data)._id)
       && !unref(data).singleDatabase
 
-    onMounted(() => {
-      const connections = useConnectionList()
-      const {subscribe} = connections
-      console.log(subscribe(), `connnnnnnnnnnnnnnnnnnnn`)
+    onMounted(async () => {
+      await metadataLoaders.useConnectionList()
+    })
+
+    const connectionsWithStatus = computed(() => {
+      return metadataLoaders.connections
     })
 
     return {

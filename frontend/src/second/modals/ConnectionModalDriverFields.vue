@@ -76,6 +76,11 @@
     </a-form-item>
 
   </a-form>
+
+
+  <button @click="count++">
+    count is: {{ count }}
+  </button>
 </template>
 
 <script lang="ts">
@@ -110,6 +115,9 @@ import $extensions from './drivers.json'
 const InputPassword = Input.Password
 const useForm = Form.useForm
 
+import { tryOnScopeDispose } from '@vueuse/shared'
+import { useSubject } from '@vueuse/rxjs'
+import { BehaviorSubject } from 'rxjs'
 export default defineComponent({
   name: 'ConnectionModalDriverFields',
   components: {
@@ -195,6 +203,12 @@ export default defineComponent({
       void notificationTest()
     })
 
+    const countSubject = new BehaviorSubject(0)
+    const count = useSubject(countSubject)
+
+    const subscription = countSubject.subscribe(value => console.info('from subscriber: ', value))
+    tryOnScopeDispose(() => { subscription.unsubscribe() })
+
     return {
       databaseEngine,
       engine,
@@ -203,6 +217,8 @@ export default defineComponent({
       driverForm,
       handleSelect,
       validateInfos,
+
+      count,
     }
 
   }
