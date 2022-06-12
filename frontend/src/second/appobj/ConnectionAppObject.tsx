@@ -109,6 +109,35 @@ export default defineComponent({
 
     const currentDatabase = computed(() => dataBase.$state.currentDatabase)
 
+    const getContextMenu = () => {
+      const handleEdit = () => {
+        console.log(`handleEdit`)
+      }
+
+      const handleDelete = () => {
+        console.log(`handleDelete`)
+      }
+
+      const handleDuplicate = () => {
+        console.log(`handleDuplicate`)
+      }
+
+      return [
+        {
+          text: 'Edit',
+          onClick: handleEdit,
+        },
+        {
+          text: 'Delete',
+          onClick: handleDelete,
+        },
+        {
+          text: 'Duplicate',
+          onClick: handleDuplicate,
+        },
+      ]
+    }
+
     return () => {
       const {onClick, onExpand, ...restProps} = attrs
       return <AppObjectCore
@@ -125,6 +154,7 @@ export default defineComponent({
         statusTitle={unref(statusTitleRef) || unref(engineStatusTitleRef)}
         // statusIconBefore={data!.isReadOnly ? 'icon lock' : null}
         extInfo={unref(extInfoRef)}
+        menu={getContextMenu}
         onClick={handleConnect}
       />
     }
@@ -138,6 +168,7 @@ export const createMatcher = props => filter => {
   return filterName(unref(filter), displayName, server, ...databases.map(x => x.name));
 };
 export const createChildMatcher = props => filter => {
+
   if (!filter) {
     return false;
   }
