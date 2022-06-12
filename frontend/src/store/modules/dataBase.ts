@@ -13,7 +13,8 @@ interface IVariableBasic {
   currentDatabase: null | IPinnedDatabasesItem,
   extensions: null | ExtensionsDirectory
   pinnedDatabases: IPinnedDatabasesItem[],
-  pinnedTables: []
+  pinnedTables: [],
+  currentDropDownMenu: null | ICurrentDropDownMenu
 }
 
 export interface TabDefinition{
@@ -28,6 +29,13 @@ export interface TabDefinition{
   tabOrder?: number;
 }
 
+export interface ICurrentDropDownMenu  {
+  left: number
+  top: number
+  items: any[]
+  targetElement: HTMLElement
+}
+
 export const dataBaseStore = defineStore({
   id: "app-dataBase",
   state: (): IVariableBasic => ({
@@ -38,8 +46,8 @@ export const dataBaseStore = defineStore({
     },
     pinnedDatabases: getWithStorageVariableCache([], 'pinnedDatabases'),
     pinnedTables: getWithStorageVariableCache([], 'pinnedTables'),
-
-    openedTabs: getWithStorageVariableCache<TabDefinition[]>([], 'openedTabs')
+    openedTabs: getWithStorageVariableCache<TabDefinition[]>([], 'openedTabs'),
+    currentDropDownMenu: null
   }),
   getters: {
     getCurrentDatabase(): IPinnedDatabasesItem | null {
@@ -74,6 +82,9 @@ export const dataBaseStore = defineStore({
     },
     subscribePinnedTables(value: any) {
       this.pinnedTables = value
+    },
+    subscribeCurrentDropDownMenu(value: null | ICurrentDropDownMenu) {
+      this.currentDropDownMenu = value
     }
   }
 });
