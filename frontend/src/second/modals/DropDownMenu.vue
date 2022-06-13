@@ -1,7 +1,7 @@
 <template>
-  <ul class="dropDownMenuMarker">
-    <template v-for="(item, index) in items" :key="index">
-      <li v-if="item.divider" class="divider" />
+  <ul class="dropDownMenuMarker" :style="style" ref="element">
+    <template v-for="(item, index) in preparedItems" :key="index">
+      <li v-if="item.divider" class="divider"/>
       <li v-else>
         <a @click="$event => handleClick($event, item)">
           {{ item.text || item.label }}
@@ -17,12 +17,25 @@
 
 <script lang="ts" setup>
 import {throttle} from 'lodash-es'
-import {defineExpose, defineProps, onBeforeUnmount, onMounted, PropType, ref} from 'vue'
+import {
+  defineEmits,
+  defineExpose,
+  defineProps,
+  watch,
+  onBeforeUnmount,
+  onMounted,
+  computed,
+  PropType,
+  ref,
+  toRefs
+} from 'vue'
+import { prepareMenuItems } from '/@/second/utility/contextMenu'
 import {formatKeyText} from '/@/second/utility/common'
-import {fixPopupPlacement} from './DropDownMenu_'
 import FontIcon from '/@/second/icons/FontIcon.vue'
+import { dataBaseStore } from "/@/store/modules/dataBase"
+import {fixPopupPlacement} from './DropDownMenu_'
 
-defineProps({
+const props = defineProps({
   top: {
     type: [String, Number] as PropType<string | number>,
   },
@@ -31,8 +44,14 @@ defineProps({
   },
   items: {
     type: Array
+  },
+  targetElement: {
+    type: Object
   }
 })
+
+const {left, top, items, targetElement} = toRefs(props)
+const style = `left: ${left?.value}px; top: ${top?.value}px`
 
 defineExpose({
   formatKeyText
@@ -41,17 +60,25 @@ defineExpose({
 const handleClick = (e, item) => {
   if (item.disabled) return
   if (item.submenu) {
-
     return
   }
+
+  emit('close')
 }
 
+const emit = defineEmits(['close'])
+
 const element = ref<null | HTMLElement>(null)
+
+const dataBase = dataBaseStore()
 
 onMounted(() => {
   fixPopupPlacement(element.value!)
   document.addEventListener('mousedown', handleClickOutside, true)
 })
+
+// const preparedItems = computed(() => prepareMenuItems(items?.value, {targetElement: targetElement?.value}, dataBase.$state.commandsCustomized))
+const preparedItems = computed(() => [{"text":"Edit"},{"text":"Delete"},{"text":"Duplicate"},{"text":"Connect"},{"text":"New query","isNewQuery":true},{"text":"Restore/import SQL dump"}])
 
 onBeforeUnmount(() => document.removeEventListener('mousedown', handleClickOutside, true))
 
@@ -62,8 +89,12 @@ const changeActiveSubmenu = throttle(() => {
 const handleClickOutside = event => {
   if (event.target.closest('ul.dropDownMenuMarker')) return
 
-  // dispatch('close')
+  emit('close')
 }
+
+watch(() => preparedItems, () => {
+  console.log(preparedItems.value, `------------------------------preparedItems`)
+})
 </script>
 
 
