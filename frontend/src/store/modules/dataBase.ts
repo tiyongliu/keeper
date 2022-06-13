@@ -1,5 +1,7 @@
-import { defineStore } from "pinia";
-import { store } from "/@/store";
+import {defineStore} from "pinia"
+import {store} from "/@/store"
+import {mapValues} from 'lodash-es'
+import invalidateCommands from '/@/second/commands/invalidateCommands'
 
 import pluginMongoDrivers from '/@/second/plugins/keeper-plugin-mongo'
 import pluginMysqlDrivers from '/@/second/plugins/keeper-plugin-mysql'
@@ -8,6 +10,7 @@ import pluginRedisDrivers from '/@/second/plugins/keeper-plugin-redis'
 import {getWithStorageVariableCache, setWithStorageVariableCache} from '../index'
 import {IPinnedDatabasesItem} from '/@/second/typings/types/standard.d'
 import {ExtensionsDirectory} from '/@/second/typings/types/extensions.d'
+
 interface IVariableBasic {
   openedConnections: string[]
   currentDatabase: null | IPinnedDatabasesItem,
@@ -15,9 +18,13 @@ interface IVariableBasic {
   pinnedDatabases: IPinnedDatabasesItem[],
   pinnedTables: [],
   currentDropDownMenu: null | ICurrentDropDownMenu
+  commands: object
+  commandsSettings: object
+  visibleCommandPalette: null | unknown
+  commandsCustomized: object
 }
 
-export interface TabDefinition{
+export interface TabDefinition {
   title: string;
   closedTime?: number;
   icon: string;
@@ -29,13 +36,14 @@ export interface TabDefinition{
   tabOrder?: number;
 }
 
-export interface ICurrentDropDownMenu  {
+export interface ICurrentDropDownMenu {
   left: number
   top: number
   items: any[]
   targetElement: HTMLElement
 }
 
+let visibleCommandPaletteValue = null
 export const dataBaseStore = defineStore({
   id: "app-dataBase",
   state: (): IVariableBasic => ({
@@ -47,7 +55,11 @@ export const dataBaseStore = defineStore({
     pinnedDatabases: getWithStorageVariableCache([], 'pinnedDatabases'),
     pinnedTables: getWithStorageVariableCache([], 'pinnedTables'),
     openedTabs: getWithStorageVariableCache<TabDefinition[]>([], 'openedTabs'),
-    currentDropDownMenu: null
+    currentDropDownMenu: null,
+    commands: {},
+    commandsSettings: {},
+    visibleCommandPalette: null,
+    commandsCustomized: {},
   }),
   getters: {
     getCurrentDatabase(): IPinnedDatabasesItem | null {
@@ -85,10 +97,34 @@ export const dataBaseStore = defineStore({
     },
     subscribeCurrentDropDownMenu(value: null | ICurrentDropDownMenu) {
       this.currentDropDownMenu = value
+    },
+    subscribeVisibleCommandPalette(value) {
+      visibleCommandPaletteValue = value
+      void invalidateCommands()
+    },
+    setVisibleCommandPalette(value: null | unknown) {
+      this.visibleCommandPalette = value
+    },
+    subscribeCommands(value: object) {
+      this.commands = value
+
+      this.commandsCustomized = derived(this.commands, this.commandsSettings)
+    },
+    subscribeCommandsSettings(value: object) {
+      this.commandsSettings = value
+      
+      this.commandsCustomized = derived(this.commands, this.commandsSettings)
     }
   }
 });
 
 export function useDataBaseStoreWithOut() {
   return dataBaseStore(store);
+}
+
+const derived = (commands, commandsSettings): object => {
+  return mapValues(commands, (v, k) => ({
+    ...v,
+    ...commandsSettings[k]
+  }))
 }
