@@ -1,18 +1,18 @@
+import {defineComponent, computed} from 'vue'
 import DropDownMenu from './DropDownMenu.vue'
-import {defineComponent} from 'vue'
 import {dataBaseStore} from "/@/store/modules/dataBase";
 
 export default defineComponent({
   name: 'CurrentDropDownMenu',
   setup() {
     const dataBase = dataBaseStore()
-    const currentDropDownMenu = dataBase.$state.currentDropDownMenu
-    return () => currentDropDownMenu &&
+    return () => dataBase.$state.currentDropDownMenu &&
       <DropDownMenu
-        left={currentDropDownMenu.left}
-        top={currentDropDownMenu.top}
-        item={currentDropDownMenu.items}
-        targetElement={currentDropDownMenu.targetElement}
+        left={dataBase.$state.currentDropDownMenu.left}
+        top={dataBase.$state.currentDropDownMenu.top}
+        item={dataBase.$state.currentDropDownMenu.items}
+        targetElement={dataBase.$state.currentDropDownMenu.targetElement}
+        onClose={() => dataBase.subscribeCurrentDropDownMenu(null)}
       />
   }
 })

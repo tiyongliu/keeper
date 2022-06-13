@@ -51,8 +51,6 @@ export default defineComponent({
   }
 })
 
-
 function createMenu() {
-  console.log(`631`)
-  getDatabaseMenuItems()
+  return getDatabaseMenuItems()
 }
