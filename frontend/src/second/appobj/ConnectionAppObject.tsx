@@ -110,6 +110,11 @@ export default defineComponent({
     const currentDatabase = computed(() => dataBase.$state.currentDatabase)
 
     const getContextMenu = () => {
+
+      const handleRefresh = () => {
+
+      }
+
       const handleEdit = () => {
         console.log(`handleEdit`)
       }
