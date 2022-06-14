@@ -12,6 +12,7 @@
   </SearchBoxWrapper>
   <WidgetsInnerContainer>
     <AppObjectList
+      v-if="connectionsWithStatus.length > 0"
       :list="sortBy(connectionsWithStatus, connection => (getConnectionLabel(connection) || '').toUpperCase())"
       :filter="filter"
       :module="connectionAppObject"
@@ -20,6 +21,14 @@
       :isExpandable="handleExpandable"
       :passProps="{showPinnedInsteadOfUnpin: true}"
     />
+    <LargeButton
+      v-else
+      icon="icon new-connection"
+      fillHorizontal
+      @visible="openModal">
+      Add new connection</LargeButton>
+
+    <ConnectionModal @register="register"/>
   </WidgetsInnerContainer>
 </template>
 
@@ -39,6 +48,12 @@ import SubDatabaseList from '/@/second/appobj/SubDatabaseList'
 import {dataBaseStore} from '/@/store/modules/dataBase'
 import {metadataLoadersStore} from '/@/store/modules/metadataLoaders'
 import runCommand from '/@/second/commands/runCommand'
+
+import LargeButton from '/@/second/buttons/LargeButton.vue'
+
+//TODO
+import ConnectionModal from '/@/second/modals/ConnectionModal.vue'
+import {useModal} from "/@/components/Modal";
 export default defineComponent({
   name: "ConnectionList",
   components: {
@@ -49,6 +64,8 @@ export default defineComponent({
     InlineButton,
     AppObjectList,
     FontIcon,
+    LargeButton,
+    ConnectionModal,
   },
   setup() {
     const hidden = ref(false)
@@ -57,17 +74,17 @@ export default defineComponent({
 
     const metadataLoaders = metadataLoadersStore()
 
-    const connectionsWithStatus = [{
-      "server": "localhost",
-      "engine": "mysql@dbgate-plugin-mysql",
-      "sshMode": "userPassword",
-      "sshPort": "22",
-      "sshKeyfile": "C:\\Users\\Administrator\\.ssh\\id_rsa",
-      "user": "root",
-      "password": "crypt:7000413edf483ada3770dc5c4b9a69f0beea98f82c2e3b9ba243488a63c0fc056ee70323004cbfe3b5438a7297fcdfe3LC25uegcuz6H5UxZfY2UyA==",
-      "_id": "065caa90-a8c6-11ec-9b4b-6f98950c4d7a",
-      "status": {"name": "ok"}
-    }]
+    // const connectionsWithStatus = [{
+    //   "server": "localhost",
+    //   "engine": "mysql@dbgate-plugin-mysql",
+    //   "sshMode": "userPassword",
+    //   "sshPort": "22",
+    //   "sshKeyfile": "C:\\Users\\Administrator\\.ssh\\id_rsa",
+    //   "user": "root",
+    //   "password": "crypt:7000413edf483ada3770dc5c4b9a69f0beea98f82c2e3b9ba243488a63c0fc056ee70323004cbfe3b5438a7297fcdfe3LC25uegcuz6H5UxZfY2UyA==",
+    //   "_id": "065caa90-a8c6-11ec-9b4b-6f98950c4d7a",
+    //   "status": {"name": "ok"}
+    // }]
 
     // const connections = ref(metadataLoaders.connections)
 
@@ -78,10 +95,12 @@ export default defineComponent({
       await metadataLoaders.useConnectionList()
     })
 
-    // const connectionsWithStatus = computed(() => {
-    //   return metadataLoaders.connections
-    // })
+    const connectionsWithStatus = computed(() => {
+      return metadataLoaders.connections
+    })
 
+
+    const [register, { openModal }] = useModal()
     return {
       hidden,
       filter,
@@ -91,7 +110,11 @@ export default defineComponent({
       connectionAppObject: ConnectionAppObject,
       SubDatabaseList,
       handleExpandable,
-      runCommand
+      runCommand,
+
+
+      register,
+      openModal
     }
   }
 })
