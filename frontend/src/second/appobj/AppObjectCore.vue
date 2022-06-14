@@ -51,15 +51,12 @@
 </template>
 
 <script lang="ts">
-import {defineComponent, PropType, toRefs, createVNode} from 'vue'
+import {defineComponent, PropType, toRefs} from 'vue'
 import FontIcon from '/@/second/icons/FontIcon.vue'
 
 //todo
 import {useContextMenu} from '/@/hooks/web/useContextMenu'
 import {handleContextMenu} from '/@/second/utility/contextMenu'
-import { Modal } from 'ant-design-vue'
-import { ExclamationCircleOutlined } from '@ant-design/icons-vue';
-import {apiCall} from '/@/second/utility/api'
 export default defineComponent({
   name: "AppObjectCore",
   props: {
@@ -153,58 +150,14 @@ export default defineComponent({
 
     const [createContextMenu] = useContextMenu()
 
-    const handleEdit = () => {
-
-    };
-    const handleDelete = () => {
-      const r = Modal.confirm({
-        title: 'Confirm',
-        icon: createVNode(ExclamationCircleOutlined),
-        content: 'Really delete connection mysql?',
-        okText: '确认',
-        cancelText: '取消',
-        onOk: async () => {
-          try {
-            await apiCall('bridge.Connections.Delete', {
-              _id: '15d69c50-989a-4b12-a535-7acb24517134',
-            })
-            r.destroy
-          } catch (e) {
-            console.log(e)
-          }
-        },
-        onCancel: () => r.destroy(),
-      })
-
-
-    }
-
-    const handleDuplicate = () => {
-
-    }
-
     function handleContext(e: MouseEvent) {
-      createContextMenu({
-        event: e,
-        items: [
-          {
-            label: 'Edit',
-            handler: () => {
-              console.log('click delete')
-            },
-          },
-          {
-            label: 'Delete',
-            handler: handleDelete,
-          },
-          {
-            label: 'Duplicate',
-            handler: () => {
-              console.log('click open');
-            },
-          }
-        ],
-      });
+      if (props.menu) {
+        createContextMenu({
+          event: e,
+          items: props.menu(),
+        });
+      }
+
     }
 
     return {
