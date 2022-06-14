@@ -196,5 +196,6 @@ func (conn *Connections) Delete(connection map[string]interface{}) interface{} {
 		return serializer.SuccessData(Application.ctx, "", res)
 	}
 
+	// socket.emitChanged('connection-list-changed');
 	return serializer.Fail(Application.ctx, "参数错误")
 }
