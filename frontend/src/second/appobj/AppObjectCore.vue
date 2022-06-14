@@ -4,7 +4,10 @@
     :class="isBold && 'isBold'"
     @click="handleClick"
     @mouseup="handleMouseUp"
-    @contextmenu="$event => handleContextMenu($event, disableContextMenu ? null : menu)">
+    @contextmenu="handleContext">
+<!--
+@contextmenu="$event => handleContextMenu($event, disableContextMenu ? null : menu)">
+-->
     <span v-if="expandIcon" class="expand-icon" @click.stop="handleExpand">
       <FontIcon :icon="expandIcon"/>
     </span>
@@ -48,12 +51,14 @@
 </template>
 
 <script lang="ts">
-import {defineComponent, PropType, toRefs} from 'vue'
+import {defineComponent, PropType, toRefs, createVNode} from 'vue'
 import FontIcon from '/@/second/icons/FontIcon.vue'
 
 //todo
 import {useContextMenu} from '/@/hooks/web/useContextMenu'
 import {handleContextMenu} from '/@/second/utility/contextMenu'
+import { Modal } from 'ant-design-vue'
+import { ExclamationCircleOutlined } from '@ant-design/icons-vue';
 
 export default defineComponent({
   name: "AppObjectCore",
@@ -148,24 +153,43 @@ export default defineComponent({
 
     const [createContextMenu] = useContextMenu()
 
+    const handleEdit = () => {
+
+    };
+    const handleDelete = () => {
+      Modal.confirm({
+        title: 'Confirm',
+        icon: createVNode(ExclamationCircleOutlined),
+        content: 'Really delete connection ${getConnectionLabel(data)}?',
+        okText: '确认',
+        cancelText: '取消',
+      })
+    }
+
+    const handleDuplicate = () => {
+
+    }
+
     function handleContext(e: MouseEvent) {
       createContextMenu({
         event: e,
         items: [
           {
-            label: 'Delete',
-            icon: 'bi:plus',
+            label: 'Edit',
             handler: () => {
               console.log('click delete')
             },
           },
           {
-            label: 'Open',
-            icon: 'bx:bxs-folder-open',
+            label: 'Delete',
+            handler: handleDelete,
+          },
+          {
+            label: 'Duplicate',
             handler: () => {
               console.log('click open');
             },
-          },
+          }
         ],
       });
     }
