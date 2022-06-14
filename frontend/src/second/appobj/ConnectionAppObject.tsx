@@ -1,4 +1,14 @@
-import {computed, defineComponent, onMounted, PropType, ref, toRefs, unref, watch} from 'vue'
+import {
+  computed,
+  createVNode,
+  defineComponent,
+  onMounted,
+  PropType,
+  ref,
+  toRefs,
+  unref,
+  watch
+} from 'vue'
 import {filterName} from 'keeper-tools'
 import {getLocalStorage} from '/@/second/utility/storageCache'
 import {dataBaseStore} from "/@/store/modules/dataBase"
@@ -7,6 +17,9 @@ import AppObjectCore from '/@/second/appobj/AppObjectCore.vue'
 import getConnectionLabel from '/@/second/utility/getConnectionLabel'
 import {ConnectionsWithStatus} from '/@/second/typings/mysql'
 import {IPinnedDatabasesItem} from '/@/second/typings/types/standard.d'
+import {Modal} from "ant-design-vue";
+import {ExclamationCircleOutlined} from "@ant-design/icons-vue";
+import {apiCall} from "/@/second/utility/api"
 
 export default defineComponent({
   name: 'ConnectionAppObject',
@@ -37,7 +50,14 @@ export default defineComponent({
     },
   },
   setup(props, {attrs}) {
-    const {data, extInfo, engineStatusIcon, engineStatusTitle, statusIcon, statusTitle} = toRefs(props)
+    const {
+      data,
+      extInfo,
+      engineStatusIcon,
+      engineStatusTitle,
+      statusIcon,
+      statusTitle
+    } = toRefs(props)
     let statusTitleRef = ref()
     let statusIconRef = ref()
     let extInfoRef = ref()
@@ -109,37 +129,39 @@ export default defineComponent({
 
     const currentDatabase = computed(() => dataBase.$state.currentDatabase)
 
+    const handleDelete = () => {
+      const r = Modal.confirm({
+        title: 'Confirm',
+        icon: createVNode(ExclamationCircleOutlined),
+        content: 'Really delete connection mysql?',
+        okText: '确认',
+        cancelText: '取消',
+        onOk: async () => {
+          await apiCall('bridge.Connections.Delete', {_id: data.value?._id})
+          r.destroy
+        },
+        onCancel: () => r.destroy(),
+      })
+    }
+
     const getContextMenu = () => {
-
-      const handleRefresh = () => {
-
-      }
-
-      const handleEdit = () => {
-        console.log(`handleEdit`)
-      }
-
-      const handleDelete = () => {
-        console.log(`handleDelete`)
-      }
-
-      const handleDuplicate = () => {
-        console.log(`handleDuplicate`)
-      }
-
       return [
         {
-          text: 'Edit',
-          onClick: handleEdit,
+          label: 'Edit',
+          handler: () => {
+            console.log('click delete')
+          },
         },
         {
-          text: 'Delete',
-          onClick: handleDelete,
+          label: 'Delete',
+          handler: handleDelete,
         },
         {
-          text: 'Duplicate',
-          onClick: handleDuplicate,
-        },
+          label: 'Duplicate',
+          handler: () => {
+            console.log('click open');
+          },
+        }
       ]
     }
 
