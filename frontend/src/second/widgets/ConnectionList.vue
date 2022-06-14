@@ -57,7 +57,7 @@ export default defineComponent({
 
     const metadataLoaders = metadataLoadersStore()
 
-    const connectionsWithStatus1 = [{
+    const connectionsWithStatus = [{
       "server": "localhost",
       "engine": "mysql@dbgate-plugin-mysql",
       "sshMode": "userPassword",
@@ -78,9 +78,9 @@ export default defineComponent({
       await metadataLoaders.useConnectionList()
     })
 
-    const connectionsWithStatus = computed(() => {
-      return metadataLoaders.connections
-    })
+    // const connectionsWithStatus = computed(() => {
+    //   return metadataLoaders.connections
+    // })
 
     return {
       hidden,
