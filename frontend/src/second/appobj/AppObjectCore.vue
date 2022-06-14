@@ -59,7 +59,7 @@ import {useContextMenu} from '/@/hooks/web/useContextMenu'
 import {handleContextMenu} from '/@/second/utility/contextMenu'
 import { Modal } from 'ant-design-vue'
 import { ExclamationCircleOutlined } from '@ant-design/icons-vue';
-
+import {apiCall} from '/@/second/utility/api'
 export default defineComponent({
   name: "AppObjectCore",
   props: {
@@ -157,13 +157,26 @@ export default defineComponent({
 
     };
     const handleDelete = () => {
-      Modal.confirm({
+      const r = Modal.confirm({
         title: 'Confirm',
         icon: createVNode(ExclamationCircleOutlined),
-        content: 'Really delete connection ${getConnectionLabel(data)}?',
+        content: 'Really delete connection mysql?',
         okText: '确认',
         cancelText: '取消',
+        onOk: async () => {
+          try {
+            await apiCall('bridge.Connections.Delete', {
+              _id: '15d69c50-989a-4b12-a535-7acb24517134',
+            })
+            r.destroy
+          } catch (e) {
+            console.log(e)
+          }
+        },
+        onCancel: () => r.destroy(),
       })
+
+
     }
 
     const handleDuplicate = () => {
