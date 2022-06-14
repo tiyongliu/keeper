@@ -36,6 +36,7 @@ function processApiResponse(relativePath, params, resp) {
 
   if (resp.status === 1) {
     // return resp.result.message
+    throw resp.message
     return
   }
   return resp.result
