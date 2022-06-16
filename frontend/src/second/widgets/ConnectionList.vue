@@ -92,7 +92,7 @@ export default defineComponent({
       && !unref(data).singleDatabase
 
     onMounted(async () => {
-      await metadataLoaders.useConnectionList()
+      await metadataLoaders.onConnectionList()
     })
 
     const connectionsWithStatus = computed(() => {

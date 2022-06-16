@@ -20,9 +20,7 @@ import {IPinnedDatabasesItem} from '/@/second/typings/types/standard.d'
 import {Modal} from "ant-design-vue";
 import {ExclamationCircleOutlined} from "@ant-design/icons-vue";
 import {apiCall} from "/@/second/utility/api"
-import {EventsOn} from '/@/wailsjs/runtime/runtime'
-
-import * as ALL from '/@/wailsjs/runtime/runtime.d'
+import {connectionListChangedEvent} from "/@/api/event"
 export default defineComponent({
   name: 'ConnectionAppObject',
   props: {
@@ -128,9 +126,7 @@ export default defineComponent({
       watchStatus()
 
       if (window.runtime) {
-
-        console.log(window.runtime)
-        addWailsEventListener()
+        connectionListChangedEvent()
       }
     })
 
@@ -151,11 +147,12 @@ export default defineComponent({
       })
     }
 
-    const addWailsEventListener = () => {
-      EventsOn("closeNotify", data => {
-        console.log(data, 'sdfsdfhsaidfsdfsf');
-      })
-    }
+    // const addWailsEventListener = () => {
+    //   EventsOn("connection-list-changed", data => {
+    //     console.log(data, 'connections/list');
+    //     console.log(data, 'connections/get');
+    //   })
+    // }
 
     const getContextMenu = () => {
       return [
