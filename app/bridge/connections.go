@@ -177,6 +177,16 @@ func (conn *Connections) List() interface{} {
 	return serializer.SuccessData(Application.ctx, "", find)
 }
 
+func (conn *Connections) Get(conid map[string]string) interface{} {
+	return serializer.SuccessData(Application.ctx, "", nil)
+}
+
+func (conn *Connections) getCore(conid string, mask bool) {
+	if conid == "" {
+		return
+	}
+}
+
 func (conn *Connections) Delete(connection map[string]interface{}) interface{} {
 	uuid, ok := connection["_id"]
 	if ok {
@@ -194,7 +204,7 @@ func (conn *Connections) Delete(connection map[string]interface{}) interface{} {
 		}
 
 		//return serializer.SuccessData(Application.ctx, "", res)
-		runtime.EventsEmit(Application.ctx, "closeNotify", res)
+		runtime.EventsEmit(Application.ctx, "connection-list-changed", res)
 		return serializer.SuccessData(Application.ctx, "", res)
 	}
 

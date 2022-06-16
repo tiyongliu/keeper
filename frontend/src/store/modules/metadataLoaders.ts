@@ -1,17 +1,5 @@
 import { defineStore } from 'pinia'
-import {useCore} from '/@/second/utility/metadataLoaders'
-
-const connectionListLoader = () => ({
-  url: 'bridge.Connections.List',
-  params: null,
-  reloadTrigger: `connection-list-changed`
-})
-
-const serverStatusLoader = () => ({
-  url: 'bridge.Connections.ServerStatus',
-  params: {},
-  reloadTrigger: `server-status-changed`,
-})
+import {getConnectionList, getConnectionInfo} from '/@/second/utility/metadataLoaders'
 
 export const metadataLoadersStore = defineStore({
   id: 'app-metadataLoaders',
@@ -24,13 +12,14 @@ export const metadataLoadersStore = defineStore({
     }
   },
   actions: {
-    async useConnectionList() {
-      this.connections = await useCore(connectionListLoader, {})
+    async onConnectionGet(args) {
+      await getConnectionInfo(args)
+    },
+    async onConnectionList() {
+      this.connections = await getConnectionList()
       return this.connections
     },
-    async useServerStatus() {
-      await useCore(serverStatusLoader, {})
-    }
+    async onServerStatus() {}
   }
 })
 // connectionsWithStatus
