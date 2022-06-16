@@ -7,7 +7,7 @@ import {
   ref,
   toRefs,
   unref,
-  watch
+  watch,
 } from 'vue'
 import {filterName} from 'keeper-tools'
 import {getLocalStorage} from '/@/second/utility/storageCache'
@@ -20,7 +20,9 @@ import {IPinnedDatabasesItem} from '/@/second/typings/types/standard.d'
 import {Modal} from "ant-design-vue";
 import {ExclamationCircleOutlined} from "@ant-design/icons-vue";
 import {apiCall} from "/@/second/utility/api"
+import {EventsOn} from '/@/wailsjs/runtime/runtime'
 
+import * as ALL from '/@/wailsjs/runtime/runtime.d'
 export default defineComponent({
   name: 'ConnectionAppObject',
   props: {
@@ -88,7 +90,7 @@ export default defineComponent({
       //   const match = (data!.engine || '').match(/^([^@]*)@/)
       //   extInfoRef.value = match ? match[1] : data!.engine;
       //   engineStatusIconRef.value = null
-      //   engineStatusTitleRef.value = null
+      //   engineStatusTitleRef.value = nulld
       // } else {
       //
       //   extInfoRef.value = data!.engine;
@@ -125,6 +127,11 @@ export default defineComponent({
       watchExtensions()
       watchStatus()
 
+      if (window.runtime) {
+
+        console.log(window.runtime)
+        addWailsEventListener()
+      }
     })
 
     const currentDatabase = computed(() => dataBase.$state.currentDatabase)
@@ -141,6 +148,12 @@ export default defineComponent({
           r.destroy
         },
         onCancel: () => r.destroy(),
+      })
+    }
+
+    const addWailsEventListener = () => {
+      EventsOn("closeNotify", data => {
+        console.log(data, 'sdfsdfhsaidfsdfsf');
       })
     }
 
