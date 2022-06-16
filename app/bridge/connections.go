@@ -193,9 +193,22 @@ func (conn *Connections) Delete(connection map[string]interface{}) interface{} {
 			return serializer.Fail(Application.ctx, err.Error())
 		}
 
+		//return serializer.SuccessData(Application.ctx, "", res)
+		runtime.EventsEmit(Application.ctx, "closeNotify", res)
 		return serializer.SuccessData(Application.ctx, "", res)
 	}
+
+	//Walios client.go runtime.EventsEmit(c.ctx, "closeNotify"
 
 	// socket.emitChanged('connection-list-changed');
 	return serializer.Fail(Application.ctx, "参数错误")
 }
+
+/*
+runtime.EventsEmit(tool.GetCtx(), "AppError", err)
+
+
+  window.runtime.EventsOn("AppError",(data)=>{
+    ElMessage.error(data)
+  });
+*/
