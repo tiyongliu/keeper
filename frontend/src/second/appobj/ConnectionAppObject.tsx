@@ -1,4 +1,14 @@
-import {computed, defineComponent, onMounted, PropType, ref, toRefs, unref, watch} from 'vue'
+import {
+  computed,
+  createVNode,
+  defineComponent,
+  onMounted,
+  PropType,
+  ref,
+  toRefs,
+  unref,
+  watch,
+} from 'vue'
 import {filterName} from 'keeper-tools'
 import {getLocalStorage} from '/@/second/utility/storageCache'
 import {dataBaseStore} from "/@/store/modules/dataBase"
@@ -7,7 +17,10 @@ import AppObjectCore from '/@/second/appobj/AppObjectCore.vue'
 import getConnectionLabel from '/@/second/utility/getConnectionLabel'
 import {ConnectionsWithStatus} from '/@/second/typings/mysql'
 import {IPinnedDatabasesItem} from '/@/second/typings/types/standard.d'
-
+import {Modal} from "ant-design-vue";
+import {ExclamationCircleOutlined} from "@ant-design/icons-vue";
+import {apiCall} from "/@/second/utility/api"
+import {connectionListChangedEvent} from "/@/api/event"
 export default defineComponent({
   name: 'ConnectionAppObject',
   props: {
@@ -37,7 +50,14 @@ export default defineComponent({
     },
   },
   setup(props, {attrs}) {
-    const {data, extInfo, engineStatusIcon, engineStatusTitle, statusIcon, statusTitle} = toRefs(props)
+    const {
+      data,
+      extInfo,
+      engineStatusIcon,
+      engineStatusTitle,
+      statusIcon,
+      statusTitle
+    } = toRefs(props)
     let statusTitleRef = ref()
     let statusIconRef = ref()
     let extInfoRef = ref()
@@ -68,7 +88,7 @@ export default defineComponent({
       //   const match = (data!.engine || '').match(/^([^@]*)@/)
       //   extInfoRef.value = match ? match[1] : data!.engine;
       //   engineStatusIconRef.value = null
-      //   engineStatusTitleRef.value = null
+      //   engineStatusTitleRef.value = nulld
       // } else {
       //
       //   extInfoRef.value = data!.engine;
@@ -105,9 +125,55 @@ export default defineComponent({
       watchExtensions()
       watchStatus()
 
+      if (window.runtime) {
+        connectionListChangedEvent()
+      }
     })
 
     const currentDatabase = computed(() => dataBase.$state.currentDatabase)
+
+    const handleDelete = () => {
+      const r = Modal.confirm({
+        title: 'Confirm',
+        icon: createVNode(ExclamationCircleOutlined),
+        content: 'Really delete connection mysql?',
+        okText: '确认',
+        cancelText: '取消',
+        onOk: async () => {
+          await apiCall('bridge.Connections.Delete', {_id: data.value?._id})
+          r.destroy
+        },
+        onCancel: () => r.destroy(),
+      })
+    }
+
+    // const addWailsEventListener = () => {
+    //   EventsOn("connection-list-changed", data => {
+    //     console.log(data, 'connections/list');
+    //     console.log(data, 'connections/get');
+    //   })
+    // }
+
+    const getContextMenu = () => {
+      return [
+        {
+          label: 'Edit',
+          handler: () => {
+            console.log('click delete')
+          },
+        },
+        {
+          label: 'Delete',
+          handler: handleDelete,
+        },
+        {
+          label: 'Duplicate',
+          handler: () => {
+            console.log('click open');
+          },
+        }
+      ]
+    }
 
     return () => {
       const {onClick, onExpand, ...restProps} = attrs
@@ -125,6 +191,7 @@ export default defineComponent({
         statusTitle={unref(statusTitleRef) || unref(engineStatusTitleRef)}
         // statusIconBefore={data!.isReadOnly ? 'icon lock' : null}
         extInfo={unref(extInfoRef)}
+        menu={getContextMenu}
         onClick={handleConnect}
       />
     }
@@ -138,6 +205,7 @@ export const createMatcher = props => filter => {
   return filterName(unref(filter), displayName, server, ...databases.map(x => x.name));
 };
 export const createChildMatcher = props => filter => {
+
   if (!filter) {
     return false;
   }

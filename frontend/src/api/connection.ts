@@ -12,6 +12,6 @@ export async function handleDriverSaveApi(params) {
   return await apiCall('bridge.Connections.Save', params)
 }
 
-export async function loadListApi() {
+export async function loadDatabasesApi() {
   return await apiCall('bridge.Connections.List')
 }
