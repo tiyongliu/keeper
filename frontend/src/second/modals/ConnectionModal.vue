@@ -15,7 +15,7 @@
 </template>
 
 <script lang="ts">
-import {defineComponent, onMounted, reactive, ref, provide, unref} from 'vue'
+import {defineComponent, provide, unref, toRaw} from 'vue'
 import {pickBy} from 'lodash-es'
 import {Alert, Tabs} from 'ant-design-vue'
 // import {useModal} from '/@/components/Modal'
@@ -42,10 +42,9 @@ export default defineComponent({
   emits: ['register'],
   setup() {
     const [register, {closeModal, setModalProps}] = useModalInner()
-    let connParams = reactive<{[key in string]: any}>({})
+    let connParams = {}
 
     provide('dispatchConnections', (dynamicProps) => {
-      console.log(`dynamicProps`, dynamicProps)
       connParams = dynamicProps
     })
 
@@ -57,6 +56,7 @@ export default defineComponent({
     const handleCancelTest = () => {}
 
     const handleSubmit = async () => {
+      console.log(connParams, `-----------------------------------`)
       const resp = await handleDriverSaveApi(pickBy(unref(connParams), (item) => !!item))
       console.log(resp, `resp`)
       // closeCurrentModal()

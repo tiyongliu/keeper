@@ -28,7 +28,8 @@
          v-splitterDrag="'clientX'"
          :resizeSplitter="(e) => cssVariable.setLeftPanelWidth(e.detail)">
     </div>
-    <div class="snackbar-container svelte-1veekw4">snackbar-container</div>
+    <CurrentDropDownMenu />
+    <div class="snackbar-container">snackbar-container</div>
   </Layout>
 </template>
 
@@ -56,7 +57,8 @@
   import StatusBar from '/@/second/widgets/StatusBar.vue'
   import {WarningOutlined} from '@ant-design/icons-vue'
 
-  import WidgetIconPanel from '../../second/widgets/WidgetIconPanel.vue'
+  import WidgetIconPanel from '/@/second/widgets/WidgetIconPanel.vue'
+  import CurrentDropDownMenu from '/@/second/modals/CurrentDropDownMenu'
 
   export default defineComponent({
     name: 'DefaultLayout',
@@ -72,6 +74,7 @@
       WidgetContainer,
       WarningOutlined,
       WidgetIconPanel,
+      CurrentDropDownMenu,
       StatusBar,
       TabsPanel
     },

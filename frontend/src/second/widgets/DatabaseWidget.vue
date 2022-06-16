@@ -4,13 +4,6 @@
       <WidgetColumnBarItem title="Connections" name="connections" height="35%" storageName="connectionsWidget">
         <ConnectionList />
       </WidgetColumnBarItem>
-
-<!--  todo 临时 方便调试     -->
-      <div>
-        <span @click="openModal"> 临时 方便调试 </span>
-        <ConnectionModal @register="register"/>
-      </div>
-
       <WidgetColumnBarItem
         title="Pinned"
         name="pinned"
@@ -49,10 +42,6 @@
   import ConnectionList from './ConnectionList.vue'
   import SqlObjectList from './SqlObjectList.vue'
   import PinnedObjectsList from './PinnedObjectsList'
-
-  import ConnectionModal from '/@/second/modals/ConnectionModal.vue'
-
-  import {useModal} from '/@/components/Modal'
   export default defineComponent({
     name: "DatabaseWidget",
     props: {
@@ -69,8 +58,6 @@
       SqlObjectList,
       PinnedObjectsList,
       ErrorInfo,
-
-      ConnectionModal
     },
     setup() {
       const dataBase = dataBaseStore()
@@ -82,10 +69,6 @@
       const database = computed(() => dataBase.$state.currentDatabase?.name)
       const singleDatabase = computed(() => dataBase.$state.currentDatabase?.connection?.singleDatabase)
 
-
-      //todo
-      const [register, { openModal }] = useModal();
-
       return {
         pinnedDatabases,
         pinnedTables,
@@ -93,9 +76,6 @@
         conid,
         database,
         singleDatabase,
-
-        register,
-        openModal
       }
     }
   })
