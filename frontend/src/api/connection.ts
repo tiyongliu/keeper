@@ -9,14 +9,9 @@ export async function handleDriverTestApi(params) {
 }
 
 export async function handleDriverSaveApi(params) {
-
   return await apiCall('bridge.Connections.Save', params)
 }
 
 export async function loadDatabasesApi() {
   return await apiCall('bridge.Connections.List')
-}
-
-export async function handleDeleteApi(params) {
-  return await apiCall('bridge.Connections.Delete', params)
 }
