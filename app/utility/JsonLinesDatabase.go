@@ -97,7 +97,7 @@ func (j *JsonLinesDatabase) Remove(id string) (map[string]interface{}, error) {
 	if !match {
 		err = errors.New("id in not a valid")
 	}
-
+	j.save()
 	return removed, err
 }
 
