@@ -1,6 +1,13 @@
 <template>
-  <div class="main" :class="isBold && 'isBold'" @click="handleClick" @mouseup="handleMouseUp">
-
+  <div
+    class="main"
+    :class="isBold && 'isBold'"
+    @click="handleClick"
+    @mouseup="handleMouseUp"
+    @contextmenu="handleContext">
+<!--
+@contextmenu="$event => handleContextMenu($event, disableContextMenu ? null : menu)">
+-->
     <span v-if="expandIcon" class="expand-icon" @click.stop="handleExpand">
       <FontIcon :icon="expandIcon"/>
     </span>
@@ -46,7 +53,10 @@
 <script lang="ts">
 import {defineComponent, PropType, toRefs} from 'vue'
 import FontIcon from '/@/second/icons/FontIcon.vue'
-import {ConnectionsWithStatus} from '/@/second/typings/mysql'
+
+//todo
+import {useContextMenu} from '/@/hooks/web/useContextMenu'
+import {handleContextMenu} from '/@/second/utility/contextMenu'
 export default defineComponent({
   name: "AppObjectCore",
   props: {
@@ -107,6 +117,9 @@ export default defineComponent({
     disableContextMenu: {
       type: Boolean as PropType<boolean>,
       default: false
+    },
+    menu: {
+      type: Function as PropType<null | Function>
     }
   },
   components: {
@@ -135,11 +148,26 @@ export default defineComponent({
       e.stopPropagation()
     }
 
+    const [createContextMenu] = useContextMenu()
+
+    function handleContext(e: MouseEvent) {
+      if (props.menu) {
+        createContextMenu({
+          event: e,
+          items: props.menu(),
+        });
+      }
+
+    }
+
     return {
       ...toRefs(props),
       handleExpand,
       handleClick,
-      handleMouseUp
+      handleMouseUp,
+
+      handleContext,
+      handleContextMenu
     }
   }
 })
