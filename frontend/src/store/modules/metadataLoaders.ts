@@ -18,7 +18,7 @@ export const metadataLoadersStore = defineStore({
     async onConnectionList() {
       this.connections = await getConnectionList()
     },
-    async setConnectionList(value) {
+    setConnectionList(value) {
       this.connections = value
     },
     async onServerStatus() {}
