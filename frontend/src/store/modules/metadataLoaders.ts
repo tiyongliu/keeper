@@ -1,4 +1,4 @@
-import { defineStore } from 'pinia'
+import { defineStore, mapState } from 'pinia'
 import {getConnectionList, getConnectionInfo} from '/@/second/utility/metadataLoaders'
 
 export const metadataLoadersStore = defineStore({
@@ -17,7 +17,9 @@ export const metadataLoadersStore = defineStore({
     },
     async onConnectionList() {
       this.connections = await getConnectionList()
-      return this.connections
+    },
+    async setConnectionList(value) {
+      this.connections = value
     },
     async onServerStatus() {}
   }
