@@ -2,7 +2,8 @@
   <SearchBoxWrapper>
     <SearchInput placeholder="Search connection or database" v-model:searchValue="filter"/>
     <CloseSearchButton :filter="filter" @close="filter = ''"/>
-    <InlineButton title="Add new connection" @click="runCommand('new.connection')">
+<!--    <InlineButton title="Add new connection" @click="runCommand('new.connection')">-->
+    <InlineButton title="Add new connection" @click="openModal">
       <FontIcon icon="icon plus-thick"/>
     </InlineButton>
 
@@ -28,12 +29,12 @@
       @visible="openModal">
       Add new connection</LargeButton>
 
-    <ConnectionModal @register="register"/>
+    <ConnectionModal @register="register" @closeCurrentModal="closeModal"/>
   </WidgetsInnerContainer>
 </template>
 
 <script lang="ts">
-import {defineComponent, onMounted, ref, unref, computed} from 'vue'
+import {defineComponent, onMounted, ref, unref, computed, watch} from 'vue'
 import {sortBy} from 'lodash-es'
 import SearchBoxWrapper from '/@/second/widgets/SearchBoxWrapper.vue'
 import WidgetsInnerContainer from '/@/second/widgets//WidgetsInnerContainer.vue'
@@ -96,11 +97,15 @@ export default defineComponent({
     })
 
     const connectionsWithStatus = computed(() => {
-      return metadataLoaders.connections
+      return metadataLoaders.connectionsWithStatus
     })
 
+    // watch(() => metadataLoaders.connections, (v) => {
+    //   console.log(metadataLoaders.connections, `metadataLoaders.connections`)
+    //   connectionsWithStatus.value = v
+    // })
 
-    const [register, { openModal }] = useModal()
+    const [register, { openModal, closeModal }] = useModal()
     return {
       hidden,
       filter,
@@ -111,10 +116,9 @@ export default defineComponent({
       SubDatabaseList,
       handleExpandable,
       runCommand,
-
-
       register,
-      openModal
+      openModal,
+      closeModal
     }
   }
 })
