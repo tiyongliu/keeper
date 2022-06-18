@@ -1,13 +1,11 @@
 import type {
-  ComponentPublicInstance,
   ComponentRenderProxy,
-  FunctionalComponent,
-  PropType as VuePropType,
   VNode,
   VNodeChild,
+  ComponentPublicInstance,
+  FunctionalComponent,
+  PropType as VuePropType,
 } from 'vue';
-
-import * as Runtime from '/@/wailsjs/runtime/runtime.d'
 
 declare global {
   const __APP_INFO__: {
@@ -54,7 +52,6 @@ declare global {
   declare interface WheelEvent {
     path?: EventTarget[];
   }
-
   interface ImportMetaEnv extends ViteEnv {
     __: unknown;
   }
@@ -85,15 +82,12 @@ declare global {
     type Element = VNode;
     // tslint:disable no-empty-interface
     type ElementClass = ComponentRenderProxy;
-
     interface ElementAttributesProperty {
       $props: any;
     }
-
     interface IntrinsicElements {
       [elem: string]: any;
     }
-
     interface IntrinsicAttributes {
       [elem: string]: any;
     }
@@ -106,6 +100,6 @@ declare global {
 
 declare module 'vue' {
   export type JSXComponent<Props = any> =
-    | { new(): ComponentPublicInstance<Props> }
+    | { new (): ComponentPublicInstance<Props> }
     | FunctionalComponent<Props>;
 }
