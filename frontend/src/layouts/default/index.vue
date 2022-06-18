@@ -12,14 +12,14 @@
       <WidgetIconPanel @con="con"/>
     </div>
     <div class="statusbar svelte-1veekw4">iconbar</div>
-<!--    <div class="statusbar svelte-1veekw4"><StatusBar></StatusBar></div>-->
+    <!--    <div class="statusbar svelte-1veekw4"><StatusBar></StatusBar></div>-->
     <div class="leftpanel svelte-1veekw4">
       <!--      <AppDarkModeToggle class="mx-auto" />-->
 
       <WidgetContainer :isShow="isShow"/>
     </div>
     <div class="tabs svelte-1veekw4">
-<!--      <TabsPanel/>-->
+      <!--      <TabsPanel/>-->
       <LayoutHeader />
     </div>
     <div class="content svelte-1veekw4">content
@@ -34,7 +34,7 @@
 </template>
 
 <script lang="ts">
-  import { defineComponent, computed, unref, onMounted ,ref} from 'vue';
+import { defineComponent, computed, unref, onMounted ,ref} from 'vue';
   import { Layout } from 'ant-design-vue';
   import { createAsyncComponent } from '/@/utils/factory/createAsyncComponent';
 
@@ -108,7 +108,7 @@
 
       })
       const isShow = ref('database')
-      
+
 
       return {
         getShowFullHeaderRef,
@@ -118,6 +118,7 @@
         getIsMixSidebar,
         layoutClass,
         lockEvents,
+
         cssVariable,
         isShow
       };
@@ -149,7 +150,6 @@
     }
   }
 </style>
-
 
 <style lang="less">
 .root {
@@ -427,3 +427,4 @@ textarea {
   border: 1px solid var(--theme-border);
 }
 </style>
+

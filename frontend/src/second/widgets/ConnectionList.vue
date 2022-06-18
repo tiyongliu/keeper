@@ -2,7 +2,8 @@
   <SearchBoxWrapper>
     <SearchInput placeholder="Search connection or database" v-model:searchValue="filter"/>
     <CloseSearchButton :filter="filter" @close="filter = ''"/>
-    <InlineButton title="Add new connection" @click="runCommand('new.connection')">
+<!--    <InlineButton title="Add new connection" @click="runCommand('new.connection')">-->
+    <InlineButton title="Add new connection" @click="openModal">
       <FontIcon icon="icon plus-thick"/>
     </InlineButton>
 
@@ -28,7 +29,7 @@
       @visible="openModal">
       Add new connection</LargeButton>
 
-    <ConnectionModal @register="register"/>
+    <ConnectionModal @register="register" @closeCurrentModal="closeModal"/>
   </WidgetsInnerContainer>
 </template>
 
@@ -86,8 +87,6 @@ export default defineComponent({
     //   "status": {"name": "ok"}
     // }]
 
-    // const connections = ref(metadataLoaders.connections)
-
     const handleExpandable = (data) => dataBase.$state.openedConnections.includes(unref(data)._id)
       && !unref(data).singleDatabase
 
@@ -96,11 +95,10 @@ export default defineComponent({
     })
 
     const connectionsWithStatus = computed(() => {
-      return metadataLoaders.connections
+      return metadataLoaders.connectionsWithStatus
     })
 
-
-    const [register, { openModal }] = useModal()
+    const [register, { openModal, closeModal }] = useModal()
     return {
       hidden,
       filter,
@@ -111,10 +109,9 @@ export default defineComponent({
       SubDatabaseList,
       handleExpandable,
       runCommand,
-
-
       register,
-      openModal
+      openModal,
+      closeModal
     }
   }
 })
