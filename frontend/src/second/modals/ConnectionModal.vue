@@ -26,7 +26,7 @@ import ConnectionModalDriverFields from '/@/second/modals/ConnectionModalDriverF
 import ConnectionModalSshTunnelFields from '/@/second/modals/ConnectionModalSshTunnelFields.vue'
 import ConnectionModalSslFields from '/@/second/modals/ConnectionModalSslFields.vue'
 import {handleDriverTestApi, handleDriverSaveApi} from '/@/api/connection'
-import {metadataLoadersStore} from "/@/store/modules/metadataLoaders"
+import {metadataLoadersStore, metadataLoadersKey} from "/@/store/modules/metadataLoaders"
 const TabPane = Tabs.TabPane
 
 export default defineComponent({
@@ -58,7 +58,7 @@ export default defineComponent({
     const handleSubmit = async () => {
       const resp = await handleDriverSaveApi(pickBy(unref(connParams), (item) => !!item))
       console.log(resp, `resp`)
-      void metadataLoaders.setConnectionList([...metadataLoaders.connectionsWithStatus, resp])
+      void metadataLoaders.setState(metadataLoadersKey.connections, [...metadataLoaders.connectionsWithStatus, resp])
       emit('closeCurrentModal')
     }
 

@@ -79,6 +79,9 @@ export const dataBaseStore = defineStore({
     }
   },
   actions: {
+    setState<T>(type: string, payload: T): void {
+      this[type] = payload
+    },
     subscribeOpenedConnections(value: string[]) {
       this.openedConnections = value
     },
@@ -112,9 +115,8 @@ export const dataBaseStore = defineStore({
     },
     subscribeCommandsSettings(value: object) {
       this.commandsSettings = value
-      
       this.commandsCustomized = derived(this.commands, this.commandsSettings)
-    }
+    },
   }
 });
 
