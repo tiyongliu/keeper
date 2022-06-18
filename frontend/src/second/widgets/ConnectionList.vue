@@ -34,7 +34,7 @@
 </template>
 
 <script lang="ts">
-import {defineComponent, onMounted, ref, unref, computed, watch} from 'vue'
+import {defineComponent, onMounted, ref, unref, computed} from 'vue'
 import {sortBy} from 'lodash-es'
 import SearchBoxWrapper from '/@/second/widgets/SearchBoxWrapper.vue'
 import WidgetsInnerContainer from '/@/second/widgets//WidgetsInnerContainer.vue'
@@ -87,8 +87,6 @@ export default defineComponent({
     //   "status": {"name": "ok"}
     // }]
 
-    // const connections = ref(metadataLoaders.connections)
-
     const handleExpandable = (data) => dataBase.$state.openedConnections.includes(unref(data)._id)
       && !unref(data).singleDatabase
 
@@ -99,11 +97,6 @@ export default defineComponent({
     const connectionsWithStatus = computed(() => {
       return metadataLoaders.connectionsWithStatus
     })
-
-    // watch(() => metadataLoaders.connections, (v) => {
-    //   console.log(metadataLoaders.connections, `metadataLoaders.connections`)
-    //   connectionsWithStatus.value = v
-    // })
 
     const [register, { openModal, closeModal }] = useModal()
     return {
