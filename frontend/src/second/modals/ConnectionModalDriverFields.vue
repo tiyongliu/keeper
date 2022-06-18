@@ -75,6 +75,9 @@
       <a-input/>
     </a-form-item>
 
+    <a-form-item label="Display name">
+      <a-input v-model:value="driverForm.displayName"/>
+    </a-form-item>
   </a-form>
 
 </template>
@@ -111,7 +114,6 @@ import $extensions from './drivers.json'
 const InputPassword = Input.Password
 const useForm = Form.useForm
 
-import { tryOnScopeDispose } from '@vueuse/shared'
 export default defineComponent({
   name: 'ConnectionModalDriverFields',
   components: {
@@ -149,12 +151,13 @@ export default defineComponent({
       "useDatabaseUrl": ""
     }
 
-    const driverForm = reactive<{ [key in string]: string } & { port: string | number }>({
+    const driverForm = reactive<{ [key in string]: string | null | undefined } & { port: string | number }>({
       engine: '',
       host: 'localhost',
       username: '',
       password: '',
       port: '',
+      displayName: null
     })
 
     const driver = computed(() => {
