@@ -12,7 +12,7 @@ export const metadataLoadersStore = defineStore({
   }),
   getters: {
     connectionsWithStatus(): unknown[] {
-      return this.connections
+      return this.connections || []
     }
   },
   actions: {
