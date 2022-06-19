@@ -5,7 +5,11 @@ const metadataLoaders = metadataLoadersStore()
 export function connectionListChangedEvent() {
   EventsOn('connection-list-changed', async (data) => {
     const {conid} = data
-    await metadataLoaders.onConnectionGet({conid})
-    await metadataLoaders.onConnectionList()
+    try {
+      await metadataLoaders.onConnectionGet({conid})
+      await metadataLoaders.onConnectionList()
+    } catch (e) {
+      console.log(e)
+    }
   })
 }

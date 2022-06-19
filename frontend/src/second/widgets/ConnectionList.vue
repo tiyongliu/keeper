@@ -6,14 +6,13 @@
     <InlineButton title="Add new connection" @click="openModal">
       <FontIcon icon="icon plus-thick"/>
     </InlineButton>
-
     <InlineButton title="Add new connection">
       <FontIcon icon="icon refresh"/>
     </InlineButton>
   </SearchBoxWrapper>
   <WidgetsInnerContainer>
     <AppObjectList
-      v-if="connectionsWithStatus.length > 0"
+      v-if="Array.isArray(connectionsWithStatus) && connectionsWithStatus.length > 0"
       :list="sortBy(connectionsWithStatus, connection => (getConnectionLabel(connection) || '').toUpperCase())"
       :filter="filter"
       :module="connectionAppObject"
@@ -28,7 +27,6 @@
       fillHorizontal
       @visible="openModal">
       Add new connection</LargeButton>
-
     <ConnectionModal @register="register" @closeCurrentModal="closeModal"/>
   </WidgetsInnerContainer>
 </template>
