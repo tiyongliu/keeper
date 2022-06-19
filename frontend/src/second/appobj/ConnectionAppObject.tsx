@@ -7,9 +7,11 @@ import {
   ref,
   toRefs,
   unref,
-  watch,
+  watch
 } from 'vue'
 import {filterName} from 'keeper-tools'
+import {Modal} from "ant-design-vue";
+import {ExclamationCircleOutlined} from "@ant-design/icons-vue";
 import {getLocalStorage} from '/@/second/utility/storageCache'
 import {dataBaseStore} from "/@/store/modules/dataBase"
 import {get, uniq} from 'lodash-es'
@@ -17,10 +19,9 @@ import AppObjectCore from '/@/second/appobj/AppObjectCore.vue'
 import getConnectionLabel from '/@/second/utility/getConnectionLabel'
 import {ConnectionsWithStatus} from '/@/second/typings/mysql'
 import {IPinnedDatabasesItem} from '/@/second/typings/types/standard.d'
-import {Modal} from "ant-design-vue";
-import {ExclamationCircleOutlined} from "@ant-design/icons-vue";
 import {apiCall} from "/@/second/utility/api"
 import {connectionListChangedEvent} from "/@/api/event"
+
 export default defineComponent({
   name: 'ConnectionAppObject',
   props: {
@@ -132,16 +133,20 @@ export default defineComponent({
 
     const currentDatabase = computed(() => dataBase.$state.currentDatabase)
 
-    const handleDelete = () => {
+    const handleDelete = async () => {
       const r = Modal.confirm({
         title: 'Confirm',
         icon: createVNode(ExclamationCircleOutlined),
-        content: 'Really delete connection mysql?',
+        content: `Really delete connection ${getConnectionLabel(data.value)}${data.value?.port ? '_' + data.value?.port : ''}?`,
         okText: '确认',
         cancelText: '取消',
         onOk: async () => {
-          await apiCall('bridge.Connections.Delete', {_id: data.value?._id})
-          r.destroy
+          try {
+            await apiCall('bridge.Connections.Delete', {_id: data.value?._id})
+            r.destroy()
+          } catch (e) {
+            console.log(e)
+          }
         },
         onCancel: () => r.destroy(),
       })

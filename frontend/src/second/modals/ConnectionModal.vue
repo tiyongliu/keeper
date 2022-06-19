@@ -5,6 +5,7 @@
       @cancel="handleCancelTest"
       @ok="handleSubmit"
       class="connectionModal"
+      width="50%"
       title="Add connection">
       <TabControl isInline :tabs="tabs"/>
       <template #insertFooter>
@@ -49,17 +50,25 @@ export default defineComponent({
     })
 
     const handleTest = async () => {
-      const resp = await handleDriverTestApi(pickBy(unref(connParams), (item) => !!item))
-      console.log(resp, `resp`)
+      try {
+        const resp = await handleDriverTestApi(pickBy(unref(connParams), (item) => !!item))
+        console.log(resp, `resp`)
+      } catch (e) {
+        console.log(e)
+      }
     }
 
     const handleCancelTest = () => {}
 
     const handleSubmit = async () => {
-      const resp = await handleDriverSaveApi(pickBy(unref(connParams), (item) => !!item))
-      console.log(resp, `resp`)
-      void metadataLoaders.setState(metadataLoadersKey.connections, [...metadataLoaders.connectionsWithStatus, resp])
-      emit('closeCurrentModal')
+      try {
+        const resp = await handleDriverSaveApi(pickBy(unref(connParams), (item) => !!item))
+        console.log(resp, `resp`)
+        void metadataLoaders.setState(metadataLoadersKey.connections, [...metadataLoaders.connectionsWithStatus, resp])
+        emit('closeCurrentModal')
+      } catch (e) {
+        console.log(e)
+      }
     }
 
     return {

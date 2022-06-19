@@ -73,7 +73,7 @@
 </template>
 <script lang="ts">
 import moment from 'moment';
-import { defineComponent, computed} from 'vue';
+import { defineComponent, computed, unref} from 'vue';
 import FontIcon from '/@/second/icons/FontIcon.vue'
 import {dataBaseStore} from "/@/store/modules/dataBase"
 import { useConnectionColor } from "/@/second/utility/useConnectionColor"
@@ -98,7 +98,7 @@ export default defineComponent({
     const databaseName = computed(()=> dataBase.$state.currentDatabase?.name)
     const connection = computed(()=> dataBase.$state.currentDatabase?.connection)
     const dbid = computed(()=> connection ? { conid: connection._id, database: databaseName } : null)
-    const connectionLabel = computed(()=> getConnectionLabel(connection,{allowExplicitDatabase: false}))
+    const connectionLabel = computed(()=> getConnectionLabel(unref(connection),{allowExplicitDatabase: false}))
     const serverVersion = computed(()=> useDatabaseServerVersion(dbid || {}))
     const status = computed(()=> useDatabaseStatus(dbid || {}))
     const contextItems = []

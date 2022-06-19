@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/mitchellh/mapstructure"
-	"github.com/sqweek/dialog"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"keeper/app/modules"
 	"keeper/app/pkg/serializer"
@@ -189,10 +188,10 @@ func (conn *Connections) getCore(conid string, mask bool) {
 }
 
 func (conn *Connections) Delete(connection map[string]string) interface{} {
-	ok := dialog.Message("你确认要删除\"%s\"吗?", connection["name"]).Title("确认删除").YesNo()
-	if !ok {
-		return serializer.Fail(Application.ctx, fmt.Sprintf("%v", ok))
-	}
+	//ok := dialog.Message("你确认要删除\"%s\"吗?", connection["name"]).Title("确认删除").YesNo()
+	//if !ok {
+	//	return serializer.Fail(Application.ctx, fmt.Sprintf("%v", ok))
+	//}
 
 	uuid, ok := connection["_id"]
 	if ok && uuid != "" {
