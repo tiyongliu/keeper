@@ -57,5 +57,6 @@ func main() {
 
 }
 
-//https://github.com/samber/lo
 //A Lodash-style Go library based on Go 1.18+ Generics (map, filter, contains, find...)
+
+//https://github.com/go-graphics/go-gui-projects.git
