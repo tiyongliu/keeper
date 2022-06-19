@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/mitchellh/mapstructure"
+	"github.com/sqweek/dialog"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"keeper/app/modules"
 	"keeper/app/pkg/serializer"
@@ -187,10 +188,15 @@ func (conn *Connections) getCore(conid string, mask bool) {
 	}
 }
 
-func (conn *Connections) Delete(connection map[string]interface{}) interface{} {
+func (conn *Connections) Delete(connection map[string]string) interface{} {
+	ok := dialog.Message("你确认要删除\"%s\"吗?", connection["name"]).Title("确认删除").YesNo()
+	if !ok {
+		return serializer.Fail(Application.ctx, fmt.Sprintf("%v", ok))
+	}
+
 	uuid, ok := connection["_id"]
-	if ok {
-		res, err := JsonLinesDatabase.Remove(uuid.(string))
+	if ok && uuid != "" {
+		res, err := JsonLinesDatabase.Remove(uuid)
 		if err != nil {
 			runtime.MessageDialog(Application.ctx, runtime.MessageDialogOptions{
 				Type:          runtime.ErrorDialog,
@@ -203,22 +209,9 @@ func (conn *Connections) Delete(connection map[string]interface{}) interface{} {
 			return serializer.Fail(Application.ctx, err.Error())
 		}
 
-		//return serializer.SuccessData(Application.ctx, "", res)
 		runtime.EventsEmit(Application.ctx, "connection-list-changed", res)
 		return serializer.SuccessData(Application.ctx, "", res)
 	}
 
-	//Walios client.go runtime.EventsEmit(c.ctx, "closeNotify"
-
-	// socket.emitChanged('connection-list-changed');
 	return serializer.Fail(Application.ctx, "参数错误")
 }
-
-/*
-runtime.EventsEmit(tool.GetCtx(), "AppError", err)
-
-
-  window.runtime.EventsOn("AppError",(data)=>{
-    ElMessage.error(data)
-  });
-*/
