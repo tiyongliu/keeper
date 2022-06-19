@@ -9,6 +9,7 @@ require (
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/natefinch/lumberjack v2.0.0+incompatible
 	github.com/satori/go.uuid v1.2.0
+	github.com/sqweek/dialog v0.0.0-20220504154117-be45b268883a
 	github.com/wailsapp/wails/v2 v2.0.0-beta.37
 	go.mongodb.org/mongo-driver v1.9.1
 	go.uber.org/zap v1.21.0
@@ -18,6 +19,7 @@ require (
 
 require (
 	github.com/BurntSushi/toml v1.1.0 // indirect
+	github.com/TheTitanrain/w32 v0.0.0-20180517000239-4f5cfb03fabf // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect
 	github.com/go-stack/stack v1.8.0 // indirect
 	github.com/golang/snappy v0.0.1 // indirect

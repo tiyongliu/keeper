@@ -130,3 +130,9 @@ func (j *JsonLinesDatabase) save() error {
 	defer lock.Unlock()
 	return tools.WriteFileAllPool(j.Filename, j.Data)
 }
+
+func (j *JsonLinesDatabase) EnsureOpened(conid string) {
+	if conid == "" {
+		return
+	}
+}
