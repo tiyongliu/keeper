@@ -159,6 +159,10 @@ export default defineComponent({
     //   })
     // }
 
+    const handleClick = () => {
+      console.log(`const config = getCurrentConfig();`)
+    }
+
     const getContextMenu = () => {
       return [
         {
@@ -197,7 +201,8 @@ export default defineComponent({
         // statusIconBefore={data!.isReadOnly ? 'icon lock' : null}
         extInfo={unref(extInfoRef)}
         menu={getContextMenu}
-        onClick={handleConnect}
+        onClick={handleClick}
+        onDblclick={handleConnect}
       />
     }
   }
