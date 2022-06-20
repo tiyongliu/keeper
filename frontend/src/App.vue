@@ -14,24 +14,42 @@
   import {onMounted} from 'vue'
   import {loadDatabasesApi} from '/@/api/connection'
 
+  //TODO
+  import { subscribeConnectionPingers } from '/@/api/connectionsPinger';
+  let loadedApi = false
+
   import 'dayjs/locale/zh-cn';
   // support Multi-language
   const { getAntdLocale } = useLocale();
 
   // Listening to page changes and dynamically changing site titles
-  useTitle();
+  useTitle()
 
   async function loadApi() {
     try {
       const connections = await loadDatabasesApi()
-      console.log(connections, `loadDatabasesApi`)
-    } catch(e) {
-      console.log('Error calling API, trying again in 1s', e);
+      if (connections) {
+        loadedApi = true
+      }
+
+      if (loadedApi) {
+        subscribeConnectionPingers()
+      }
+
+      if (!loadedApi) {
+        console.log('API not initialized correctly, trying again in 1s');
+        setTimeout(loadApi, 1000);
+      }
+    } catch (err) {
+      console.log('Error calling API, trying again in 1s', err);
+      setTimeout(loadApi, 1000);
     }
   }
 
   onMounted(() => {
-    // loadApi()
+    loadApi()
+    const removed = document.getElementById('starting_dbgate_zero');
+    if (removed) removed.remove();
   })
 </script>
 
