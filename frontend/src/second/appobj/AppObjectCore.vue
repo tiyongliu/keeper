@@ -125,7 +125,7 @@ export default defineComponent({
   components: {
     FontIcon
   },
-  emits: ['click', 'expand'],
+  emits: ['click', 'expand', 'dblclick'],
   setup(props, {emit}) {
     //todo
     let checkedObjectsStore = null
@@ -140,6 +140,7 @@ export default defineComponent({
 
       } else {
         emit('click')
+        emit('dblclick')
       }
     }
 

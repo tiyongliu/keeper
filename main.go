@@ -19,6 +19,7 @@ func main() {
 	// Create an instance of the app structure
 	app := bridge.NewApp()
 	conn := bridge.NewConnections()
+	serverConn := bridge.NewServerConnections()
 
 	// Create application with options
 	err := wails.Run(&options.App{
@@ -43,6 +44,7 @@ func main() {
 		Bind: []interface{}{
 			app,
 			conn,
+			serverConn,
 		},
 		// Windows platform specific options
 		Windows: &windows.Options{
