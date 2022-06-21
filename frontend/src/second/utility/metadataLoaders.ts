@@ -26,6 +26,12 @@ const databaseStatusLoader = ({conid, database}) => ({
   reloadTrigger: `database-status-changed-${conid}-${database}`,
 });
 
+const serverStatusLoader = () => ({
+  url: 'server-connections/server-status',
+  params: {},
+  reloadTrigger: `server-status-changed`,
+})
+
 
 async function getCore(loader, args) {
   const {url, params} = loader(args);
@@ -67,4 +73,11 @@ export function getConnectionList() {
 
 export function getConnectionInfo(args) {
   return getCore(connectionInfoLoader, args);
+}
+
+export function getServerStatus() {
+  return getCore(serverStatusLoader, {})
+}
+export function useServerStatus() {
+  return useCore(serverStatusLoader, {})
 }
