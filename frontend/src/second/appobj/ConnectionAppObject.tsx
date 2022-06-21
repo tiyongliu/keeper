@@ -20,7 +20,7 @@ import getConnectionLabel from '/@/second/utility/getConnectionLabel'
 import {ConnectionsWithStatus} from '/@/second/typings/mysql'
 import {IPinnedDatabasesItem} from '/@/second/typings/types/standard.d'
 import {apiCall} from "/@/second/utility/api"
-import {connectionListChangedEvent} from "/@/api/event"
+import {connectionListChangedEvent, serverStatusChangedEvent} from "/@/api/event"
 
 export default defineComponent({
   name: 'ConnectionAppObject',
@@ -128,6 +128,7 @@ export default defineComponent({
 
       if (window.runtime) {
         connectionListChangedEvent()
+        serverStatusChangedEvent()
       }
     })
 
