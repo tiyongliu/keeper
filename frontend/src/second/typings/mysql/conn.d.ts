@@ -17,6 +17,7 @@ export interface ConnectionsWithStatus extends basisConnField {
   defaultDatabase: string
   isReadOnly?: boolean
   engine?: string
+  port?: string
 }
 
 
