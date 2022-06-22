@@ -16,6 +16,7 @@ export interface MenuSetting {
   bgColor: string;
   fixed: boolean;
   collapsed: boolean;
+  siderHidden: boolean;
   canDrag: boolean;
   show: boolean;
   hidden: boolean;
@@ -161,4 +162,8 @@ export interface GlobEnvConfig {
   VITE_GLOB_APP_SHORT_NAME: string;
   // Upload url
   VITE_GLOB_UPLOAD_URL?: string;
+
+
+  VITE_GLOB_DRIVERS: string,
+  VITE_GLOB_ENVIRONMENT: string,
 }

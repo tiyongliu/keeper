@@ -1,6 +1,7 @@
 package utility
 
 import (
+	"errors"
 	"fmt"
 	uuid "github.com/satori/go.uuid"
 	"keeper/app/pkg/logger"
@@ -83,14 +84,21 @@ func (j *JsonLinesDatabase) Path(id string, values ...interface{}) {
 func (j *JsonLinesDatabase) Remove(id string) (map[string]interface{}, error) {
 	j.ensureLoaded()
 	var removed map[string]interface{}
+	var match bool
+	var err error
 	for i, obj := range j.Data {
 		if obj[database_key] != nil && obj[database_key].(string) == id {
+			match = true
 			removed = obj
 			j.Data = append(j.Data[:i], j.Data[i+1:]...) // 删除中间N个元素
 		}
 	}
 
-	return removed, nil
+	if !match {
+		err = errors.New("id in not a valid")
+		return nil, err
+	}
+	return removed, j.save()
 }
 
 func (j *JsonLinesDatabase) ensureLoaded() {
@@ -118,12 +126,13 @@ func (j *JsonLinesDatabase) save() error {
 	if !j.LoadedOk {
 		return fmt.Errorf("not laded")
 	}
-
-	if err := tools.WriteFileAllPool(j.Filename, j.Data); err != nil {
-		return err
-	}
-
-	return nil
+	lock.Lock()
+	defer lock.Unlock()
+	return tools.WriteFileAllPool(j.Filename, j.Data)
 }
 
-//
+func (j *JsonLinesDatabase) EnsureOpened(conid string) {
+	if conid == "" {
+		return
+	}
+}
