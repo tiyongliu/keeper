@@ -196,8 +196,7 @@ export default defineComponent({
           ? get(unref(currentDatabase), 'connection._id') == unref(data)!._id && get(unref(currentDatabase), 'name') == unref(data)!.defaultDatabase
           : get(unref(currentDatabase), 'connection._id') == unref(data)!._id}
 
-        // statusIcon={unref(statusIconRef) || unref(engineStatusIconRef)}
-        statusIcon={`img ok`}
+        statusIcon={unref(statusIconRef) || unref(engineStatusIconRef)}
         statusTitle={unref(statusTitleRef) || unref(engineStatusTitleRef)}
         // statusIconBefore={data!.isReadOnly ? 'icon lock' : null}
         extInfo={unref(extInfoRef)}
