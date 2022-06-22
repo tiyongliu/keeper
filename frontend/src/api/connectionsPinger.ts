@@ -2,9 +2,8 @@ import {apiCall} from '/@/second/utility/api'
 import { dataBaseStore } from "/@/store/modules/dataBase"
 
 const doServerPing = value => {
-  console.log(`bridge.ServerConnections.Ping`, value)
   apiCall('bridge.ServerConnections.Ping', { connections: value })
-    .then(res => console.log(res, `res`)).catch(err => console.log(err, `err`))
+    // .then(res => console.log(res, `res`)).catch(err => console.log(err, `err`))
   // apiCall('server-connections/ping', { connections: value });
 }
 
