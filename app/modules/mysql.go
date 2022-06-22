@@ -1,16 +1,5 @@
 package modules
 
-type MysqlConnection struct {
-	Server     string `json:"server"`
-	Engine     string `json:"engine"`
-	SshMode    string `json:"sshMode"`
-	SshPort    string `json:"sshPort"`
-	SshKeyfile string `json:"sshKeyfile"`
-	User       string `json:"user"`
-	Password   string `json:"password"`
-	Port       string `json:"port"`
-}
-
 type SimpleSettingMysql struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
