@@ -1,5 +1,9 @@
 import {defineStore} from 'pinia'
-import {getConnectionInfo, getConnectionList} from '/@/second/utility/metadataLoaders'
+import {
+  getConnectionInfo,
+  getConnectionList,
+  useServerStatus
+} from '/@/second/utility/metadataLoaders'
 
 export enum metadataLoadersKey {
   connections = 'connections',
@@ -29,6 +33,8 @@ export const metadataLoadersStore = defineStore({
       this.connections = value
     },
     async onServerStatus() {
-    }
+      const data = await useServerStatus()
+      console.log(`fnksdnfksnksg`, data)
+    },
   }
 })

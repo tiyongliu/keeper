@@ -28,6 +28,10 @@ type OpenedItem struct {
 	Disconnected bool
 }
 
+type status struct {
+	name string
+}
+
 func NewServerConnections() *ServerConnections {
 	return &ServerConnections{
 		Closed:     make(map[string]string),
@@ -83,6 +87,13 @@ func (sc *ServerConnections) ensureOpened(conid string) {
 	}
 
 	runtime.EventsEmit(Application.ctx, "server-status-changed")
+}
+
+func (sc *ServerConnections) ServerStatus() interface{} {
+	return serializer.SuccessData(Application.ctx, "", map[string]status{
+		"efdc46d9-fed2-43d7-b506-53514b0a2559": {name: "ok"},
+		"de5bb0d8-2a7c-4de6-92db-b60606a83c93": {name: "pending"},
+	})
 }
 
 func (sc *ServerConnections) Ping(request *PingRequest) interface{} {

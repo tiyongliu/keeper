@@ -28,7 +28,7 @@ const databaseStatusLoader = ({conid, database}) => ({
 
 const serverStatusLoader = () => ({
   url: 'server-connections/server-status',
-  params: {},
+  params: null,
   reloadTrigger: `server-status-changed`,
 })
 
@@ -78,6 +78,7 @@ export function getConnectionInfo(args) {
 export function getServerStatus() {
   return getCore(serverStatusLoader, {})
 }
+
 export function useServerStatus() {
   return useCore(serverStatusLoader, {})
 }
