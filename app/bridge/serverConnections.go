@@ -8,15 +8,11 @@ import (
 	"time"
 )
 
-type ConnPool struct {
-	Conid  string
-	Status map[string]string
-}
-
 var lock sync.RWMutex
 
 type ServerConnections struct {
 	Ctx        context.Context
+	Closed     map[string]string
 	Opened     []*OpenedItem
 	LastPinged map[string]UnixTime
 }
@@ -34,6 +30,7 @@ type OpenedItem struct {
 
 func NewServerConnections() *ServerConnections {
 	return &ServerConnections{
+		Closed:     make(map[string]string),
 		LastPinged: make(map[string]UnixTime),
 	}
 }
@@ -81,8 +78,11 @@ func (sc *ServerConnections) ensureOpened(conid string) {
 	}
 
 	sc.Opened = append(sc.Opened, newOpened)
+	if sc.Closed != nil && sc.Closed[conid] != "" {
+		delete(sc.Closed, conid)
+	}
+
 	runtime.EventsEmit(Application.ctx, "server-status-changed")
-	//socket.emitChanged(`server-status-changed`);
 }
 
 func (sc *ServerConnections) Ping(request *PingRequest) interface{} {
@@ -104,4 +104,18 @@ func (sc *ServerConnections) Ping(request *PingRequest) interface{} {
 	}
 
 	return serializer.SuccessData(Application.ctx, "", map[string]string{"status": "ok"})
+}
+
+func (sc *ServerConnections) Close(conid string, kill bool) {
+
+}
+
+func (sc *ServerConnections) Refresh(conid string) interface{} {
+	sc.Close(conid, true)
+
+	sc.ensureOpened(conid)
+
+	return serializer.SuccessData(Application.ctx, "", map[string]string{
+		"status": "ok",
+	})
 }
