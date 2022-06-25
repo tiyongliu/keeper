@@ -37,13 +37,12 @@ func (msg *MysqlMessage) CreateDatabase() {
 
 func setStatusName(name string) {
 	setStatus(&StatusMessage{name})
-
 }
 
 func setStatus(status *StatusMessage) {
 	statusString := tools.ToJsonStr(status)
 	if lastStatus != statusString {
-		//TODO send
+		//TODO send 消息
 		lastStatus = statusString
 	}
 }
