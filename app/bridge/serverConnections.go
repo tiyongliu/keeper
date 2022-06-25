@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"keeper/app/pkg/serializer"
+	"keeper/app/tools"
 	"sync"
 	"time"
 )
@@ -13,7 +14,7 @@ var lock sync.RWMutex
 type ServerConnections struct {
 	Ctx        context.Context
 	Closed     map[string]string
-	Opened     []*OpenedItem
+	Opened     []map[string]interface{}
 	LastPinged map[string]UnixTime
 }
 
@@ -24,7 +25,6 @@ type PingRequest struct {
 type OpenedItem struct {
 	Conid        string
 	Connection   map[string]interface{}
-	Status       map[string]string
 	Disconnected bool
 }
 
@@ -73,13 +73,11 @@ func (sc *ServerConnections) ensureOpened(conid string) {
 	//}
 
 	connection := sc.getCore(conid, false)
-
-	newOpened := &OpenedItem{
-		Conid:        conid,
-		Connection:   connection,
-		Status:       map[string]string{"name": "pending"},
-		Disconnected: false,
-	}
+	newOpened := tools.MergeMaps(connection, map[string]interface{}{
+		"conid":        conid,
+		"status":       map[string]string{"name": "pending"},
+		"disconnected": false,
+	})
 
 	sc.Opened = append(sc.Opened, newOpened)
 	if sc.Closed != nil && sc.Closed[conid] != "" {
@@ -129,4 +127,42 @@ func (sc *ServerConnections) Refresh(conid string) interface{} {
 	return serializer.SuccessData(Application.ctx, "", map[string]string{
 		"status": "ok",
 	})
+}
+
+func (sc *ServerConnections) handleDatabases(conid, databases string) {
+	var existing map[string]interface{}
+	for _, x := range sc.Opened {
+		if id, ok := x["conid"]; ok && id != nil && id.(string) == conid {
+			existing = x
+			break
+		}
+	}
+
+	if existing == nil {
+		return
+	}
+}
+
+func (sc *ServerConnections) handleVersion(conid, version string) {
+
+}
+
+func (sc *ServerConnections) handleStatus(conid string, status map[string]string) {
+	var existing map[string]interface{}
+	for _, x := range sc.Opened {
+		if id, ok := x["conid"]; ok && id != nil && id.(string) == conid {
+			existing = x
+			break
+		}
+	}
+
+	if existing == nil {
+		return
+	}
+	existing["status"] = status
+	runtime.EventsEmit(Application.ctx, "server-status-changed")
+}
+
+func (sc *ServerConnections) handlePing() {
+
 }
