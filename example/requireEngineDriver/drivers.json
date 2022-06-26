@@ -1,0 +1,28 @@
+{
+  "dialect": {
+    "limitSelect": true,
+    "rangeSelect": true,
+    "offsetFetchRangeSyntax": true,
+    "stringEscapeChar": "'",
+    "fallbackDataType": "nvarchar(max)"
+  },
+  "databaseEngineTypes": [
+    "document"
+  ],
+  "supportedCreateDatabase": true,
+  "engine": "mongo@dbgate-plugin-mongo",
+  "title": "MongoDB",
+  "editorMode": "javascript",
+  "defaultPort": 27017,
+  "supportsDatabaseUrl": true,
+  "databaseUrlPlaceholder": "e.g. mongodb://username:password@mongodb.mydomain.net/dbname",
+  "importExportArgs": [
+    {
+      "type": "checkbox",
+      "name": "createStringId",
+      "label": "Create string _id attribute",
+      "apiName": "createStringId",
+      "direction": "target"
+    }
+  ]
+}

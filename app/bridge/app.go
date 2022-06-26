@@ -7,7 +7,6 @@ import (
 	"sync"
 )
 
-type UnixTime int64 //秒时间戳
 var Application *App
 var applicationOnce sync.Once
 

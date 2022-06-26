@@ -4,13 +4,12 @@ cd ../packages/tools
 pnpm install
 pnpm build
 
-cd ../web
+cd ../../frontend
 pnpm install
 pnpm build
 
-cd ../../
-pnpm install
-
 echo node_modules Successful installation!
+
+echo The next step 'cd frontend'
 
 echo The next step 'yarn start'
