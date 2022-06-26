@@ -2,7 +2,8 @@ import {defineComponent, unref, computed, PropType, toRefs} from 'vue'
 import { isEqual, uniqWith, get } from 'lodash-es'
 import AppObjectCore from './AppObjectCore.vue'
 import { dataBaseStore } from "/@/store/modules/dataBase";
-import {IPinnedDatabasesItem} from "/@/second/typings/types/standard.d";
+import {IPinnedDatabasesItem} from "/@/second/typings/types/standard.d"
+import {getDatabaseMenuItems} from './PinnedAppObject_'
 export default defineComponent({
   name: 'DatabaseAppObject',
   props: {
@@ -34,6 +35,7 @@ export default defineComponent({
             get(unref(currentDatabase), 'name') == unref(data)!.name
         }
         onClick={() => dataBase.subscribeCurrentDatabase(unref(data)!)}
+        menu={createMenu}
         showPinnedInsteadOfUnpin={unref(passProps)?.showPinnedInsteadOfUnpin}
         onPin={unref(isPinned) ? null : () => dataBase.subscribePinnedDatabases(uniqWith([
           ...unref(dataBase.$state.pinnedDatabases),
@@ -48,3 +50,7 @@ export default defineComponent({
     )
   }
 })
+
+function createMenu() {
+  return getDatabaseMenuItems()
+}

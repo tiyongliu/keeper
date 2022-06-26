@@ -11,7 +11,10 @@ import (
 	"strings"
 )
 
-const defaultEncryptionKey = "mQAUaXhavRGJDxDTXSCg7Ej0xMmGCrx6OKA07DIMBiDcYYkvkaXjTAzPUEHEHEf9"
+const (
+	defaultEncryptionKey = "mQAUaXhavRGJDxDTXSCg7Ej0xMmGCrx6OKA07DIMBiDcYYkvkaXjTAzPUEHEHEf9"
+	encryptionKeyKey     = "encryptionKey"
+)
 
 var _encryptionKey string
 
@@ -24,7 +27,7 @@ func LoadEncryptionKey() string {
 
 	encryptor := CreateEncryptor(defaultEncryptionKey)
 	if !tools.IsExist(filepath.Dir(keyFile)) {
-		if err := os.MkdirAll(filepath.Dir(keyFile), 0777); err != nil {
+		if err := os.MkdirAll(filepath.Dir(keyFile), tools.SecondFilePerm); err != nil {
 			log.Fatalf("os.MkdirAll failed err: %v\n", err)
 			return ""
 		}
@@ -32,11 +35,11 @@ func LoadEncryptionKey() string {
 		generatedKey := randomBytes(32)
 		newKey := string(generatedKey)
 		result := map[string]string{
-			"encryptionKey": newKey,
+			encryptionKeyKey: newKey,
 		}
 		encrypt := encryptor.encrypt(result)
 
-		if err := ioutil.WriteFile(keyFile, []byte(encrypt), 0777); err != nil {
+		if err := ioutil.WriteFile(keyFile, []byte(encrypt), tools.SecondFilePerm); err != nil {
 			log.Fatalf("ioutil.WriteFile failed err: %v\n", err)
 			return ""
 		}
@@ -55,7 +58,7 @@ func LoadEncryptionKey() string {
 		log.Fatalf("json.Unmarshal failed err: %v\n", err)
 		return ""
 	}
-	_encryptionKey = data["encryptionKey"]
+	_encryptionKey = data[encryptionKeyKey]
 	return _encryptionKey
 }
 

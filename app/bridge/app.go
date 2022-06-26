@@ -10,6 +10,10 @@ import (
 var Application *App
 var applicationOnce sync.Once
 
+const (
+	Conid = "conid"
+)
+
 // App struct
 type App struct {
 	ctx context.Context

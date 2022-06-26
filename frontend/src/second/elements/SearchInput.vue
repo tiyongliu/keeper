@@ -11,6 +11,7 @@
 <script lang="ts">
   import {defineComponent, ref, unref, watch, onBeforeUnmount, toRef} from 'vue';
   import {debounce} from 'lodash-es'
+  import {useDebounceFn} from '@vueuse/core'
   import keycodes from '/@/second/utility/keycodes'
 
   export default defineComponent({
@@ -34,6 +35,7 @@
       const searchValue = ref<string>('');
       const value = ref<string>('');
       const isDebounced = toRef(props, 'isDebounced')
+
 
 
       const debouncedSet = debounce(x => (value.value = x), 500)
