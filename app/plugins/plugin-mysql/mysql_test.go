@@ -3,6 +3,7 @@ package plugin_mysql
 import (
 	"fmt"
 	"keeper/app/modules"
+	"keeper/app/tools"
 	"testing"
 )
 
@@ -33,7 +34,7 @@ func TestGetVersion(t *testing.T) {
 	t.Logf("%v", result)
 }
 
-func Test_Pool(t *testing.T) {
+func TestPool(t *testing.T) {
 	pool, err := NewSimpleMysqlPool(&modules.SimpleSettingMysql{
 		Host:     "localhost",
 		Username: "root",
@@ -53,4 +54,28 @@ func Test_Pool(t *testing.T) {
 	}
 
 	fmt.Println(version)
+}
+
+func TestListDatabases(t *testing.T) {
+	pool, err := NewSimpleMysqlPool(&modules.SimpleSettingMysql{
+		Host:     "localhost",
+		Username: "root",
+		Password: "123456",
+		Port:     "3306",
+	})
+
+	if err != nil {
+		fmt.Printf("err: %v \n", err)
+	}
+
+	defer pool.Close()
+
+	lastDatabases, err := pool.ListDatabases()
+	if err != nil {
+		fmt.Printf("err: %v \n", err)
+	}
+
+	TransformListDatabases(lastDatabases.([]string))
+
+	fmt.Println(tools.ToJsonStr(TransformListDatabases(lastDatabases.([]string))))
 }
