@@ -18,7 +18,8 @@ func main() {
 
 	// Create an instance of the app structure
 	app := bridge.NewApp()
-	conn := bridge.NewConnectProcess()
+	conn := bridge.NewConnections()
+	serverConn := bridge.NewServerConnections()
 
 	// Create application with options
 	err := wails.Run(&options.App{
@@ -43,6 +44,7 @@ func main() {
 		Bind: []interface{}{
 			app,
 			conn,
+			serverConn,
 		},
 		// Windows platform specific options
 		Windows: &windows.Options{
@@ -57,5 +59,6 @@ func main() {
 
 }
 
-//https://github.com/samber/lo
 //A Lodash-style Go library based on Go 1.18+ Generics (map, filter, contains, find...)
+
+//https://github.com/go-graphics/go-gui-projects.git

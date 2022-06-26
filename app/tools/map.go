@@ -36,7 +36,7 @@ func DeepCopyUnknownMap(valueMap map[string]interface{}) map[string]interface{} 
 	return newMap
 }
 
-func UnknownMapExists(list []map[string]interface{}, valueMap map[string]interface{}) bool {
+func UnknownMapSome(list []map[string]interface{}, valueMap map[string]interface{}) bool {
 	for _, item := range list {
 		if reflect.DeepEqual(FilterUnknownMap(item, database_key, password_key), FilterUnknownMap(valueMap, database_key, password_key)) {
 			return true
@@ -65,4 +65,24 @@ func CompareTwoMapInterface(data1 map[string]interface{}, data2 map[string]inter
 	dataStr2, _ := json.Marshal(dataSlice2)
 
 	return string(dataStr1) == string(dataStr2)
+}
+
+func MergeUnknownMaps(maps ...map[string]interface{}) map[string]interface{} {
+	result := make(map[string]interface{})
+	for _, m := range maps {
+		for k, v := range m {
+			result[k] = v
+		}
+	}
+	return result
+}
+
+func MergeMaps(maps ...map[string]string) map[string]string {
+	result := make(map[string]string)
+	for _, m := range maps {
+		for k, v := range m {
+			result[k] = v
+		}
+	}
+	return result
 }

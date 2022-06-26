@@ -8,17 +8,15 @@
   </div>
 
   <Layout :class="prefixCls" v-bind="lockEvents">
-    <div class="iconbar svelte-1veekw4">
-      <WidgetIconPanel @con="con"/>
-    </div>
-    <div class="statusbar svelte-1veekw4">iconbar</div>
+    <div class="iconbar svelte-1veekw4"> <WidgetIconPanel @con="con"/></div>
+    <div class="statusbar svelte-1veekw4"><StatusBar></StatusBar></div>
     <div class="leftpanel svelte-1veekw4">
       <!--      <AppDarkModeToggle class="mx-auto" />-->
-
-      <WidgetContainer :isShow="isShow"/>
+      <WidgetContainer />
     </div>
     <div class="tabs svelte-1veekw4">
-      <LayoutHeader />
+<!--      <LayoutHeader />-->
+     <TabsPanel/>
     </div>
     <div class="content svelte-1veekw4">content
     </div>
@@ -32,6 +30,7 @@
 
 <script lang="ts">
   import { defineComponent, computed, unref, onMounted ,ref} from 'vue';
+
   import { Layout } from 'ant-design-vue';
   import { createAsyncComponent } from '/@/utils/factory/createAsyncComponent';
 
@@ -50,6 +49,8 @@
   //todo
   import { cssVariableStore } from "/@/store/modules/cssVariable"
   import WidgetContainer from '/@/second/widgets/WidgetContainer.vue'
+  import TabsPanel from '/@/second/widgets/TabsPanel.vue'
+  import StatusBar from '/@/second/widgets/StatusBar.vue'
   import {WarningOutlined} from '@ant-design/icons-vue'
 
   import WidgetIconPanel from '../../second/widgets/WidgetIconPanel.vue'
@@ -68,6 +69,8 @@
       WidgetContainer,
       WarningOutlined,
       WidgetIconPanel
+      StatusBar,
+      TabsPanel
     },
     setup() {
       const { prefixCls } = useDesign('default-layout');
