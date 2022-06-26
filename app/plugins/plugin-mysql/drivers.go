@@ -16,14 +16,16 @@ func NewMysql() standard.SqlStandard {
 	return &MysqlDrivers{}
 }
 
+func (mysql *MysqlDrivers) Connect() interface{} {
+	return nil
+}
+
 func (mysql *MysqlDrivers) GetPoolInfo() interface{} {
 	return mysql.DB
 }
 
 func (mysql *MysqlDrivers) GetVersion() (interface{}, error) {
-
 	var rows []string
-
 	err := mysql.DB.Raw("select version()").Scan(&rows).Error
 	if err != nil {
 		logger.Errorf("get mysql version failed: %v", err)
@@ -47,7 +49,13 @@ func (mysql *MysqlDrivers) GetVersion() (interface{}, error) {
 }
 
 func (mysql *MysqlDrivers) ListDatabases() (interface{}, error) {
-	return nil, nil
+	var rows []string
+	err := mysql.DB.Raw("SHOW DATABASES").Scan(&rows).Error
+	if err != nil {
+		logger.Errorf("get mysql lastDatabases failed: %v", err)
+		return nil, err
+	}
+	return TransformListDatabases(rows), nil
 }
 
 func (mysql *MysqlDrivers) Close() error {
