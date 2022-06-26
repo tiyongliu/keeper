@@ -24,9 +24,21 @@ func RequireEngineDriver(connection interface{}) {
 
 	if strings.Contains(engine, "@") {
 		split := strings.Split(engine, "@")
-		shortName := split[0]
+		//shortName := split[0]
 		packageName := split[1]
-		requirePlugin(shortName, packageName)
+		plugin, err := requirePlugin(packageName, nil)
+		if err != nil {
+			return
+		}
+
+		if plugin != nil && len(plugin.Drivers) > 0 {
+			for _, x := range plugin.Drivers {
+				if x.Engine == engine {
+
+				}
+			}
+		}
+
 	}
 
 	logger.Fatalf("Could not find engine driver %s", engine)

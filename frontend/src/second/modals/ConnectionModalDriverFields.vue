@@ -2,6 +2,7 @@
   <a-form layout="vertical">
     <a-form-item label="Database engine">
       <a-select
+        @change="handleSelect"
         placeholder="please select your zone"
         :options="databaseEngine"
         v-model:value="engine"/>
@@ -27,8 +28,7 @@
 
     <a-row type="flex" justify="space-between" align="top">
       <a-col :span="16">
-        <a-form-item label="Server"
-                     :rules="[{ required: true, message: 'Please input your username!' }]">
+        <a-form-item label="Server" v-bind="validateInfos.host">
           <a-input v-model:value="driverForm.host" autocomplete="off"/>
         </a-form-item>
       </a-col>
@@ -75,7 +75,11 @@
       <a-input/>
     </a-form-item>
 
+    <a-form-item label="Display name">
+      <a-input v-model:value="driverForm.displayName"/>
+    </a-form-item>
   </a-form>
+
 </template>
 
 <script lang="ts">
@@ -87,10 +91,12 @@ import {
   reactive,
   ref,
   toRefs,
+  toRaw,
   unref,
   watch
 } from "vue"
 import {useDebounceFn} from '@vueuse/core'
+import {cloneDeep} from 'lodash-es'
 import {
   Button,
   Checkbox,
@@ -98,7 +104,6 @@ import {
   Form,
   FormItem,
   Input,
-  InputPassword,
   Radio,
   RadioGroup,
   Row,
@@ -106,6 +111,8 @@ import {
   SelectOption,
 } from 'ant-design-vue'
 import $extensions from './drivers.json'
+const InputPassword = Input.Password
+const useForm = Form.useForm
 
 export default defineComponent({
   name: 'ConnectionModalDriverFields',
@@ -143,12 +150,14 @@ export default defineComponent({
       "sshKeyfile": "/Users/liuliutiyong/.ssh/id_rsa",
       "useDatabaseUrl": ""
     }
-    const driverForm = reactive<{ [key in string]: string } & { port: string | number }>({
+
+    const driverForm = reactive<{ [key in string]: string | null | undefined } & { port: string | number }>({
       engine: '',
       host: 'localhost',
       username: '',
       password: '',
       port: '',
+      displayName: null
     })
 
     const driver = computed(() => {
@@ -158,27 +167,37 @@ export default defineComponent({
     const engine = ref($values.engine)
     const dispatchConnections = inject('dispatchConnections') as any
 
-    const notificationTest = () => {
-      const dynamicProps = {
-        ...driverForm
+    const rulesRef = reactive({
+      host: [{ required: true, message: 'Please input your username!' }],
+    })
+    const { resetFields, validate, validateInfos } = useForm(driverForm, rulesRef,{
+      onValidate: (...args) => console.log(...args),
+    })
+
+    const notificationTest = async () => {
+      try {
+        await validate()
+        const dynamicProps = cloneDeep(toRaw(driverForm))
+        const [shortName] = unref(engine).split('@')
+        dynamicProps.engine = shortName
+        if (!dynamicProps.port) {
+          dynamicProps.port = `${driver.value!.defaultPort}`
+        }
+        dispatchConnections(dynamicProps)
+      } catch (e) {
+        console.log(e)
       }
-      const [shortName] = unref(engine).split('@')
-      dynamicProps.engine = shortName
-      if (!dynamicProps.port) {
-        dynamicProps.port = `${driver.value!.defaultPort}`
-      }
-      dispatchConnections(dynamicProps)
     }
 
+    const handleSelect = () => resetFields()
 
     watch(() => [unref(driver), toRefs(driverForm)],
       useDebounceFn(() => notificationTest(), 300),
       {deep: true}
     )
 
-
     onMounted(() => {
-      notificationTest()
+      void notificationTest()
     })
 
     return {
@@ -186,13 +205,11 @@ export default defineComponent({
       engine,
       resources: ref(''),
       driver,
-      driverForm
+      driverForm,
+      handleSelect,
+      validateInfos
     }
 
   }
 })
 </script>
-
-<style scoped>
-
-</style>

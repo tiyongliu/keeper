@@ -16,7 +16,11 @@ export async function apiCall<T>(relativePath: string, params?: T): Promise<T | 
   } else {
     try {
       let self: Function = window['go'];
-      relativePath.split(/[.|\/]/).filter(item => item).forEach(key => self = self[key])
+      relativePath.split(/[.\/]/).filter(item => item).forEach(key => self = self[key])
+      if (!params) {
+        const resp = await self()
+        return processApiResponse(relativePath, params, resp)
+      }
       const resp = await self(params)
       return processApiResponse(relativePath, params, resp)
     } catch (e) {
@@ -30,8 +34,10 @@ function processApiResponse(relativePath, params, resp) {
     console.log('<<< API RESPONSE', relativePath, params, resp)
   }
 
-  if (resp.code === 0) {
-    return resp.result.message
+  if (resp.status === 1) {
+    // return resp.result.message
+    throw resp.message
+    return
   }
   return resp.result
 }
