@@ -3,6 +3,7 @@ package bridge
 import (
 	"context"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
+	"keeper/app/code"
 	"keeper/app/pkg/serializer"
 	"keeper/app/tools"
 	"sync"
@@ -12,30 +13,24 @@ import (
 var lock sync.RWMutex
 
 type ServerConnections struct {
-	Ctx        context.Context
-	Closed     map[string]string
-	Opened     []map[string]interface{}
-	LastPinged map[string]UnixTime
+	Ctx         context.Context
+	Closed      map[string]string
+	Opened      []map[string]interface{}
+	LastPinged  map[string]code.UnixTime
 }
 
 type PingRequest struct {
 	Connections []string
 }
 
-type OpenedItem struct {
-	Conid        string
-	Connection   map[string]interface{}
-	Disconnected bool
-}
-
-type status struct {
-	name string
+type Status struct {
+	Name string
 }
 
 func NewServerConnections() *ServerConnections {
 	return &ServerConnections{
-		Closed:     make(map[string]string),
-		LastPinged: make(map[string]UnixTime),
+		Closed:      make(map[string]string),
+		LastPinged:  make(map[string]code.UnixTime),
 	}
 }
 
@@ -73,7 +68,7 @@ func (sc *ServerConnections) ensureOpened(conid string) {
 	//}
 
 	connection := sc.getCore(conid, false)
-	newOpened := tools.MergeMaps(connection, map[string]interface{}{
+	newOpened := tools.MergeUnknownMaps(connection, map[string]interface{}{
 		"conid":        conid,
 		"status":       map[string]string{"name": "pending"},
 		"disconnected": false,
@@ -84,13 +79,15 @@ func (sc *ServerConnections) ensureOpened(conid string) {
 		delete(sc.Closed, conid)
 	}
 
+	//sc.MysqlDriver.Ping()
+
 	runtime.EventsEmit(Application.ctx, "server-status-changed")
 }
 
 func (sc *ServerConnections) ServerStatus() interface{} {
-	return serializer.SuccessData(Application.ctx, "", map[string]status{
-		"efdc46d9-fed2-43d7-b506-53514b0a2559": {name: "ok"},
-		"de5bb0d8-2a7c-4de6-92db-b60606a83c93": {name: "pending"},
+	return serializer.SuccessData(Application.ctx, "", map[string]Status{
+		"efdc46d9-fed2-43d7-b506-53514b0a2559": {Name: "ok"},
+		"de5bb0d8-2a7c-4de6-92db-b60606a83c93": {Name: "pending"},
 	})
 }
 
@@ -103,12 +100,12 @@ func (sc *ServerConnections) Ping(request *PingRequest) interface{} {
 
 	for _, conid := range request.Connections {
 		last := sc.LastPinged[conid]
-		if last != 0 && UnixTime(time.Now().Unix())-last < UnixTime(30*1000) {
+		if last != 0 && code.UnixTime(time.Now().Unix())-last < code.UnixTime(30*1000) {
 			//return Promise.resolve();
 			return serializer.SuccessData(Application.ctx, "", map[string]string{"status": "ok"})
 		}
 
-		sc.LastPinged[conid] = UnixTime(time.Now().Unix())
+		sc.LastPinged[conid] = code.UnixTime(time.Now().Unix())
 		sc.ensureOpened(conid)
 	}
 
