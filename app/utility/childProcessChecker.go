@@ -1,5 +1,0 @@
-package utility
-
-func ChildProcessChecker() {
-
-}

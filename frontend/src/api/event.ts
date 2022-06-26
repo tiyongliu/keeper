@@ -19,7 +19,7 @@ export function connectionListChangedEvent() {
 
 
 export function serverStatusChangedEvent() {
-  EventsOn('server-status-changed', _ => {
-
+  EventsOn('server-status-changed', async _ => {
+    await metadataLoaders.onServerStatus()
   })
 }
