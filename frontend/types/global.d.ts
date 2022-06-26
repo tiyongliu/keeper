@@ -92,6 +92,10 @@ declare global {
       [elem: string]: any;
     }
   }
+
+  interface Window {
+    runtime: any
+  }
 }
 
 declare module 'vue' {

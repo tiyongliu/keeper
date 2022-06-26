@@ -5,6 +5,7 @@
       @cancel="handleCancelTest"
       @ok="handleSubmit"
       class="connectionModal"
+      width="50%"
       title="Add connection">
       <TabControl isInline :tabs="tabs"/>
       <template #insertFooter>
@@ -15,7 +16,7 @@
 </template>
 
 <script lang="ts">
-import {defineComponent, onMounted, reactive, ref, provide, unref} from 'vue'
+import {defineComponent, provide, unref, toRaw} from 'vue'
 import {pickBy} from 'lodash-es'
 import {Alert, Tabs} from 'ant-design-vue'
 // import {useModal} from '/@/components/Modal'
@@ -26,7 +27,7 @@ import ConnectionModalDriverFields from '/@/second/modals/ConnectionModalDriverF
 import ConnectionModalSshTunnelFields from '/@/second/modals/ConnectionModalSshTunnelFields.vue'
 import ConnectionModalSslFields from '/@/second/modals/ConnectionModalSslFields.vue'
 import {handleDriverTestApi, handleDriverSaveApi} from '/@/api/connection'
-
+import {metadataLoadersStore, metadataLoadersKey} from "/@/store/modules/metadataLoaders"
 const TabPane = Tabs.TabPane
 
 export default defineComponent({
@@ -39,26 +40,35 @@ export default defineComponent({
     [TabPane.name]: TabPane,
     [Alert.name]: Alert,
   },
-  emits: ['register'],
-  setup() {
+  emits: ['register', 'closeCurrentModal'],
+  setup(_, {emit}) {
     const [register, {closeModal, setModalProps}] = useModalInner()
-    let connParams = reactive<{[key in string]: any}>({})
-
+    let connParams = {}
+    const metadataLoaders = metadataLoadersStore()
     provide('dispatchConnections', (dynamicProps) => {
-      console.log(`dynamicProps`, dynamicProps)
       connParams = dynamicProps
     })
 
     const handleTest = async () => {
-      const resp = await handleDriverTestApi(pickBy(unref(connParams), (item) => !!item))
-      console.log(resp, `resp`)
+      try {
+        const resp = await handleDriverTestApi(pickBy(unref(connParams), (item) => !!item))
+        console.log(resp, `resp`)
+      } catch (e) {
+        console.log(e)
+      }
     }
 
     const handleCancelTest = () => {}
 
     const handleSubmit = async () => {
-      const resp = await handleDriverSaveApi(pickBy(unref(connParams), (item) => !!item))
-      console.log(resp, `resp`)
+      try {
+        const resp = await handleDriverSaveApi(pickBy(unref(connParams), (item) => !!item))
+        console.log(resp, `resp`)
+        void metadataLoaders.setState(metadataLoadersKey.connections, [...metadataLoaders.connectionsWithStatus, resp])
+        emit('closeCurrentModal')
+      } catch (e) {
+        console.log(e)
+      }
     }
 
     return {

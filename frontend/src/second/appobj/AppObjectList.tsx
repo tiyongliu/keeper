@@ -114,8 +114,6 @@ export default defineComponent({
         expandIconFunc={unref(expandIconFunc)}
         isExpandable={unref(isExpandable)}
         subItemsComponent={unref(subItemsComponent)}
-
-
         groupFunc={unref(groupFunc)}
         disableContextMenu={unref(disableContextMenu)}
         filter={unref(filter)}

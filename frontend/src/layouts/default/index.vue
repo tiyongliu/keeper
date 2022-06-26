@@ -12,12 +12,14 @@
       <WidgetIconPanel @con="con"/>
     </div>
     <div class="statusbar svelte-1veekw4">iconbar</div>
+    <!--    <div class="statusbar svelte-1veekw4"><StatusBar></StatusBar></div>-->
     <div class="leftpanel svelte-1veekw4">
       <!--      <AppDarkModeToggle class="mx-auto" />-->
 
       <WidgetContainer :isShow="isShow"/>
     </div>
     <div class="tabs svelte-1veekw4">
+      <!--      <TabsPanel/>-->
       <LayoutHeader />
     </div>
     <div class="content svelte-1veekw4">content
@@ -26,12 +28,13 @@
          v-splitterDrag="'clientX'"
          :resizeSplitter="(e) => cssVariable.setLeftPanelWidth(e.detail)">
     </div>
-    <div class="snackbar-container svelte-1veekw4">snackbar-container</div>
+    <CurrentDropDownMenu />
+    <div class="snackbar-container">snackbar-container</div>
   </Layout>
 </template>
 
 <script lang="ts">
-  import { defineComponent, computed, unref, onMounted ,ref} from 'vue';
+import { defineComponent, computed, unref, onMounted ,ref} from 'vue';
   import { Layout } from 'ant-design-vue';
   import { createAsyncComponent } from '/@/utils/factory/createAsyncComponent';
 
@@ -50,9 +53,12 @@
   //todo
   import { cssVariableStore } from "/@/store/modules/cssVariable"
   import WidgetContainer from '/@/second/widgets/WidgetContainer.vue'
+  import TabsPanel from '/@/second/widgets/TabsPanel.vue'
+  import StatusBar from '/@/second/widgets/StatusBar.vue'
   import {WarningOutlined} from '@ant-design/icons-vue'
 
-  import WidgetIconPanel from '../../second/widgets/WidgetIconPanel.vue'
+  import WidgetIconPanel from '/@/second/widgets/WidgetIconPanel.vue'
+  import CurrentDropDownMenu from '/@/second/modals/CurrentDropDownMenu'
 
   export default defineComponent({
     name: 'DefaultLayout',
@@ -67,7 +73,10 @@
 
       WidgetContainer,
       WarningOutlined,
-      WidgetIconPanel
+      WidgetIconPanel,
+      CurrentDropDownMenu,
+      StatusBar,
+      TabsPanel
     },
     setup() {
       const { prefixCls } = useDesign('default-layout');
@@ -99,7 +108,7 @@
 
       })
       const isShow = ref('database')
-      
+
 
       return {
         getShowFullHeaderRef,
@@ -109,6 +118,7 @@
         getIsMixSidebar,
         layoutClass,
         lockEvents,
+
         cssVariable,
         isShow
       };
@@ -140,7 +150,6 @@
     }
   }
 </style>
-
 
 <style lang="less">
 .root {
@@ -418,3 +427,4 @@ textarea {
   border: 1px solid var(--theme-border);
 }
 </style>
+
