@@ -16,6 +16,10 @@ func NewMongoDB(db *mongo.Client) standard.SqlStandard {
 	return &MongoDBDrivers{db}
 }
 
+func (mg *MongoDBDrivers) Connect() interface{} {
+	return nil
+}
+
 func (mg *MongoDBDrivers) GetPoolInfo() interface{} {
 	return mg.DB
 }
