@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/mitchellh/mapstructure"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
+	"keeper/app/code"
 	"keeper/app/modules"
 	"keeper/app/pkg/serializer"
 	"keeper/app/pkg/standard"
@@ -26,11 +27,6 @@ type Connections struct {
 	Ctx context.Context
 }
 
-const (
-	mysql_alias = "mysql"
-	mongo_alias = "mongo"
-)
-
 func init() {
 	JsonLinesDatabase = utility.NewJsonLinesDatabase(path.Join(tools.DataDirCore(), "connections.jsonl"))
 }
@@ -44,7 +40,7 @@ func NewConnections() *Connections {
 }
 
 func (conn *Connections) Test(connection map[string]interface{}) interface{} {
-	if connection["engine"].(string) == mysql_alias {
+	if connection["engine"].(string) == code.Mysql_alias {
 		simpleSettingMysql := &modules.SimpleSettingMysql{}
 		err := mapstructure.Decode(connection, simpleSettingMysql)
 		if err != nil {
@@ -88,7 +84,7 @@ func (conn *Connections) Test(connection map[string]interface{}) interface{} {
 		})
 		return selection
 
-	} else if connection["engine"].(string) == mongo_alias {
+	} else if connection["engine"].(string) == code.Mongo_alias {
 		pool, err := plugin_mondb.NewSimpleMongoDBPool(&modules.SimpleSettingMongoDB{
 			Host: connection["host"].(string),
 			Port: connection["port"].(string),
