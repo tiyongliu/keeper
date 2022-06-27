@@ -13,10 +13,9 @@ import (
 var lock sync.RWMutex
 
 type ServerConnections struct {
-	Ctx         context.Context
-	Closed      map[string]string
-	Opened      []map[string]interface{}
-	LastPinged  map[string]code.UnixTime
+	Closed     map[string]string
+	Opened     []map[string]interface{}
+	LastPinged map[string]code.UnixTime
 }
 
 type PingRequest struct {
@@ -29,8 +28,8 @@ type Status struct {
 
 func NewServerConnections() *ServerConnections {
 	return &ServerConnections{
-		Closed:      make(map[string]string),
-		LastPinged:  make(map[string]code.UnixTime),
+		Closed:     make(map[string]string),
+		LastPinged: make(map[string]code.UnixTime),
 	}
 }
 
