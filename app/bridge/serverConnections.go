@@ -5,6 +5,7 @@ import (
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"keeper/app/code"
 	"keeper/app/pkg/serializer"
+	"keeper/app/sideQuests"
 	"keeper/app/tools"
 	"sync"
 	"time"
@@ -78,6 +79,11 @@ func (sc *ServerConnections) ensureOpened(conid string) {
 		delete(sc.Closed, conid)
 	}
 
+	ch := make(chan *sideQuests.EchoMessage, 1)
+	go sideQuests.SpeakerServerConnection(ch)
+	go func() {
+		sc.Listener(conid, ch)
+	}()
 	//sc.MysqlDriver.Ping()
 
 	runtime.EventsEmit(Application.ctx, "server-status-changed")
@@ -161,4 +167,14 @@ func (sc *ServerConnections) handleStatus(conid string, status map[string]string
 
 func (sc *ServerConnections) handlePing() {
 
+}
+
+func (sc *ServerConnections) Listener(conid string, chData <-chan *sideQuests.EchoMessage) {
+	message := <-chData
+	if message != nil && message.MsgType == "status" {
+		//call
+		sc.handleStatus(conid, map[string]string{
+			"name": "pending",
+		})
+	}
 }
