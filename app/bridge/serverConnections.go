@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"keeper/app/code"
+	"keeper/app/modules"
 	"keeper/app/pkg/serializer"
 	"keeper/app/sideQuests"
 	"keeper/app/tools"
@@ -79,10 +80,10 @@ func (sc *ServerConnections) ensureOpened(conid string) {
 		delete(sc.Closed, conid)
 	}
 
-	ch := make(chan *sideQuests.EchoMessage, 1)
-	go sideQuests.SpeakerServerConnection(ch)
+	effectCh := make(chan *modules.EchoMessage, 1)
+	go sideQuests.SpeakerServerConnection(effectCh, connection)
 	go func() {
-		sc.Listener(conid, ch)
+		sc.Listener(conid, effectCh)
 	}()
 	//sc.MysqlDriver.Ping()
 
@@ -169,7 +170,7 @@ func (sc *ServerConnections) handlePing() {
 
 }
 
-func (sc *ServerConnections) Listener(conid string, chData <-chan *sideQuests.EchoMessage) {
+func (sc *ServerConnections) Listener(conid string, chData <-chan *modules.EchoMessage) {
 	message := <-chData
 	if message != nil && message.MsgType == "status" {
 		//call
