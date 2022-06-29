@@ -16,10 +16,9 @@ export function connectionListChangedEvent() {
 }
 
 
-
-
 export function serverStatusChangedEvent() {
   EventsOn('server-status-changed', async _ => {
+    console.log(`call serverStatusChangedEvent`)
     await metadataLoaders.onServerStatus()
   })
 }
