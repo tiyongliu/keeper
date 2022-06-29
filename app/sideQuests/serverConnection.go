@@ -1,17 +1,19 @@
 package sideQuests
 
-type EchoMessage struct {
-	Payload interface{}
-	MsgType string
-}
+import (
+	"keeper/app/handler"
+	"keeper/app/modules"
+)
 
-func SpeakerServerConnection(ch chan *EchoMessage) {
+func SpeakerServerConnection(ch chan *modules.EchoMessage, connection map[string]interface{}) {
 	defer close(ch)
 
-	ch <- &EchoMessage{
-		Payload: nil,
-		MsgType: "status",
-	}
+	handler.NewMessageDriverHandlers(ch).Connect(connection)
+
+	//ch <- &EchoMessage{
+	//	Payload: nil,
+	//	MsgType: "status",
+	//}
 
 	//TODO 根据params 调用具体的handle下面的方法
 }
