@@ -80,10 +80,11 @@ func (sc *ServerConnections) ensureOpened(conid string) {
 		delete(sc.Closed, conid)
 	}
 
-	effectCh := make(chan *modules.EchoMessage, 1)
-	go sideQuests.SpeakerServerConnection(effectCh, connection)
+	ch := make(chan *modules.EchoMessage, 1)
+	//go sideQuests.SpeakerServerConnection(effectCh)
+	go sideQuests.NewMessageDriverHandlers(ch)
 	go func() {
-		sc.Listener(conid, effectCh)
+		sc.Listener(conid, ch)
 	}()
 	//sc.MysqlDriver.Ping()
 
@@ -150,7 +151,7 @@ func (sc *ServerConnections) handleVersion(conid, version string) {
 
 }
 
-func (sc *ServerConnections) handleStatus(conid string, status map[string]string) {
+func (sc *ServerConnections) handleStatus(conid string, status *sideQuests.StatusMessage) {
 	var existing map[string]interface{}
 	for _, x := range sc.Opened {
 		if id, ok := x["conid"]; ok && id != nil && id.(string) == conid {
@@ -174,8 +175,6 @@ func (sc *ServerConnections) Listener(conid string, chData <-chan *modules.EchoM
 	message := <-chData
 	if message != nil && message.MsgType == "status" {
 		//call
-		sc.handleStatus(conid, map[string]string{
-			"name": "pending",
-		})
+		sc.handleStatus(conid, message.Payload.(*sideQuests.StatusMessage))
 	}
 }
