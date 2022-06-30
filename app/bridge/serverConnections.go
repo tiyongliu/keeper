@@ -4,7 +4,9 @@ import (
 	"context"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"keeper/app/code"
+	"keeper/app/modules"
 	"keeper/app/pkg/serializer"
+	"keeper/app/sideQuests"
 	"keeper/app/tools"
 	"sync"
 	"time"
@@ -13,7 +15,6 @@ import (
 var lock sync.RWMutex
 
 type ServerConnections struct {
-	Ctx        context.Context
 	Closed     map[string]string
 	Opened     []map[string]interface{}
 	LastPinged map[string]code.UnixTime
@@ -79,6 +80,12 @@ func (sc *ServerConnections) ensureOpened(conid string) {
 		delete(sc.Closed, conid)
 	}
 
+	ch := make(chan *modules.EchoMessage, 1)
+	//go sideQuests.SpeakerServerConnection(effectCh)
+	go sideQuests.NewMessageDriverHandlers(ch)
+	go func() {
+		sc.Listener(conid, ch)
+	}()
 	//sc.MysqlDriver.Ping()
 
 	runtime.EventsEmit(Application.ctx, "server-status-changed")
@@ -102,7 +109,7 @@ func (sc *ServerConnections) Ping(request *PingRequest) interface{} {
 		last := sc.LastPinged[conid]
 		if last != 0 && code.UnixTime(time.Now().Unix())-last < code.UnixTime(30*1000) {
 			//return Promise.resolve();
-			return serializer.SuccessData(Application.ctx, "", map[string]string{"status": "ok"})
+			//return serializer.SuccessData(Application.ctx, "", map[string]string{"status": "ok"})
 		}
 
 		sc.LastPinged[conid] = code.UnixTime(time.Now().Unix())
@@ -144,7 +151,7 @@ func (sc *ServerConnections) handleVersion(conid, version string) {
 
 }
 
-func (sc *ServerConnections) handleStatus(conid string, status map[string]string) {
+func (sc *ServerConnections) handleStatus(conid string, status *sideQuests.StatusMessage) {
 	var existing map[string]interface{}
 	for _, x := range sc.Opened {
 		if id, ok := x["conid"]; ok && id != nil && id.(string) == conid {
@@ -162,4 +169,12 @@ func (sc *ServerConnections) handleStatus(conid string, status map[string]string
 
 func (sc *ServerConnections) handlePing() {
 
+}
+
+func (sc *ServerConnections) Listener(conid string, chData <-chan *modules.EchoMessage) {
+	message := <-chData
+	if message != nil && message.MsgType == "status" {
+		//call
+		sc.handleStatus(conid, message.Payload.(*sideQuests.StatusMessage))
+	}
 }
