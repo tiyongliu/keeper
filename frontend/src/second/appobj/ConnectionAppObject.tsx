@@ -168,7 +168,9 @@ export default defineComponent({
 
 
       console.log(unref(data), `data-data`)
-       dataBase.subscribeCurrentDatabase(data.value)
+      // dataBase.$state.currentDatabase
+
+       dataBase.subscribeCurrentDatabase({connection: data.value})
 
 
     }
