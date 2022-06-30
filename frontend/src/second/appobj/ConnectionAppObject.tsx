@@ -160,9 +160,17 @@ export default defineComponent({
     //   })
     // }
 
+
     const handleClick = () => {
       console.log(`const config = getCurrentConfig();`)
       //currentDatabase
+      //data
+
+
+      console.log(unref(data), `data-data`)
+       dataBase.subscribeCurrentDatabase(data.value)
+
+
     }
 
     const getContextMenu = () => {
