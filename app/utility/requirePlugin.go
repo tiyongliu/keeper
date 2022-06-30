@@ -2,7 +2,7 @@ package utility
 
 import (
 	"errors"
-	keeper_plugin_mongo "keeper/plugins/keeper-plugin-mongo"
+	keeper_plugin_mongo "keeper/plugins"
 )
 
 var loadedPlugins map[string]*keeper_plugin_mongo.DriversPlugin

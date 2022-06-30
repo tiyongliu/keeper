@@ -160,8 +160,19 @@ export default defineComponent({
     //   })
     // }
 
+
     const handleClick = () => {
       console.log(`const config = getCurrentConfig();`)
+      //currentDatabase
+      //data
+
+
+      console.log(unref(data), `data-data`)
+      // dataBase.$state.currentDatabase
+
+       dataBase.subscribeCurrentDatabase({connection: data.value})
+
+
     }
 
     const getContextMenu = () => {
@@ -223,3 +234,10 @@ export const createChildMatcher = props => filter => {
   const databases = getLocalStorage(`database_list_${_id}`) || [];
   return filterName(unref(filter), ...databases.map(x => x.name));
 };
+
+function openConnection(connection) {
+  if (connection.singleDatabase) {
+    //currentDatabase.set({ connection, name: connection.defaultDatabase })
+
+  }
+}
