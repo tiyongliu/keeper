@@ -78,13 +78,13 @@ func (msg *MessageDriverHandlers) Connect(connection map[string]interface{}) {
 	//TODO connectUtility, 可以传递一个func 因为返回值都是一样的，在func内部进行处理
 	var driver standard.SqlStandard
 	switch connection["engine"].(string) {
-	case code.Mysql_alias:
+	case code.MYSQLALIAS:
 		driver, err = NewMysqlDriver(connection)
 		if err != nil {
 			return
 		}
 		msg.Mysql = driver
-	case code.Mongo_alias:
+	case code.MONGOALIAS:
 		driver, err = NewMongoDriver(connection)
 		if err != nil {
 			return

@@ -40,7 +40,7 @@ func NewConnections() *Connections {
 }
 
 func (conn *Connections) Test(connection map[string]interface{}) interface{} {
-	if connection["engine"].(string) == code.Mysql_alias {
+	if connection["engine"].(string) == code.MYSQLALIAS {
 		simpleSettingMysql := &modules.SimpleSettingMysql{}
 		err := mapstructure.Decode(connection, simpleSettingMysql)
 		if err != nil {
@@ -84,7 +84,7 @@ func (conn *Connections) Test(connection map[string]interface{}) interface{} {
 		})
 		return selection
 
-	} else if connection["engine"].(string) == code.Mongo_alias {
+	} else if connection["engine"].(string) == code.MONGOALIAS {
 		pool, err := plugin_mondb.NewSimpleMongoDBPool(&modules.SimpleSettingMongoDB{
 			Host: connection["host"].(string),
 			Port: connection["port"].(string),
