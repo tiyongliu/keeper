@@ -27,7 +27,7 @@ const databaseStatusLoader = ({conid, database}) => ({
 });
 
 const serverStatusLoader = () => ({
-  url: 'server-connections/server-status',
+  url: 'bridge.ServerConnections.ServerStatus',
   params: null,
   reloadTrigger: `server-status-changed`,
 })
