@@ -109,7 +109,7 @@ func (sc *ServerConnections) Ping(request *PingRequest) interface{} {
 		last := sc.LastPinged[conid]
 		if last != 0 && code.UnixTime(time.Now().Unix())-last < code.UnixTime(30*1000) {
 			//return Promise.resolve();
-			return serializer.SuccessData(Application.ctx, "", map[string]string{"status": "ok"})
+			//return serializer.SuccessData(Application.ctx, "", map[string]string{"status": "ok"})
 		}
 
 		sc.LastPinged[conid] = code.UnixTime(time.Now().Unix())
