@@ -136,7 +136,25 @@ func (sc *ServerConnections) Ping(request *PingRequest) interface{} {
 }
 
 func (sc *ServerConnections) Close(conid string, kill bool) {
+	existing, ok := lo.Find[map[string]interface{}](sc.Opened, func(item map[string]interface{}) bool {
+		if item[conid] != nil {
+			return true
+		} else {
+			return false
+		}
+	})
 
+	if existing != nil && ok {
+		existing["disconnected"] = true
+		if kill {
+			//existing.subprocess.kill()
+			sc.Opened = lo.Filter[map[string]interface{}](sc.Opened, func(obj map[string]interface{}, _ int) bool {
+				uuid, ok := obj[conid].(string)
+				return ok && uuid == conid
+			})
+		}
+		runtime.EventsEmit(Application.ctx, "server-status-changed")
+	}
 }
 
 func (sc *ServerConnections) Refresh(conid string) interface{} {
