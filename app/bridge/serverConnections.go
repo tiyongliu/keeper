@@ -2,9 +2,11 @@ package bridge
 
 import (
 	"context"
+	"github.com/samber/lo"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"keeper/app/code"
 	"keeper/app/modules"
+	"keeper/app/pkg/logger"
 	"keeper/app/pkg/serializer"
 	"keeper/app/sideQuests"
 	"keeper/app/tools"
@@ -92,20 +94,34 @@ func (sc *ServerConnections) ensureOpened(conid string) {
 }
 
 func (sc *ServerConnections) ServerStatus() interface{} {
-	return serializer.SuccessData(Application.ctx, "", map[string]Status{
+
+	values := map[string]interface{}{}
+	for _, driver := range sc.Opened {
+		logger.Infof("driver: %s", tools.ToJsonStr(driver))
+		uuid := driver["conid"].(string)
+		logger.Infof("driver: %s", uuid)
+		status, ok := driver["status"]
+		if ok {
+			logger.Infof("driver: %s", tools.ToJsonStr(status))
+			values[uuid] = status
+		}
+	}
+
+	return serializer.SuccessData(Application.ctx, "", values)
+
+	/*return serializer.SuccessData(Application.ctx, "", map[string]Status{
 		"efdc46d9-fed2-43d7-b506-53514b0a2559": {Name: "ok"},
 		"de5bb0d8-2a7c-4de6-92db-b60606a83c93": {Name: "pending"},
-	})
+	})*/
 }
 
 func (sc *ServerConnections) Ping(request *PingRequest) interface{} {
-	//_.uniq(connections)
 
 	if request == nil {
 		return serializer.Fail(context.Background(), "")
 	}
 
-	for _, conid := range request.Connections {
+	for _, conid := range lo.Uniq[string](request.Connections) {
 		last := sc.LastPinged[conid]
 		if last != 0 && code.UnixTime(time.Now().Unix())-last < code.UnixTime(30*1000) {
 			//return Promise.resolve();
