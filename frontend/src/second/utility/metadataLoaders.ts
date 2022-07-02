@@ -14,7 +14,6 @@ const connectionListLoader = () => ({
   reloadTrigger: `connection-list-changed`
 })
 
-
 const databaseServerVersionLoader = ({conid, database}) => ({
   url: 'database-connections/server-version',
   params: {conid, database},
@@ -32,6 +31,11 @@ const serverStatusLoader = () => ({
   reloadTrigger: `server-status-changed`,
 })
 
+const databaseListLoader = ({ conid }) => ({
+  url: 'bridge.ServerConnections.ListDatabases',
+  params: conid,
+  reloadTrigger: `database-list-changed-${conid}`,
+})
 
 async function getCore(loader, args) {
   const {url, params} = loader(args);
@@ -81,4 +85,12 @@ export function getServerStatus() {
 
 export function useServerStatus() {
   return useCore(serverStatusLoader, {})
+}
+
+export function getDatabaseList(args) {
+  return getCore(databaseListLoader, args);
+}
+
+export function useDatabaseList(args) {
+  return useCore(databaseListLoader, args);
 }
