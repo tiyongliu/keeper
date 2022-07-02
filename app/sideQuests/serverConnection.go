@@ -24,15 +24,14 @@ type StatusMessage struct {
 }
 
 type MessageDriverHandlers struct {
-	Mysql     standard.SqlStandard
-	Mongo     standard.SqlStandard
-	MessageCh chan *modules.EchoMessage
-	ExitCh    chan int
+	Mysql standard.SqlStandard
+	Mongo standard.SqlStandard
+	Ch    chan *modules.EchoMessage
 }
 
 func NewMessageDriverHandlers(ch chan *modules.EchoMessage) *MessageDriverHandlers {
 	return &MessageDriverHandlers{
-		MessageCh: ch,
+		Ch: ch,
 	}
 }
 
@@ -53,16 +52,10 @@ func (msg *MessageDriverHandlers) Start() {
 		}
 	}()
 
-	time.AfterFunc(1*time.Minute, func() {
-		nowTime := time.Now().Unix()
-		if code.UnixTime(nowTime)-lastPing > code.UnixTime(120*1000) {
-			logger.Info("Server connection not alive, exiting")
-			//todo process.exit(0);
-		}
-	})
 }
 
 func (msg *MessageDriverHandlers) Connect(connection map[string]interface{}) {
+	defer close(msg.Ch)
 	msg.setStatusName("pending")
 	lastPing = code.UnixTime(time.Now().Unix())
 
@@ -97,6 +90,7 @@ func (msg *MessageDriverHandlers) Connect(connection map[string]interface{}) {
 			Name:    "error",
 			Message: err.Error(),
 		})
+		msg.errorExit()
 		return
 	}
 
@@ -105,18 +99,11 @@ func (msg *MessageDriverHandlers) Connect(connection map[string]interface{}) {
 			Name:    "error",
 			Message: err.Error(),
 		})
+		msg.errorExit()
 		return
 	}
 
-	/*
-	  readVersion()
-	  handleRefresh()
-	*/
-
-	//msg.SystemConnection, err = NewSimpleMysqlPool(simpleSettingMysql)
-	//if err != nil {
-	//	setStatus(&StatusMessage{"error", err.Error()})
-	//}
+	msg.setStatusName("ok")
 }
 
 func (msg *MessageDriverHandlers) Ping() code.UnixTime {
@@ -138,8 +125,7 @@ func (msg *MessageDriverHandlers) setStatusName(name string, message ...string) 
 func (msg *MessageDriverHandlers) setStatus(status *StatusMessage) {
 	statusString := tools.ToJsonStr(status)
 	if lastStatus != statusString {
-		//TODO send 消息
-		msg.MessageCh <- &modules.EchoMessage{
+		msg.Ch <- &modules.EchoMessage{
 			MsgType: "status",
 			Payload: status,
 		}
@@ -181,7 +167,6 @@ func connectUtility(connection map[string]interface{}) map[string]string {
 	return utility.DecryptConnection(tools.TransformStringMap(connection))
 }
 
-//TODO send
 func (msg *MessageDriverHandlers) readVersion(pool standard.SqlStandard) error {
 	version, err := pool.GetVersion()
 	if err != nil {
@@ -189,7 +174,7 @@ func (msg *MessageDriverHandlers) readVersion(pool standard.SqlStandard) error {
 		return err
 	}
 
-	msg.MessageCh <- &modules.EchoMessage{
+	msg.Ch <- &modules.EchoMessage{
 		Payload: version,
 		MsgType: "version",
 	}
@@ -199,21 +184,36 @@ func (msg *MessageDriverHandlers) readVersion(pool standard.SqlStandard) error {
 
 func (msg *MessageDriverHandlers) handleRefresh(pool standard.SqlStandard) error {
 	databases, err := pool.ListDatabases()
-
+	msg.setStatusName("ok")
 	databasesString := tools.ToJsonStr(databases)
 	if err != nil {
-		//setStatus(&StatusMessage{Name: "ok", Message: ""})
 		return err
 	}
 
 	if lastDatabases != databasesString {
 		//TODO send
-		msg.MessageCh <- &modules.EchoMessage{
-			Payload: databases,
+		msg.Ch <- &modules.EchoMessage{
+			Payload: &modules.DriverPayload{
+				Name:        pool.Dialect(),
+				StandardRes: databases,
+			},
 			MsgType: "databases",
 		}
 		lastDatabases = databasesString
 	}
 
 	return nil
+}
+
+func (msg *MessageDriverHandlers) errorExit() {
+	defer close(msg.Ch)
+	timer := time.AfterFunc(1*time.Second, func() {
+		msg.Ch <- &modules.EchoMessage{
+			Payload: 1,
+			MsgType: "exit",
+		}
+	})
+
+	defer timer.Stop()
+
 }
