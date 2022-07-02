@@ -5,12 +5,12 @@ import {bridge} from '../models';
 
 export function Close(arg1:string,arg2:boolean):void;
 
-export function ListDatabases(arg1:any):Promise<any>;
+export function ListDatabases(arg1:string):Promise<any>;
 
 export function Listener(arg1:string,arg2:<-chan modules.EchoMessage):void;
 
-export function Ping(arg1:bridge.PingRequest):Promise<any>;
+export function Ping(arg1:Array<string>):Promise<any>;
 
-export function Refresh(arg1:string):Promise<any>;
+export function Refresh(arg1:bridge.RefreshRequest):Promise<any>;
 
 export function ServerStatus():Promise<any>;

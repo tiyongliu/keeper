@@ -35,11 +35,8 @@ export const metadataLoadersStore = defineStore({
     async onServerStatus() {
       const serverStatus = await useServerStatus()
       if (this.connections && serverStatus) {
-
         // @ts-ignore
         this.connections = this.connections.map(conn => ({...conn, status: serverStatus[conn._id]}))
-
-        console.log(this.connections, `connections-connections`)
       }
     },
   }
