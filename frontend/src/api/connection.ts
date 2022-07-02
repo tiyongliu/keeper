@@ -15,3 +15,9 @@ export async function handleDriverSaveApi(params) {
 export async function loadDatabasesApi() {
   return await apiCall('bridge.Connections.List')
 }
+
+export async function handleDeleteApi(params) {
+  return await apiCall('bridge.Connections.Delete', params)
+}
+
+//useDatabaseList

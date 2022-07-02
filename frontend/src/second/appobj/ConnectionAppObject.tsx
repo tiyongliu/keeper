@@ -19,7 +19,8 @@ import AppObjectCore from '/@/second/appobj/AppObjectCore.vue'
 import getConnectionLabel from '/@/second/utility/getConnectionLabel'
 import {ConnectionsWithStatus} from '/@/second/typings/mysql'
 import {IPinnedDatabasesItem} from '/@/second/typings/types/standard.d'
-import {apiCall} from "/@/second/utility/api"
+import {handleDeleteApi} from '/@/api/connection'
+import {handleRefreshApi} from '/@/api/serverConnections'
 import {connectionListChangedEvent, serverStatusChangedEvent} from "/@/api/event"
 
 export default defineComponent({
@@ -141,7 +142,7 @@ export default defineComponent({
         cancelText: '取消',
         onOk: async () => {
           try {
-            await apiCall('bridge.Connections.Delete', {_id: data.value?._id})
+            await handleDeleteApi({_id: data.value?._id})
             r.destroy()
           } catch (e) {
             console.log(e)
@@ -159,18 +160,9 @@ export default defineComponent({
     // }
 
 
-    const handleClick = () => {
-      console.log(`const config = getCurrentConfig();`)
-      //currentDatabase
-      //data
-
-
-      console.log(unref(data), `data-data`)
-      // dataBase.$state.currentDatabase
-
+    const handleClick = async () => {
       dataBase.subscribeCurrentDatabase({connection: data.value})
-
-
+      await handleRefreshApi({conid: data.value!._id, keepOpen: true})
     }
 
     const getContextMenu = () => {
