@@ -55,7 +55,6 @@ func (msg *MessageDriverHandlers) Start() {
 }
 
 func (msg *MessageDriverHandlers) Connect(connection map[string]interface{}) {
-	defer close(msg.Ch)
 	msg.setStatusName("pending")
 	lastPing = code.UnixTime(time.Now().Unix())
 
@@ -74,12 +73,22 @@ func (msg *MessageDriverHandlers) Connect(connection map[string]interface{}) {
 	case code.MYSQLALIAS:
 		driver, err = NewMysqlDriver(connection)
 		if err != nil {
+			msg.setStatus(&StatusMessage{
+				Name:    "error",
+				Message: err.Error(),
+			})
+			msg.errorExit()
 			return
 		}
 		msg.Mysql = driver
 	case code.MONGOALIAS:
 		driver, err = NewMongoDriver(connection)
 		if err != nil {
+			msg.setStatus(&StatusMessage{
+				Name:    "error",
+				Message: err.Error(),
+			})
+			msg.errorExit()
 			return
 		}
 		msg.Mongo = driver
@@ -193,11 +202,9 @@ func (msg *MessageDriverHandlers) handleRefresh(pool standard.SqlStandard) error
 	if lastDatabases != databasesString {
 		//TODO send
 		msg.Ch <- &modules.EchoMessage{
-			Payload: &modules.DriverPayload{
-				Name:        pool.Dialect(),
-				StandardRes: databases,
-			},
+			Payload: databases,
 			MsgType: "databases",
+			Dialect: pool.Dialect(),
 		}
 		lastDatabases = databasesString
 	}

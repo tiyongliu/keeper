@@ -140,7 +140,7 @@ func (conn *Connections) Save(connection map[string]string) interface{} {
 			Buttons:       []string{"确认"},
 			DefaultButton: "确认",
 		})
-		return serializer.Fail(Application.ctx, "")
+		return serializer.Fail("")
 	}
 
 	uuid, ok := connection["_id"]
@@ -162,19 +162,19 @@ func (conn *Connections) Save(connection map[string]string) interface{} {
 			DefaultButton: "确认",
 		})
 
-		return serializer.Fail(Application.ctx, "")
+		return serializer.Fail("")
 	}
 
-	return serializer.SuccessData(Application.ctx, "", res)
+	return serializer.SuccessData("", res)
 }
 
 func (conn *Connections) List() interface{} {
 	find := JsonLinesDatabase.Find()
-	return serializer.SuccessData(Application.ctx, "", find)
+	return serializer.SuccessData("", find)
 }
 
 func (conn *Connections) Get(conid map[string]string) interface{} {
-	return serializer.SuccessData(Application.ctx, "", nil)
+	return serializer.SuccessData("", nil)
 }
 
 func (conn *Connections) getCore(conid string, mask bool) {
@@ -201,12 +201,12 @@ func (conn *Connections) Delete(connection map[string]string) interface{} {
 				DefaultButton: "确认",
 			})
 
-			return serializer.Fail(Application.ctx, err.Error())
+			return serializer.Fail(err.Error())
 		}
 
 		runtime.EventsEmit(Application.ctx, "connection-list-changed", res)
-		return serializer.SuccessData(Application.ctx, "", res)
+		return serializer.SuccessData("", res)
 	}
 
-	return serializer.Fail(Application.ctx, "参数错误")
+	return serializer.Fail("参数错误")
 }

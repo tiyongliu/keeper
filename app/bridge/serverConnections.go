@@ -5,10 +5,8 @@ import (
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"keeper/app/code"
 	"keeper/app/modules"
-	"keeper/app/pkg/logger"
 	"keeper/app/pkg/serializer"
 	"keeper/app/sideQuests"
-	"keeper/app/tools"
 	"sync"
 	"time"
 )
@@ -37,13 +35,11 @@ func NewServerConnections() *ServerConnections {
 //https://esc.show/article/Golang-GUI-kai-fa-zhi-Webview
 func (sc *ServerConnections) ListDatabases(request string) interface{} {
 	if request == "" {
-		return serializer.Fail(Application.ctx, "")
+		return serializer.Fail(serializer.IdNotEmpty)
 	}
-
 	opened := sc.ensureOpened(request)
 
-	logger.Infof("opened: %s", tools.ToJsonStr(opened))
-	return nil
+	return serializer.SuccessData(serializer.SUCCESS, opened["databases"])
 }
 
 func (sc *ServerConnections) getCore(conid string, mask bool) map[string]interface{} {
@@ -104,7 +100,7 @@ func (sc *ServerConnections) ServerStatus() interface{} {
 		}
 	}
 
-	return serializer.SuccessData(Application.ctx, "", values)
+	return serializer.SuccessData("", values)
 }
 
 func (sc *ServerConnections) Ping(connections []string) interface{} {
@@ -118,7 +114,7 @@ func (sc *ServerConnections) Ping(connections []string) interface{} {
 		sc.ensureOpened(conid)
 	}
 
-	return serializer.SuccessData(Application.ctx, "", map[string]string{"status": "ok"})
+	return serializer.SuccessData("", map[string]string{"status": "ok"})
 }
 
 func (sc *ServerConnections) Close(conid string, kill bool) {
@@ -160,7 +156,7 @@ func (sc *ServerConnections) Refresh(req *RefreshRequest) interface{} {
 	}
 	sc.ensureOpened(req.Conid)
 
-	return serializer.SuccessData(Application.ctx, "", map[string]string{
+	return serializer.SuccessData("", map[string]string{
 		"status": "ok",
 	})
 }
