@@ -1,6 +1,6 @@
 import stableStringify from 'fast-safe-stringify';
 import {apiCall} from '/@/second/utility/api'
-import {loadCachedValue} from './cache'
+import {loadCachedValue} from '/@/second/utility/cache'
 
 const connectionInfoLoader = ({conid}) => ({
   url: 'bridge.Connections.Get',
@@ -51,7 +51,7 @@ async function getCore(loader, args) {
 export function useCore(loader, args) {
   // const { url, params, reloadTrigger, transform, onLoaded } = loader(args);
   // const cacheKey = stableStringify({ url, ...params });
-  let closed = false;
+  const closed = false;
 
   async function handleReload() {
     const res = await getCore(loader, args);

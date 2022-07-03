@@ -3,7 +3,7 @@ import {
   getConnectionInfo,
   getConnectionList,
   useServerStatus
-} from '/@/second/utility/metadataLoaders'
+} from '/@/api/metadataLoaders'
 
 export enum metadataLoadersKey {
   connections = 'connections',

@@ -49,7 +49,7 @@ func (mg *MongoDBDrivers) ListDatabases() (interface{}, error) {
 	var buildInfoDoc modules.MongoDBDatabaseList
 	db := mg.DB.Database("admin")
 	err := db.RunCommand(context.TODO(), buildInfoCmd).Decode(&buildInfoDoc)
-	return buildInfoDoc, err
+	return buildInfoDoc.Databases, err
 }
 
 func (mg *MongoDBDrivers) Close() error {
