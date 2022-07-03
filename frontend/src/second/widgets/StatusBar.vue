@@ -78,7 +78,7 @@ import FontIcon from '/@/second/icons/FontIcon.vue'
 import {dataBaseStore} from "/@/store/modules/dataBase"
 import { useConnectionColor } from "/@/second/utility/useConnectionColor"
 import getConnectionLabel from "/@/second/utility/getConnectionLabel";
-import { useDatabaseServerVersion,useDatabaseStatus } from "../utility/metadataLoaders"
+import { useDatabaseServerVersion,useDatabaseStatus } from "/@/api/metadataLoaders"
 
 export default defineComponent({
   name: 'StatusBar',
