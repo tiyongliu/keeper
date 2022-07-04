@@ -35,11 +35,7 @@ export default defineComponent({
     const showDatabases = async (conid: string) => {
       try {
         const result = await useDatabaseList(conid)
-        console.log(`useDatabaseList`, result)
-        if (Array.isArray(result)) {
-          // databases.value = result
-          metadataLoaders.subscribeDatabaseList(result)
-        }
+        metadataLoaders.subscribeDatabaseList(result)
       } catch (e) {
         console.log(e)
       }
