@@ -21,7 +21,3 @@ export function Close(arg1, arg2) {
 export function ListDatabases(arg1) {
   return window['go']['bridge']['ServerConnections']['ListDatabases'](arg1);
 }
-
-export function Listener(arg1, arg2) {
-  window['go']['bridge']['ServerConnections']['Listener'](arg1, arg2);
-}

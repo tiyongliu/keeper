@@ -44,4 +44,6 @@ func (a *App) Greet(name string) string {
 // domReady is called after the front-end dom has been loaded
 func (a App) DomReady(ctx context.Context) {
 	// Add your action here
+
+	logger.Infof("logger ctx context.Context  ctx context.Context ctx context.Context")
 }
