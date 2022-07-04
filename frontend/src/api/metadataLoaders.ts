@@ -45,14 +45,11 @@ async function getCore(loader, args) {
   const {url, params, reloadTrigger} = loader(args);
   const key = stableStringify({url, ...params})
 
-  console.log(key, `kkkkkkk`)
-
   async function doLoad() {
     return await apiCall(url, params)
   }
 
   const res = await loadCachedValue(reloadTrigger, key, doLoad)
-  console.log(res, `rrrrrrrr`)
   return res
 }
 
