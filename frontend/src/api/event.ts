@@ -20,3 +20,10 @@ export function serverStatusChangedEvent() {
     void metadataLoaders.onServerStatus()
   })
 }
+
+
+export function databaseListChangedEvent() {
+  EventsOn('database-list-changed', conid => {
+    void metadataLoaders.onCacheDatabaseList(conid)
+  })
+}
