@@ -1,17 +1,18 @@
 package sideQuests
 
 import (
-	"fmt"
-	"github.com/mitchellh/mapstructure"
 	"keeper/app/code"
 	"keeper/app/modules"
 	"keeper/app/pkg/logger"
+	"keeper/app/pkg/serializer"
 	"keeper/app/pkg/standard"
 	plugin_mondb "keeper/app/plugins/plugin-mondb"
 	plugin_mysql "keeper/app/plugins/plugin-mysql"
 	"keeper/app/tools"
 	"keeper/app/utility"
 	"time"
+
+	"github.com/mitchellh/mapstructure"
 )
 
 var lastStatus string
@@ -57,7 +58,7 @@ func (msg *MessageDriverHandlers) Start() {
 func (msg *MessageDriverHandlers) Connect(connection map[string]interface{}) {
 	msg.setStatusName("pending")
 	lastPing = code.UnixTime(time.Now().Unix())
-
+	logger.Info("1 info logger to =======================================")
 	//TODO request to dbEngineDriver
 	//utility.RequireEngineDriver(connection)
 
@@ -66,13 +67,14 @@ func (msg *MessageDriverHandlers) Connect(connection map[string]interface{}) {
 	if err != nil {
 		return
 	}
-
+	logger.Info("2 info logger to =======================================")
 	//TODO connectUtility, 可以传递一个func 因为返回值都是一样的，在func内部进行处理
 	var driver standard.SqlStandard
 	switch connection["engine"].(string) {
 	case code.MYSQLALIAS:
 		driver, err = NewMysqlDriver(connection)
 		if err != nil {
+			logger.Infof("err: %v", err)
 			msg.setStatus(&StatusMessage{
 				Name:    "error",
 				Message: err.Error(),
@@ -93,7 +95,7 @@ func (msg *MessageDriverHandlers) Connect(connection map[string]interface{}) {
 		}
 		msg.Mongo = driver
 	}
-
+	logger.Info("3 info logger to =======================================")
 	if err := msg.readVersion(driver); err != nil {
 		msg.setStatus(&StatusMessage{
 			Name:    "error",
@@ -103,6 +105,7 @@ func (msg *MessageDriverHandlers) Connect(connection map[string]interface{}) {
 		return
 	}
 
+	logger.Info("4 info logger to =======================================")
 	if err := msg.handleRefresh(driver); err != nil {
 		msg.setStatus(&StatusMessage{
 			Name:    "error",
@@ -112,6 +115,7 @@ func (msg *MessageDriverHandlers) Connect(connection map[string]interface{}) {
 		return
 	}
 
+	logger.Info("5 info logger to =======================================")
 	msg.setStatusName("ok")
 }
 
@@ -179,7 +183,6 @@ func connectUtility(connection map[string]interface{}) map[string]string {
 func (msg *MessageDriverHandlers) readVersion(pool standard.SqlStandard) error {
 	version, err := pool.GetVersion()
 	if err != nil {
-		fmt.Println(tools.ToJsonStr(version))
 		return err
 	}
 
@@ -199,6 +202,8 @@ func (msg *MessageDriverHandlers) handleRefresh(pool standard.SqlStandard) error
 		return err
 	}
 
+	logger.Infof("chan handleRefresh databases -<: %s", tools.ToJsonStr(databases))
+
 	if lastDatabases != databasesString {
 		//TODO send
 		msg.Ch <- &modules.EchoMessage{
@@ -216,7 +221,7 @@ func (msg *MessageDriverHandlers) errorExit() {
 	defer close(msg.Ch)
 	timer := time.AfterFunc(1*time.Second, func() {
 		msg.Ch <- &modules.EchoMessage{
-			Payload: 1,
+			Payload: serializer.StatusCodeFailed,
 			MsgType: "exit",
 		}
 	})

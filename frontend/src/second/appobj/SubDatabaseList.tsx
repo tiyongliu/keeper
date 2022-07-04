@@ -6,6 +6,7 @@ import AppObjectList from './AppObjectList'
 import databaseAppObject from './DatabaseAppObject'
 import {ConnectionsWithStatus, TablesNameSort} from '/@/second/typings/mysql'
 import {useDatabaseList} from "/@/api/metadataLoaders";
+import {metadataLoadersStore} from "/@/store/modules/metadataLoaders"
 
 export default defineComponent({
   name: "SubDatabaseList",
@@ -24,37 +25,35 @@ export default defineComponent({
     }
   },
   setup(props) {
+    const metadataLoaders = metadataLoadersStore()
+
     const {data, filter, passProps} = toRefs(props)
-    const databases = ref<TablesNameSort[]>([])
+
+    // const databases = metadataLoaders.getDatabaseList
+    // const databases = ref<TablesNameSort[]>([])
+
     const showDatabases = async (conid: string) => {
       try {
-        const result = await useDatabaseList({conid})
+        const result = await useDatabaseList(conid)
+        console.log(`useDatabaseList`, result)
         if (Array.isArray(result)) {
-          databases.value = result || []
+          // databases.value = result
+          metadataLoaders.subscribeDatabaseList(result)
         }
       } catch (e) {
         console.log(e)
-        databases.value = []
       }
     }
 
     onMounted(() => {
-      if (!!data.value?._id) {
-        void showDatabases(data.value?._id)
-      }
-    })
-
-    watch(() => data.value?._id, (conid) => {
-      if (!!conid) {
-        void showDatabases(conid!)
-      }
+      if (!!data.value?._id) void showDatabases(data.value?._id)
     })
 
     return () => (
       <AppObjectList
         module={databaseAppObject}
         list={sortBy(
-          (unref(databases) || []).filter(x => filterName(filter.value, x.name)),
+          (unref(metadataLoaders.getDatabaseList) || []).filter(x => filterName(filter.value, x.name)),
           x => x.sortOrder ?? x.name
         ).map(db => ({...db, connection: data.value})
         )}
