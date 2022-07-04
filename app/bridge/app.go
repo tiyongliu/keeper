@@ -13,13 +13,22 @@ var applicationOnce sync.Once
 // App struct
 type App struct {
 	ctx context.Context
+
+	Connections         *Connections
+	DatabaseConnections *DatabaseConnections
+	ServerConnections   *ServerConnections
 }
 
 // NewApp creates a new App application struct
 func NewApp() *App {
 	applicationOnce.Do(func() {
-		Application = &App{}
+		Application = &App{
+			Connections:         NewConnections(),
+			DatabaseConnections: NewDatabaseConnections(),
+			ServerConnections:   NewServerConnections(),
+		}
 	})
+
 	return Application
 }
 
@@ -44,6 +53,4 @@ func (a *App) Greet(name string) string {
 // domReady is called after the front-end dom has been loaded
 func (a App) DomReady(ctx context.Context) {
 	// Add your action here
-
-	logger.Infof("logger ctx context.Context  ctx context.Context ctx context.Context")
 }

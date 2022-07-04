@@ -50,9 +50,6 @@ func (sc *ServerConnections) handleDatabases(conid string, databases interface{}
 
 	existing["databases"] = databases
 
-	// logger.Infof("existing---databases: %s", tools.ToJsonStr(existing["databases"]))
-	logger.Infof("Opened---length: %d,  all Opened: %s", len(sc.Opened), tools.ToJsonStr(sc.Opened))
-
 	runtime.EventsEmit(Application.ctx, "database-list-changed", conid)
 }
 
@@ -72,10 +69,6 @@ func (sc *ServerConnections) handleStatus(conid string, status *sideQuests.Statu
 	if existing == nil || !ok {
 		return
 	}
-
-	logger.Infof("handleStatus----: %s", tools.ToJsonStr(status))
-	logger.Infof("----------------------------------------------")
-	logger.Infof("----------------------------------------------")
 
 	existing["status"] = &OpenedStatus{Name: status.Name}
 
@@ -97,7 +90,6 @@ func (sc *ServerConnections) ensureOpened(conid string) map[string]interface{} {
 	})
 
 	if existing != nil && ok {
-		logger.Info("ensureOpened 100 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 		return existing
 	}
 
@@ -121,7 +113,6 @@ func (sc *ServerConnections) ensureOpened(conid string) map[string]interface{} {
 
 	ch := make(chan *modules.EchoMessage)
 
-	logger.Infof("line: 123 connect: %s", tools.ToJsonStr(connection))
 	go sideQuests.NewMessageDriverHandlers(ch).Connect(connection)
 	go sc.listener(conid, ch)
 
@@ -130,18 +121,13 @@ func (sc *ServerConnections) ensureOpened(conid string) map[string]interface{} {
 
 //https://esc.show/article/Golang-GUI-kai-fa-zhi-Webview
 func (sc *ServerConnections) ListDatabases(request string) interface{} {
-	logger.Infof("wo on click %s:  ", request)
-
 	if request == "" {
 		return serializer.Fail(serializer.IdNotEmpty)
 	}
 
-	logger.Infof("len sc.Opened: %d", len(sc.Opened))
-
 	opened := sc.ensureOpened(request)
 
 	logger.Infof("opened: %s", tools.ToJsonStr(opened))
-	logger.Infof("sc.Opened.databases: %s", tools.ToJsonStr(opened["databases"]))
 
 	return serializer.SuccessData(serializer.SUCCESS, opened["databases"])
 }
@@ -156,6 +142,10 @@ func (sc *ServerConnections) getCore(conid string, mask bool) map[string]interfa
 
 func (sc *ServerConnections) ServerStatus() interface{} {
 	values := map[string]interface{}{}
+
+	logger.Infof("data11111111111111111111111111111111111111111: %s", tools.ToJsonStr(sc.Opened))
+	logger.Infof("Closed222222222222222222222222222222222222222: %s", tools.ToJsonStr(sc.Closed))
+
 	for _, driver := range sc.Opened {
 		statusObj, ok := driver["status"].(*OpenedStatus)
 		if ok {
