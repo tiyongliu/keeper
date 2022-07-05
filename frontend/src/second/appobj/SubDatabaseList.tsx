@@ -1,10 +1,12 @@
-import {computed, defineComponent, PropType, unref, toRefs} from 'vue'
+import {defineComponent, onMounted, PropType, ref, toRefs, unref, watch} from 'vue'
 import {sortBy} from 'lodash-es'
 import {filterName} from 'keeper-tools'
 import './SubDatabaseList.less'
 import AppObjectList from './AppObjectList'
 import databaseAppObject from './DatabaseAppObject'
 import {ConnectionsWithStatus, TablesNameSort} from '/@/second/typings/mysql'
+import {useDatabaseList} from "/@/api/metadataLoaders";
+import {metadataLoadersStore} from "/@/store/modules/metadataLoaders"
 
 export default defineComponent({
   name: "SubDatabaseList",
@@ -23,18 +25,33 @@ export default defineComponent({
     }
   },
   setup(props) {
+    const metadataLoaders = metadataLoadersStore()
+
     const {data, filter, passProps} = toRefs(props)
-    const databases = computed<TablesNameSort[]>(() => {
-      return [{"name": "crmeb"}, {"name": "erd"}, {"name": "information_schema"}, {"name": "kb-dms"}, {"name": "mallplusbak"}, {"name": "mysql"}, {"name": "performance_schema"}, {"name": "schema"}, {"name": "shop_go"}, {"name": "sql_join"}, {"name": "ssodb"}, {"name": "yami_shops"}]
+
+    // const databases = metadataLoaders.getDatabaseList
+    // const databases = ref<TablesNameSort[]>([])
+
+    const showDatabases = async (conid: string) => {
+      try {
+        const result = await useDatabaseList(conid)
+        metadataLoaders.subscribeDatabaseList(result)
+      } catch (e) {
+        console.log(e)
+      }
+    }
+
+    onMounted(() => {
+      if (!!data.value?._id) void showDatabases(data.value?._id)
     })
 
     return () => (
       <AppObjectList
         module={databaseAppObject}
         list={sortBy(
-          (unref(databases) || []).filter(x => filterName(filter.value, x.name)),
-            x => x.sortOrder ?? x.name
-          ).map(db => ({...db, connection: data.value})
+          (unref(metadataLoaders.getDatabaseList) || []).filter(x => filterName(filter.value, x.name)),
+          x => x.sortOrder ?? x.name
+        ).map(db => ({...db, connection: data.value})
         )}
         passProps={unref(passProps)}
       />

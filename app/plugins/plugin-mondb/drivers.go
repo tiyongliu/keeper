@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
+	"keeper/app/code"
+	"keeper/app/modules"
 	"keeper/app/pkg/standard"
 )
 
@@ -14,6 +16,10 @@ type MongoDBDrivers struct {
 
 func NewMongoDB(db *mongo.Client) standard.SqlStandard {
 	return &MongoDBDrivers{db}
+}
+
+func (mg *MongoDBDrivers) Dialect() string {
+	return code.MONGOALIAS
 }
 
 func (mg *MongoDBDrivers) Connect() interface{} {
@@ -38,22 +44,12 @@ func (mg *MongoDBDrivers) GetVersion() (interface{}, error) {
 	}, nil
 }
 
-type List struct {
-	Databases []*struct {
-		Name       string `bson:"name" json:"name"`
-		SizeOnDisk int    `bson:"sizeOnDisk" json:"sizeOnDisk"`
-		Empty      bool   `bson:"empty" json:"empty"`
-	} `bson:"databases" json:"databases"`
-	TotalSize int `bson:"totalSize" json:"totalSize"`
-	Ok        int `bson:"ok" json:"ok"`
-}
-
 func (mg *MongoDBDrivers) ListDatabases() (interface{}, error) {
 	buildInfoCmd := bson.D{bson.E{Key: "listDatabases", Value: 1}}
-	var buildInfoDoc List
+	var buildInfoDoc modules.MongoDBDatabaseList
 	db := mg.DB.Database("admin")
 	err := db.RunCommand(context.TODO(), buildInfoCmd).Decode(&buildInfoDoc)
-	return buildInfoDoc, err
+	return buildInfoDoc.Databases, err
 }
 
 func (mg *MongoDBDrivers) Close() error {

@@ -1,24 +1,10 @@
 import {apiCall} from '/@/second/utility/api'
 import { dataBaseStore } from "/@/store/modules/dataBase"
+let openedConnectionsHandle: null | number = null
 
 const doServerPing = value => {
-  apiCall('bridge.ServerConnections.Ping', { connections: value })
-    // .then(res => console.log(res, `res`)).catch(err => console.log(err, `err`))
-  // apiCall('server-connections/ping', { connections: value });
+  void apiCall('bridge.ServerConnections.Ping', value)
 }
-
-// const doDatabasePing = value => {
-//   const database = get(value, 'name')
-//   const conid = get(value, 'connection._id')
-//   if (conid && database) {
-//     apiCall('bridge.DatabaseConnections.Ping', {
-//       conid,
-//       database
-//     }).then(res => console.log(res, `res`)).catch(err => console.log(err, `err`))
-//   }
-// }
-
-let openedConnectionsHandle: null | number = null
 
 export function subscribeConnectionPingers() {
   const dataBase = dataBaseStore()
