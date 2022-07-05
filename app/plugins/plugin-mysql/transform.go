@@ -1,12 +1,14 @@
 package plugin_mysql
 
+import "keeper/app/modules"
+
 type DatabasesItem struct {
 	Name string `json:"name"`
 }
 
-func TransformListDatabases(list []string) (lastDatabases []*DatabasesItem) {
+func TransformListDatabases(list []string) (lastDatabases []*modules.MysqlDatabase) {
 	for _, value := range list {
-		lastDatabases = append(lastDatabases, &DatabasesItem{Name: value})
+		lastDatabases = append(lastDatabases, &modules.MysqlDatabase{Name: value})
 	}
 
 	return lastDatabases
