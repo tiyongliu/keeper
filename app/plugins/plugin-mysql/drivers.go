@@ -3,6 +3,7 @@ package plugin_mysql
 import (
 	"fmt"
 	"gorm.io/gorm"
+	"keeper/app/code"
 	"keeper/app/pkg/logger"
 	"keeper/app/pkg/standard"
 	"regexp"
@@ -14,6 +15,10 @@ type MysqlDrivers struct {
 
 func NewMysql() standard.SqlStandard {
 	return &MysqlDrivers{}
+}
+
+func (mysql *MysqlDrivers) Dialect() string {
+	return code.MYSQLALIAS
 }
 
 func (mysql *MysqlDrivers) Connect() interface{} {

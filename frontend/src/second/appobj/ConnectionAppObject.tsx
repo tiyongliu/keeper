@@ -19,8 +19,13 @@ import AppObjectCore from '/@/second/appobj/AppObjectCore.vue'
 import getConnectionLabel from '/@/second/utility/getConnectionLabel'
 import {ConnectionsWithStatus} from '/@/second/typings/mysql'
 import {IPinnedDatabasesItem} from '/@/second/typings/types/standard.d'
-import {apiCall} from "/@/second/utility/api"
-import {connectionListChangedEvent, serverStatusChangedEvent} from "/@/api/event"
+import {handleDeleteApi} from '/@/api/connection'
+import {handleRefreshApi} from '/@/api/serverConnections'
+import {
+  connectionListChangedEvent,
+  databaseListChangedEvent,
+  serverStatusChangedEvent,
+} from "/@/api/event"
 
 export default defineComponent({
   name: 'ConnectionAppObject',
@@ -30,9 +35,7 @@ export default defineComponent({
     },
     passProps: {
       type: Object as PropType<{ showPinnedInsteadOfUnpin: boolean }>,
-      default: {
-        showPinnedInsteadOfUnpin: true
-      }
+      default: {showPinnedInsteadOfUnpin: true}
     },
     statusIcon: {
       type: String as PropType<string>
@@ -59,11 +62,11 @@ export default defineComponent({
       statusIcon,
       statusTitle
     } = toRefs(props)
-    let statusTitleRef = ref()
-    let statusIconRef = ref()
-    let extInfoRef = ref()
-    let engineStatusIconRef = ref()
-    let engineStatusTitleRef = ref()
+    const statusTitleRef = ref()
+    const statusIconRef = ref()
+    const extInfoRef = ref()
+    const engineStatusIconRef = ref()
+    const engineStatusTitleRef = ref()
     const dataBase = dataBaseStore()
 
     const handleConnect = () => {
@@ -105,14 +108,14 @@ export default defineComponent({
       if (dataBase.$state.openedConnections.includes(_id)) {
         if (!status) statusIconRef.value = 'icon loading'
         else if (status.name == 'pending') statusIconRef.value = 'icon loading';
-        else if (status.name == 'ok') statusIconRef.value = 'img ok'
+        else if (status.name == 'ok')  statusIconRef.value = 'img ok';
         else statusIconRef.value = 'img error';
         if (status && status.name == 'error') {
           statusTitleRef.value = status.message
-        } else {
-          statusIconRef.value = null
-          statusTitleRef.value = null
         }
+      } else {
+        statusIconRef.value = null
+        statusTitleRef.value = null
       }
     }
 
@@ -129,6 +132,7 @@ export default defineComponent({
       if (window.runtime) {
         connectionListChangedEvent()
         serverStatusChangedEvent()
+        databaseListChangedEvent()
       }
     })
 
@@ -143,7 +147,7 @@ export default defineComponent({
         cancelText: '取消',
         onOk: async () => {
           try {
-            await apiCall('bridge.Connections.Delete', {_id: data.value?._id})
+            await handleDeleteApi({_id: data.value?._id})
             r.destroy()
           } catch (e) {
             console.log(e)
@@ -160,19 +164,9 @@ export default defineComponent({
     //   })
     // }
 
-
-    const handleClick = () => {
-      console.log(`const config = getCurrentConfig();`)
-      //currentDatabase
-      //data
-
-
-      console.log(unref(data), `data-data`)
-      // dataBase.$state.currentDatabase
-
-       dataBase.subscribeCurrentDatabase({connection: data.value})
-
-
+    const handleClick = async () => {
+      dataBase.subscribeCurrentDatabase({connection: data.value})
+      await handleRefreshApi({conid: data.value!._id, keepOpen: true})
     }
 
     const getContextMenu = () => {
@@ -207,8 +201,8 @@ export default defineComponent({
           ? get(unref(currentDatabase), 'connection._id') == unref(data)!._id && get(unref(currentDatabase), 'name') == unref(data)!.defaultDatabase
           : get(unref(currentDatabase), 'connection._id') == unref(data)!._id}
 
-        statusIcon={unref(statusIconRef) || unref(engineStatusIconRef)}
-        statusTitle={unref(statusTitleRef) || unref(engineStatusTitleRef)}
+        statusIcon={statusIconRef.value || engineStatusIconRef.value}
+        statusTitle={statusTitleRef.value || engineStatusTitleRef.value}
         // statusIconBefore={data!.isReadOnly ? 'icon lock' : null}
         extInfo={unref(extInfoRef)}
         menu={getContextMenu}

@@ -13,13 +13,22 @@ var applicationOnce sync.Once
 // App struct
 type App struct {
 	ctx context.Context
+
+	Connections         *Connections
+	DatabaseConnections *DatabaseConnections
+	ServerConnections   *ServerConnections
 }
 
 // NewApp creates a new App application struct
 func NewApp() *App {
 	applicationOnce.Do(func() {
-		Application = &App{}
+		Application = &App{
+			Connections:         NewConnections(),
+			DatabaseConnections: NewDatabaseConnections(),
+			ServerConnections:   NewServerConnections(),
+		}
 	})
+
 	return Application
 }
 

@@ -1,6 +1,7 @@
 import stableStringify from 'fast-safe-stringify';
 import {apiCall} from '/@/second/utility/api'
-import {loadCachedValue} from './cache'
+import {loadCachedValue} from '/@/second/utility/cache'
+import {setLocalStorage} from '/@/second/utility/storageCache'
 
 const connectionInfoLoader = ({conid}) => ({
   url: 'bridge.Connections.Get',
@@ -13,7 +14,6 @@ const connectionListLoader = () => ({
   params: null,
   reloadTrigger: `connection-list-changed`
 })
-
 
 const databaseServerVersionLoader = ({conid, database}) => ({
   url: 'database-connections/server-version',
@@ -32,22 +32,31 @@ const serverStatusLoader = () => ({
   reloadTrigger: `server-status-changed`,
 })
 
+const databaseListLoader = (conid) => ({
+  url: 'bridge.ServerConnections.ListDatabases',
+  params: conid,
+  reloadTrigger: `database-list-changed-${conid}`,
+  onLoaded: value => {
+    if (value?.length > 0) setLocalStorage(`database_list_${conid}`, value);
+  },
+})
 
 async function getCore(loader, args) {
-  const {url, params} = loader(args);
+  const {url, params, reloadTrigger} = loader(args);
   const key = stableStringify({url, ...params})
 
   async function doLoad() {
     return await apiCall(url, params)
   }
 
-  return await loadCachedValue(key, doLoad)
+  const res = await loadCachedValue(reloadTrigger, key, doLoad)
+  return res
 }
 
 export function useCore(loader, args) {
   // const { url, params, reloadTrigger, transform, onLoaded } = loader(args);
   // const cacheKey = stableStringify({ url, ...params });
-  let closed = false;
+  const closed = false;
 
   async function handleReload() {
     const res = await getCore(loader, args);
@@ -81,4 +90,12 @@ export function getServerStatus() {
 
 export function useServerStatus() {
   return useCore(serverStatusLoader, {})
+}
+
+export function getDatabaseList(args) {
+  return getCore(databaseListLoader, args);
+}
+
+export function useDatabaseList(args) {
+  return useCore(databaseListLoader, args);
 }

@@ -2,9 +2,10 @@ import {defineStore} from 'pinia'
 import {
   getConnectionInfo,
   getConnectionList,
-  useServerStatus
-} from '/@/second/utility/metadataLoaders'
-
+  useServerStatus,
+  getDatabaseList,
+} from '/@/api/metadataLoaders'
+import {TablesNameSort} from '/@/second/typings/mysql'
 export enum metadataLoadersKey {
   connections = 'connections',
 }
@@ -12,11 +13,15 @@ export enum metadataLoadersKey {
 export const metadataLoadersStore = defineStore({
   id: 'app-metadataLoaders',
   state: () => ({
-    connections: []
+    connections: [],
+    databases: []
   }),
   getters: {
     connectionsWithStatus(): unknown[] {
       return this.connections || []
+    },
+    getDatabaseList(): TablesNameSort[] {
+      return this.databases
     }
   },
   actions: {
@@ -33,8 +38,19 @@ export const metadataLoadersStore = defineStore({
       this.connections = value
     },
     async onServerStatus() {
-      const data = await useServerStatus()
-      console.log(`fnksdnfksnksg`, data)
+      const serverStatus = await useServerStatus()
+      if (this.connections && serverStatus) {
+        // @ts-ignore
+        this.connections = this.connections.map(conn => ({...conn, status: serverStatus[conn._id]}))
+      }
     },
+    subscribeDatabaseList(value) {
+      this.databases = value
+    },
+    async onCacheDatabaseList(conid) {
+      const data = await getDatabaseList(conid)
+      console.log(`onCacheDatabaseList line 54`, data)
+      this.databases = data
+    }
   }
 })
