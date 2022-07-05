@@ -76,7 +76,10 @@ export default defineComponent({
           name: unref(data)!.defaultDatabase
         } as unknown as IPinnedDatabasesItem)
       } else {
+
+
         dataBase.subscribeOpenedConnections(uniq([...dataBase.$state.openedConnections, unref(data)!._id]))
+        console.log("fsjfdsdafjsfsdf", unref(data))
       }
     }
 

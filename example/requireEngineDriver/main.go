@@ -29,10 +29,3 @@ func f3() (r int) {
 	}(r)
 	return 1
 }
-
-func main() {
-	println(f())
-	println(f1())
-	println(f2())
-	println(f3())
-}
