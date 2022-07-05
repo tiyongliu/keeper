@@ -1,6 +1,5 @@
 import {EventsOn} from '/@/wailsjs/runtime/runtime'
 import {metadataLoadersStore} from "/@/store/modules/metadataLoaders"
-
 const metadataLoaders = metadataLoadersStore()
 
 export function connectionListChangedEvent() {
@@ -16,10 +15,15 @@ export function connectionListChangedEvent() {
 }
 
 
-
-
 export function serverStatusChangedEvent() {
-  EventsOn('server-status-changed', async _ => {
-    await metadataLoaders.onServerStatus()
+  EventsOn('server-status-changed',  _ => {
+    void metadataLoaders.onServerStatus()
+  })
+}
+
+
+export function databaseListChangedEvent() {
+  EventsOn('database-list-changed', conid => {
+    void metadataLoaders.onCacheDatabaseList(conid)
   })
 }
