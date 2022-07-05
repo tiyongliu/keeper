@@ -7,14 +7,6 @@ type SimpleSettingMysql struct {
 	Port     string `json:"port"`
 }
 
-/*
-[0] {
-[0]   server: 'localhost',
-[0]   engine: 'mysql@dbgate-plugin-mysql',
-[0]   sshMode: 'userPassword',
-[0]   sshPort: '22',
-[0]   sshKeyfile: '/Users/liuliutiyong/.ssh/id_rsa',
-[0]   user: 'root',
-[0]   password: '123456'
-[0] }
-*/
+type MysqlDatabase struct {
+	Name string `json:"name"`
+}

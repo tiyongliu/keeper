@@ -1,7 +1,6 @@
 package serializer
 
 import (
-	"context"
 	"time"
 )
 
@@ -19,7 +18,7 @@ const (
 	StatusCodeFailed
 )
 
-func SuccessData(ctx context.Context, message string, data interface{}) *Response {
+func SuccessData(message string, data interface{}) *Response {
 	return &Response{
 		Status:  StatusCodeSuccess,
 		Result:  data,
@@ -28,7 +27,7 @@ func SuccessData(ctx context.Context, message string, data interface{}) *Respons
 	}
 }
 
-func Fail(ctx context.Context, message string) *Response {
+func Fail(message string) *Response {
 	return &Response{
 		Status:  StatusCodeFailed,
 		Result:  nil,

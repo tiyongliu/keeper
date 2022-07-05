@@ -1,6 +1,7 @@
 package modules
 
 type EchoMessage struct {
-	Payload interface{}
-	MsgType string
+	Payload interface{} `json:"payload"`
+	MsgType string      `json:"msgType"`
+	Dialect string      `json:"dialect"`
 }
