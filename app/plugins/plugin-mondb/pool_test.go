@@ -9,8 +9,8 @@ import (
 
 func TestListDatabases(t *testing.T) {
 	pool, err := NewSimpleMongoDBPool(&modules.SimpleSettingMongoDB{
-		Host:     "localhost",
-		Port:     "27017",
+		Host: "localhost",
+		Port: "27017",
 	})
 
 	if err != nil {
