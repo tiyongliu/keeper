@@ -87,7 +87,9 @@ func decryptPasswordField(connection map[string]string, field string) map[string
 	if connection != nil &&
 		connection[field] != "" &&
 		strings.HasPrefix(connection[field], "crypt:") {
-		connection[field] = getEncryptor().decrypt(strings.Split(connection[field], "crypt:")[1])
+		decrypt := getEncryptor().decrypt(strings.Split(connection[field], "crypt:")[1])
+		//TODO "123456" 需要去掉前后的“”, 当前只是剔除前后空格
+		connection[field] = decrypt[1 : len(decrypt)-1]
 	}
 
 	return connection

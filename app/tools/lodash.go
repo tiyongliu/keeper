@@ -1,6 +1,9 @@
 package tools
 
-import "os"
+import (
+	"github.com/samber/lo"
+	"os"
+)
 
 func IsExist(path string) bool {
 	_, err := os.Stat(path)
@@ -18,7 +21,7 @@ func IsExist(path string) bool {
 
 func MapOmit(object map[string]string, paths []string) map[string]string {
 	for key := range object {
-		if StringsIncludes(paths, key) {
+		if lo.Contains[string](paths, key) {
 			delete(object, key)
 		}
 	}
@@ -41,10 +44,14 @@ func MapValues(object map[string]string, iteratee func(k, v interface{}) interfa
 func FilterUnknownMap(object map[string]interface{}, keys ...string) map[string]interface{} {
 	result := map[string]interface{}{}
 	for key, value := range object {
-		if !StringsIncludes(keys, key) {
+		if !lo.Contains[string](keys, key) {
 			result[key] = value
 		}
 	}
 
 	return result
+}
+
+func KeyBy(collection []map[string]interface{}, iteratee string) {
+
 }
