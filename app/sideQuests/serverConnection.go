@@ -31,6 +31,8 @@ type MessageDriverHandlers struct {
 }
 
 func NewMessageDriverHandlers(ch chan *modules.EchoMessage) *MessageDriverHandlers {
+	//childProcessChecker(ch)
+	setInterval(ch)
 	return &MessageDriverHandlers{
 		Ch: ch,
 	}
@@ -40,14 +42,17 @@ func NewMessageDriverHandlers(ch chan *modules.EchoMessage) *MessageDriverHandle
 定时器 是当你想要在未来某一刻执行一次时使用的
 打点器 则是当你想要在固定的时间间隔重复执行准备的。这里是一个打点器的例子，它将定时的执行，直到我们将它停止。
 */
-func (msg *MessageDriverHandlers) Start() {
+func setInterval(ch chan *modules.EchoMessage) {
 	ticker := time.NewTicker(time.Minute)
 	go func() {
 		for range ticker.C {
 			nowTime := time.Now().Unix()
 			if code.UnixTime(nowTime)-lastPing > code.UnixTime(120*1000) {
 				logger.Info("Server connection not alive, exiting")
-				//todo process.exit(0);
+				ch <- &modules.EchoMessage{
+					Payload: serializer.StatusCodeFailed,
+					MsgType: "exit",
+				}
 				ticker.Stop()
 			}
 		}
