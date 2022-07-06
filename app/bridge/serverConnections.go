@@ -95,7 +95,7 @@ func (sc *ServerConnections) ensureOpened(conid string) map[string]interface{} {
 		return existing
 	}
 
-	connection := sc.getCore(conid, false)
+	connection := getCore(conid, false)
 
 	newOpened := map[string]interface{}{
 		conidkey:       conid,
@@ -129,14 +129,6 @@ func (sc *ServerConnections) ListDatabases(request string) interface{} {
 	logger.Infof("opened: %s", tools.ToJsonStr(opened))
 
 	return serializer.SuccessData(serializer.SUCCESS, opened["databases"])
-}
-
-func (sc *ServerConnections) getCore(conid string, mask bool) map[string]interface{} {
-	if conid == "" {
-		return nil
-	}
-
-	return JsonLinesDatabase.Get(conid)
 }
 
 func (sc *ServerConnections) ServerStatus() interface{} {
