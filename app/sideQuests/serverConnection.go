@@ -15,28 +15,28 @@ import (
 	"github.com/mitchellh/mapstructure"
 )
 
-var lastStatus string
-var lastPing code.UnixTime
-var lastDatabases string
+var serverlastStatus string
+var serverlastPing code.UnixTime
+var serverlastDatabases string
 
 type StatusMessage struct {
 	Name    string `json:"name"`
 	Message string `json:"message"`
 }
 
-type MessageDriverHandlers struct {
+type ServerConnectionHandlers struct {
 	Mysql standard.SqlStandard
 	Mongo standard.SqlStandard
 	Ch    chan *modules.EchoMessage
 }
 
-func NewMessageDriverHandlers(ch chan *modules.EchoMessage) *MessageDriverHandlers {
+func NewServerConnectionHandlers(ch chan *modules.EchoMessage) *ServerConnectionHandlers {
 	//childProcessChecker(ch)
 	setInterval(func() {
 		close(ch)
 	})
 
-	return &MessageDriverHandlers{
+	return &ServerConnectionHandlers{
 		Ch: ch,
 	}
 }
@@ -50,7 +50,7 @@ func setInterval(fn func()) {
 	go func() {
 		for range ticker.C {
 			nowTime := time.Now().Unix()
-			if code.UnixTime(nowTime)-lastPing > code.UnixTime(120*1000) {
+			if code.UnixTime(nowTime)-serverlastPing > code.UnixTime(120*1000) {
 				fn()
 				ticker.Stop()
 			}
@@ -59,9 +59,9 @@ func setInterval(fn func()) {
 
 }
 
-func (msg *MessageDriverHandlers) Connect(connection map[string]interface{}) {
+func (msg *ServerConnectionHandlers) Connect(connection map[string]interface{}) {
 	msg.setStatusName("pending")
-	lastPing = code.UnixTime(time.Now().Unix())
+	serverlastPing = code.UnixTime(time.Now().Unix())
 	//TODO request to dbEngineDriver
 	//utility.RequireEngineDriver(connection)
 
@@ -120,15 +120,15 @@ func (msg *MessageDriverHandlers) Connect(connection map[string]interface{}) {
 	msg.setStatusName("ok")
 }
 
-func (msg *MessageDriverHandlers) Ping() code.UnixTime {
+func (msg *ServerConnectionHandlers) Ping() code.UnixTime {
 	return code.UnixTime(time.Now().Unix())
 }
 
-func (msg *MessageDriverHandlers) CreateDatabase() {
+func (msg *ServerConnectionHandlers) CreateDatabase() {
 
 }
 
-func (msg *MessageDriverHandlers) setStatusName(name string, message ...string) {
+func (msg *ServerConnectionHandlers) setStatusName(name string, message ...string) {
 	if len(message) == 0 {
 		msg.setStatus(&StatusMessage{name, ""})
 	} else {
@@ -136,14 +136,14 @@ func (msg *MessageDriverHandlers) setStatusName(name string, message ...string) 
 	}
 }
 
-func (msg *MessageDriverHandlers) setStatus(status *StatusMessage) {
+func (msg *ServerConnectionHandlers) setStatus(status *StatusMessage) {
 	statusString := tools.ToJsonStr(status)
-	if lastStatus != statusString {
+	if serverlastStatus != statusString {
 		msg.Ch <- &modules.EchoMessage{
 			MsgType: "status",
 			Payload: status,
 		}
-		lastStatus = statusString
+		serverlastStatus = statusString
 	}
 }
 
@@ -181,7 +181,7 @@ func connectUtility(connection map[string]interface{}) map[string]string {
 	return utility.DecryptConnection(tools.TransformStringMap(connection))
 }
 
-func (msg *MessageDriverHandlers) readVersion(pool standard.SqlStandard) error {
+func (msg *ServerConnectionHandlers) readVersion(pool standard.SqlStandard) error {
 	version, err := pool.GetVersion()
 	if err != nil {
 		return err
@@ -195,7 +195,7 @@ func (msg *MessageDriverHandlers) readVersion(pool standard.SqlStandard) error {
 	return nil
 }
 
-func (msg *MessageDriverHandlers) handleRefresh(pool standard.SqlStandard) error {
+func (msg *ServerConnectionHandlers) handleRefresh(pool standard.SqlStandard) error {
 	databases, err := pool.ListDatabases()
 	msg.setStatusName("ok")
 	databasesString := tools.ToJsonStr(databases)
@@ -205,20 +205,20 @@ func (msg *MessageDriverHandlers) handleRefresh(pool standard.SqlStandard) error
 
 	logger.Infof("chan handleRefresh databases -<: %s", tools.ToJsonStr(databases))
 
-	if lastDatabases != databasesString {
+	if serverlastDatabases != databasesString {
 		//TODO send
 		msg.Ch <- &modules.EchoMessage{
 			Payload: databases,
 			MsgType: "databases",
 			Dialect: pool.Dialect(),
 		}
-		lastDatabases = databasesString
+		serverlastDatabases = databasesString
 	}
 
 	return nil
 }
 
-func (msg *MessageDriverHandlers) errorExit() {
+func (msg *ServerConnectionHandlers) errorExit() {
 	defer close(msg.Ch)
 	timer := time.AfterFunc(1*time.Second, func() {
 		msg.Ch <- &modules.EchoMessage{

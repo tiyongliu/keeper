@@ -112,7 +112,7 @@ func (sc *ServerConnections) ensureOpened(conid string) map[string]interface{} {
 	}
 
 	ch := make(chan *modules.EchoMessage)
-	go sideQuests.NewMessageDriverHandlers(ch).Connect(connection)
+	go sideQuests.NewServerConnectionHandlers(ch).Connect(connection)
 	go sc.consumer(newOpened, ch)
 
 	return newOpened
@@ -194,12 +194,12 @@ func (sc *ServerConnections) Close(conid string, kill bool) {
 	}
 }
 
-type RefreshRequest struct {
+type ServerRefreshRequest struct {
 	Conid    string `json:"conid"`
 	KeepOpen bool   `json:"keepOpen"`
 }
 
-func (sc *ServerConnections) Refresh(req *RefreshRequest) interface{} {
+func (sc *ServerConnections) Refresh(req *ServerRefreshRequest) interface{} {
 	if !req.KeepOpen {
 		sc.Close(req.Conid, true)
 	}
