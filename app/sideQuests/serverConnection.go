@@ -32,7 +32,10 @@ type MessageDriverHandlers struct {
 
 func NewMessageDriverHandlers(ch chan *modules.EchoMessage) *MessageDriverHandlers {
 	//childProcessChecker(ch)
-	setInterval(ch)
+	setInterval(func() {
+		close(ch)
+	})
+
 	return &MessageDriverHandlers{
 		Ch: ch,
 	}
@@ -42,17 +45,13 @@ func NewMessageDriverHandlers(ch chan *modules.EchoMessage) *MessageDriverHandle
 定时器 是当你想要在未来某一刻执行一次时使用的
 打点器 则是当你想要在固定的时间间隔重复执行准备的。这里是一个打点器的例子，它将定时的执行，直到我们将它停止。
 */
-func setInterval(ch chan *modules.EchoMessage) {
+func setInterval(fn func()) {
 	ticker := time.NewTicker(time.Minute)
 	go func() {
 		for range ticker.C {
 			nowTime := time.Now().Unix()
 			if code.UnixTime(nowTime)-lastPing > code.UnixTime(120*1000) {
-				logger.Info("Server connection not alive, exiting")
-				ch <- &modules.EchoMessage{
-					Payload: serializer.StatusCodeFailed,
-					MsgType: "exit",
-				}
+				fn()
 				ticker.Stop()
 			}
 		}
@@ -63,7 +62,6 @@ func setInterval(ch chan *modules.EchoMessage) {
 func (msg *MessageDriverHandlers) Connect(connection map[string]interface{}) {
 	msg.setStatusName("pending")
 	lastPing = code.UnixTime(time.Now().Unix())
-	logger.Info("1 info logger to =======================================")
 	//TODO request to dbEngineDriver
 	//utility.RequireEngineDriver(connection)
 
@@ -72,7 +70,7 @@ func (msg *MessageDriverHandlers) Connect(connection map[string]interface{}) {
 	if err != nil {
 		return
 	}
-	logger.Info("2 info logger to =======================================")
+
 	//TODO connectUtility, 可以传递一个func 因为返回值都是一样的，在func内部进行处理
 	var driver standard.SqlStandard
 	switch connection["engine"].(string) {
@@ -100,7 +98,7 @@ func (msg *MessageDriverHandlers) Connect(connection map[string]interface{}) {
 		}
 		msg.Mongo = driver
 	}
-	logger.Info("3 info logger to =======================================")
+
 	if err := msg.readVersion(driver); err != nil {
 		msg.setStatus(&StatusMessage{
 			Name:    "error",
@@ -110,7 +108,6 @@ func (msg *MessageDriverHandlers) Connect(connection map[string]interface{}) {
 		return
 	}
 
-	logger.Info("4 info logger to =======================================")
 	if err := msg.handleRefresh(driver); err != nil {
 		msg.setStatus(&StatusMessage{
 			Name:    "error",
@@ -120,7 +117,6 @@ func (msg *MessageDriverHandlers) Connect(connection map[string]interface{}) {
 		return
 	}
 
-	logger.Info("5 info logger to =======================================")
 	msg.setStatusName("ok")
 }
 
