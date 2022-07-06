@@ -39,6 +39,14 @@ func NewConnections() *Connections {
 	return ConnectionsBridge
 }
 
+func getCore(conid string, mask bool) map[string]interface{} {
+	if conid == "" {
+		return nil
+	}
+
+	return JsonLinesDatabase.Get(conid)
+}
+
 func (conn *Connections) Test(connection map[string]interface{}) interface{} {
 	if connection["engine"].(string) == code.MYSQLALIAS {
 		simpleSettingMysql := &modules.SimpleSettingMysql{}
