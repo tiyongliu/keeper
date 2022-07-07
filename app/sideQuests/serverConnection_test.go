@@ -2,7 +2,6 @@ package sideQuests
 
 import (
 	"fmt"
-	"github.com/samber/lo"
 	"testing"
 )
 
@@ -17,41 +16,4 @@ func TestConnectUtility(t *testing.T) {
 	})
 
 	fmt.Println(connection)
-}
-
-func TestContains(t *testing.T) {
-	fmt.Println(lo.Contains[string]([]string{"0", "1", "2", "3", "4", "5"}, "1"))
-}
-
-var b []map[string]interface{}
-
-func TestKeyBy(t *testing.T) {
-	b = append(b, map[string]interface{}{
-		"connid": "123",
-	})
-
-	b = append(b, map[string]interface{}{
-		"connid": "456",
-	})
-
-	by := lo.KeyBy[string, map[string]interface{}](b, func(m map[string]interface{}) string {
-		return "conid"
-	})
-	fmt.Println(by)
-}
-
-func TestMapValues(t *testing.T) {
-	m1 := map[string]interface{}{
-		"_id":    "75f6c2d7-65fd-4d8f-afa1-8cd615ee153b",
-		"engine": "mongo",
-		"host":   "localhost",
-		"port":   "27017",
-	}
-
-	m2 := lo.MapValues[string, interface{}, string](m1, func(x interface{}, r string) string {
-		fmt.Println(x, r)
-		return "status"
-	})
-
-	fmt.Println(m2)
 }
