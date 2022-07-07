@@ -3,7 +3,7 @@ import {
   getConnectionInfo,
   getConnectionList,
   useServerStatus,
-  getDatabaseList,
+  useDatabaseList,
 } from '/@/api/metadataLoaders'
 import {TablesNameSort} from '/@/second/typings/mysql'
 export enum metadataLoadersKey {
@@ -48,7 +48,8 @@ export const metadataLoadersStore = defineStore({
       this.databases = value
     },
     async onCacheDatabaseList(conid) {
-      const data = await getDatabaseList(conid)
+      // const data = await getDatabaseList(conid)
+      const data = await useDatabaseList(conid)
       console.log(`onCacheDatabaseList line 54`, data)
       this.databases = data
     }

@@ -1,10 +1,10 @@
 package logger_test
 
 import (
-	"system/pkg/logger"
+	"keeper/app/pkg/logger"
 	"testing"
 )
 
 func TestInitLogger(t *testing.T) {
-	logger.Info("test")
+	logger.Infof("test")
 }
