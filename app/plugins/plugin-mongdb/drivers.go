@@ -7,9 +7,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"keeper/app/code"
 	"keeper/app/modules"
-	"keeper/app/pkg/logger"
 	"keeper/app/pkg/standard"
-	"keeper/app/tools"
 )
 
 type MongoDBDrivers struct {
@@ -73,6 +71,9 @@ func (mg *MongoDBDrivers) Tables() (interface{}, error) {
 		})
 	}
 
-	logger.Infof("list %s", tools.ToJsonStr(collections))
 	return collections, nil
+}
+
+func (mg *MongoDBDrivers) Columns(databaseName, tableName string) (interface{}, error) {
+	return nil, nil
 }

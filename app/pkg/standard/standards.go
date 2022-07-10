@@ -8,4 +8,5 @@ type SqlStandard interface {
 	ListDatabases() (interface{}, error)
 	Close() error
 	Tables() (interface{}, error)
+	Columns(databaseName, tableName string) (interface{}, error)
 }
