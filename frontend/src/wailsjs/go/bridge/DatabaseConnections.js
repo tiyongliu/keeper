@@ -5,3 +5,11 @@
 export function Refresh(arg1) {
   window['go']['bridge']['DatabaseConnections']['Refresh'](arg1);
 }
+
+export function Structure(arg1, arg2) {
+  return window['go']['bridge']['DatabaseConnections']['Structure'](arg1, arg2);
+}
+
+export function Ping(arg1) {
+  return window['go']['bridge']['DatabaseConnections']['Ping'](arg1);
+}
