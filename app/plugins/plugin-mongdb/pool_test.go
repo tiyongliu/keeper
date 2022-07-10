@@ -3,6 +3,7 @@ package plugin_mongdb
 import (
 	"fmt"
 	"keeper/app/modules"
+	"keeper/app/pkg/logger"
 	"keeper/app/tools"
 	"testing"
 )
@@ -27,7 +28,7 @@ func TestListDatabases(t *testing.T) {
 	fmt.Println(tools.ToJsonStr(databases))
 }
 
-func TestCollection(t *testing.T) {
+func TestTables(t *testing.T) {
 	pool, err := NewSimpleMongoDBPool(&modules.SimpleSettingMongoDB{
 		Host: "localhost",
 		Port: "27017",
@@ -37,5 +38,8 @@ func TestCollection(t *testing.T) {
 		fmt.Printf("err: %v \n", err)
 		return
 	}
-	pool.Tables()
+	tables, err := pool.Tables()
+	if err == nil {
+		logger.Infof("list %s", tools.ToJsonStr(tables))
+	}
 }
