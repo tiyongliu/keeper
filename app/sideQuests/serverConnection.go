@@ -6,7 +6,7 @@ import (
 	"keeper/app/pkg/logger"
 	"keeper/app/pkg/serializer"
 	"keeper/app/pkg/standard"
-	plugin_mondb "keeper/app/plugins/plugin-mondb"
+	plugin_mondb "keeper/app/plugins/plugin-mongdb"
 	plugin_mysql "keeper/app/plugins/plugin-mysql"
 	"keeper/app/tools"
 	"keeper/app/utility"

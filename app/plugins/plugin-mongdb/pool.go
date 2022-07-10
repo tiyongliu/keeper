@@ -1,4 +1,4 @@
-package plugin_mondb
+package plugin_mongdb
 
 import (
 	"bytes"
