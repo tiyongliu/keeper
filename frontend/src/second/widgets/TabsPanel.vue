@@ -4,7 +4,6 @@
       <div class="db-wrapper">
         <div class="db-name">
           <div class="db-name-inner">
-            <FontIcon></FontIcon>
             <FontIcon icon="icon lock" />
           </div>
           <div class="close-button-right tabCloseButton">

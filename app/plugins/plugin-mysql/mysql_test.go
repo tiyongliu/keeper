@@ -79,3 +79,19 @@ func TestListDatabases(t *testing.T) {
 
 	fmt.Println(tools.ToJsonStr(TransformListDatabases(lastDatabases.([]string))))
 }
+
+func TestTable(t *testing.T) {
+	pool, err := NewSimpleMysqlPool(&modules.SimpleSettingMysql{
+		Host:     "localhost",
+		Username: "root",
+		Password: "123456",
+		Port:     "3306",
+	})
+
+	if err != nil {
+		fmt.Printf("err: %v \n", err)
+	}
+
+	defer pool.Close()
+	pool.Tables()
+}
