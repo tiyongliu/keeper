@@ -1,4 +1,4 @@
-package plugin_mondb
+package plugin_mongdb
 
 import (
 	"fmt"
@@ -25,4 +25,17 @@ func TestListDatabases(t *testing.T) {
 	}
 
 	fmt.Println(tools.ToJsonStr(databases))
+}
+
+func TestCollection(t *testing.T) {
+	pool, err := NewSimpleMongoDBPool(&modules.SimpleSettingMongoDB{
+		Host: "localhost",
+		Port: "27017",
+	})
+
+	if err != nil {
+		fmt.Printf("err: %v \n", err)
+		return
+	}
+	pool.Tables()
 }

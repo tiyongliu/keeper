@@ -8,26 +8,32 @@
   </div>
 
   <Layout :class="prefixCls" v-bind="lockEvents">
-    <div class="iconbar svelte-1veekw4">
+    <div class="iconbar">
       <WidgetIconPanel @con="con"/>
     </div>
-    <div class="statusbar svelte-1veekw4">iconbar</div>
+    <div class="statusbar">iconbar</div>
     <!--    <div class="statusbar svelte-1veekw4"><StatusBar></StatusBar></div>-->
-    <div class="leftpanel svelte-1veekw4">
+    <div class="leftpanel">
       <!--      <AppDarkModeToggle class="mx-auto" />-->
 
       <WidgetContainer :isShow="isShow"/>
     </div>
-    <div class="tabs svelte-1veekw4">
+    <div class="tabs">
       <!--      <TabsPanel/>-->
       <LayoutHeader />
     </div>
-    <div class="content svelte-1veekw4">content
+    <div class="content">content
     </div>
-    <div class="horizontal-split-handle splitter svelte-1veekw4"
+    <div class="horizontal-split-handle splitter"
          v-splitterDrag="'clientX'"
          :resizeSplitter="(e) => cssVariable.setLeftPanelWidth(e.detail)">
     </div>
+
+
+    <VueDragResize :isActive="true" :w="200" :h="200">
+      <h3>Hello World!</h3>
+    </VueDragResize>
+
     <CurrentDropDownMenu />
     <div class="snackbar-container">snackbar-container</div>
   </Layout>
@@ -76,7 +82,7 @@ import { defineComponent, computed, unref, onMounted ,ref} from 'vue';
       WidgetIconPanel,
       CurrentDropDownMenu,
       StatusBar,
-      TabsPanel
+      TabsPanel,
     },
     setup() {
       const { prefixCls } = useDesign('default-layout');
@@ -97,9 +103,9 @@ import { defineComponent, computed, unref, onMounted ,ref} from 'vue';
 
       const cssVariable = cssVariableStore();
       onMounted(() => {
-        cssVariable.subscribeCssVariable(cssVariable.getSelectedWidget,x => (x ? 1 : 0), '--dim-visible-left-panel')
-        cssVariable.subscribeCssVariable(cssVariable.getLeftPanelWidth,x => `${x}px`, '--dim-left-panel-width')
-        cssVariable.subscribeCssVariable(cssVariable.getVisibleTitleBar,x => (x ? 1 : 0), '--dim-visible-titlebar')
+        cssVariable.subscribeCssVariable(cssVariable.$state.selectedWidget,x => (x ? 1 : 0), '--dim-visible-left-panel')
+        cssVariable.subscribeCssVariable(cssVariable.$state.leftPanelWidth,x => `${x}px`, '--dim-left-panel-width')
+        cssVariable.subscribeCssVariable(cssVariable.$state.visibleTitleBar,x => (x ? 1 : 0), '--dim-visible-titlebar')
 
         //https://www.npmjs.com/package/resize-observer-polyfill
         // import ResizeObserver from 'resize-observer-polyfill';

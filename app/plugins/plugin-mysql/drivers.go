@@ -6,6 +6,7 @@ import (
 	"keeper/app/code"
 	"keeper/app/pkg/logger"
 	"keeper/app/pkg/standard"
+	"keeper/app/tools"
 	"regexp"
 )
 
@@ -69,4 +70,38 @@ func (mysql *MysqlDrivers) Close() error {
 		return err
 	}
 	return db.Close()
+}
+
+type TableSchema struct {
+	PureName      string `json:"pureName"`
+	ObjectType    string `json:"objectType"`
+	TableRowCount int    `json:"tableRowCount"`
+	ModifyDate    string `json:"modifyDate"`
+}
+
+func (mysql *MysqlDrivers) Tables() (interface{}, error) {
+	var tableSchemas []*TableSchema
+	rows, err := mysql.DB.Raw(tableModifications(), "shop_go").Rows()
+	if err != nil {
+		logger.Errorf("err: %v", err)
+		return nil, err
+	}
+
+	for rows.Next() {
+		var pureName, objectType, modifyDate string
+		var tableRowCount int
+		if err := rows.Scan(&pureName, &objectType, &tableRowCount, &modifyDate); err != nil {
+			logger.Errorf("err: %v", err)
+			return nil, err
+		}
+
+		tableSchemas = append(tableSchemas, &TableSchema{
+			PureName:      pureName,
+			ObjectType:    objectType,
+			TableRowCount: tableRowCount,
+			ModifyDate:    modifyDate,
+		})
+	}
+	logger.Infof("%s", tools.ToJsonStr(tableSchemas))
+	return tableSchemas, nil
 }
