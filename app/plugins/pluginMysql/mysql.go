@@ -1,4 +1,4 @@
-package plugin_mysql
+package pluginMysql
 
 import (
 	"database/sql"
