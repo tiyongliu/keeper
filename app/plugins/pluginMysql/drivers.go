@@ -1,4 +1,4 @@
-package plugin_mysql
+package pluginMysql
 
 import (
 	"fmt"
@@ -74,7 +74,7 @@ func (mysql *MysqlDrivers) Close() error {
 
 func (mysql *MysqlDrivers) Tables() (interface{}, error) {
 	var tableSchemas []*modules.MysqlTableSchema
-	rows, err := mysql.DB.Raw(tableModifications(), "shop_go").Rows()
+	rows, err := mysql.DB.Raw(tableModificationsSQL(), "shop_go").Rows()
 	if err != nil {
 		return nil, err
 	}
@@ -98,7 +98,7 @@ func (mysql *MysqlDrivers) Tables() (interface{}, error) {
 
 func (mysql *MysqlDrivers) Columns(databaseName, tableName string) (interface{}, error) {
 	var columns []*modules.MysqlTableColumn
-	rows, err := mysql.DB.Raw(informationSchemaColumns(), databaseName, tableName).Rows()
+	rows, err := mysql.DB.Raw(columnsSQL(), databaseName, tableName).Rows()
 	if err != nil {
 		return nil, err
 	}
@@ -141,7 +141,7 @@ func (mysql *MysqlDrivers) Columns(databaseName, tableName string) (interface{},
 
 func (mysql *MysqlDrivers) PrimaryKeys(databaseName, tableName string) (interface{}, error) {
 	var primaryKeys []*modules.MysqlPrimaryKey
-	rows, err := mysql.DB.Raw(informationSchemaColumnsPrimaryKeys(), databaseName, tableName).Rows()
+	rows, err := mysql.DB.Raw(primaryKeysSQL(), databaseName, tableName).Rows()
 	if err != nil {
 		return nil, err
 	}
