@@ -201,9 +201,9 @@ export function buildExtensions(plugins = [
                                       "build:frontend:watch": "webpack --watch --config webpack-frontend.config",
                                       "build:backend": "webpack --config webpack-backend.config.js",
                                       "build": "yarn build:frontend && yarn build:backend",
-                                      "plugin": "yarn build && yarn pack && dbgate-plugin dbgate-plugin-mysql",
-                                      "copydist": "yarn build && yarn pack && dbgate-copydist ../dist/dbgate-plugin-mysql",
-                                      "plugout": "dbgate-plugout dbgate-plugin-mysql",
+                                      "plugin": "yarn build && yarn pack && dbgate-plugin dbgate-pluginMysql",
+                                      "copydist": "yarn build && yarn pack && dbgate-copydist ../dist/dbgate-pluginMysql",
+                                      "plugout": "dbgate-plugout dbgate-pluginMysql",
                                       "prepublishOnly": "yarn build"
                                     },
                                     "devDependencies": {
@@ -214,7 +214,7 @@ export function buildExtensions(plugins = [
                                       "dbgate-tools": "^4.1.1",
                                       "mysql2": "^2.2.5"
                                     },
-                                    "readme": "[![styled with prettier](https://img.shields.io/badge/styled_with-prettier-ff69b4.svg)](https://github.com/prettier/prettier)\r\n[![NPM version](https://img.shields.io/npm/v/dbgate-plugin-mysql.svg)](https://www.npmjs.com/package/dbgate-plugin-mysql)\r\n\r\n# dbgate-plugin-mysql\r\n\r\nUse DbGate for install of this plugin\r\n",
+                                    "readme": "[![styled with prettier](https://img.shields.io/badge/styled_with-prettier-ff69b4.svg)](https://github.com/prettier/prettier)\r\n[![NPM version](https://img.shields.io/npm/v/dbgate-plugin-mysql.svg)](https://www.npmjs.com/package/dbgate-plugin-mysql)\r\n\r\n# dbgate-pluginMysql\r\n\r\nUse DbGate for install of this plugin\r\n",
                                     "isPackaged": true
                                   },
                                   {
