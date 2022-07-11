@@ -1,4 +1,4 @@
-package plugin_mongdb
+package pluginMongdb
 
 import (
 	"context"

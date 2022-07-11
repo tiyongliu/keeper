@@ -1,13 +1,22 @@
-package plugin_mysql
+package pluginMysql
 
-func tableModifications() string {
-	return `select 
-	TABLE_NAME as pureName, 
-	TABLE_TYPE as objectType,
+/*
+select
+	TABLE_NAME as pureName,
 	TABLE_ROWS as tableRowCount,
-	case when ENGINE='InnoDB' then CREATE_TIME else coalesce(UPDATE_TIME, CREATE_TIME) end as modifyDate 
-from information_schema.tables 
-where TABLE_SCHEMA = ?`
+	case when ENGINE='InnoDB' then CREATE_TIME else coalesce(UPDATE_TIME, CREATE_TIME) end as modifyDate
+from information_schema.tables
+where TABLE_SCHEMA = '#DATABASE#' and TABLE_TYPE='BASE TABLE' and TABLE_NAME =OBJECT_ID_CONDITION;
+*/
+func tablesSQL() string {
+	return `
+	select
+		TABLE_NAME as pureName,
+		TABLE_ROWS as tableRowCount,
+		case when ENGINE='InnoDB' then CREATE_TIME else coalesce(UPDATE_TIME, CREATE_TIME) end as modifyDate
+	from information_schema.tables
+	where TABLE_SCHEMA = '#DATABASE#' and TABLE_TYPE='BASE TABLE' and TABLE_NAME =OBJECT_ID_CONDITION;
+`
 }
 
 /*
@@ -29,7 +38,7 @@ WHERE
 	TABLE_SCHEMA = 'yami_shops'
 	AND TABLE_NAME = 'tz_sku'
 */
-func informationSchemaColumns() string {
+func columnsSQL() string {
 	return `
 		SELECT
             TABLE_NAME AS pureName,
@@ -69,7 +78,7 @@ WHERE
 ORDER BY
 	KEY_COLUMN_USAGE.ORDINAL_POSITION
 */
-func informationSchemaColumnsPrimaryKeys() string {
+func primaryKeysSQL() string {
 	return `SELECT
 		TABLE_CONSTRAINTS.CONSTRAINT_NAME AS constraintName,
 		TABLE_CONSTRAINTS.TABLE_NAME AS pureName,
@@ -85,4 +94,17 @@ func informationSchemaColumnsPrimaryKeys() string {
 		AND TABLE_CONSTRAINTS.CONSTRAINT_TYPE = 'PRIMARY KEY' 
 	ORDER BY
 		KEY_COLUMN_USAGE.ORDINAL_POSITION`
+}
+
+func foreignKeysSQL() {
+
+}
+func tableModificationsSQL() string {
+	return `select 
+	TABLE_NAME as pureName, 
+	TABLE_TYPE as objectType,
+	TABLE_ROWS as tableRowCount,
+	case when ENGINE='InnoDB' then CREATE_TIME else coalesce(UPDATE_TIME, CREATE_TIME) end as modifyDate 
+from information_schema.tables 
+where TABLE_SCHEMA = ?`
 }
