@@ -7,6 +7,6 @@ type SqlStandard interface {
 	GetVersion() (interface{}, error)
 	ListDatabases() (interface{}, error)
 	Close() error
-	Tables() (interface{}, error)
+	Tables(databaseName, tableName string) (interface{}, error)
 	Columns(databaseName, tableName string) (interface{}, error)
 }
