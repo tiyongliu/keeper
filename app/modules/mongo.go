@@ -21,3 +21,8 @@ type MongoDBDatabaseList struct {
 	TotalSize int                `bson:"totalSize" json:"totalSize"`
 	Ok        int                `bson:"ok" json:"ok"`
 }
+
+type MongoDBCollection struct {
+	PureName string `json:"pureName"`
+	Engine   string `json:"engine"`
+}

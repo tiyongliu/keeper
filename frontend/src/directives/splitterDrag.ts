@@ -1,34 +1,36 @@
 import type { App, Directive } from "vue";
-
+import {debounce} from 'lodash-es'
 const splitterDrag: Directive = {
   // 在绑定元素的 attribute 或事件监听器被应用之前调用, 在指令需要附加须要在普通的 v-on 事件监听器前调用的事件监听器时，这很有用
   created() {},
   // 当指令第一次绑定到元素并且在挂载父组件之前调用
   beforeMount() {},
   mounted(el, bindings, ...arg) {
-    let resizeStart = null;
-    const { value } = bindings;
-    const axes = value;
-    const { props } = arg[0];
+    let resizeStart = null
+    const { value } = bindings
+    const axes = value
+    const { props } = arg[0]
 
     el.addEventListener("mousedown", (event) => {
-      resizeStart = event[axes];
+      resizeStart = event[axes]
 
       document.onmousemove = (e) => {
         e.preventDefault();
         const diff = e[axes] - resizeStart!;
         resizeStart = e[axes];
-        props!.resizeSplitter && props!.resizeSplitter({
-          detail: diff,
-        });
-      };
+        // props!.resizeSplitter && props!.resizeSplitter({
+        //   detail: diff,
+        // })
+      }
+
       document.onmouseup = (e) => {
         e.preventDefault();
         resizeStart = null;
         document.onmousemove = null;
         document.onmouseup = null;
-      };
-    });
+      }
+
+    })
   },
   // 在更新包含组件的 VNode 之前调用
   beforeUpdate() {},
