@@ -57,25 +57,6 @@ func TestPool(t *testing.T) {
 	fmt.Println(version)
 }
 
-/*
-[2022-07-10 20:41:55.197][localhost_3306][000014][MYSQL]
-SELECT * FROM `kb-dms`.`user_info` LIMIT 0, 1000
-Time: 0.017s
-
-[2022-07-10 20:41:55.215][localhost_3306][000015][MYSQL]
-SHOW COLUMNS FROM `kb-dms`.`user_info`
-Time: 0.001s
-
-[2022-07-10 20:41:55.217][localhost_3306][000014][MYSQL]
-SHOW TABLE STATUS LIKE 'user_info'
-Time: 0.001s
-
-[2022-07-10 20:41:55.218][localhost_3306][000014][MYSQL]
-SHOW CREATE TABLE `kb-dms`.`user_info`
-Time: 0.000s
-
-
-*/
 func TestListDatabases(t *testing.T) {
 	pool, err := NewSimpleMysqlPool(&modules.SimpleSettingMysql{
 		Host:     "localhost",
@@ -113,7 +94,7 @@ func TestTables(t *testing.T) {
 	}
 
 	defer pool.Close()
-	tables, err := pool.Tables()
+	tables, err := pool.Tables("yami_shops", "tz_user")
 	if err == nil {
 		logger.Infof("list %s", tools.ToJsonStr(tables))
 	}
@@ -160,6 +141,31 @@ func TestPrimaryKeys(t *testing.T) {
 	}
 
 	keys, err := driver.PrimaryKeys("shop_go", "tz_user")
+	if err == nil {
+		logger.Infof("list %s", tools.ToJsonStr(keys))
+	}
+}
+
+func TestForeignKeys(t *testing.T) {
+	pool, err := NewSimpleMysqlPool(&modules.SimpleSettingMysql{
+		Host:     "localhost",
+		Username: "root",
+		Password: "123456",
+		Port:     "3306",
+	})
+
+	if err != nil {
+		fmt.Printf("err: %v \n", err)
+	}
+
+	defer pool.Close()
+
+	driver, ok := pool.(*MysqlDrivers)
+	if !ok && driver == nil {
+		return
+	}
+
+	keys, err := driver.ForeignKeys("yami_shops", "tz_user")
 	if err == nil {
 		logger.Infof("list %s", tools.ToJsonStr(keys))
 	}

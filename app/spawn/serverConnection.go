@@ -1,4 +1,4 @@
-package sideQuests
+package spawn
 
 import (
 	"keeper/app/code"
@@ -77,7 +77,6 @@ func (msg *ServerConnectionHandlers) Connect(connection map[string]interface{}) 
 	case code.MYSQLALIAS:
 		driver, err = NewMysqlDriver(connection)
 		if err != nil {
-			logger.Infof("err: %v", err)
 			msg.setStatus(&StatusMessage{
 				Name:    "error",
 				Message: err.Error(),

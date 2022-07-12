@@ -1,5 +1,4 @@
 import type { App, Directive } from "vue";
-import {debounce} from 'lodash-es'
 const splitterDrag: Directive = {
   // 在绑定元素的 attribute 或事件监听器被应用之前调用, 在指令需要附加须要在普通的 v-on 事件监听器前调用的事件监听器时，这很有用
   created() {},
@@ -18,9 +17,9 @@ const splitterDrag: Directive = {
         e.preventDefault();
         const diff = e[axes] - resizeStart!;
         resizeStart = e[axes];
-        // props!.resizeSplitter && props!.resizeSplitter({
-        //   detail: diff,
-        // })
+        props!.resizeSplitter && props!.resizeSplitter({
+          detail: diff,
+        })
       }
 
       document.onmouseup = (e) => {
