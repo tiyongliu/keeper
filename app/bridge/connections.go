@@ -9,8 +9,8 @@ import (
 	"keeper/app/modules"
 	"keeper/app/pkg/serializer"
 	"keeper/app/pkg/standard"
-	plugin_mondb "keeper/app/plugins/plugin-mondb"
-	plugin_mysql "keeper/app/plugins/plugin-mysql"
+	"keeper/app/plugins/pluginMongdb"
+	"keeper/app/plugins/pluginMysql"
 	"keeper/app/tools"
 	"keeper/app/utility"
 	"path"
@@ -55,7 +55,7 @@ func (conn *Connections) Test(connection map[string]interface{}) interface{} {
 			return err.Error()
 		}
 
-		pool, err := plugin_mysql.NewSimpleMysqlPool(simpleSettingMysql)
+		pool, err := pluginMysql.NewSimpleMysqlPool(simpleSettingMysql)
 
 		if err != nil {
 			selection, _ := runtime.MessageDialog(Application.ctx, runtime.MessageDialogOptions{
@@ -93,7 +93,7 @@ func (conn *Connections) Test(connection map[string]interface{}) interface{} {
 		return selection
 
 	} else if connection["engine"].(string) == code.MONGOALIAS {
-		pool, err := plugin_mondb.NewSimpleMongoDBPool(&modules.SimpleSettingMongoDB{
+		pool, err := pluginMongdb.NewSimpleMongoDBPool(&modules.SimpleSettingMongoDB{
 			Host: connection["host"].(string),
 			Port: connection["port"].(string),
 		})

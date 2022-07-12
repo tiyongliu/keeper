@@ -59,14 +59,14 @@ const mysqlDriverBase = {
 /** @type {import('dbgate-types').EngineDriver} */
 const mysqlDriver = {
   ...mysqlDriverBase,
-  engine: 'mysql@dbgate-plugin-mysql',
+  engine: 'mysql@dbgate-pluginMysql',
   title: 'MySQL',
 };
 
 /** @type {import('dbgate-types').EngineDriver} */
  const mariaDriver = {
   ...mysqlDriverBase,
-  engine: 'mariadb@dbgate-plugin-mysql',
+  engine: 'mariadb@dbgate-pluginMysql',
   title: 'MariaDB',
 }
 

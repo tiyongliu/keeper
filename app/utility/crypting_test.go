@@ -13,7 +13,7 @@ import (
 func Test_EncryptPasswordField(t *testing.T) {
 	connection := map[string]string{
 		"server":     "localhost",
-		"engine":     "mysql@dbgate-plugin-mysql",
+		"engine":     "mysql@dbgate-pluginMysql",
 		"sshMode":    "userPassword",
 		"sshPort":    "22",
 		"sshKeyfile": "/Users/liuliutiyong/.ssh/id_rsa",
@@ -36,7 +36,7 @@ func Test_LoadEncryptionKey(t *testing.T) {
 func Test_MaskConnection(t *testing.T) {
 	fmt.Println(MaskConnection(map[string]string{
 		"server":     "localhost",
-		"engine":     "mysql@dbgate-plugin-mysql",
+		"engine":     "mysql@dbgate-pluginMysql",
 		"sshMode":    "userPassword",
 		"sshPort":    "22",
 		"sshKeyfile": "/Users/liuliutiyong/.ssh/id_rsa",
@@ -51,7 +51,7 @@ func Test_PickSafeConnectionInfo(t *testing.T) {
 
 	fmt.Println(PickSafeConnectionInfo(map[string]string{
 		"server":     "localhost",
-		"engine":     "mysql@dbgate-plugin-mysql",
+		"engine":     "mysql@dbgate-pluginMysql",
 		"sshMode":    "userPassword",
 		"sshPort":    "22",
 		"sshKeyfile": "/Users/liuliutiyong/.ssh/id_rsa",
