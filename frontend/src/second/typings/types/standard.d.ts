@@ -62,8 +62,8 @@ export interface IPinnedTablesItem {
 
 /*
 *
-connection: {engine: "mysql@dbgate-plugin-mysql",…}
-engine: "mysql@dbgate-plugin-mysql"
+connection: {engine: "mysql@dbgate-pluginMysql",…}
+engine: "mysql@dbgate-pluginMysql"
 password: "crypt:7000413edf483ada3770dc5c4b9a69f0beea98f82c2e3b9ba243488a63c0fc056ee70323004cbfe3b5438a7297fcdfe3LC25uegcuz6H5UxZfY2UyA=="
 server: "localhost"
 sshKeyfile: "C:\\Users\\Administrator\\.ssh\\id_rsa"

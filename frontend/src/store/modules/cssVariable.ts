@@ -29,15 +29,6 @@ export const cssVariableStore = defineStore({
     }
   }),
   getters: {
-    getSelectedWidget(): number {
-      return this.selectedWidget;
-    },
-    getLeftPanelWidth(): number {
-      return this.leftPanelWidth;
-    },
-    getVisibleTitleBar(): number {
-      return this.visibleTitleBar;
-    },
     getDynamicProps(): { splitterVisible: boolean } {
       return this.dynamicProps
     }

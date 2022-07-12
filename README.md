@@ -1,7 +1,7 @@
 # keeper
 
 ## About
-正在用项目使用vue3 + go 开发数据库客户端，目前只准备做桌面端，会兼容window、macox、linux，由于我有正常的工作，都是在晚上跟周末开发。
+正在用项目使用vue3 + go 开发数据库可视化，目前只准备做桌面端，目前支持mysql、mongdb、后续会持续更新其他数据库的支持，会兼容window、macox、linux，由于我有正常的工作，都是在晚上跟周末开发。
 
 [使用 Go + HTML + CSS + JS 构建漂亮的跨平台桌面应用](https://wails.io/zh-Hans/#)
 
