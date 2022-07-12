@@ -1,15 +1,22 @@
 package sideQuests
 
 import (
-	"github.com/mitchellh/mapstructure"
 	"keeper/app/code"
+	"keeper/app/driver"
 	"keeper/app/modules"
 	"keeper/app/pkg/logger"
 	"keeper/app/pkg/standard"
+	"keeper/app/tools"
 	"time"
+
+	"github.com/mitchellh/mapstructure"
 )
 
 var databaseLastPing code.UnixTime
+
+var analysedStructure *driver.Structure
+
+var analysedTime code.UnixTime = 0
 
 type DatabaseConnectionHandlers struct {
 	Ch chan interface{}
@@ -19,11 +26,10 @@ func NewDatabaseConnectionHandlers() *DatabaseConnectionHandlers {
 	return &DatabaseConnectionHandlers{}
 }
 
-func (msg *DatabaseConnectionHandlers) Connect(connection map[string]interface{}, structure string) {
+func (msg *DatabaseConnectionHandlers) Connect(connection map[string]interface{}, structure *driver.Structure) {
 	databaseLastPing = code.UnixTime(time.Now().Unix())
-
-	if structure == "" {
-
+	if structure == nil {
+		msg.setStatusName("pending")
 	}
 
 	simpleSettingMysql := &modules.SimpleSettingMysql{}
@@ -48,4 +54,56 @@ func (msg *DatabaseConnectionHandlers) Connect(connection map[string]interface{}
 			return
 		}
 	}
+
+	logger.Infof("driver info : %s", driver)
+
+	if structure != nil {
+
+	}
+
+}
+
+func (msg *DatabaseConnectionHandlers) setStatusName(name string, message ...string) {
+	if len(message) == 0 {
+		msg.setStatus(&StatusMessage{name, ""})
+	} else {
+		msg.setStatus(&StatusMessage{name, message[0]})
+	}
+}
+
+func (msg *DatabaseConnectionHandlers) setStatus(status *StatusMessage) {
+	statusString := tools.ToJsonStr(status)
+	if serverlastStatus != statusString {
+		msg.Ch <- &modules.EchoMessage{
+			MsgType: "status",
+			Payload: status,
+		}
+		serverlastStatus = statusString
+	}
+}
+
+func (msg *DatabaseConnectionHandlers) readVersion(pool standard.SqlStandard) error {
+	version, err := pool.GetVersion()
+	if err != nil {
+		return err
+	}
+
+	msg.Ch <- &modules.EchoMessage{
+		Payload: version,
+		MsgType: "version",
+		Dialect: pool.Dialect(),
+	}
+
+	return nil
+}
+
+func (msg *DatabaseConnectionHandlers) handleFullRefresh(pool standard.SqlStandard) {
+	msg.setStatusName("loadStructure")
+
+	analysedTime = code.UnixTime(time.Now().Unix())
+	msg.setStatusName("ok")
+}
+
+func (msg *DatabaseConnectionHandlers) handleIncrementalRefresh(forceSend bool, pool standard.SqlStandard) {
+	msg.setStatusName("checkStructure")
 }

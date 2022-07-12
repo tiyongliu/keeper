@@ -6,8 +6,8 @@ import (
 	"keeper/app/pkg/logger"
 	"keeper/app/pkg/serializer"
 	"keeper/app/pkg/standard"
-	plugin_mondb "keeper/app/plugins/plugin-mondb"
-	plugin_mysql "keeper/app/plugins/plugin-mysql"
+	"keeper/app/plugins/pluginMongdb"
+	"keeper/app/plugins/pluginMysql"
 	"keeper/app/tools"
 	"keeper/app/utility"
 	"time"
@@ -155,7 +155,7 @@ func NewMysqlDriver(connection map[string]interface{}) (standard.SqlStandard, er
 		return nil, err
 	}
 
-	pool, err := plugin_mysql.NewSimpleMysqlPool(simpleSettingMysql)
+	pool, err := pluginMysql.NewSimpleMysqlPool(simpleSettingMysql)
 	if err != nil {
 		return nil, err
 	}
@@ -165,7 +165,7 @@ func NewMysqlDriver(connection map[string]interface{}) (standard.SqlStandard, er
 
 func NewMongoDriver(connection map[string]interface{}) (standard.SqlStandard, error) {
 	storedConnection := connectUtility(connection)
-	pool, err := plugin_mondb.NewSimpleMongoDBPool(&modules.SimpleSettingMongoDB{
+	pool, err := pluginMongdb.NewSimpleMongoDBPool(&modules.SimpleSettingMongoDB{
 		Host: storedConnection["host"],
 		Port: storedConnection["port"],
 	})

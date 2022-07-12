@@ -1,4 +1,4 @@
-package plugin_mondb
+package pluginMongdb
 
 import (
 	"context"
@@ -54,4 +54,26 @@ func (mg *MongoDBDrivers) ListDatabases() (interface{}, error) {
 
 func (mg *MongoDBDrivers) Close() error {
 	return mg.DB.Disconnect(context.Background())
+}
+
+func (mg *MongoDBDrivers) Tables() (interface{}, error) {
+	names, err := mg.DB.Database("auth").ListCollectionNames(context.Background(), bson.D{})
+	if err != nil {
+		return nil, err
+	}
+
+	dialect := mg.Dialect()
+	var collections []*modules.MongoDBCollection
+	for _, name := range names {
+		collections = append(collections, &modules.MongoDBCollection{
+			PureName: name,
+			Engine:   dialect,
+		})
+	}
+
+	return collections, nil
+}
+
+func (mg *MongoDBDrivers) Columns(databaseName, tableName string) (interface{}, error) {
+	return nil, nil
 }

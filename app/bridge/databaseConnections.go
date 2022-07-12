@@ -85,15 +85,26 @@ func (dc *DatabaseConnections) ensureOpened(conid, database string) map[string]i
 	connection := getCore(conid, false)
 
 	newOpened := map[string]interface{}{
-		"conid":  conid,
-		"status": &OpenedStatus{Name: "pending"},
+		"conid":     conid,
+		"status":    &OpenedStatus{Name: "pending"},
+		"structure": nil,
 	}
 
 	dc.Opened = append(dc.Opened, newOpened)
 
 	go sideQuests.NewDatabaseConnectionHandlers().Connect(map[string]interface{}{
 		"connection": lo.Assign[string, interface{}](connection, map[string]interface{}{"database": database}),
-	}, "")
+	}, nil)
 
 	return newOpened
+}
+
+//{"conid":"d0fc6ec0-fae2-11ec-ad02-b72b9a6655f8","database":"erd"}
+func (dc *DatabaseConnections) Structure(conid, database string) interface{} {
+	if conid == "__model" {
+		//todo  const model = await importDbModel(database);
+	}
+
+	opened := dc.ensureOpened(conid, database)
+	return opened["structure"]
 }
