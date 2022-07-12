@@ -98,7 +98,7 @@ func tableModificationsSQL() string {
 	TABLE_ROWS as tableRowCount,
 	case when ENGINE='InnoDB' then CREATE_TIME else coalesce(UPDATE_TIME, CREATE_TIME) end as modifyDate 
 from information_schema.tables 
-where TABLE_SCHEMA = ?`
+where TABLE_SCHEMA = ? and TABLE_TYPE='BASE TABLE' and TABLE_NAME =?`
 }
 
 func tablesSQL() string {

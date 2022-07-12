@@ -56,7 +56,7 @@ func (mg *MongoDBDrivers) Close() error {
 	return mg.DB.Disconnect(context.Background())
 }
 
-func (mg *MongoDBDrivers) Tables() (interface{}, error) {
+func (mg *MongoDBDrivers) Tables(databaseName, tableName string) (interface{}, error) {
 	names, err := mg.DB.Database("auth").ListCollectionNames(context.Background(), bson.D{})
 	if err != nil {
 		return nil, err

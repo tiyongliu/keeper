@@ -1,4 +1,4 @@
-package sideQuests
+package spawn
 
 import (
 	"fmt"
