@@ -37,3 +37,13 @@ type MysqlPrimaryKey struct {
 	PureName       string `json:"pureName"`
 	ColumnName     string `json:"columnName"`
 }
+
+type MysqlForeignKeys struct {
+	ConstraintName string `json:"constraintName"`
+	PureName       string `json:"pureName"`
+	UpdateAction   string `json:"updateAction"`
+	DeleteAction   string `json:"deleteAction"`
+	RefTableName   string `json:"refTableName"`
+	ColumnName     string `json:"columnName"`
+	RefColumnName  string `json:"refColumnName"`
+}

@@ -1,4 +1,4 @@
-package sideQuests
+package spawn
 
 import (
 	"keeper/app/code"
@@ -19,7 +19,7 @@ var analysedStructure *driver.Structure
 var analysedTime code.UnixTime = 0
 
 type DatabaseConnectionHandlers struct {
-	Ch chan interface{}
+	Ch chan *modules.EchoMessage
 }
 
 func NewDatabaseConnectionHandlers() *DatabaseConnectionHandlers {
@@ -50,7 +50,6 @@ func (msg *DatabaseConnectionHandlers) Connect(connection map[string]interface{}
 	case code.MONGOALIAS:
 		driver, err = NewMongoDriver(connection)
 		if err != nil {
-
 			return
 		}
 	}
