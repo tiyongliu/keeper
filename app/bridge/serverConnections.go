@@ -5,7 +5,7 @@ import (
 	"keeper/app/modules"
 	"keeper/app/pkg/logger"
 	"keeper/app/pkg/serializer"
-	"keeper/app/sideQuests"
+	"keeper/app/spawn"
 	"keeper/app/tools"
 	"sync"
 	"time"
@@ -57,7 +57,7 @@ func (sc *ServerConnections) handleVersion(conid, version string) {
 
 }
 
-func (sc *ServerConnections) handleStatus(conid string, status *sideQuests.StatusMessage) {
+func (sc *ServerConnections) handleStatus(conid string, status *spawn.StatusMessage) {
 	existing, ok := lo.Find[map[string]interface{}](sc.Opened, func(item map[string]interface{}) bool {
 		if item[conidkey] != nil && item[conidkey].(string) == conid {
 			return true
@@ -112,8 +112,8 @@ func (sc *ServerConnections) ensureOpened(conid string) map[string]interface{} {
 	}
 
 	ch := make(chan *modules.EchoMessage)
-	go sideQuests.NewServerConnectionHandlers(ch).Connect(connection)
-	go sc.consumer(newOpened, ch)
+	go spawn.NewServerConnectionHandlers(ch).Connect(connection)
+	go sc.listener(newOpened, ch)
 
 	return newOpened
 }
@@ -123,11 +123,7 @@ func (sc *ServerConnections) ListDatabases(request string) interface{} {
 	if request == "" {
 		return serializer.Fail(serializer.IdNotEmpty)
 	}
-
 	opened := sc.ensureOpened(request)
-
-	logger.Infof("opened: %s", tools.ToJsonStr(opened))
-
 	return serializer.SuccessData(serializer.SUCCESS, opened["databases"])
 }
 
@@ -202,7 +198,7 @@ func (sc *ServerConnections) Refresh(req *ServerRefreshRequest) interface{} {
 	})
 }
 
-func (sc *ServerConnections) consumer(newOpened map[string]interface{}, chData <-chan *modules.EchoMessage) {
+func (sc *ServerConnections) listener(newOpened map[string]interface{}, chData <-chan *modules.EchoMessage) {
 	for {
 		message, ok := <-chData
 
@@ -211,7 +207,7 @@ func (sc *ServerConnections) consumer(newOpened map[string]interface{}, chData <
 		if message != nil {
 			switch message.MsgType {
 			case "status":
-				sc.handleStatus(conid, message.Payload.(*sideQuests.StatusMessage))
+				sc.handleStatus(conid, message.Payload.(*spawn.StatusMessage))
 			case "databases":
 				sc.handleDatabases(conid, message.Payload)
 			case "ping":

@@ -72,7 +72,7 @@ func (mysql *MysqlDrivers) Close() error {
 	return db.Close()
 }
 
-func (mysql *MysqlDrivers) Tables() (interface{}, error) {
+func (mysql *MysqlDrivers) Tables(databaseName, tableName string) (interface{}, error) {
 	var tableSchemas []*modules.MysqlTableSchema
 	rows, err := mysql.DB.Raw(tableModificationsSQL(), "shop_go").Rows()
 	if err != nil {
@@ -160,6 +160,40 @@ func (mysql *MysqlDrivers) PrimaryKeys(databaseName, tableName string) (interfac
 	}
 
 	return primaryKeys, nil
+}
+
+func (mysql *MysqlDrivers) ForeignKeys(databaseName, tableName string) (interface{}, error) {
+	var foreignKeys []*modules.MysqlForeignKeys
+	rows, err := mysql.DB.Raw(foreignKeysSQL(), databaseName, tableName).Rows()
+	if err != nil {
+		return nil, err
+	}
+
+	for rows.Next() {
+		var constraintName, pureName, updateAction, deleteAction, refTableName, columnName, refColumnName string
+
+		if err := rows.Scan(&constraintName,
+			&pureName,
+			&updateAction,
+			&deleteAction,
+			&refTableName,
+			&columnName,
+			&refColumnName); err != nil {
+			return nil, err
+		}
+
+		foreignKeys = append(foreignKeys, &modules.MysqlForeignKeys{
+			ConstraintName: constraintName,
+			PureName:       pureName,
+			UpdateAction:   updateAction,
+			DeleteAction:   deleteAction,
+			RefTableName:   refTableName,
+			ColumnName:     columnName,
+			RefColumnName:  refColumnName,
+		})
+	}
+
+	return foreignKeys, nil
 }
 
 /*
