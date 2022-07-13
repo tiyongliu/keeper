@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"keeper/app/pkg/serializer"
-	"keeper/app/sideQuests"
+	"keeper/app/spawn"
 
 	"github.com/samber/lo"
 )
@@ -92,7 +92,7 @@ func (dc *DatabaseConnections) ensureOpened(conid, database string) map[string]i
 
 	dc.Opened = append(dc.Opened, newOpened)
 
-	go sideQuests.NewDatabaseConnectionHandlers().Connect(map[string]interface{}{
+	go spawn.NewDatabaseConnectionHandlers().Connect(map[string]interface{}{
 		"connection": lo.Assign[string, interface{}](connection, map[string]interface{}{"database": database}),
 	}, nil)
 
