@@ -2,10 +2,11 @@ package pluginMysql
 
 import (
 	"fmt"
+	"github.com/pkg/errors"
 	"gorm.io/gorm"
-	"keeper/app/code"
 	"keeper/app/modules"
 	"keeper/app/pkg/logger"
+	"keeper/app/pkg/serializer"
 	"keeper/app/pkg/standard"
 	"regexp"
 )
@@ -19,7 +20,7 @@ func NewMysql() standard.SqlStandard {
 }
 
 func (mysql *MysqlDrivers) Dialect() string {
-	return code.MYSQLALIAS
+	return standard.MYSQLALIAS
 }
 
 func (mysql *MysqlDrivers) Connect() interface{} {
@@ -30,7 +31,7 @@ func (mysql *MysqlDrivers) GetPoolInfo() interface{} {
 	return mysql.DB
 }
 
-func (mysql *MysqlDrivers) GetVersion() (interface{}, error) {
+func (mysql *MysqlDrivers) GetVersion() (*standard.VersionMsg, error) {
 	var rows []string
 	err := mysql.DB.Raw("select version()").Scan(&rows).Error
 	if err != nil {
@@ -72,9 +73,15 @@ func (mysql *MysqlDrivers) Close() error {
 	return db.Close()
 }
 
-func (mysql *MysqlDrivers) Tables(databaseName, tableName string) (interface{}, error) {
+func (mysql *MysqlDrivers) Tables(args ...string) (interface{}, error) {
+	if len(args) < 2 {
+		return nil, errors.New(serializer.ParameterNotRequired)
+	}
+
+	databaseName := args[0]
+	tableName := args[1]
 	var tableSchemas []*modules.MysqlTableSchema
-	rows, err := mysql.DB.Raw(tableModificationsSQL(), "shop_go").Rows()
+	rows, err := mysql.DB.Raw(tableModificationsSQL(), databaseName, tableName).Rows()
 	if err != nil {
 		return nil, err
 	}

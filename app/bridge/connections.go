@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/mitchellh/mapstructure"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
-	"keeper/app/code"
 	"keeper/app/modules"
 	"keeper/app/pkg/serializer"
 	"keeper/app/pkg/standard"
@@ -48,7 +47,7 @@ func getCore(conid string, mask bool) map[string]interface{} {
 }
 
 func (conn *Connections) Test(connection map[string]interface{}) interface{} {
-	if connection["engine"].(string) == code.MYSQLALIAS {
+	if connection["engine"].(string) == standard.MYSQLALIAS {
 		simpleSettingMysql := &modules.SimpleSettingMysql{}
 		err := mapstructure.Decode(connection, simpleSettingMysql)
 		if err != nil {
@@ -71,7 +70,7 @@ func (conn *Connections) Test(connection map[string]interface{}) interface{} {
 
 		defer pool.Close()
 
-		getVersion, err := pool.GetVersion()
+		driver, err := pool.GetVersion()
 		if err != nil {
 			selection, _ := runtime.MessageDialog(Application.ctx, runtime.MessageDialogOptions{
 				Type:          runtime.ErrorDialog,
@@ -83,7 +82,6 @@ func (conn *Connections) Test(connection map[string]interface{}) interface{} {
 			return selection
 		}
 
-		driver := getVersion.(*standard.VersionMsg)
 		selection, _ := runtime.MessageDialog(Application.ctx, runtime.MessageDialogOptions{
 			Title:         "连接成功",
 			Message:       "Connected" + fmt.Sprintf(": %s", driver.VersionText),
@@ -92,7 +90,7 @@ func (conn *Connections) Test(connection map[string]interface{}) interface{} {
 		})
 		return selection
 
-	} else if connection["engine"].(string) == code.MONGOALIAS {
+	} else if connection["engine"].(string) == standard.MONGOALIAS {
 		pool, err := pluginMongdb.NewSimpleMongoDBPool(&modules.SimpleSettingMongoDB{
 			Host: connection["host"].(string),
 			Port: connection["port"].(string),
@@ -111,7 +109,7 @@ func (conn *Connections) Test(connection map[string]interface{}) interface{} {
 			return err.Error()
 		}
 
-		getVersion, err := pool.GetVersion()
+		driver, err := pool.GetVersion()
 		if err != nil {
 			runtime.MessageDialog(Application.ctx, runtime.MessageDialogOptions{
 				Type:          runtime.ErrorDialog,
@@ -123,7 +121,6 @@ func (conn *Connections) Test(connection map[string]interface{}) interface{} {
 			return err.Error()
 		}
 
-		driver := getVersion.(*standard.VersionMsg)
 		selection, _ := runtime.MessageDialog(Application.ctx, runtime.MessageDialogOptions{
 			Title:         "连接成功",
 			Message:       "Connected" + fmt.Sprintf(": %s", driver.VersionText),

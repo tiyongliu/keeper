@@ -94,7 +94,8 @@ func TestTables(t *testing.T) {
 	}
 
 	defer pool.Close()
-	tables, err := pool.Tables("yami_shops", "tz_user")
+
+	tables, err := pool.(*MysqlDrivers).Tables("yami_shops", "tz_user")
 	if err == nil {
 		logger.Infof("list %s", tools.ToJsonStr(tables))
 	}

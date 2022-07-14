@@ -1,4 +1,4 @@
-package spawn
+package sideQuests
 
 import (
 	"keeper/app/code"
@@ -61,7 +61,7 @@ func setInterval(fn func()) {
 
 func (msg *ServerConnectionHandlers) Connect(connection map[string]interface{}) {
 	msg.setStatusName("pending")
-	serverlastPing = code.UnixTime(time.Now().Unix())
+	serverlastPing = tools.NewUnixTime()
 	//TODO request to dbEngineDriver
 	//utility.RequireEngineDriver(connection)
 
@@ -74,7 +74,7 @@ func (msg *ServerConnectionHandlers) Connect(connection map[string]interface{}) 
 	//TODO connectUtility, 可以传递一个func 因为返回值都是一样的，在func内部进行处理
 	var driver standard.SqlStandard
 	switch connection["engine"].(string) {
-	case code.MYSQLALIAS:
+	case standard.MYSQLALIAS:
 		driver, err = NewMysqlDriver(connection)
 		if err != nil {
 			msg.setStatus(&StatusMessage{
@@ -85,7 +85,7 @@ func (msg *ServerConnectionHandlers) Connect(connection map[string]interface{}) 
 			return
 		}
 		msg.Mysql = driver
-	case code.MONGOALIAS:
+	case standard.MONGOALIAS:
 		driver, err = NewMongoDriver(connection)
 		if err != nil {
 			msg.setStatus(&StatusMessage{
