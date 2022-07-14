@@ -2,9 +2,12 @@ package bridge
 
 import (
 	"fmt"
-	"github.com/wailsapp/wails/v2/pkg/runtime"
+	"keeper/app/code"
+	"keeper/app/modules"
 	"keeper/app/pkg/serializer"
-	"keeper/app/spawn"
+	"keeper/app/sideQuests"
+
+	"github.com/wailsapp/wails/v2/pkg/runtime"
 
 	"github.com/samber/lo"
 )
@@ -28,7 +31,7 @@ type DatabasePingRequest struct {
 	Database string `json:"database"`
 }
 
-func (dc *DatabaseConnections) handleStructure(conid, database string) {
+func (dc *DatabaseConnections) handleStructure(conid, database string, structure map[string]interface{}) {
 	existing, ok := lo.Find[map[string]interface{}](dc.Opened, func(item map[string]interface{}) bool {
 		if item[conidkey] != nil && item[conidkey].(string) == conid {
 			return true
@@ -37,11 +40,31 @@ func (dc *DatabaseConnections) handleStructure(conid, database string) {
 		}
 	})
 
-	if existing != nil && ok {
-
+	if existing == nil || !ok {
+		return
 	}
 
+	existing["structure"] = structure
+
 	runtime.EventsEmit(Application.ctx, fmt.Sprintf("database-structure-changed-%s-%s", conid, database))
+}
+
+func (dc *DatabaseConnections) handleStructureTime(conid, database string, analysedTime code.UnixTime) {
+	existing, ok := lo.Find[map[string]interface{}](dc.Opened, func(item map[string]interface{}) bool {
+		if item[conidkey] != nil && item[conidkey].(string) == conid {
+			return true
+		} else {
+			return false
+		}
+	})
+
+	if existing == nil || !ok {
+		return
+	}
+
+	existing["analysedTime"] = analysedTime
+
+	runtime.EventsEmit(Application.ctx, fmt.Sprintf("database-status-changed-%s-%s", conid, database))
 }
 
 func (dc *DatabaseConnections) Ping(req *DatabasePingRequest) interface{} {
@@ -92,7 +115,7 @@ func (dc *DatabaseConnections) ensureOpened(conid, database string) map[string]i
 
 	dc.Opened = append(dc.Opened, newOpened)
 
-	go spawn.NewDatabaseConnectionHandlers().Connect(map[string]interface{}{
+	go sideQuests.NewDatabaseConnectionHandlers().Connect(map[string]interface{}{
 		"connection": lo.Assign[string, interface{}](connection, map[string]interface{}{"database": database}),
 	}, nil)
 
@@ -107,4 +130,23 @@ func (dc *DatabaseConnections) Structure(conid, database string) interface{} {
 
 	opened := dc.ensureOpened(conid, database)
 	return opened["structure"]
+}
+
+func (dc *DatabaseConnections) listener(conid, database string, chData <-chan *modules.EchoMessage) {
+	//structure
+
+	for {
+		message, ok := <-chData
+		if message != nil {
+			switch message.MsgType {
+			case "structure":
+				dc.handleStructure(conid, database, message.Payload.(map[string]interface{}))
+			case "structureTime":
+
+			}
+		}
+		if !ok {
+			break
+		}
+	}
 }
