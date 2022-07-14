@@ -3,11 +3,11 @@ package pluginMongdb
 import (
 	"context"
 	"fmt"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
-	"keeper/app/code"
 	"keeper/app/modules"
 	"keeper/app/pkg/standard"
+
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type MongoDBDrivers struct {
@@ -19,7 +19,7 @@ func NewMongoDB(db *mongo.Client) standard.SqlStandard {
 }
 
 func (mg *MongoDBDrivers) Dialect() string {
-	return code.MONGOALIAS
+	return standard.MONGOALIAS
 }
 
 func (mg *MongoDBDrivers) Connect() interface{} {
@@ -30,7 +30,7 @@ func (mg *MongoDBDrivers) GetPoolInfo() interface{} {
 	return mg.DB
 }
 
-func (mg *MongoDBDrivers) GetVersion() (interface{}, error) {
+func (mg *MongoDBDrivers) GetVersion() (*standard.VersionMsg, error) {
 	db := mg.DB.Database("local")
 	buildInfoCmd := bson.D{bson.E{Key: "buildInfo", Value: 1}}
 	var buildInfoDoc bson.M
@@ -56,8 +56,27 @@ func (mg *MongoDBDrivers) Close() error {
 	return mg.DB.Disconnect(context.Background())
 }
 
-func (mg *MongoDBDrivers) Tables(databaseName, tableName string) (interface{}, error) {
-	names, err := mg.DB.Database("auth").ListCollectionNames(context.Background(), bson.D{})
+func (mg *MongoDBDrivers) Tables(args ...string) (interface{}, error) {
+	databaseName := args[0]
+	names, err := mg.DB.Database(databaseName).ListCollectionNames(context.Background(), bson.D{})
+	if err != nil {
+		return nil, err
+	}
+
+	dialect := mg.Dialect()
+	var collections []*modules.MongoDBCollection
+	for _, name := range names {
+		collections = append(collections, &modules.MongoDBCollection{
+			PureName: name,
+			Engine:   dialect,
+		})
+	}
+
+	return collections, nil
+}
+
+func (mg *MongoDBDrivers) Collections(databaseName string) (interface{}, error) {
+	names, err := mg.DB.Database(databaseName).ListCollectionNames(context.Background(), bson.D{})
 	if err != nil {
 		return nil, err
 	}

@@ -1,12 +1,17 @@
 package standard
 
+const (
+	MYSQLALIAS = "mysql"
+	MONGOALIAS = "mongo"
+)
+
 type SqlStandard interface {
 	Dialect() string
 	Connect() interface{}
 	GetPoolInfo() interface{}
-	GetVersion() (interface{}, error)
+	GetVersion() (*VersionMsg, error)
 	ListDatabases() (interface{}, error)
 	Close() error
-	Tables(databaseName, tableName string) (interface{}, error)
+	Tables(...string) (interface{}, error)
 	Columns(databaseName, tableName string) (interface{}, error)
 }

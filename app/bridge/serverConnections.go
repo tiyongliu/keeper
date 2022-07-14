@@ -1,17 +1,15 @@
 package bridge
 
 import (
+	"github.com/samber/lo"
+	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"keeper/app/code"
 	"keeper/app/modules"
 	"keeper/app/pkg/logger"
 	"keeper/app/pkg/serializer"
-	"keeper/app/spawn"
+	"keeper/app/sideQuests"
 	"keeper/app/tools"
 	"sync"
-	"time"
-
-	"github.com/samber/lo"
-	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
 var lock sync.RWMutex
@@ -57,7 +55,7 @@ func (sc *ServerConnections) handleVersion(conid, version string) {
 
 }
 
-func (sc *ServerConnections) handleStatus(conid string, status *spawn.StatusMessage) {
+func (sc *ServerConnections) handleStatus(conid string, status *sideQuests.StatusMessage) {
 	existing, ok := lo.Find[map[string]interface{}](sc.Opened, func(item map[string]interface{}) bool {
 		if item[conidkey] != nil && item[conidkey].(string) == conid {
 			return true
@@ -112,7 +110,7 @@ func (sc *ServerConnections) ensureOpened(conid string) map[string]interface{} {
 	}
 
 	ch := make(chan *modules.EchoMessage)
-	go spawn.NewServerConnectionHandlers(ch).Connect(connection)
+	go sideQuests.NewServerConnectionHandlers(ch).Connect(connection)
 	go sc.listener(newOpened, ch)
 
 	return newOpened
@@ -144,11 +142,11 @@ func (sc *ServerConnections) ServerStatus() interface{} {
 func (sc *ServerConnections) Ping(connections []string) interface{} {
 	for _, conid := range lo.Uniq[string](connections) {
 		last := sc.LastPinged[conid]
-		if last > 0 && code.UnixTime(time.Now().Unix())-last < code.UnixTime(30*1000) {
+		if last > 0 && tools.NewUnixTime()-last < tools.GetUnixTime(30*1000) {
 			continue
 		}
 
-		sc.LastPinged[conid] = code.UnixTime(time.Now().Unix())
+		sc.LastPinged[conid] = tools.NewUnixTime()
 		sc.ensureOpened(conid)
 	}
 
@@ -207,7 +205,7 @@ func (sc *ServerConnections) listener(newOpened map[string]interface{}, chData <
 		if message != nil {
 			switch message.MsgType {
 			case "status":
-				sc.handleStatus(conid, message.Payload.(*spawn.StatusMessage))
+				sc.handleStatus(conid, message.Payload.(*sideQuests.StatusMessage))
 			case "databases":
 				sc.handleDatabases(conid, message.Payload)
 			case "ping":
