@@ -26,7 +26,7 @@ func (dc *DatabaseConnections) Refresh(conid string) {
 
 }
 
-type DatabasePingRequest struct {
+type DatabaseRequest struct {
 	Conid    string `json:"conid"`
 	Database string `json:"database"`
 }
@@ -67,7 +67,7 @@ func (dc *DatabaseConnections) handleStructureTime(conid, database string, analy
 	runtime.EventsEmit(Application.ctx, fmt.Sprintf("database-status-changed-%s-%s", conid, database))
 }
 
-func (dc *DatabaseConnections) Ping(req *DatabasePingRequest) interface{} {
+func (dc *DatabaseConnections) Ping(req *DatabaseRequest) interface{} {
 	if req == nil || req.Conid == "" {
 		return serializer.Fail(serializer.IdNotEmpty)
 	}
@@ -108,9 +108,10 @@ func (dc *DatabaseConnections) ensureOpened(conid, database string) map[string]i
 	connection := getCore(conid, false)
 
 	newOpened := map[string]interface{}{
-		"conid":     conid,
-		"status":    &OpenedStatus{Name: "pending"},
-		"structure": nil,
+		"conid":         conid,
+		"serverVersion": nil,
+		"status":        &OpenedStatus{Name: "pending"},
+		"structure":     nil,
 	}
 
 	dc.Opened = append(dc.Opened, newOpened)
@@ -149,4 +150,36 @@ func (dc *DatabaseConnections) listener(conid, database string, chData <-chan *m
 			break
 		}
 	}
+}
+
+func (dc *DatabaseConnections) ServerVersion(req *DatabaseRequest) interface{} {
+	if req == nil || req.Conid == "" {
+		return serializer.Fail(serializer.ParamsErr)
+	}
+
+	opened := dc.ensureOpened(req.Conid, req.Database)
+	return serializer.SuccessData("", opened["serverVersion"])
+}
+
+func (dc *DatabaseConnections) Status(req *DatabaseRequest) {
+	existing, ok := lo.Find[map[string]interface{}](dc.Opened, func(item map[string]interface{}) bool {
+		if item[conidkey] != nil && item[conidkey].(string) == req.Conid && item["database"] == req.Database {
+			return true
+		} else {
+			return false
+		}
+	})
+
+	if existing != nil && ok {
+
+	}
+}
+
+type DatabaseKillRequest struct {
+	DatabaseRequest
+	Kill bool
+}
+
+func (dc *DatabaseConnections) Close(req *DatabaseKillRequest) {
+
 }
