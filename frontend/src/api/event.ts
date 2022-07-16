@@ -27,3 +27,8 @@ export function databaseListChangedEvent() {
     void metadataLoaders.onCacheDatabaseList(conid)
   })
 }
+export function databaseStructureChangedEvent() {
+  EventsOn('database-structure-changed', ({conid, database}) => {
+    console.log(conid, database, `databaseStructureChangedEvent`)
+  })
+}

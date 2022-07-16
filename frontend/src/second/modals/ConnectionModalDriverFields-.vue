@@ -110,7 +110,7 @@ export default defineComponent({
     const electron = null
 
     const databaseEngine = [
-      {label: '(select driver)', value: ''},
+      {label: '(select schema)', value: ''},
       ...$extensions.drivers
         .filter(driver => !driver.isElectronOnly || electron)
         .map(driver => ({

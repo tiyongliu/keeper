@@ -16,12 +16,12 @@ func (a *Analyser) Build() {
 
 	//databaseName := "yami_shops"
 	//tableName := "tz_user"
-	//tables, err := a.driver.Tables(databaseName, tableName)
+	//tables, err := a.schema.Tables(databaseName, tableName)
 	//if err != nil {
 	//	return
 	//}
 
-	//columns, err := a.driver.Columns(databaseName, tableName)
+	//columns, err := a.schema.Columns(databaseName, tableName)
 	//if err != nil {
 	//	return
 	//}

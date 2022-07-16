@@ -1,4 +1,4 @@
-package driver
+package schema
 
 type DatabaseInfoObjects struct {
 	Tables      []*TableInfo
@@ -6,10 +6,7 @@ type DatabaseInfoObjects struct {
 }
 
 type DatabaseInfo struct {
-	Tables []string
-}
-
-type Structure struct {
+	DatabaseInfoObjects
 	Schemas       []*SchemaInfo
 	Engine        string
 	DefaultSchema string

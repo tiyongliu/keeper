@@ -19,7 +19,7 @@ func RequireEngineDriver(connection interface{}) {
 		isEngine = true
 	}
 	if engine == "" && !isEngine {
-		logger.Fatalf("Could not get driver from connection \n")
+		logger.Fatalf("Could not get schema from connection \n")
 	}
 
 	if strings.Contains(engine, "@") {
@@ -41,5 +41,5 @@ func RequireEngineDriver(connection interface{}) {
 
 	}
 
-	logger.Fatalf("Could not find engine driver %s", engine)
+	logger.Fatalf("Could not find engine schema %s", engine)
 }
