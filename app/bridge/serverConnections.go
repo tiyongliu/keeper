@@ -5,7 +5,6 @@ import (
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"keeper/app/code"
 	"keeper/app/modules"
-	"keeper/app/pkg/logger"
 	"keeper/app/pkg/serializer"
 	"keeper/app/sideQuests"
 	"keeper/app/tools"
@@ -117,7 +116,7 @@ func (sc *ServerConnections) ensureOpened(conid string) map[string]interface{} {
 }
 
 //https://esc.show/article/Golang-GUI-kai-fa-zhi-Webview
-func (sc *ServerConnections) ListDatabases(request string) interface{} {
+func (sc *ServerConnections) ListDatabases(request string) *serializer.Response {
 	if request == "" {
 		return serializer.Fail(serializer.IdNotEmpty)
 	}
@@ -139,7 +138,7 @@ func (sc *ServerConnections) ServerStatus() interface{} {
 	return serializer.SuccessData("", values)
 }
 
-func (sc *ServerConnections) Ping(connections []string) interface{} {
+func (sc *ServerConnections) Ping(connections []string) *serializer.Response {
 	for _, conid := range lo.Uniq[string](connections) {
 		last := sc.LastPinged[conid]
 		if last > 0 && tools.NewUnixTime()-last < tools.GetUnixTime(30*1000) {
@@ -185,7 +184,7 @@ type ServerRefreshRequest struct {
 	KeepOpen bool   `json:"keepOpen"`
 }
 
-func (sc *ServerConnections) Refresh(req *ServerRefreshRequest) interface{} {
+func (sc *ServerConnections) Refresh(req *ServerRefreshRequest) *serializer.Response {
 	if !req.KeepOpen {
 		sc.Close(req.Conid, true)
 	}
@@ -199,8 +198,7 @@ func (sc *ServerConnections) Refresh(req *ServerRefreshRequest) interface{} {
 func (sc *ServerConnections) listener(newOpened map[string]interface{}, chData <-chan *modules.EchoMessage) {
 	for {
 		message, ok := <-chData
-
-		logger.Infof("chan message -<: %s", tools.ToJsonStr(message))
+		//logger.Infof("chan message -<: %s", tools.ToJsonStr(message))
 		conid := newOpened[conidkey].(string)
 		if message != nil {
 			switch message.MsgType {

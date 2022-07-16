@@ -1,4 +1,4 @@
-package driver
+package schema
 
 type DatabaseAnalyser struct {
 }
@@ -7,11 +7,11 @@ func NewDatabaseAnalyser() {
 
 }
 
-func (d *DatabaseAnalyser) createEmptyStructure() {
-
+func CreateEmptyStructure() *DatabaseInfo {
+	return &DatabaseInfo{}
 }
 
-func (d *DatabaseAnalyser) incrementalAnalysis(structure *Structure) {
+func (d *DatabaseAnalyser) incrementalAnalysis(structure *DatabaseInfo) {
 	if d._getFastSnapshot() != nil {
 		return
 	}

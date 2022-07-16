@@ -77,7 +77,7 @@ export default defineComponent({
       //
       //   extInfoRef.value = data!.engine;
       //   engineStatusIconRef.value = 'img warn'
-      //   engineStatusTitleRef.value = `Engine driver ${data!.engine} not found, review installed plugins and change engine in edit connection dialog`
+      //   engineStatusTitleRef.value = `Engine schema ${data!.engine} not found, review installed plugins and change engine in edit connection dialog`
       // }
     }
 
