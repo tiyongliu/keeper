@@ -41,6 +41,13 @@ const databaseListLoader = (conid) => ({
   },
 })
 
+const databaseInfoLoader = ({ conid, database }) => ({
+  url: 'bridge.DatabaseConnections.Structure',
+  params: { conid, database },
+  reloadTrigger: `database-structure-changed-${conid}-${database}`,
+  // transform: extendDatabaseInfo,
+});
+
 async function getCore(loader, args) {
   const {url, params, reloadTrigger} = loader(args);
   const key = stableStringify({url, ...params})
@@ -98,4 +105,8 @@ export function getDatabaseList(args) {
 
 export function useDatabaseList(args) {
   return useCore(databaseListLoader, args);
+}
+
+export function useDatabaseInfo(args) {
+  return useCore(databaseInfoLoader, args)
 }

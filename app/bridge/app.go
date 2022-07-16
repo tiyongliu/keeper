@@ -3,7 +3,6 @@ package bridge
 import (
 	"context"
 	"fmt"
-	"keeper/app/pkg/logger"
 	"sync"
 )
 
@@ -37,7 +36,6 @@ func NewApp() *App {
 func (a *App) Startup(ctx context.Context) {
 	a.ctx = ctx
 	Application.ctx = ctx
-	logger.Infof("Starting up October")
 }
 
 // shutdown is called at application termination

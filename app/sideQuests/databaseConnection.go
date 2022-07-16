@@ -1,18 +1,19 @@
 package sideQuests
 
 import (
-	"github.com/mitchellh/mapstructure"
 	"keeper/app/code"
-	"keeper/app/driver"
 	"keeper/app/modules"
 	"keeper/app/pkg/logger"
 	"keeper/app/pkg/standard"
+	"keeper/app/schema"
 	"keeper/app/tools"
+
+	"github.com/mitchellh/mapstructure"
 )
 
 var databaseLastPing code.UnixTime
 
-var analysedStructure *driver.Structure
+var analysedStructure *schema.DatabaseInfo
 
 var analysedTime code.UnixTime = 0
 
@@ -20,11 +21,14 @@ type DatabaseConnectionHandlers struct {
 	Ch chan *modules.EchoMessage
 }
 
-func NewDatabaseConnectionHandlers() *DatabaseConnectionHandlers {
-	return &DatabaseConnectionHandlers{}
+func NewDatabaseConnectionHandlers(ch chan *modules.EchoMessage) *DatabaseConnectionHandlers {
+	return &DatabaseConnectionHandlers{ch}
 }
 
-func (msg *DatabaseConnectionHandlers) Connect(connection map[string]interface{}, structure *driver.Structure) {
+func (msg *DatabaseConnectionHandlers) Connect(args map[string]interface{}, structure *schema.DatabaseInfo) {
+	connection := args["connection"].(map[string]interface{})
+	database := args["database"].(string)
+
 	databaseLastPing = tools.NewUnixTime()
 	if structure == nil {
 		msg.setStatusName("pending")
@@ -51,10 +55,10 @@ func (msg *DatabaseConnectionHandlers) Connect(connection map[string]interface{}
 		}
 	}
 
-	logger.Infof("driver info : %s", driver)
-
 	if structure != nil {
-
+		msg.handleIncrementalRefresh(true, driver, database)
+	} else {
+		msg.handleFullRefresh(driver, database)
 	}
 
 }
@@ -93,10 +97,17 @@ func (msg *DatabaseConnectionHandlers) readVersion(pool standard.SqlStandard) er
 	return nil
 }
 
-func (msg *DatabaseConnectionHandlers) handleFullRefresh(pool standard.SqlStandard) {
+func (msg *DatabaseConnectionHandlers) handleFullRefresh(pool standard.SqlStandard, strings ...string) {
 	msg.setStatusName("loadStructure")
 
 	analysedTime = tools.NewUnixTime()
+
+	tables, err := pool.Tables(strings...)
+	if err == nil {
+		msg.Ch <- &modules.EchoMessage{MsgType: "structure", Payload: tables}
+	}
+
+	msg.Ch <- &modules.EchoMessage{MsgType: "structureTime", Payload: analysedTime}
 	msg.setStatusName("ok")
 }
 
@@ -140,4 +151,8 @@ func (msg *DatabaseConnectionHandlers) ReadVersion(pool standard.SqlStandard) er
 	}
 
 	return nil
+}
+
+func (msg *DatabaseConnectionHandlers) QueryData() {
+
 }
