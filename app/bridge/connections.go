@@ -133,7 +133,7 @@ func (conn *Connections) Test(connection map[string]interface{}) interface{} {
 	return nil
 }
 
-func (conn *Connections) Save(connection map[string]string) interface{} {
+func (conn *Connections) Save(connection map[string]string) *serializer.Response {
 	encrypted := utility.EncryptConnection(connection)
 	//验证obj的唯一性，除去key字段，所有key对应的值都要一致。
 	unknownMap := tools.TransformUnknownMap(encrypted)
@@ -173,12 +173,12 @@ func (conn *Connections) Save(connection map[string]string) interface{} {
 	return serializer.SuccessData("", res)
 }
 
-func (conn *Connections) List() interface{} {
+func (conn *Connections) List() *serializer.Response {
 	find := JsonLinesDatabase.Find()
 	return serializer.SuccessData("", find)
 }
 
-func (conn *Connections) Get(conid map[string]string) interface{} {
+func (conn *Connections) Get(conid map[string]string) *serializer.Response {
 	return serializer.SuccessData("", nil)
 }
 
@@ -188,7 +188,7 @@ func (conn *Connections) getCore(conid string, mask bool) {
 	}
 }
 
-func (conn *Connections) Delete(connection map[string]string) interface{} {
+func (conn *Connections) Delete(connection map[string]string) *serializer.Response {
 	//ok := dialog.Message("你确认要删除\"%s\"吗?", connection["name"]).Title("确认删除").YesNo()
 	//if !ok {
 	//	return serializer.Fail(Application.ctx, fmt.Sprintf("%v", ok))
