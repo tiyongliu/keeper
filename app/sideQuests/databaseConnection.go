@@ -11,11 +11,18 @@ import (
 	"github.com/mitchellh/mapstructure"
 )
 
-var databaseLastPing code.UnixTime
+var databaseLast code.UnixTime
 
 var analysedStructure *schema.DatabaseInfo
 
 var analysedTime code.UnixTime = 0
+var loadingModel bool
+var statusCounter int
+
+func getStatusCounter() int {
+	statusCounter += 1
+	return statusCounter
+}
 
 type DatabaseConnectionHandlers struct {
 	Ch chan *modules.EchoMessage
@@ -29,7 +36,7 @@ func (msg *DatabaseConnectionHandlers) Connect(args map[string]interface{}, stru
 	connection := args["connection"].(map[string]interface{})
 	database := args["database"].(string)
 
-	databaseLastPing = tools.NewUnixTime()
+	databaseLast = tools.NewUnixTime()
 	if structure == nil {
 		msg.setStatusName("pending")
 	}
@@ -76,7 +83,10 @@ func (msg *DatabaseConnectionHandlers) setStatus(status *StatusMessage) {
 	if serverlastStatus != statusString {
 		msg.Ch <- &modules.EchoMessage{
 			MsgType: "status",
-			Payload: status,
+			Payload: map[string]interface{}{
+				"status":  status,
+				"counter": getStatusCounter(),
+			},
 		}
 		serverlastStatus = statusString
 	}
@@ -98,6 +108,7 @@ func (msg *DatabaseConnectionHandlers) readVersion(pool standard.SqlStandard) er
 }
 
 func (msg *DatabaseConnectionHandlers) handleFullRefresh(pool standard.SqlStandard, strings ...string) {
+	loadingModel = true
 	msg.setStatusName("loadStructure")
 
 	analysedTime = tools.NewUnixTime()
@@ -109,6 +120,7 @@ func (msg *DatabaseConnectionHandlers) handleFullRefresh(pool standard.SqlStanda
 
 	msg.Ch <- &modules.EchoMessage{MsgType: "structureTime", Payload: analysedTime}
 	msg.setStatusName("ok")
+	loadingModel = false
 }
 
 func (msg *DatabaseConnectionHandlers) handleIncrementalRefresh(forceSend bool, pool standard.SqlStandard, args ...string) {
@@ -155,4 +167,14 @@ func (msg *DatabaseConnectionHandlers) ReadVersion(pool standard.SqlStandard) er
 
 func (msg *DatabaseConnectionHandlers) QueryData() {
 
+}
+
+func (msg *DatabaseConnectionHandlers) SyncModel() {
+	if loadingModel {
+		return
+	}
+}
+
+func (msg *DatabaseConnectionHandlers) Ping() {
+	databaseLast = tools.NewUnixTime()
 }
