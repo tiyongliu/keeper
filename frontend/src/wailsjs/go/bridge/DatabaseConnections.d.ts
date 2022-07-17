@@ -3,14 +3,16 @@
 import {bridge} from '../models';
 import {serializer} from '../models';
 
-export function Refresh(arg1:string):void;
-
 export function ServerVersion(arg1:bridge.DatabaseRequest):Promise<serializer.Response>;
 
 export function Status(arg1:bridge.DatabaseRequest):Promise<serializer.Response>;
 
 export function Structure(arg1:bridge.DatabaseRequest):Promise<any>;
 
-export function Close(arg1:bridge.DatabaseKillRequest):void;
+export function SyncModel(arg1:bridge.DatabaseRequest):Promise<serializer.Response>;
+
+export function Disconnect(arg1:bridge.DatabaseRequest):Promise<serializer.Response>;
 
 export function Ping(arg1:bridge.DatabaseRequest):Promise<serializer.Response>;
+
+export function Refresh(arg1:bridge.DatabaseKeepOpenRequest):Promise<serializer.Response>;

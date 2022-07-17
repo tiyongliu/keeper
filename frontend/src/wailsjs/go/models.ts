@@ -25,20 +25,6 @@ export namespace serializer {
 
 export namespace bridge {
 	
-	export class DatabaseKillRequest {
-	    conid: string;
-	    database: string;
-	
-	    static createFrom(source: any = {}) {
-	        return new DatabaseKillRequest(source);
-	    }
-	
-	    constructor(source: any = {}) {
-	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.conid = source["conid"];
-	        this.database = source["database"];
-	    }
-	}
 	export class DatabaseRequest {
 	    conid: string;
 	    database: string;
@@ -51,6 +37,22 @@ export namespace bridge {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.conid = source["conid"];
 	        this.database = source["database"];
+	    }
+	}
+	export class DatabaseKeepOpenRequest {
+	    conid: string;
+	    database: string;
+	    keepOpen: boolean;
+	
+	    static createFrom(source: any = {}) {
+	        return new DatabaseKeepOpenRequest(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.conid = source["conid"];
+	        this.database = source["database"];
+	        this.keepOpen = source["keepOpen"];
 	    }
 	}
 	export class ServerRefreshRequest {
