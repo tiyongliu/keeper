@@ -3,8 +3,6 @@
 import {bridge} from '../models';
 import {serializer} from '../models';
 
-export function ServerVersion(arg1:bridge.DatabaseRequest):Promise<serializer.Response>;
-
 export function Status(arg1:bridge.DatabaseRequest):Promise<serializer.Response>;
 
 export function Structure(arg1:bridge.DatabaseRequest):Promise<any>;
@@ -16,3 +14,5 @@ export function Disconnect(arg1:bridge.DatabaseRequest):Promise<serializer.Respo
 export function Ping(arg1:bridge.DatabaseRequest):Promise<serializer.Response>;
 
 export function Refresh(arg1:bridge.DatabaseKeepOpenRequest):Promise<serializer.Response>;
+
+export function ServerVersion(arg1:bridge.DatabaseRequest):Promise<serializer.Response>;
