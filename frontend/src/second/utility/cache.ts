@@ -87,3 +87,23 @@ export async function loadCachedValue(reloadTrigger, cacheKey, func) {
   if (cacheKey) {}
   return await func()
 }
+
+export async function subscribeCacheChange(reloadTrigger, cacheKey, reloadHandler) {
+  for (const item of getAsArray(reloadTrigger)) {
+    if (!subscriptionsByReloadTrigger[item]) {
+      subscriptionsByReloadTrigger[item] = [];
+    }
+    subscriptionsByReloadTrigger[item].push(reloadHandler);
+  }
+}
+
+export async function unsubscribeCacheChange(reloadTrigger, cacheKey, reloadHandler) {
+  for (const item of getAsArray(reloadTrigger)) {
+    if (subscriptionsByReloadTrigger[item]) {
+      subscriptionsByReloadTrigger[item] = subscriptionsByReloadTrigger[item].filter(x => x != reloadHandler);
+    }
+    if (subscriptionsByReloadTrigger[item].length == 0) {
+      delete subscriptionsByReloadTrigger[item];
+    }
+  }
+}
