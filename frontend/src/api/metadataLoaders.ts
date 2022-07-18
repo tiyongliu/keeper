@@ -19,7 +19,8 @@ const databaseServerVersionLoader = ({conid, database}) => ({
   url: 'database-connections/server-version',
   params: {conid, database},
   reloadTrigger: `database-server-version-changed-${conid}-${database}`,
-});
+})
+
 const databaseStatusLoader = ({conid, database}) => ({
   url: 'database-connections/status',
   params: {conid, database},
