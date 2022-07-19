@@ -52,6 +52,7 @@
     "echarts": "^5.3.2",
     "fast-safe-stringify": "^2.1.1",
     "intro.js": "^5.1.0",
+    "json-stable-stringify": "^1.0.1",
     "lodash-es": "^4.17.21",
     "mockjs": "^1.1.0",
     "moment": "^2.29.3",
