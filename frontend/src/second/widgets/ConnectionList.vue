@@ -1,4 +1,5 @@
 <template>
+  {{connectionsconnections}} --
   <SearchBoxWrapper>
     <SearchInput placeholder="Search connection or database" v-model:searchValue="filter"/>
     <CloseSearchButton :filter="filter" @close="filter = ''"/>
@@ -11,6 +12,7 @@
     </InlineButton>
   </SearchBoxWrapper>
   <WidgetsInnerContainer>
+
     <AppObjectList
       v-if="Array.isArray(connectionsWithStatus) && connectionsWithStatus.length > 0"
       :list="sortBy(connectionsWithStatus, connection => (getConnectionLabel(connection) || '').toUpperCase())"
@@ -32,7 +34,7 @@
 </template>
 
 <script lang="ts">
-import {defineComponent, onMounted, ref, unref, computed} from 'vue'
+import {defineComponent, onMounted, ref, unref, computed, toRefs, watch} from 'vue'
 import {sortBy} from 'lodash-es'
 import SearchBoxWrapper from '/@/second/widgets/SearchBoxWrapper.vue'
 import WidgetsInnerContainer from '/@/second/widgets//WidgetsInnerContainer.vue'
@@ -53,6 +55,7 @@ import LargeButton from '/@/second/buttons/LargeButton.vue'
 //TODO
 import ConnectionModal from '/@/second/modals/ConnectionModal.vue'
 import {useModal} from "/@/components/Modal";
+import {useConnectionList, useServerStatus} from '/@/api/api'
 export default defineComponent({
   name: "ConnectionList",
   components: {
@@ -73,6 +76,7 @@ export default defineComponent({
 
     const metadataLoaders = metadataLoadersStore()
 
+
     // const connectionsWithStatus = [{
     //   "server": "localhost",
     //   "engine": "mysql@dbgate-plugin-mysql",
@@ -89,12 +93,31 @@ export default defineComponent({
       && !unref(data).singleDatabase
 
     onMounted(async () => {
-      await metadataLoaders.onConnectionList()
+      // await metadataLoaders.onConnectionList()
     })
 
     const connectionsWithStatus = computed(() => {
       return metadataLoaders.connectionsWithStatus
     })
+
+
+
+    const connections = useConnectionList()
+    const serverStatus = useServerStatus()
+    watch([connections, serverStatus], () =>  {
+      console.log(connections.value, `connections`)
+      const connectionsWithStatus =
+        connections.value && serverStatus.value ? connections.value.map(conn => ({ ...conn, status: serverStatus.value[conn._id] })) : connections.value
+
+      console.log(connectionsWithStatus, `connectionsWithStatus`)
+    })
+
+    // console.log(`serverStatus=serverStatus`, serverStatus.value)
+
+    setTimeout(() => {
+      // console.log(`connections=connections`, connections)
+      // console.log(`serverStatus=serverStatus`, serverStatus)
+    }, 4000)
 
     const [register, { openModal, closeModal }] = useModal()
     return {
@@ -109,7 +132,8 @@ export default defineComponent({
       runCommand,
       register,
       openModal,
-      closeModal
+      closeModal,
+      connectionsconnections: connections
     }
   }
 })

@@ -8,9 +8,34 @@ const cacheGenerationByKey = {};
 
 let cacheGeneration = 0;
 
-function cacheGet(key) {
+export function cacheGet(key) {
   return cachedByKey[key];
 }
+
+export function cacheSet(key, value, reloadTrigger) {
+  cachedByKey[key] = value;
+  for (const item of getAsArray(reloadTrigger)) {
+    if (!(item in cachedKeysByReloadTrigger)) {
+      cachedKeysByReloadTrigger[item] = [];
+    }
+    cachedKeysByReloadTrigger[item].push(key);
+  }
+  delete cachedPromisesByKey[key];
+}
+
+export function cacheClean(reloadTrigger) {
+  for (const item of getAsArray(reloadTrigger)) {
+    const keys = cachedKeysByReloadTrigger[item];
+    if (keys) {
+      for (const key of keys) {
+        delete cachedByKey[key];
+        delete cachedPromisesByKey[key];
+      }
+    }
+    delete cachedKeysByReloadTrigger[item];
+  }
+}
+
 
 function addCacheKeyToReloadTrigger(cacheKey, reloadTrigger) {
   for (const item of getAsArray(reloadTrigger)) {
@@ -19,36 +44,6 @@ function addCacheKeyToReloadTrigger(cacheKey, reloadTrigger) {
     }
     cachedKeysByReloadTrigger[item].push(cacheKey);
   }
-}
-
-function cacheSet(cacheKey, value, reloadTrigger, generation) {
-  cachedByKey[cacheKey] = value;
-  addCacheKeyToReloadTrigger(cacheKey, reloadTrigger);
-  delete cachedPromisesByKey[cacheKey];
-  cacheGenerationByKey[cacheKey] = generation;
-}
-
-function cacheClean(reloadTrigger) {
-  cacheGeneration += 1;
-  for (const item of getAsArray(reloadTrigger)) {
-    const keys = cachedKeysByReloadTrigger[item];
-    if (keys) {
-      for (const key of keys) {
-        delete cachedByKey[key];
-        delete cachedPromisesByKey[key];
-        cacheGenerationByKey[key] = cacheGeneration;
-      }
-    }
-    delete cachedKeysByReloadTrigger[item];
-  }
-}
-
-function getCachedPromise(reloadTrigger, cacheKey, func) {
-  if (cacheKey in cachedPromisesByKey) return cachedPromisesByKey[cacheKey];
-  const promise = func();
-  cachedPromisesByKey[cacheKey] = promise;
-  addCacheKeyToReloadTrigger(cacheKey, reloadTrigger);
-  return promise;
 }
 
 function acquireCacheGeneration() {
@@ -106,4 +101,11 @@ export async function unsubscribeCacheChange(reloadTrigger, cacheKey, reloadHand
       delete subscriptionsByReloadTrigger[item];
     }
   }
+}
+
+export function getCachedPromise(key, func) {
+  if (key in cachedPromisesByKey) return cachedPromisesByKey[key];
+  const promise = func();
+  cachedPromisesByKey[key] = promise;
+  return promise;
 }
