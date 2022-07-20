@@ -7,13 +7,23 @@ const connectionListLoader = () => ({
   reloadTrigger: `connection-list-changed`,
 });
 
+const serverStatusLoader = () => ({
+  url: 'bridge.ServerConnections.ServerStatus',
+  params: {},
+  reloadTrigger: `server-status-changed`,
+})
+
 export function useConnectionList() {
   return useCore(connectionListLoader, {});
 }
 
+export function useServerStatus() {
+  return useCore(serverStatusLoader, {});
+}
+
 function useCore(loader, args) {
   const { url, params, reloadTrigger, transform } = loader(args);
-  const cacheKey = stableStringify({ url, ...params })
+  const cacheKey = stableStringify({ url, ...params });
 
   const res = useFetch({
     url,
