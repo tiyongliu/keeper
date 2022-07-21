@@ -5,6 +5,9 @@ const connectionListLoader = () => ({
   url: 'bridge.Connections.List',
   params: {},
   reloadTrigger: `connection-list-changed`,
+  events: {
+    eventsOn: true
+  }
 });
 
 const serverStatusLoader = () => ({
@@ -22,8 +25,8 @@ export function useServerStatus() {
 }
 
 function useCore(loader, args) {
-  const { url, params, reloadTrigger, transform } = loader(args);
-  const cacheKey = stableStringify({ url, ...params });
+  const {url, params, reloadTrigger, transform, events} = loader(args);
+  const cacheKey = stableStringify({url, ...params});
 
   const res = useFetch({
     url,
@@ -31,6 +34,7 @@ function useCore(loader, args) {
     reloadTrigger,
     cacheKey,
     transform,
+    events,
   })
 
   return res
