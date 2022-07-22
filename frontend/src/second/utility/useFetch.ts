@@ -1,8 +1,10 @@
-import {onMounted, ref, watch, computed} from 'vue'
+import {computed, ref, watch, watchEffect} from 'vue'
 import stableStringify from 'json-stable-stringify';
 import {isEqual} from 'lodash-es'
+import {EventsOn} from '/@/wailsjs/runtime/runtime'
+import getAsArray from '/@/second/utility/getAsArray'
 import {cacheClean, cacheGet, cacheSet, getCachedPromise} from '/@/second/utility/cache'
-import {useRefs} from '/@/hooks/core/useRefs'
+
 const apiLogging = true
 
 export default function useFetch({
@@ -13,16 +15,15 @@ export default function useFetch({
                                    reloadTrigger = undefined,
                                    cacheKey = undefined,
                                    transform = x => x,
+                                   events,
                                    ...config
                                  }) {
   const value = ref([defaultValue, []])
   const loadCounter = ref(0)
 
-
   const indicators = [url, stableStringify(data), stableStringify(params), loadCounter.value]
 
   async function loadValue(loadedIndicators) {
-    console.log(`111`)
     async function doLoad() {
       try {
         let self: Function = window['go'];
@@ -63,18 +64,32 @@ export default function useFetch({
     }
   }
 
-  const socketEvent = () => {
-    if (reloadTrigger) {
+  watch(reloadTrigger, () => {
+    if (reloadTrigger && !events) {
       console.error('Socket not available, reloadTrigger not planned')
     }
-  }
-
-  onMounted(() => {
-    void loadValue(indicators)
+    if (reloadTrigger && events) {
+      const {eventsOn} = events
+      if (eventsOn) {
+        EventsOn(reloadTrigger, async (data) => {
+          console.log(`data111111111111111111`, data)
+        })
+      }
+    }
+  }, {
+    immediate: true
   })
 
+  const socketEvent = () => {
+
+  }
+  socketEvent()
+
   watch(() => indicators, () => {
-    console.log(`ffff`)
+    void loadValue(indicators)
+  }, {
+    // deep: true,
+    immediate: true
   })
 
   return computed(() => {
