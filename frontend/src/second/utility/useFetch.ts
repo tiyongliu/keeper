@@ -1,9 +1,9 @@
-import {computed, ref, watch, watchEffect} from 'vue'
+import {computed, ref, watch} from 'vue'
 import stableStringify from 'json-stable-stringify';
 import {isEqual} from 'lodash-es'
 import {EventsOn} from '/@/wailsjs/runtime/runtime'
-import getAsArray from '/@/second/utility/getAsArray'
 import {cacheClean, cacheGet, cacheSet, getCachedPromise} from '/@/second/utility/cache'
+import {useSocket} from '/@/second/utility/SocketProvider'
 
 const apiLogging = true
 
@@ -20,6 +20,7 @@ export default function useFetch({
                                  }) {
   const value = ref([defaultValue, []])
   const loadCounter = ref(0)
+  // const socket = useSocket();
 
   const indicators = [url, stableStringify(data), stableStringify(params), loadCounter.value]
 
@@ -38,8 +39,9 @@ export default function useFetch({
     }
 
     if (cacheKey) {
-      console.log(`222`)
+      console.log(`222`, cacheKey)
       const fromCache = cacheGet(cacheKey);
+      console.log(`222`, fromCache)
       if (fromCache) {
         value.value = [fromCache, loadedIndicators]
         console.log(`444`, value.value)
@@ -64,21 +66,30 @@ export default function useFetch({
     }
   }
 
-  watch(reloadTrigger, () => {
-    if (reloadTrigger && !events) {
-      console.error('Socket not available, reloadTrigger not planned')
-    }
-    if (reloadTrigger && events) {
-      const {eventsOn} = events
-      if (eventsOn) {
-        EventsOn(reloadTrigger, async (data) => {
-          console.log(`data111111111111111111`, data)
-        })
+  if (reloadTrigger) {
+    watch(reloadTrigger, () => {
+      if (reloadTrigger && !events) {
+        console.error('Socket not available, reloadTrigger not planned')
       }
-    }
-  }, {
-    immediate: true
-  })
+
+
+      if (reloadTrigger && events) {
+        const {eventsOn} = events
+        if (eventsOn) {
+          EventsOn("clean-cache", (reloadTri) => {
+            console.log(`rrrrrrrrrrrrrrrrrrrr`, reloadTri)
+            cacheClean(reloadTri)
+          })
+          EventsOn(reloadTrigger,  () => {
+            console.log(`11111111111111111111`, reloadTrigger)
+            void loadValue(indicators)
+          })
+        }
+      }
+    }, {
+      immediate: true
+    })
+  }
 
   const socketEvent = () => {
 

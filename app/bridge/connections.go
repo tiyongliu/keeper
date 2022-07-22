@@ -209,7 +209,8 @@ func (conn *Connections) Delete(connection map[string]string) *serializer.Respon
 			return serializer.Fail(err.Error())
 		}
 
-		runtime.EventsEmit(Application.ctx, "connection-list-changed", res)
+		//runtime.EventsEmit(Application.Ctx, "connection-list-changed", res)
+		utility.EmitChanged(Application.ctx, "connection-list-changed")
 		return serializer.SuccessData("", res)
 	}
 
