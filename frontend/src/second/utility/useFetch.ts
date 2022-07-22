@@ -1,12 +1,10 @@
-import {computed, ref, watch} from 'vue'
+import {computed, ref, watch, onBeforeUnmount} from 'vue'
 import stableStringify from 'json-stable-stringify';
 import {isEqual} from 'lodash-es'
-import {EventsOn} from '/@/wailsjs/runtime/runtime'
 import {cacheClean, cacheGet, cacheSet, getCachedPromise} from '/@/second/utility/cache'
+import getAsArray from '/@/second/utility/getAsArray'
 import {useSocket} from '/@/second/utility/SocketProvider'
-
 const apiLogging = true
-
 export default function useFetch({
                                    url,
                                    data = undefined,
@@ -20,8 +18,7 @@ export default function useFetch({
                                  }) {
   const value = ref([defaultValue, []])
   const loadCounter = ref(0)
-  // const socket = useSocket();
-
+  const socket = useSocket();
   const indicators = [url, stableStringify(data), stableStringify(params), loadCounter.value]
 
   async function loadValue(loadedIndicators) {
@@ -66,35 +63,39 @@ export default function useFetch({
     }
   }
 
-  if (reloadTrigger) {
-    watch(reloadTrigger, () => {
-      if (reloadTrigger && !events) {
-        console.error('Socket not available, reloadTrigger not planned')
+  watch([reloadTrigger, socket], () => {
+    if (reloadTrigger && !socket.value) {
+      console.error('Socket not available, reloadTrigger not planned')
+    }
+
+    if (reloadTrigger && socket.value) {
+      for (const item of getAsArray(reloadTrigger)) {
+        socket.value.on(item, () => void loadValue(indicators))
       }
 
+      /*const {eventsOn} = events
+      if (eventsOn) {
+        EventsOn("clean-cache", (reloadTri) => {
+          console.log(`rrrrrrrrrrrrrrrrrrrr`, reloadTri)
+          cacheClean(reloadTri)
+        })
+        EventsOn(reloadTrigger,  () => {
+          console.log(`11111111111111111111`, reloadTrigger)
 
-      if (reloadTrigger && events) {
-        const {eventsOn} = events
-        if (eventsOn) {
-          EventsOn("clean-cache", (reloadTri) => {
-            console.log(`rrrrrrrrrrrrrrrrrrrr`, reloadTri)
-            cacheClean(reloadTri)
-          })
-          EventsOn(reloadTrigger,  () => {
-            console.log(`11111111111111111111`, reloadTrigger)
-            void loadValue(indicators)
-          })
-        }
+        })
+      }*/
+    }
+  }, {
+    immediate: true
+  })
+
+  onBeforeUnmount(() => {
+    for (const item of getAsArray(reloadTrigger)) {
+      if (socket.value) {
+        socket.value.off(item)
       }
-    }, {
-      immediate: true
-    })
-  }
-
-  const socketEvent = () => {
-
-  }
-  socketEvent()
+    }
+  })
 
   watch(() => indicators, () => {
     void loadValue(indicators)
