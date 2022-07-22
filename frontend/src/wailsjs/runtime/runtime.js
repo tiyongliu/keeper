@@ -145,12 +145,8 @@ export function WindowUnminimise() {
     window.runtime.WindowUnminimise();
 }
 
-export function WindowSetBackgroundColour(R, G, B, A) {
-    window.runtime.WindowSetBackgroundColour(R, G, B, A);
-}
-
-export function ScreenGetAll() {
-    return window.runtime.ScreenGetAll();
+export function WindowSetRGBA(RGBA) {
+    window.runtime.WindowSetRGBA(RGBA);
 }
 
 export function BrowserOpenURL(url) {
