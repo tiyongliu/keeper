@@ -1,9 +1,8 @@
 <template>
-  {{connectionsconnections}} --
   <SearchBoxWrapper>
     <SearchInput placeholder="Search connection or database" v-model:searchValue="filter"/>
     <CloseSearchButton :filter="filter" @close="filter = ''"/>
-<!--    <InlineButton title="Add new connection" @click="runCommand('new.connection')">-->
+    <!--    <InlineButton title="Add new connection" @click="runCommand('new.connection')">-->
     <InlineButton title="Add new connection" @click="openModal">
       <FontIcon icon="icon plus-thick"/>
     </InlineButton>
@@ -28,13 +27,14 @@
       icon="icon new-connection"
       fillHorizontal
       @visible="openModal">
-      Add new connection</LargeButton>
+      Add new connection
+    </LargeButton>
     <ConnectionModal @register="register" @closeCurrentModal="closeModal"/>
   </WidgetsInnerContainer>
 </template>
 
 <script lang="ts">
-import {defineComponent, onMounted, ref, unref, computed, toRefs, watch} from 'vue'
+import {defineComponent, onMounted, computed, ref, unref, watch} from 'vue'
 import {sortBy} from 'lodash-es'
 import SearchBoxWrapper from '/@/second/widgets/SearchBoxWrapper.vue'
 import WidgetsInnerContainer from '/@/second/widgets//WidgetsInnerContainer.vue'
@@ -56,6 +56,7 @@ import LargeButton from '/@/second/buttons/LargeButton.vue'
 import ConnectionModal from '/@/second/modals/ConnectionModal.vue'
 import {useModal} from "/@/components/Modal";
 import {useConnectionList, useServerStatus} from '/@/api/api'
+
 export default defineComponent({
   name: "ConnectionList",
   components: {
@@ -76,7 +77,6 @@ export default defineComponent({
 
     const metadataLoaders = metadataLoadersStore()
 
-
     // const connectionsWithStatus = [{
     //   "server": "localhost",
     //   "engine": "mysql@dbgate-plugin-mysql",
@@ -92,34 +92,26 @@ export default defineComponent({
     const handleExpandable = (data) => dataBase.$state.openedConnections.includes(unref(data)._id)
       && !unref(data).singleDatabase
 
-    onMounted(async () => {
-      // await metadataLoaders.onConnectionList()
-    })
+    // onMounted(async () => {
+    //    await metadataLoaders.onConnectionList()
+    // })
 
-    const connectionsWithStatus = computed(() => {
-      return metadataLoaders.connectionsWithStatus
-    })
+    // const connectionsWithStatus = computed(() => {
+    //   return metadataLoaders.connectionsWithStatus
+    // })
 
-
-
+    const connectionsWithStatus = ref<unknown[]>([])
     const connections = useConnectionList()
     const serverStatus = useServerStatus()
-    watch([connections, serverStatus], () =>  {
-      console.log(connections.value, `connections`)
-      const connectionsWithStatus =
-        connections.value && serverStatus.value ? connections.value.map(conn => ({ ...conn, status: serverStatus.value[conn._id] })) : connections.value
 
-      console.log(connectionsWithStatus, `connectionsWithStatus`)
+    watch([connections, serverStatus], () => {
+      connectionsWithStatus.value =
+        connections.value && serverStatus.value ?
+          connections.value.map(conn => ({...conn, status: serverStatus.value[conn._id]})) :
+          connections.value
     })
 
-    // console.log(`serverStatus=serverStatus`, serverStatus.value)
-
-    setTimeout(() => {
-      // console.log(`connections=connections`, connections)
-      // console.log(`serverStatus=serverStatus`, serverStatus)
-    }, 4000)
-
-    const [register, { openModal, closeModal }] = useModal()
+    const [register, {openModal, closeModal}] = useModal()
     return {
       hidden,
       filter,
@@ -133,7 +125,6 @@ export default defineComponent({
       register,
       openModal,
       closeModal,
-      connectionsconnections: connections
     }
   }
 })
