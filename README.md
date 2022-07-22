@@ -10,6 +10,9 @@
 ![keeper-2](./example/assets/keeper-2.png)
 ![keeper-3](./example/assets/keeper-3.png)
 
+## update wails version
+`wails update -pre`
+
 ## Live Development
 
 To run in live development mode, run `wails dev` in the project directory. In another terminal, go into the `frontend`
@@ -27,3 +30,4 @@ But there are also many advanced features like schema compare, visual query desi
 > Author:  tiyongliu
 
 > Technology stack:  Vue3 + Vite + vben admin + Golang + Wails v2
+
