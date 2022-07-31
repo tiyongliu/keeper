@@ -104,13 +104,14 @@ export default defineComponent({
     const connections = useConnectionList()
     const serverStatus = useServerStatus()
 
-    watch(() => [connections, serverStatus], (d, v) => {
+    watch(() => [connections, serverStatus], () => {
       connectionsWithStatus.value =
         connections.value && serverStatus.value ?
           connections.value.map(conn => ({...conn, status: serverStatus.value[conn._id]})) :
           connections.value
     }, {
-      deep: true
+      deep: true,
+      immediate: true,
     })
 
     const [register, {openModal, closeModal}] = useModal()
@@ -127,6 +128,7 @@ export default defineComponent({
       register,
       openModal,
       closeModal,
+      connections, serverStatus
     }
   }
 })

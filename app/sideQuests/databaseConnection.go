@@ -80,7 +80,7 @@ func (msg *DatabaseConnectionHandlers) setStatusName(name string, message ...str
 
 func (msg *DatabaseConnectionHandlers) setStatus(status *StatusMessage) {
 	statusString := tools.ToJsonStr(status)
-	if serverlastStatus != statusString {
+	if serverLastStatus != statusString {
 		msg.Ch <- &modules.EchoMessage{
 			MsgType: "status",
 			Payload: map[string]interface{}{
@@ -88,7 +88,7 @@ func (msg *DatabaseConnectionHandlers) setStatus(status *StatusMessage) {
 				"counter": getStatusCounter(),
 			},
 		}
-		serverlastStatus = statusString
+		serverLastStatus = statusString
 	}
 }
 
