@@ -18,8 +18,8 @@ export function Refresh(arg1) {
   return window['go']['bridge']['ServerConnections']['Refresh'](arg1);
 }
 
-export function Reset(arg1) {
-  return window['go']['bridge']['ServerConnections']['Reset'](arg1);
+export function Reset() {
+  return window['go']['bridge']['ServerConnections']['Reset']();
 }
 
 export function ServerStatus() {

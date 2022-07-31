@@ -20,7 +20,7 @@ import getConnectionLabel from '/@/second/utility/getConnectionLabel'
 import {ConnectionsWithStatus} from '/@/second/typings/mysql'
 import {IPinnedDatabasesItem} from '/@/second/typings/types/standard.d'
 import {handleDeleteApi} from '/@/api/connection'
-import {handleRefreshApi, handleResetApi} from '/@/api/serverConnections'
+import {handleRefreshApi} from '/@/api/serverConnections'
 
 export default defineComponent({
   name: 'ConnectionAppObject',
@@ -64,7 +64,7 @@ export default defineComponent({
     const engineStatusTitleRef = ref()
     const dataBase = dataBaseStore()
 
-    const handleConnect = async () => {
+    const handleConnect = () => {
       if (unref(data)!.singleDatabase) {
         dataBase.subscribeCurrentDatabase({
           connection: unref(data)!,
@@ -77,7 +77,7 @@ export default defineComponent({
         }
         dataBase.subscribeOpenedConnections(uniq([...dataBase.getOpenedConnections, unref(data)!._id]))
         setTimeout(() => {
-          handleRefreshApi({
+          void handleRefreshApi({
             conid: unref(data)!._id,
             keepOpen: true,
           })

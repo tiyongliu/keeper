@@ -11,6 +11,6 @@ export function Ping(arg1:Array<string>):Promise<serializer.Response>;
 
 export function Refresh(arg1:bridge.ServerRefreshRequest):Promise<serializer.Response>;
 
-export function Reset(arg1:string):Promise<serializer.Response>;
+export function Reset():Promise<serializer.Response>;
 
 export function ServerStatus():Promise<any>;
