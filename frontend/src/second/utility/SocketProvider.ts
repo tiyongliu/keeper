@@ -16,10 +16,11 @@ export function useSocket() {
   const socket = ref<RuntimeEvent | null>(null)
   onMounted(() => {
     socket.value = newSocket
-    newSocket.on("clean-cache", reloadTrigger => cacheClean(reloadTrigger))
+    newSocket.on("changed-cache", reloadTrigger => {
+      console.log(`reloadTrigger-const newSocket = io('http://localhost:3000', { transports: ['websocket'] })`, reloadTrigger)
+      cacheClean(reloadTrigger)
+    })
   })
-  console.log(`rerwrwerwwrrwewer`)
-
   return socket
 }
 

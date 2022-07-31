@@ -11,7 +11,6 @@
     </InlineButton>
   </SearchBoxWrapper>
   <WidgetsInnerContainer>
-
     <AppObjectList
       v-if="Array.isArray(connectionsWithStatus) && connectionsWithStatus.length > 0"
       :list="sortBy(connectionsWithStatus, connection => (getConnectionLabel(connection) || '').toUpperCase())"
@@ -55,8 +54,8 @@ import LargeButton from '/@/second/buttons/LargeButton.vue'
 //TODO
 import ConnectionModal from '/@/second/modals/ConnectionModal.vue'
 import {useModal} from "/@/components/Modal";
-import {useConnectionList, useServerStatus} from '/@/api/api'
-
+// import {useConnectionList, useServerStatus} from '/@/api/api'
+import {useConnectionList, useServerStatus} from '/@/api/bridge'
 export default defineComponent({
   name: "ConnectionList",
   components: {
@@ -75,7 +74,7 @@ export default defineComponent({
     const filter = ref('')
     const dataBase = dataBaseStore()
 
-    const metadataLoaders = metadataLoadersStore()
+    // const metadataLoaders = metadataLoadersStore()
 
     // const connectionsWithStatus = [{
     //   "server": "localhost",
@@ -101,14 +100,17 @@ export default defineComponent({
     // })
 
     const connectionsWithStatus = ref<unknown[]>([])
+
     const connections = useConnectionList()
     const serverStatus = useServerStatus()
 
-    watch([connections, serverStatus], () => {
+    watch(() => [connections, serverStatus], (d, v) => {
       connectionsWithStatus.value =
         connections.value && serverStatus.value ?
           connections.value.map(conn => ({...conn, status: serverStatus.value[conn._id]})) :
           connections.value
+    }, {
+      deep: true
     })
 
     const [register, {openModal, closeModal}] = useModal()

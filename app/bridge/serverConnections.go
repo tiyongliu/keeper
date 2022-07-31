@@ -1,13 +1,15 @@
 package bridge
 
 import (
+	"fmt"
 	"github.com/samber/lo"
-	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"keeper/app/code"
 	"keeper/app/modules"
+	"keeper/app/pkg/logger"
 	"keeper/app/pkg/serializer"
 	"keeper/app/sideQuests"
 	"keeper/app/tools"
+	"keeper/app/utility"
 	"sync"
 )
 
@@ -16,29 +18,26 @@ var lock sync.RWMutex
 const conidkey = "conid"
 
 type ServerConnections struct {
-	Closed     map[string]interface{}
-	Opened     []map[string]interface{}
-	LastPinged map[string]code.UnixTime
-}
-
-type OpenedStatus struct {
-	Name string `json:"name"`
+	Closed                  map[string]interface{}
+	Opened                  []map[string]interface{}
+	LastPinged              map[string]code.UnixTime
+	ServerConnectionChannel *sideQuests.ServerConnection
+	ch                      chan *modules.EchoMessage
 }
 
 func NewServerConnections() *ServerConnections {
+	ch := make(chan *modules.EchoMessage)
 	return &ServerConnections{
-		Closed:     make(map[string]interface{}),
-		LastPinged: make(map[string]code.UnixTime),
+		Closed:                  make(map[string]interface{}),
+		LastPinged:              make(map[string]code.UnixTime),
+		ServerConnectionChannel: sideQuests.NewServerConnection(ch),
+		ch:                      ch,
 	}
 }
 
 func (sc *ServerConnections) handleDatabases(conid string, databases interface{}) {
 	existing, ok := lo.Find[map[string]interface{}](sc.Opened, func(item map[string]interface{}) bool {
-		if item[conidkey] != nil && item[conidkey].(string) == conid {
-			return true
-		} else {
-			return false
-		}
+		return item[conidkey] != nil && item[conidkey].(string) == conid
 	})
 
 	if existing == nil || !ok {
@@ -47,14 +46,15 @@ func (sc *ServerConnections) handleDatabases(conid string, databases interface{}
 
 	existing["databases"] = databases
 
-	runtime.EventsEmit(Application.ctx, "database-list-changed", conid)
+	logger.Infof("databases : %s", tools.ToJsonStr(sc.Opened))
+	utility.EmitChanged(Application.ctx, fmt.Sprintf("database-list-changed-%s", conid))
 }
 
 func (sc *ServerConnections) handleVersion(conid, version string) {
 
 }
 
-func (sc *ServerConnections) handleStatus(conid string, status *sideQuests.StatusMessage) {
+func (sc *ServerConnections) handleStatus(conid string, status map[string]string) {
 	existing, ok := lo.Find[map[string]interface{}](sc.Opened, func(item map[string]interface{}) bool {
 		if item[conidkey] != nil && item[conidkey].(string) == conid {
 			return true
@@ -67,36 +67,31 @@ func (sc *ServerConnections) handleStatus(conid string, status *sideQuests.Statu
 		return
 	}
 
-	existing["status"] = &OpenedStatus{Name: status.Name}
-
-	runtime.EventsEmit(Application.ctx, "server-status-changed")
+	existing["status"] = &modules.OpenedStatus{Name: status["name"], Message: status["message"]}
+	utility.EmitChanged(Application.ctx, "server-status-changed")
 }
 
 func (sc *ServerConnections) handlePing() {}
 
 func (sc *ServerConnections) ensureOpened(conid string) map[string]interface{} {
-	lock.Lock()
-	defer lock.Unlock()
-
-	existing, ok := lo.Find[map[string]interface{}](sc.Opened, func(item map[string]interface{}) bool {
-		if item[conidkey].(string) == conid {
-			return true
-		} else {
-			return false
-		}
+	existing, ok := lo.Find[map[string]interface{}](sc.Opened, func(x map[string]interface{}) bool {
+		uuid, ok := x[conidkey].(string)
+		return ok && uuid == conid
 	})
-
-	runtime.EventsEmit(Application.ctx, "server-status-changed")
-
+	connection := getCore(conid, false)
 	if existing != nil && ok {
+		logger.Infof("info:  %s", tools.ToJsonStr(existing))
+		//driver, err := sideQuests.GetSqlDriver(connection)
+		//if err == nil {
+		//	err = sc.ServerConnectionChannel.HandleRefresh(sc.ch, driver)
+		//}
+
 		return existing
 	}
 
-	connection := getCore(conid, false)
-
 	newOpened := map[string]interface{}{
 		conidkey:       conid,
-		"status":       &OpenedStatus{Name: "pending"},
+		"status":       &modules.OpenedStatus{Name: "pending"},
 		"databases":    []interface{}{},
 		"connection":   connection,
 		"disconnected": false,
@@ -108,31 +103,33 @@ func (sc *ServerConnections) ensureOpened(conid string) map[string]interface{} {
 		delete(sc.Closed, conid)
 	}
 
-	ch := make(chan *modules.EchoMessage)
-	go sideQuests.NewServerConnectionHandlers(ch).Connect(connection)
-	go sc.listener(newOpened, ch)
+	utility.EmitChanged(Application.ctx, "server-status-changed")
+
+	go sc.ServerConnectionChannel.Connect(sc.ch, connection)
+	go sc.pipeHandler(newOpened, sc.ch)
 
 	return newOpened
 }
 
-//https://esc.show/article/Golang-GUI-kai-fa-zhi-Webview
-func (sc *ServerConnections) ListDatabases(request string) *serializer.Response {
-	if request == "" {
+func (sc *ServerConnections) ListDatabases(request map[string]string) *serializer.Response {
+	if request == nil || request[conidkey] == "" {
 		return serializer.Fail(serializer.IdNotEmpty)
 	}
-	opened := sc.ensureOpened(request)
+	opened := sc.ensureOpened(request[conidkey])
 	return serializer.SuccessData(serializer.SUCCESS, opened["databases"])
 }
 
 func (sc *ServerConnections) ServerStatus() interface{} {
 	values := map[string]interface{}{}
+	for key, val := range sc.Closed {
+		values[key] = val
+	}
 
 	for _, driver := range sc.Opened {
-		statusObj, ok := driver["status"].(*OpenedStatus)
+		statusObj, ok := driver["status"].(*modules.OpenedStatus)
 		if ok {
 			values[driver[conidkey].(string)] = statusObj
 		}
-
 	}
 
 	return serializer.SuccessData("", values)
@@ -147,7 +144,25 @@ func (sc *ServerConnections) Ping(connections []string) *serializer.Response {
 
 		sc.LastPinged[conid] = tools.NewUnixTime()
 		sc.ensureOpened(conid)
+		sc.ServerConnectionChannel.NewTime()
+		//connection := getCore(conid, false)
+		//if ping := sc.ServerConnectionChannel.Ping(connection); ping != nil {
+		//	sc.handleStatus(conid, map[string]string{
+		//		"name":    ping.Name,
+		//		"message": ping.Message,
+		//	})
+		//}
 	}
+
+	return serializer.SuccessData("", map[string]string{"status": "ok"})
+}
+
+func (sc *ServerConnections) Reset(conid string) *serializer.Response {
+
+	sc.Opened = lo.Filter[map[string]interface{}](sc.Opened, func(x map[string]interface{}, _ int) bool {
+		uuid, ok := x[conid].(string)
+		return ok && uuid != conid
+	})
 
 	return serializer.SuccessData("", map[string]string{"status": "ok"})
 }
@@ -164,18 +179,18 @@ func (sc *ServerConnections) Close(conid string, kill bool) {
 	if existing != nil && ok {
 		existing["disconnected"] = true
 		if kill {
-			//existing.subprocess.kill()
-			sc.Opened = lo.Filter[map[string]interface{}](sc.Opened, func(obj map[string]interface{}, _ int) bool {
-				uuid, ok := obj[conid].(string)
+			sc.Opened = lo.Filter[map[string]interface{}](sc.Opened, func(x map[string]interface{}, _ int) bool {
+				uuid, ok := x[conid].(string)
 				return ok && uuid != conid
 			})
-
-			sc.Closed = map[string]interface{}{
+			sc.Closed[conid] = map[string]interface{}{
 				"name":   "error",
-				"status": existing["status"].(*OpenedStatus),
+				"status": existing["status"].(*modules.OpenedStatus),
 			}
+			sc.LastPinged[conid] = 0
 		}
-		runtime.EventsEmit(Application.ctx, "server-status-changed")
+
+		utility.EmitChanged(Application.ctx, "server-status-changed")
 	}
 }
 
@@ -189,33 +204,35 @@ func (sc *ServerConnections) Refresh(req *ServerRefreshRequest) *serializer.Resp
 		sc.Close(req.Conid, true)
 	}
 	sc.ensureOpened(req.Conid)
-
 	return serializer.SuccessData("", map[string]string{
 		"status": "ok",
 	})
 }
 
-func (sc *ServerConnections) listener(newOpened map[string]interface{}, chData <-chan *modules.EchoMessage) {
+func (sc *ServerConnections) pipeHandler(newOpened map[string]interface{}, chData <-chan *modules.EchoMessage) {
 	for {
 		message, ok := <-chData
-		//logger.Infof("chan message -<: %s", tools.ToJsonStr(message))
 		conid := newOpened[conidkey].(string)
 		if message != nil {
 			switch message.MsgType {
 			case "status":
-				sc.handleStatus(conid, message.Payload.(*sideQuests.StatusMessage))
+				sc.handleStatus(conid, message.Payload.(map[string]string))
 			case "databases":
 				sc.handleDatabases(conid, message.Payload)
 			case "ping":
 				sc.handlePing()
-			}
-		}
+			case "exit":
+				if !newOpened["disconnected"].(bool) {
+					sc.Close(conid, true)
+				}
 
-		if !ok {
-			if !newOpened["disconnected"].(bool) {
-				sc.Close(conid, true)
+				if !ok {
+					if !newOpened["disconnected"].(bool) {
+						sc.Close(conid, true)
+					}
+					break
+				}
 			}
-			break
 		}
 	}
 }

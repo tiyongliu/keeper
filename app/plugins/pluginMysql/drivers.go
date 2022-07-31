@@ -203,6 +203,14 @@ func (mysql *MysqlDrivers) ForeignKeys(databaseName, tableName string) (interfac
 	return foreignKeys, nil
 }
 
+func (mysql *MysqlDrivers) Ping() error {
+	db, err := mysql.DB.DB()
+	if err != nil {
+		return err
+	}
+	return db.Ping()
+}
+
 /*
 [2022-07-10 20:53:57.104][localhost_3306][000015][MYSQL]
 SHOW TABLE STATUS LIKE 'tz_user'

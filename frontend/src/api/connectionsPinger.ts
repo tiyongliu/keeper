@@ -8,10 +8,10 @@ const doServerPing = value => {
 
 export function subscribeConnectionPingers() {
   const dataBase = dataBaseStore()
-
-  dataBase.$subscribe(({events}, state) => {
-    if (events.hasOwnProperty('key') && events?.key === 'openedConnections') {
-      doServerPing(state.openedConnections)
+  dataBase.$subscribe((mutation, state) => {
+    const {events} = mutation as any
+    if (events.hasOwnProperty('key') && events.key === 'openedConnections') {
+      // doServerPing(state.openedConnections)
       if (openedConnectionsHandle) window.clearInterval(openedConnectionsHandle)
       openedConnectionsHandle = window.setInterval(() => doServerPing(state.openedConnections), 30 * 1000)
     }
