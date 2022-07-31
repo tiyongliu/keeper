@@ -1,10 +1,9 @@
-// @ts-ignore
 import {computed, ComputedRef, onBeforeUnmount, ref, UnwrapRefSimple} from "vue";
 import stableStringify from 'json-stable-stringify'
 import {isEqual} from "lodash-es";
 import {extendDatabaseInfo} from 'keeper-tools';
 import {setLocalStorage} from '/@/second/utility/storageCache'
-import {EventsOn} from '/@/wailsjs/runtime/runtime'
+import {EventsOff, EventsOn} from '/@/wailsjs/runtime/runtime'
 import getAsArray from '/@/second/utility/getAsArray'
 import {apiCall} from '/@/second/utility/api'
 import {loadCachedValue} from './cache'
@@ -30,21 +29,21 @@ const databaseListLoader = ({conid}) => ({
   },
 })
 
-const databaseServerVersionLoader = ({ conid, database }) => ({
+const databaseServerVersionLoader = ({conid, database}) => ({
   url: 'database-connections/server-version',
-  params: { conid, database },
+  params: {conid, database},
   reloadTrigger: `database-server-version-changed-${conid}-${database}`,
 })
 
-const databaseStatusLoader = ({ conid, database }) => ({
+const databaseStatusLoader = ({conid, database}) => ({
   url: 'database-connections/status',
-  params: { conid, database },
+  params: {conid, database},
   reloadTrigger: `database-status-changed-${conid}-${database}`,
 })
 
-const databaseInfoLoader = ({ conid, database }) => ({
+const databaseInfoLoader = ({conid, database}) => ({
   url: 'database-connections/structure',
-  params: { conid, database },
+  params: {conid, database},
   reloadTrigger: `database-structure-changed-${conid}-${database}`,
   transform: extendDatabaseInfo,
 })
@@ -118,10 +117,10 @@ function useCore<T>(loader, args): ComputedRef<UnwrapRefSimple<T> | null | undef
   void handleReload(indicators)
 
   onBeforeUnmount(() => {
+    value.value = [null, []]
+    openedCount.value -= 1
     if (reloadTrigger) {
-      openedCount.value -= 1
-    } else {
-      openedCount.value -= 1
+      EventsOff(reloadTrigger)
     }
   })
 

@@ -5,6 +5,7 @@ import (
 	"github.com/samber/lo"
 	"keeper/app/code"
 	"keeper/app/modules"
+	"keeper/app/pkg/logger"
 	"keeper/app/pkg/serializer"
 	"keeper/app/sideQuests"
 	"keeper/app/tools"
@@ -195,6 +196,7 @@ func (sc *ServerConnections) Refresh(req *ServerRefreshRequest) *serializer.Resp
 func (sc *ServerConnections) pipeHandler(newOpened map[string]interface{}, chData <-chan *modules.EchoMessage) {
 	for {
 		message, ok := <-chData
+		logger.Infof("current : %s", message.MsgType)
 		conid := newOpened[conidkey].(string)
 		if message != nil {
 			switch message.MsgType {
