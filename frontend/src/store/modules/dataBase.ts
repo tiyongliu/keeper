@@ -2,11 +2,10 @@ import {defineStore} from "pinia"
 import {store} from "/@/store"
 import {mapValues} from 'lodash-es'
 import invalidateCommands from '/@/second/commands/invalidateCommands'
-
 import pluginMongoDrivers from '/@/second/plugins/keeper-plugin-mongo'
 import pluginMysqlDrivers from '/@/second/plugins/keeper-plugin-mysql'
 import pluginRedisDrivers from '/@/second/plugins/keeper-plugin-redis'
-
+import {apiCall} from '/@/second/utility/api'
 import {getWithStorageVariableCache, setWithStorageVariableCache} from '../index'
 import {IPinnedDatabasesItem} from '/@/second/typings/types/standard.d'
 import {ExtensionsDirectory} from '/@/second/typings/types/extensions.d'
@@ -62,6 +61,9 @@ export const dataBaseStore = defineStore({
     commandsCustomized: {},
   }),
   getters: {
+    getOpenedConnections(): string[] {
+      return this.openedConnections
+    },
     getCurrentDatabase(): IPinnedDatabasesItem | null {
       return this.currentDatabase
     },

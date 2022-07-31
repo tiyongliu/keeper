@@ -96,3 +96,7 @@ func (mg *MongoDBDrivers) Collections(databaseName string) (interface{}, error) 
 func (mg *MongoDBDrivers) Columns(databaseName, tableName string) (interface{}, error) {
 	return nil, nil
 }
+
+func (mg *MongoDBDrivers) Ping() error {
+	return mg.DB.Ping(context.Background(), nil)
+}

@@ -63,9 +63,8 @@ import DatabaseObjectAppObject from '/@/second/appobj/DatabaseObjectAppObject'
 import SubColumnParamList from '/@/second/appobj/SubColumnParamList'
 import {getObjectTypeFieldLabel} from '/@/second/utility/common'
 import {chevronExpandIcon} from '/@/second/icons/expandIcons'
-
-import {useDatabaseInfo} from "/@/api/metadataLoaders";
 //todo api tables dataSource
+import {useDatabaseInfo} from "/@/api/bridge";
 import _objectList from './objectList.json'
 import _objects from './objects.json'
 

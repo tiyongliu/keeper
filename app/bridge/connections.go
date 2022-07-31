@@ -39,6 +39,9 @@ func NewConnections() *Connections {
 }
 
 func getCore(conid string, mask bool) map[string]interface{} {
+	lock.Lock()
+	defer lock.Unlock()
+
 	if conid == "" {
 		return nil
 	}
@@ -169,7 +172,7 @@ func (conn *Connections) Save(connection map[string]string) *serializer.Response
 
 		return serializer.Fail("")
 	}
-
+	utility.EmitChanged(Application.ctx, "connection-list-changed")
 	return serializer.SuccessData("", res)
 }
 
@@ -209,7 +212,6 @@ func (conn *Connections) Delete(connection map[string]string) *serializer.Respon
 			return serializer.Fail(err.Error())
 		}
 
-		//runtime.EventsEmit(Application.Ctx, "connection-list-changed", res)
 		utility.EmitChanged(Application.ctx, "connection-list-changed")
 		return serializer.SuccessData("", res)
 	}
