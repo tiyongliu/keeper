@@ -3,7 +3,6 @@ package sideQuests
 import (
 	"keeper/app/code"
 	"keeper/app/modules"
-	"keeper/app/pkg/logger"
 	"keeper/app/pkg/standard"
 	"keeper/app/plugins/pluginMongdb"
 	"keeper/app/plugins/pluginMysql"
@@ -14,8 +13,8 @@ import (
 	"github.com/mitchellh/mapstructure"
 )
 
-var serverlastStatus string
-var serverlastPing code.UnixTime
+var serverLastStatus string
+var serverLastPing code.UnixTime
 
 var serverlastDatabases string
 
@@ -28,13 +27,19 @@ type ServerConnection struct {
 	SqlDriver standard.SqlStandard
 }
 
+func ResetSideQuests() {
+	serverLastStatus = ""
+	serverlastDatabases = ""
+	serverLastPing = 0
+}
+
 func NewServerConnection(ch chan *modules.EchoMessage) *ServerConnection {
-	setInterval(func() {
-		logger.Info("Server connection not alive, exiting")
-		ch <- &modules.EchoMessage{
-			MsgType: "exit",
-		}
-	})
+	//setInterval(func() {
+	//	logger.Info("Server connection not alive, exiting")
+	//	ch <- &modules.EchoMessage{
+	//		MsgType: "exit",
+	//	}
+	//})
 
 	return &ServerConnection{}
 }
@@ -48,7 +53,7 @@ func setInterval(fn func()) {
 	go func(ticker *time.Ticker) {
 		for range ticker.C {
 			nowTime := tools.NewUnixTime()
-			if nowTime-serverlastPing > code.UnixTime(120*1000) {
+			if nowTime-serverLastPing > code.UnixTime(120*1000) {
 				fn()
 				ticker.Stop()
 			}
@@ -58,11 +63,8 @@ func setInterval(fn func()) {
 
 func (msg *ServerConnection) Connect(ch chan *modules.EchoMessage, connection map[string]interface{}) {
 	msg.setStatus(ch, "pending")
-
-	serverlastPing = tools.NewUnixTime()
-
+	serverLastPing = tools.NewUnixTime()
 	//TODO connectUtility, 可以传递一个func 因为返回值都是一样的，在func内部进行处理
-
 	sqlDriver, err := GetSqlDriver(connection)
 	if err != nil {
 		msg.setStatus(ch, "error", err.Error())
@@ -73,19 +75,16 @@ func (msg *ServerConnection) Connect(ch chan *modules.EchoMessage, connection ma
 
 	if err := msg.readVersion(ch, sqlDriver); err != nil {
 		msg.setStatus(ch, "error", err.Error())
-		logger.Infof("readVersion err: [%v]", err)
-		//msg.errorExit()
 		return
 	}
 
 	if err := msg.handleRefresh(ch, sqlDriver); err != nil {
 		msg.setStatus(ch, "error", err.Error())
-		logger.Infof("handleRefresh err: [%v]", err)
 		return
 	}
 
 	msg.setStatus(ch, "ok")
-	//ticker := time.NewTicker(time.Second)
+	//ticker := time.NewTicker(30 * time.Second)
 	//go func(ticker *time.Ticker) {
 	//	for range ticker.C {
 	//		if err := sqlDriver.Ping(); err != nil {
@@ -117,34 +116,8 @@ func GetSqlDriver(connection map[string]interface{}) (driver standard.SqlStandar
 	return driver, nil
 }
 
-func (msg *ServerConnection) NewTime() {
-	serverlastPing = tools.NewUnixTime()
-}
-
-func (msg *ServerConnection) Ping(connection map[string]interface{}) *modules.OpenedStatus {
-	if msg.SqlDriver == nil {
-		sqlDriver, err := GetSqlDriver(connection)
-		if err != nil {
-			return &modules.OpenedStatus{
-				Name:    "error",
-				Message: err.Error(),
-			}
-		}
-
-		if sqlDriver.Ping() != nil {
-			return &modules.OpenedStatus{
-				Name:    "error",
-				Message: err.Error(),
-			}
-		}
-
-		return &modules.OpenedStatus{
-			Name:    "ok",
-			Message: "",
-		}
-	}
-
-	return nil
+func (msg *ServerConnection) Ping() {
+	serverLastPing = tools.NewUnixTime()
 }
 
 func (msg *ServerConnection) CreateDatabase() {
@@ -158,15 +131,18 @@ func (msg *ServerConnection) setStatus(ch chan *modules.EchoMessage, name string
 	}
 
 	statusString := tools.ToJsonStr(status)
-	if serverlastStatus != statusString {
+	if serverLastStatus != statusString {
 		ch <- &modules.EchoMessage{
 			MsgType: "status",
 			Payload: status,
 		}
-		serverlastStatus = statusString
+		serverLastStatus = statusString
 	}
 
 	if name == "error" {
+		if msg.SqlDriver != nil {
+			msg.SqlDriver.Close()
+		}
 		ch <- &modules.EchoMessage{
 			MsgType: "exit",
 		}
@@ -239,16 +215,4 @@ func (msg *ServerConnection) handleRefresh(ch chan *modules.EchoMessage, pool st
 	}
 
 	return nil
-}
-
-func (msg *ServerConnection) errorExit() {
-	//defer close(msg.Ch)
-	//timer := time.AfterFunc(1*time.Second, func() {
-	//	msg.Ch <- &modules.EchoMessage{
-	//		Payload: serializer.StatusCodeFailed,
-	//		MsgType: "exit",
-	//	}
-	//})
-	//
-	//defer timer.Stop()
 }
