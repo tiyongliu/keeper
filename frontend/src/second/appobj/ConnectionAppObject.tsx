@@ -76,11 +76,9 @@ export default defineComponent({
           // await handleResetApi(unref(data)!._id)
         }
         dataBase.subscribeOpenedConnections(uniq([...dataBase.getOpenedConnections, unref(data)!._id]))
-        setTimeout(() => {
-          void handleRefreshApi({
-            conid: unref(data)!._id,
-            keepOpen: true,
-          })
+        void handleRefreshApi({
+          conid: unref(data)!._id,
+          keepOpen: true,
         })
       }
     }
