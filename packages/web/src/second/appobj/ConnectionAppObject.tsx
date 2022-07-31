@@ -1,9 +1,4 @@
 import {computed, defineComponent, onMounted, PropType, ref, toRefs, unref, watch} from 'vue'
-<<<<<<<< HEAD:frontend/src/second/appobj/ConnectionAppObject.tsx
-import {filterName} from 'keeper-tools'
-========
-import {filterName} from 'dbbox-tools'
->>>>>>>> api:packages/web/src/second/appobj/ConnectionAppObject.tsx
 import {getLocalStorage} from '/@/second/utility/storageCache'
 import {dataBaseStore} from "/@/store/modules/dataBase"
 import {get, uniq} from 'lodash-es'
@@ -56,7 +51,7 @@ export default defineComponent({
           name: unref(data)!.defaultDatabase
         } as unknown as IPinnedDatabasesItem)
       } else {
-        dataBase.subscribeOpenedConnections(uniq([...dataBase.$state.openedConnections, unref(data)!._id]))
+        dataBase.setOpenedConnections(uniq([...dataBase.$state.openedConnections, unref(data)!._id]))
       }
     }
 

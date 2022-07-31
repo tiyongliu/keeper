@@ -5,10 +5,12 @@ import {bridge} from '../models';
 
 export function Close(arg1:string,arg2:boolean):void;
 
-export function ListDatabases(arg1:string):Promise<serializer.Response>;
+export function ListDatabases(arg1:{[key: string]: string}):Promise<serializer.Response>;
 
 export function Ping(arg1:Array<string>):Promise<serializer.Response>;
 
 export function Refresh(arg1:bridge.ServerRefreshRequest):Promise<serializer.Response>;
+
+export function Reset(arg1:string):Promise<serializer.Response>;
 
 export function ServerStatus():Promise<any>;

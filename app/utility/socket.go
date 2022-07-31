@@ -6,6 +6,6 @@ import (
 )
 
 func EmitChanged(ctx context.Context, key string) {
-	runtime.EventsEmit(ctx, "clean-cache", key)
+	runtime.EventsEmit(ctx, "changed-cache", key)
 	runtime.EventsEmit(ctx, key)
 }

@@ -19,5 +19,3 @@ export async function loadDatabasesApi() {
 export async function handleDeleteApi(params) {
   return await apiCall('bridge.Connections.Delete', params)
 }
-
-//useDatabaseList
