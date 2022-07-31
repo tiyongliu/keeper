@@ -11,8 +11,9 @@
   import { AppProvider } from '/@/components/Application';
   import { useTitle } from '/@/hooks/web/useTitle';
   import { useLocale } from '/@/locales/useLocale';
-  import {onMounted} from 'vue'
+  import {onMounted, onBeforeUnmount} from 'vue'
   import {loadDatabasesApi} from '/@/api/connection'
+  import {handleResetApi} from '/@/api/serverConnections'
 
   //TODO
   import { subscribeConnectionPingers } from '/@/api/connectionsPinger';
@@ -38,19 +39,21 @@
 
       if (!loadedApi) {
         console.log('API not initialized correctly, trying again in 1s');
-        setTimeout(loadApi, 1000);
+        setTimeout(loadApi, 1000000);
       }
     } catch (err) {
       console.log('Error calling API, trying again in 1s', err);
-      setTimeout(loadApi, 1000);
+      setTimeout(loadApi, 1000000);
     }
   }
 
   onMounted(() => {
+    handleResetApi()
     loadApi()
     const removed = document.getElementById('starting_dbgate_zero');
     if (removed) removed.remove();
   })
+
 </script>
 
 <!--

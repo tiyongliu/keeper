@@ -2,7 +2,7 @@ import {useGlobSetting} from '/@/hooks/setting';
 
 const {environment} = useGlobSetting()
 
-const apiLogging = false
+const apiLogging = true
 export async function apiCall<T>(url: string, params?: T): Promise<T | void> {
   //读取环境变量
   if (apiLogging) {

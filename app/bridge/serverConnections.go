@@ -5,7 +5,6 @@ import (
 	"github.com/samber/lo"
 	"keeper/app/code"
 	"keeper/app/modules"
-	"keeper/app/pkg/logger"
 	"keeper/app/pkg/serializer"
 	"keeper/app/sideQuests"
 	"keeper/app/tools"
@@ -45,8 +44,7 @@ func (sc *ServerConnections) handleDatabases(conid string, databases interface{}
 	}
 
 	existing["databases"] = databases
-
-	logger.Infof("databases : %s", tools.ToJsonStr(sc.Opened))
+	existing["status"] = &modules.OpenedStatus{Name: "ok"}
 	utility.EmitChanged(Application.ctx, fmt.Sprintf("database-list-changed-%s", conid))
 }
 
@@ -80,12 +78,6 @@ func (sc *ServerConnections) ensureOpened(conid string) map[string]interface{} {
 	})
 	connection := getCore(conid, false)
 	if existing != nil && ok {
-		logger.Infof("info:  %s", tools.ToJsonStr(existing))
-		//driver, err := sideQuests.GetSqlDriver(connection)
-		//if err == nil {
-		//	err = sc.ServerConnectionChannel.HandleRefresh(sc.ch, driver)
-		//}
-
 		return existing
 	}
 
@@ -104,7 +96,6 @@ func (sc *ServerConnections) ensureOpened(conid string) map[string]interface{} {
 	}
 
 	utility.EmitChanged(Application.ctx, "server-status-changed")
-
 	go sc.ServerConnectionChannel.Connect(sc.ch, connection)
 	go sc.pipeHandler(newOpened, sc.ch)
 
@@ -124,10 +115,9 @@ func (sc *ServerConnections) ServerStatus() interface{} {
 	for key, val := range sc.Closed {
 		values[key] = val
 	}
-
 	for _, driver := range sc.Opened {
 		statusObj, ok := driver["status"].(*modules.OpenedStatus)
-		if ok {
+		if ok && statusObj != nil {
 			values[driver[conidkey].(string)] = statusObj
 		}
 	}
@@ -141,28 +131,21 @@ func (sc *ServerConnections) Ping(connections []string) *serializer.Response {
 		if last > 0 && tools.NewUnixTime()-last < tools.GetUnixTime(30*1000) {
 			continue
 		}
-
 		sc.LastPinged[conid] = tools.NewUnixTime()
 		sc.ensureOpened(conid)
-		sc.ServerConnectionChannel.NewTime()
-		//connection := getCore(conid, false)
-		//if ping := sc.ServerConnectionChannel.Ping(connection); ping != nil {
-		//	sc.handleStatus(conid, map[string]string{
-		//		"name":    ping.Name,
-		//		"message": ping.Message,
-		//	})
-		//}
+		sc.ServerConnectionChannel.Ping()
 	}
 
 	return serializer.SuccessData("", map[string]string{"status": "ok"})
 }
 
-func (sc *ServerConnections) Reset(conid string) *serializer.Response {
-
-	sc.Opened = lo.Filter[map[string]interface{}](sc.Opened, func(x map[string]interface{}, _ int) bool {
-		uuid, ok := x[conid].(string)
-		return ok && uuid != conid
-	})
+func (sc *ServerConnections) Reset() *serializer.Response {
+	if len(sc.Opened) > 0 {
+		sc.Opened = []map[string]interface{}{}
+		sideQuests.ResetSideQuests()
+		sc.Closed = make(map[string]interface{})
+		sc.LastPinged = make(map[string]code.UnixTime)
+	}
 
 	return serializer.SuccessData("", map[string]string{"status": "ok"})
 }
