@@ -3,7 +3,6 @@ package sideQuests
 import (
 	"keeper/app/code"
 	"keeper/app/modules"
-	"keeper/app/pkg/logger"
 	"keeper/app/pkg/standard"
 	"keeper/app/schema"
 	"keeper/app/tools"
@@ -52,12 +51,13 @@ func (msg *DatabaseConnectionHandlers) Connect(args map[string]interface{}, stru
 	case standard.MYSQLALIAS:
 		driver, err = NewMysqlDriver(connection)
 		if err != nil {
-			logger.Infof("err: %v", err)
+			msg.setStatus(&StatusMessage{Name: "err", Message: err.Error()})
 			return
 		}
 	case standard.MONGOALIAS:
 		driver, err = NewMongoDriver(connection)
 		if err != nil {
+			msg.setStatus(&StatusMessage{Name: "err", Message: err.Error()})
 			return
 		}
 	}

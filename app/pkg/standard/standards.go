@@ -7,6 +7,7 @@ const (
 
 type SqlStandard interface {
 	Dialect() string
+	Ping() error
 	Connect() interface{}
 	GetPoolInfo() interface{}
 	GetVersion() (*VersionMsg, error)

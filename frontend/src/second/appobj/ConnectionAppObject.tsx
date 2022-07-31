@@ -20,13 +20,7 @@ import getConnectionLabel from '/@/second/utility/getConnectionLabel'
 import {ConnectionsWithStatus} from '/@/second/typings/mysql'
 import {IPinnedDatabasesItem} from '/@/second/typings/types/standard.d'
 import {handleDeleteApi} from '/@/api/connection'
-import {handleRefreshApi} from '/@/api/serverConnections'
-import {
-  connectionListChangedEvent,
-  databaseListChangedEvent,
-  databaseStructureChangedEvent,
-  serverStatusChangedEvent,
-} from "/@/api/event"
+import {handleRefreshApi, handleResetApi} from '/@/api/serverConnections'
 
 export default defineComponent({
   name: 'ConnectionAppObject',
@@ -61,7 +55,7 @@ export default defineComponent({
       engineStatusIcon,
       engineStatusTitle,
       statusIcon,
-      statusTitle
+      statusTitle,
     } = toRefs(props)
     const statusTitleRef = ref()
     const statusIconRef = ref()
@@ -70,17 +64,24 @@ export default defineComponent({
     const engineStatusTitleRef = ref()
     const dataBase = dataBaseStore()
 
-    const handleConnect = () => {
+    const handleConnect = async () => {
       if (unref(data)!.singleDatabase) {
         dataBase.subscribeCurrentDatabase({
           connection: unref(data)!,
           name: unref(data)!.defaultDatabase
         } as unknown as IPinnedDatabasesItem)
       } else {
-
-
-        dataBase.subscribeOpenedConnections(uniq([...dataBase.$state.openedConnections, unref(data)!._id]))
-        console.log("fsjfdsdafjsfsdf", unref(data))
+        if ('invisible-box' == attrs.expandIcon) {
+          console.log(`--------------------`)
+          // await handleResetApi(unref(data)!._id)
+        }
+        dataBase.subscribeOpenedConnections(uniq([...dataBase.getOpenedConnections, unref(data)!._id]))
+        setTimeout(() => {
+          handleRefreshApi({
+            conid: unref(data)!._id,
+            keepOpen: true,
+          })
+        })
       }
     }
 
@@ -134,10 +135,7 @@ export default defineComponent({
       watchStatus()
 
       if (window.runtime) {
-        connectionListChangedEvent()
-        serverStatusChangedEvent()
-        databaseListChangedEvent()
-        databaseStructureChangedEvent()
+
       }
     })
 
@@ -169,9 +167,10 @@ export default defineComponent({
     //   })
     // }
 
+
+
     const handleClick = async () => {
-      dataBase.subscribeCurrentDatabase({connection: data.value})
-      await handleRefreshApi({conid: data.value!._id, keepOpen: true})
+      // handleConnect()
     }
 
     const getContextMenu = () => {

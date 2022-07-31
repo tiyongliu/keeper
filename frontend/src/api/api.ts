@@ -4,10 +4,7 @@ import useFetch from '/@/second/utility/useFetch'
 const connectionListLoader = () => ({
   url: 'bridge.Connections.List',
   params: {},
-  reloadTrigger: `connection-list-changed`,
-  events: {
-    eventsOn: true
-  }
+  reloadTrigger: `connection-list-changed`
 });
 
 const serverStatusLoader = () => ({
@@ -16,12 +13,22 @@ const serverStatusLoader = () => ({
   reloadTrigger: `server-status-changed`,
 })
 
+const databaseListLoader = ({ conid }) => ({
+  url: 'bridge.ServerConnections.ListDatabases',
+  params: { conid },
+  reloadTrigger: `database-list-changed-${conid}`,
+})
+
 export function useConnectionList() {
   return useCore(connectionListLoader, {});
 }
 
 export function useServerStatus() {
   return useCore(serverStatusLoader, {});
+}
+
+export function useDatabaseList(args) {
+  return useCore(databaseListLoader, args);
 }
 
 function useCore(loader, args) {

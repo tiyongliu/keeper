@@ -9,6 +9,7 @@ import (
 	"keeper/app/schema"
 	"keeper/app/sideQuests"
 	"keeper/app/tools"
+	"keeper/app/utility"
 
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 
@@ -73,10 +74,7 @@ func (dc *DatabaseConnections) handleStructure(conid, database string, structure
 
 	existing["structure"] = structure
 
-	runtime.EventsEmit(Application.ctx, "database-structure-changed", &databaseConnections{
-		Conid:    conid,
-		Database: database,
-	})
+	utility.EmitChanged(Application.ctx, fmt.Sprintf("database-structure-changed-%s-%s", conid, database))
 }
 
 func (dc *DatabaseConnections) handleStructureTime(conid, database string, analysedTime code.UnixTime) {
@@ -145,7 +143,7 @@ func (dc *DatabaseConnections) ensureOpened(conid, database string) map[string]i
 		"structure":     nil,
 		"serverVersion": nil,
 		"connection":    connection,
-		"status":        &OpenedStatus{Name: "pending"},
+		"status":        &modules.OpenedStatus{Name: "pending"},
 	}
 
 	if lastClosed == nil || !ok {
@@ -277,5 +275,5 @@ func (dc *DatabaseConnections) closeAll(conid string, kill bool) {
 
 func (dc *DatabaseConnections) Disconnect(req *DatabaseRequest) *serializer.Response {
 	dc.close(req.Conid, req.Database, true)
-	return serializer.SuccessData("", &OpenedStatus{Name: "ok"})
+	return serializer.SuccessData("", &modules.OpenedStatus{Name: "ok"})
 }
