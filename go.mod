@@ -12,7 +12,7 @@ require (
 	github.com/samber/lo v1.21.0
 	github.com/satori/go.uuid v1.2.0
 	github.com/stretchr/testify v1.7.0
-	github.com/wailsapp/wails/v2 v2.0.0-beta.42
+	github.com/wailsapp/wails/v2 v2.0.0-beta.37
 	go.mongodb.org/mongo-driver v1.9.1
 	go.uber.org/zap v1.21.0
 	gorm.io/driver/mysql v1.3.4
@@ -21,7 +21,6 @@ require (
 
 require (
 	github.com/BurntSushi/toml v1.1.0 // indirect
-	github.com/bep/debounce v1.2.1 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect
 	github.com/go-stack/stack v1.8.0 // indirect
@@ -35,6 +34,7 @@ require (
 	github.com/labstack/echo/v4 v4.7.2 // indirect
 	github.com/labstack/gommon v0.3.1 // indirect
 	github.com/leaanthony/go-ansi-parser v1.0.1 // indirect
+	github.com/leaanthony/go-common-file-dialog v1.0.3 // indirect
 	github.com/leaanthony/gosod v1.0.3 // indirect
 	github.com/leaanthony/slicer v1.5.0 // indirect
 	github.com/mattn/go-colorable v0.1.11 // indirect

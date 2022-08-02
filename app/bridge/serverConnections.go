@@ -1,12 +1,14 @@
 package bridge
 
 import (
+	"errors"
 	"fmt"
 	"github.com/samber/lo"
 	"keeper/app/code"
 	"keeper/app/modules"
 	"keeper/app/pkg/logger"
 	"keeper/app/pkg/serializer"
+	"keeper/app/pkg/standard"
 	"keeper/app/sideQuests"
 	"keeper/app/tools"
 	"keeper/app/utility"
@@ -18,6 +20,7 @@ var lock sync.RWMutex
 const conidkey = "conid"
 
 type ServerConnections struct {
+	PoolMap                 map[string]standard.SqlStandard
 	Closed                  map[string]interface{}
 	Opened                  []map[string]interface{}
 	LastPinged              map[string]code.UnixTime
@@ -45,7 +48,6 @@ func (sc *ServerConnections) handleDatabases(conid string, databases interface{}
 	}
 
 	existing["databases"] = databases
-	existing["status"] = &modules.OpenedStatus{Name: "ok"}
 	utility.EmitChanged(Application.ctx, fmt.Sprintf("database-list-changed-%s", conid))
 }
 
@@ -55,11 +57,7 @@ func (sc *ServerConnections) handleVersion(conid, version string) {
 
 func (sc *ServerConnections) handleStatus(conid string, status map[string]string) {
 	existing, ok := lo.Find[map[string]interface{}](sc.Opened, func(item map[string]interface{}) bool {
-		if item[conidkey] != nil && item[conidkey].(string) == conid {
-			return true
-		} else {
-			return false
-		}
+		return item[conidkey] != nil && item[conidkey].(string) == conid
 	})
 
 	if existing == nil || !ok {
@@ -77,11 +75,17 @@ func (sc *ServerConnections) ensureOpened(conid string) map[string]interface{} {
 		uuid, ok := x[conidkey].(string)
 		return ok && uuid == conid
 	})
-	connection := getCore(conid, false)
+
+	defer utility.EmitChanged(Application.ctx, "server-status-changed")
 	if existing != nil && ok {
+		if err := sc.checker(conid); err != nil {
+			sc.Close(conid, true)
+			existing["databases"] = []interface{}{}
+		}
 		return existing
 	}
 
+	connection := getCore(conid, false)
 	newOpened := map[string]interface{}{
 		conidkey:       conid,
 		"status":       &modules.OpenedStatus{Name: "pending"},
@@ -96,11 +100,18 @@ func (sc *ServerConnections) ensureOpened(conid string) map[string]interface{} {
 		delete(sc.Closed, conid)
 	}
 
-	utility.EmitChanged(Application.ctx, "server-status-changed")
 	go sc.ServerConnectionChannel.Connect(sc.ch, connection)
-	go sc.pipeHandler(newOpened, sc.ch)
+	go sc.pipeHandler(conid, newOpened, sc.ch)
 
 	return newOpened
+}
+
+func (sc *ServerConnections) checker(conid string) error {
+	if sc.PoolMap[conid] != nil {
+		return sc.PoolMap[conid].Ping()
+	}
+
+	return errors.New("invalid memory address or nil pointer dereference")
 }
 
 func (sc *ServerConnections) ListDatabases(request map[string]string) *serializer.Response {
@@ -134,18 +145,7 @@ func (sc *ServerConnections) Ping(connections []string) *serializer.Response {
 		}
 		sc.LastPinged[conid] = tools.NewUnixTime()
 		sc.ensureOpened(conid)
-		sc.ServerConnectionChannel.Ping()
-	}
-
-	return serializer.SuccessData("", map[string]string{"status": "ok"})
-}
-
-func (sc *ServerConnections) Reset() *serializer.Response {
-	if len(sc.Opened) > 0 {
-		sc.Opened = []map[string]interface{}{}
-		sideQuests.ResetSideQuests()
-		sc.Closed = make(map[string]interface{})
-		sc.LastPinged = make(map[string]code.UnixTime)
+		sc.ServerConnectionChannel.NewTime()
 	}
 
 	return serializer.SuccessData("", map[string]string{"status": "ok"})
@@ -193,11 +193,17 @@ func (sc *ServerConnections) Refresh(req *ServerRefreshRequest) *serializer.Resp
 	})
 }
 
-func (sc *ServerConnections) pipeHandler(newOpened map[string]interface{}, chData <-chan *modules.EchoMessage) {
+func (sc *ServerConnections) pipeHandler(conid string, newOpened map[string]interface{}, chData <-chan *modules.EchoMessage) {
 	for {
 		message, ok := <-chData
-		logger.Infof("current : %s", message.MsgType)
+		logger.Infof("current: %s", message.MsgType)
 		conid := newOpened[conidkey].(string)
+		if !ok {
+			if !newOpened["disconnected"].(bool) {
+				sc.Close(conid, true)
+			}
+			break
+		}
 		if message != nil {
 			switch message.MsgType {
 			case "status":
@@ -210,13 +216,8 @@ func (sc *ServerConnections) pipeHandler(newOpened map[string]interface{}, chDat
 				if !newOpened["disconnected"].(bool) {
 					sc.Close(conid, true)
 				}
-
-				if !ok {
-					if !newOpened["disconnected"].(bool) {
-						sc.Close(conid, true)
-					}
-					break
-				}
+			case "pool":
+				sc.PoolMap[conid] = message.Payload.(standard.SqlStandard)
 			}
 		}
 	}
