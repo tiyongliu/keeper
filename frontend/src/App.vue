@@ -11,9 +11,8 @@
   import { AppProvider } from '/@/components/Application';
   import { useTitle } from '/@/hooks/web/useTitle';
   import { useLocale } from '/@/locales/useLocale';
-  import {onMounted, onBeforeUnmount} from 'vue'
+  import {onMounted} from 'vue'
   import {loadDatabasesApi} from '/@/api/connection'
-  import {handleResetApi} from '/@/api/serverConnections'
 
   //TODO
   import { subscribeConnectionPingers } from '/@/api/connectionsPinger';
@@ -48,7 +47,6 @@
   }
 
   onMounted(() => {
-    handleResetApi()
     loadApi()
     const removed = document.getElementById('starting_dbgate_zero');
     if (removed) removed.remove();
