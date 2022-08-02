@@ -3,6 +3,7 @@ package sideQuests
 import (
 	"keeper/app/code"
 	"keeper/app/modules"
+	"keeper/app/pkg/logger"
 	"keeper/app/pkg/standard"
 	"keeper/app/plugins/pluginMongdb"
 	"keeper/app/plugins/pluginMysql"
@@ -27,19 +28,13 @@ type ServerConnection struct {
 	SqlDriver standard.SqlStandard
 }
 
-func ResetSideQuests() {
-	serverLastStatus = ""
-	serverlastDatabases = ""
-	serverLastPing = 0
-}
-
 func NewServerConnection(ch chan *modules.EchoMessage) *ServerConnection {
-	//setInterval(func() {
-	//	logger.Info("Server connection not alive, exiting")
-	//	ch <- &modules.EchoMessage{
-	//		MsgType: "exit",
-	//	}
-	//})
+	setInterval(func() {
+		logger.Info("Server connection not alive, exiting")
+		ch <- &modules.EchoMessage{
+			MsgType: "exit",
+		}
+	})
 
 	return &ServerConnection{}
 }
@@ -84,6 +79,11 @@ func (msg *ServerConnection) Connect(ch chan *modules.EchoMessage, connection ma
 	}
 
 	msg.setStatus(ch, "ok")
+
+	ch <- &modules.EchoMessage{
+		MsgType: "pool",
+		Payload: sqlDriver,
+	}
 	//ticker := time.NewTicker(30 * time.Second)
 	//go func(ticker *time.Ticker) {
 	//	for range ticker.C {
@@ -116,7 +116,7 @@ func GetSqlDriver(connection map[string]interface{}) (driver standard.SqlStandar
 	return driver, nil
 }
 
-func (msg *ServerConnection) Ping() {
+func (msg *ServerConnection) NewTime() {
 	serverLastPing = tools.NewUnixTime()
 }
 

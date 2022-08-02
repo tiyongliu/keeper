@@ -73,12 +73,13 @@ export default defineComponent({
       } else {
         if ('invisible-box' == attrs.expandIcon) {
           console.log(`--------------------`)
-          // await handleResetApi(unref(data)!._id)
         }
         dataBase.subscribeOpenedConnections(uniq([...dataBase.getOpenedConnections, unref(data)!._id]))
-        void handleRefreshApi({
-          conid: unref(data)!._id,
-          keepOpen: true,
+        setTimeout(() => {
+          void handleRefreshApi({
+            conid: unref(data)!._id,
+            keepOpen: true,
+          })
         })
       }
     }

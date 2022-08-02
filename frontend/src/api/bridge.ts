@@ -1,3 +1,4 @@
+// @ts-ignore
 import {computed, ComputedRef, onBeforeUnmount, ref, UnwrapRefSimple} from "vue";
 import stableStringify from 'json-stable-stringify'
 import {isEqual} from "lodash-es";
