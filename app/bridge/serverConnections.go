@@ -31,6 +31,7 @@ type ServerConnections struct {
 func NewServerConnections() *ServerConnections {
 	ch := make(chan *modules.EchoMessage)
 	return &ServerConnections{
+		PoolMap:                 make(map[string]standard.SqlStandard),
 		Closed:                  make(map[string]interface{}),
 		LastPinged:              make(map[string]code.UnixTime),
 		ServerConnectionChannel: sideQuests.NewServerConnection(ch),
@@ -71,6 +72,9 @@ func (sc *ServerConnections) handleStatus(conid string, status map[string]string
 func (sc *ServerConnections) handlePing() {}
 
 func (sc *ServerConnections) ensureOpened(conid string) map[string]interface{} {
+	lock.Lock()
+	defer lock.Unlock()
+
 	existing, ok := lo.Find[map[string]interface{}](sc.Opened, func(x map[string]interface{}) bool {
 		uuid, ok := x[conidkey].(string)
 		return ok && uuid == conid
@@ -79,8 +83,8 @@ func (sc *ServerConnections) ensureOpened(conid string) map[string]interface{} {
 	defer utility.EmitChanged(Application.ctx, "server-status-changed")
 	if existing != nil && ok {
 		if err := sc.checker(conid); err != nil {
+			logger.Info("existing [%s]", tools.ToJsonStr(existing))
 			sc.Close(conid, true)
-			existing["databases"] = []interface{}{}
 		}
 		return existing
 	}
@@ -101,7 +105,7 @@ func (sc *ServerConnections) ensureOpened(conid string) map[string]interface{} {
 	}
 
 	go sc.ServerConnectionChannel.Connect(sc.ch, connection)
-	go sc.pipeHandler(conid, newOpened, sc.ch)
+	go sc.pipeHandler(newOpened, sc.ch)
 
 	return newOpened
 }
@@ -141,8 +145,9 @@ func (sc *ServerConnections) Ping(connections []string) *serializer.Response {
 	for _, conid := range lo.Uniq[string](connections) {
 		last := sc.LastPinged[conid]
 		if last > 0 && tools.NewUnixTime()-last < tools.GetUnixTime(30*1000) {
-			continue
+			//continue
 		}
+
 		sc.LastPinged[conid] = tools.NewUnixTime()
 		sc.ensureOpened(conid)
 		sc.ServerConnectionChannel.NewTime()
@@ -193,17 +198,11 @@ func (sc *ServerConnections) Refresh(req *ServerRefreshRequest) *serializer.Resp
 	})
 }
 
-func (sc *ServerConnections) pipeHandler(conid string, newOpened map[string]interface{}, chData <-chan *modules.EchoMessage) {
+func (sc *ServerConnections) pipeHandler(newOpened map[string]interface{}, chData <-chan *modules.EchoMessage) {
 	for {
 		message, ok := <-chData
 		logger.Infof("current: %s", message.MsgType)
 		conid := newOpened[conidkey].(string)
-		if !ok {
-			if !newOpened["disconnected"].(bool) {
-				sc.Close(conid, true)
-			}
-			break
-		}
 		if message != nil {
 			switch message.MsgType {
 			case "status":
@@ -218,6 +217,13 @@ func (sc *ServerConnections) pipeHandler(conid string, newOpened map[string]inte
 				}
 			case "pool":
 				sc.PoolMap[conid] = message.Payload.(standard.SqlStandard)
+			}
+
+			if !ok {
+				if !newOpened["disconnected"].(bool) {
+					sc.Close(conid, true)
+				}
+				break
 			}
 		}
 	}
