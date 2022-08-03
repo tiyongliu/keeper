@@ -2,6 +2,9 @@ package sideQuests
 
 import (
 	"fmt"
+	"keeper/app/tools"
+	"keeper/app/utility"
+	"path"
 	"testing"
 )
 
@@ -16,4 +19,9 @@ func TestConnectUtility(t *testing.T) {
 	})
 
 	fmt.Println(connection)
+}
+
+func TestDir(t *testing.T) {
+	dir := tools.DataDir()
+	utility.NewJsonLinesDatabase(path.Join(dir, "connections.jsonl"))
 }
