@@ -76,7 +76,6 @@ func (j *JsonLinesDatabase) Update(obj map[string]interface{}) (map[string]inter
 	return obj, nil
 }
 
-//todo
 func (j *JsonLinesDatabase) Path(id string, values ...interface{}) {
 
 }

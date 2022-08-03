@@ -27,7 +27,8 @@ type Connections struct {
 }
 
 func init() {
-	JsonLinesDatabase = utility.NewJsonLinesDatabase(path.Join(tools.DataDirCore(), "connections.jsonl"))
+	dir := tools.DataDir()
+	JsonLinesDatabase = utility.NewJsonLinesDatabase(path.Join(dir, "connections.jsonl"))
 }
 
 func NewConnections() *Connections {
@@ -39,13 +40,9 @@ func NewConnections() *Connections {
 }
 
 func getCore(conid string, mask bool) map[string]interface{} {
-	lock.Lock()
-	defer lock.Unlock()
-
 	if conid == "" {
 		return nil
 	}
-
 	return JsonLinesDatabase.Get(conid)
 }
 
