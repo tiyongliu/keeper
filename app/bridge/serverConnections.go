@@ -118,7 +118,7 @@ func (sc *ServerConnections) ensureOpened(conid string) map[string]interface{} {
 	}
 
 	go sc.ServerConnectionChannel.Connect(sc.ch, conid, connection)
-	go sc.pipeHandler(newOpened, sc.ch)
+	go sc.pipeHandler(sc.ch)
 
 	return newOpened
 }
@@ -207,7 +207,7 @@ func (sc *ServerConnections) Refresh(req *ServerRefreshRequest) *serializer.Resp
 	})
 }
 
-func (sc *ServerConnections) pipeHandler(newOpened map[string]interface{}, chData <-chan *modules.EchoMessage) {
+func (sc *ServerConnections) pipeHandler(chData <-chan *modules.EchoMessage) {
 	for {
 		message, ok := <-chData
 		logger.Infof("current: %s", message.MsgType)
@@ -223,8 +223,10 @@ func (sc *ServerConnections) pipeHandler(newOpened map[string]interface{}, chDat
 			case "ping":
 				sc.handlePing()
 			case "exit":
-				if !newOpened["disconnected"].(bool) {
-					sc.Close(conid, true)
+				if existing := findByOpened(sc.Opened, conid); existing != nil {
+					if !existing["disconnected"].(bool) {
+						sc.Close(conid, true)
+					}
 				}
 			case "pool":
 				if sc.PoolMap == nil {
@@ -235,11 +237,25 @@ func (sc *ServerConnections) pipeHandler(newOpened map[string]interface{}, chDat
 			}
 
 			if !ok {
-				if !newOpened["disconnected"].(bool) {
-					sc.Close(conid, true)
+				if existing := findByOpened(sc.Opened, conid); existing != nil {
+					if !existing["disconnected"].(bool) {
+						sc.Close(conid, true)
+					}
 				}
 				break
 			}
 		}
 	}
+}
+
+func findByOpened(s []map[string]interface{}, conid string) map[string]interface{} {
+	existing, ok := lo.Find[map[string]interface{}](s, func(x map[string]interface{}) bool {
+		uuid, ok := x[conidkey].(string)
+		return ok && uuid == conid
+	})
+
+	if existing != nil && ok {
+		return existing
+	}
+	return nil
 }
