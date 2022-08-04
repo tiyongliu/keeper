@@ -130,7 +130,6 @@ func (dc *DatabaseConnections) ensureOpened(conid, database string) map[string]i
 	})
 
 	if existing != nil && ok {
-		logger.Infof("123456 :%s", tools.ToJsonStr(existing))
 		return existing
 	}
 
