@@ -3,7 +3,6 @@ package bridge
 import (
 	"errors"
 	"fmt"
-	"github.com/samber/lo"
 	"keeper/app/code"
 	"keeper/app/modules"
 	"keeper/app/pkg/logger"
@@ -13,6 +12,9 @@ import (
 	"keeper/app/tools"
 	"keeper/app/utility"
 	"sync"
+	"time"
+
+	"github.com/samber/lo"
 )
 
 var lock sync.RWMutex
@@ -31,7 +33,7 @@ type ServerConnections struct {
 func NewServerConnections() *ServerConnections {
 	ch := make(chan *modules.EchoMessage)
 	return &ServerConnections{
-		PoolMap:                 make(map[string]standard.SqlStandard),
+		// PoolMap:                 make(map[string]standard.SqlStandard),
 		Closed:                  make(map[string]interface{}),
 		LastPinged:              make(map[string]code.UnixTime),
 		ServerConnectionChannel: sideQuests.NewServerConnection(ch),
@@ -49,11 +51,22 @@ func (sc *ServerConnections) handleDatabases(conid string, databases interface{}
 	}
 
 	existing["databases"] = databases
+
 	utility.EmitChanged(Application.ctx, fmt.Sprintf("database-list-changed-%s", conid))
 }
 
-func (sc *ServerConnections) handleVersion(conid, version string) {
+func (sc *ServerConnections) handleVersion(conid string, version *standard.VersionMsg) {
+	existing, ok := lo.Find[map[string]interface{}](sc.Opened, func(x map[string]interface{}) bool {
+		uuid, ok := x[conidkey].(string)
+		return ok && uuid == conid
+	})
 
+	if existing == nil || !ok {
+		return
+	}
+
+	existing["version"] = version
+	utility.EmitChanged(Application.ctx, fmt.Sprintf("server-version-changed-%s", conid))
 }
 
 func (sc *ServerConnections) handleStatus(conid string, status map[string]string) {
@@ -80,10 +93,10 @@ func (sc *ServerConnections) ensureOpened(conid string) map[string]interface{} {
 		return ok && uuid == conid
 	})
 
-	defer utility.EmitChanged(Application.ctx, "server-status-changed")
+	utility.EmitChanged(Application.ctx, "server-status-changed")
 	if existing != nil && ok {
 		if err := sc.checker(conid); err != nil {
-			logger.Info("existing [%s]", tools.ToJsonStr(existing))
+			existing["status"] = &modules.OpenedStatus{Name: "error", Message: err.Error()}
 			sc.Close(conid, true)
 		}
 		return existing
@@ -104,7 +117,7 @@ func (sc *ServerConnections) ensureOpened(conid string) map[string]interface{} {
 		delete(sc.Closed, conid)
 	}
 
-	go sc.ServerConnectionChannel.Connect(sc.ch, connection)
+	go sc.ServerConnectionChannel.Connect(sc.ch, conid, connection)
 	go sc.pipeHandler(newOpened, sc.ch)
 
 	return newOpened
@@ -127,15 +140,15 @@ func (sc *ServerConnections) ListDatabases(request map[string]string) *serialize
 }
 
 func (sc *ServerConnections) ServerStatus() interface{} {
+	time.Sleep(time.Millisecond * 100)
 	values := map[string]interface{}{}
+
+	for _, driver := range sc.Opened {
+		values[driver[conidkey].(string)] = driver["status"]
+	}
+
 	for key, val := range sc.Closed {
 		values[key] = val
-	}
-	for _, driver := range sc.Opened {
-		statusObj, ok := driver["status"].(*modules.OpenedStatus)
-		if ok && statusObj != nil {
-			values[driver[conidkey].(string)] = statusObj
-		}
 	}
 
 	return serializer.SuccessData("", values)
@@ -145,7 +158,7 @@ func (sc *ServerConnections) Ping(connections []string) *serializer.Response {
 	for _, conid := range lo.Uniq[string](connections) {
 		last := sc.LastPinged[conid]
 		if last > 0 && tools.NewUnixTime()-last < tools.GetUnixTime(30*1000) {
-			//continue
+			continue
 		}
 
 		sc.LastPinged[conid] = tools.NewUnixTime()
@@ -158,11 +171,7 @@ func (sc *ServerConnections) Ping(connections []string) *serializer.Response {
 
 func (sc *ServerConnections) Close(conid string, kill bool) {
 	existing, ok := lo.Find[map[string]interface{}](sc.Opened, func(item map[string]interface{}) bool {
-		if item[conidkey].(string) != "" && item[conidkey].(string) == conid {
-			return true
-		} else {
-			return false
-		}
+		return item[conidkey].(string) != "" && item[conidkey].(string) == conid
 	})
 
 	if existing != nil && ok {
@@ -202,11 +211,13 @@ func (sc *ServerConnections) pipeHandler(newOpened map[string]interface{}, chDat
 	for {
 		message, ok := <-chData
 		logger.Infof("current: %s", message.MsgType)
-		conid := newOpened[conidkey].(string)
+		conid := message.Conid
 		if message != nil {
 			switch message.MsgType {
 			case "status":
 				sc.handleStatus(conid, message.Payload.(map[string]string))
+			case "version":
+				sc.handleVersion(conid, message.Payload.(*standard.VersionMsg))
 			case "databases":
 				sc.handleDatabases(conid, message.Payload)
 			case "ping":
@@ -216,7 +227,11 @@ func (sc *ServerConnections) pipeHandler(newOpened map[string]interface{}, chDat
 					sc.Close(conid, true)
 				}
 			case "pool":
-				sc.PoolMap[conid] = message.Payload.(standard.SqlStandard)
+				if sc.PoolMap == nil {
+					sc.PoolMap = map[string]standard.SqlStandard{conid: message.Payload.(standard.SqlStandard)}
+				} else {
+					sc.PoolMap[conid] = message.Payload.(standard.SqlStandard)
+				}
 			}
 
 			if !ok {
