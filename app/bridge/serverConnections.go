@@ -42,26 +42,25 @@ func NewServerConnections() *ServerConnections {
 }
 
 func (sc *ServerConnections) handleDatabases(conid string, databases interface{}) {
-	existing, ok := lo.Find[map[string]interface{}](sc.Opened, func(item map[string]interface{}) bool {
-		return item[conidkey] != nil && item[conidkey].(string) == conid
+	existing := findByOpened(sc.Opened, func(x map[string]interface{}) bool {
+		return x[conidkey] != nil && x[conidkey].(string) == conid
 	})
 
-	if existing == nil || !ok {
+	if existing == nil {
 		return
 	}
 
 	existing["databases"] = databases
-
 	utility.EmitChanged(Application.ctx, fmt.Sprintf("database-list-changed-%s", conid))
 }
 
 func (sc *ServerConnections) handleVersion(conid string, version *standard.VersionMsg) {
-	existing, ok := lo.Find[map[string]interface{}](sc.Opened, func(x map[string]interface{}) bool {
+	existing := findByOpened(sc.Opened, func(x map[string]interface{}) bool {
 		uuid, ok := x[conidkey].(string)
 		return ok && uuid == conid
 	})
 
-	if existing == nil || !ok {
+	if existing == nil {
 		return
 	}
 
@@ -70,11 +69,11 @@ func (sc *ServerConnections) handleVersion(conid string, version *standard.Versi
 }
 
 func (sc *ServerConnections) handleStatus(conid string, status map[string]string) {
-	existing, ok := lo.Find[map[string]interface{}](sc.Opened, func(item map[string]interface{}) bool {
-		return item[conidkey] != nil && item[conidkey].(string) == conid
+	existing := findByOpened(sc.Opened, func(x map[string]interface{}) bool {
+		return x[conidkey] != nil && x[conidkey].(string) == conid
 	})
 
-	if existing == nil || !ok {
+	if existing == nil {
 		return
 	}
 
@@ -87,14 +86,13 @@ func (sc *ServerConnections) handlePing() {}
 func (sc *ServerConnections) ensureOpened(conid string) map[string]interface{} {
 	lock.Lock()
 	defer lock.Unlock()
-
-	existing, ok := lo.Find[map[string]interface{}](sc.Opened, func(x map[string]interface{}) bool {
+	existing := findByOpened(sc.Opened, func(x map[string]interface{}) bool {
 		uuid, ok := x[conidkey].(string)
 		return ok && uuid == conid
 	})
 
 	utility.EmitChanged(Application.ctx, "server-status-changed")
-	if existing != nil && ok {
+	if existing != nil {
 		if err := sc.checker(conid); err != nil {
 			existing["status"] = &modules.OpenedStatus{Name: "error", Message: err.Error()}
 			sc.Close(conid, true)
@@ -170,11 +168,11 @@ func (sc *ServerConnections) Ping(connections []string) *serializer.Response {
 }
 
 func (sc *ServerConnections) Close(conid string, kill bool) {
-	existing, ok := lo.Find[map[string]interface{}](sc.Opened, func(item map[string]interface{}) bool {
+	existing := findByOpened(sc.Opened, func(item map[string]interface{}) bool {
 		return item[conidkey].(string) != "" && item[conidkey].(string) == conid
 	})
 
-	if existing != nil && ok {
+	if existing != nil {
 		existing["disconnected"] = true
 		if kill {
 			sc.Opened = lo.Filter[map[string]interface{}](sc.Opened, func(x map[string]interface{}, _ int) bool {
@@ -223,7 +221,10 @@ func (sc *ServerConnections) pipeHandler(chData <-chan *modules.EchoMessage) {
 			case "ping":
 				sc.handlePing()
 			case "exit":
-				if existing := findByOpened(sc.Opened, conid); existing != nil {
+				if existing := findByOpened(sc.Opened, func(x map[string]interface{}) bool {
+					uuid, ok := x[conidkey].(string)
+					return ok && uuid == conid
+				}); existing != nil {
 					if !existing["disconnected"].(bool) {
 						sc.Close(conid, true)
 					}
@@ -237,7 +238,10 @@ func (sc *ServerConnections) pipeHandler(chData <-chan *modules.EchoMessage) {
 			}
 
 			if !ok {
-				if existing := findByOpened(sc.Opened, conid); existing != nil {
+				if existing := findByOpened(sc.Opened, func(x map[string]interface{}) bool {
+					uuid, ok := x[conidkey].(string)
+					return ok && uuid == conid
+				}); existing != nil {
 					if !existing["disconnected"].(bool) {
 						sc.Close(conid, true)
 					}
@@ -248,11 +252,20 @@ func (sc *ServerConnections) pipeHandler(chData <-chan *modules.EchoMessage) {
 	}
 }
 
-func findByOpened(s []map[string]interface{}, conid string) map[string]interface{} {
-	existing, ok := lo.Find[map[string]interface{}](s, func(x map[string]interface{}) bool {
-		uuid, ok := x[conidkey].(string)
-		return ok && uuid == conid
-	})
+//func findByOpened(s []map[string]interface{}, conid string) map[string]interface{} {
+//	existing, ok := lo.Find[map[string]interface{}](s, func(x map[string]interface{}) bool {
+//		uuid, ok := x[conidkey].(string)
+//		return ok && uuid == conid
+//	})
+//
+//	if existing != nil && ok {
+//		return existing
+//	}
+//	return nil
+//}
+
+func findByOpened(s []map[string]interface{}, predicate func(x map[string]interface{}) bool) map[string]interface{} {
+	existing, ok := lo.Find[map[string]interface{}](s, predicate)
 
 	if existing != nil && ok {
 		return existing
