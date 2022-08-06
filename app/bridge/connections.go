@@ -5,12 +5,12 @@ import (
 	"fmt"
 	"github.com/mitchellh/mapstructure"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
-	"keeper/app/modules"
 	"keeper/app/pkg/serializer"
 	"keeper/app/pkg/standard"
+	"keeper/app/plugins/modules"
 	"keeper/app/plugins/pluginMongdb"
 	"keeper/app/plugins/pluginMysql"
-	"keeper/app/tools"
+	"keeper/app/sideQuests"
 	"keeper/app/utility"
 	"path"
 	"sync"
@@ -27,7 +27,7 @@ type Connections struct {
 }
 
 func init() {
-	dir := tools.DataDir()
+	dir := utility.DataDir()
 	JsonLinesDatabase = utility.NewJsonLinesDatabase(path.Join(dir, "connections.jsonl"))
 }
 
@@ -136,8 +136,8 @@ func (conn *Connections) Test(connection map[string]interface{}) interface{} {
 func (conn *Connections) Save(connection map[string]string) *serializer.Response {
 	encrypted := utility.EncryptConnection(connection)
 	//验证obj的唯一性，除去key字段，所有key对应的值都要一致。
-	unknownMap := tools.TransformUnknownMap(encrypted)
-	if exists := tools.UnknownMapSome(JsonLinesDatabase.Find(), unknownMap); exists {
+	unknownMap := utility.TransformUnknownMap(encrypted)
+	if exists := utility.UnknownMapSome(JsonLinesDatabase.Find(), unknownMap); exists {
 		runtime.MessageDialog(Application.ctx, runtime.MessageDialogOptions{
 			Type:          runtime.ErrorDialog,
 			Title:         "错误",
@@ -208,7 +208,8 @@ func (conn *Connections) Delete(connection map[string]string) *serializer.Respon
 
 			return serializer.Fail(err.Error())
 		}
-
+		sideQuests.ServerLastStatus = ""
+		sideQuests.ServerlastDatabases = ""
 		utility.EmitChanged(Application.ctx, "connection-list-changed")
 		return serializer.SuccessData("", res)
 	}
