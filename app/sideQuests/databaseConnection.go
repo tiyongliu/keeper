@@ -1,20 +1,21 @@
 package sideQuests
 
 import (
-	"keeper/app/code"
-	"keeper/app/modules"
+	"keeper/app/pkg/containers"
 	"keeper/app/pkg/standard"
+	"keeper/app/plugins/modules"
 	"keeper/app/schema"
-	"keeper/app/tools"
+	"keeper/app/tasks"
+	"keeper/app/utility"
 
 	"github.com/mitchellh/mapstructure"
 )
 
-var databaseLast code.UnixTime
+var databaseLast utility.UnixTime
 
 var analysedStructure *schema.DatabaseInfo
 
-var analysedTime code.UnixTime = 0
+var analysedTime utility.UnixTime = 0
 var loadingModel bool
 var statusCounter int
 
@@ -24,10 +25,10 @@ func getStatusCounter() int {
 }
 
 type DatabaseConnectionHandlers struct {
-	Ch chan *modules.EchoMessage
+	Ch chan *containers.EchoMessage
 }
 
-func NewDatabaseConnectionHandlers(ch chan *modules.EchoMessage) *DatabaseConnectionHandlers {
+func NewDatabaseConnectionHandlers(ch chan *containers.EchoMessage) *DatabaseConnectionHandlers {
 	return &DatabaseConnectionHandlers{ch}
 }
 
@@ -35,7 +36,7 @@ func (msg *DatabaseConnectionHandlers) Connect(args map[string]interface{}, stru
 	connection := args["connection"].(map[string]interface{})
 	database := args["database"].(string)
 
-	databaseLast = tools.NewUnixTime()
+	databaseLast = utility.NewUnixTime()
 	if structure == nil {
 		msg.setStatusName("pending")
 	}
@@ -49,13 +50,13 @@ func (msg *DatabaseConnectionHandlers) Connect(args map[string]interface{}, stru
 	var driver standard.SqlStandard
 	switch connection["engine"].(string) {
 	case standard.MYSQLALIAS:
-		driver, err = NewMysqlDriver(connection)
+		driver, err = tasks.NewMysqlDriver(connection)
 		if err != nil {
 			msg.setStatus(&StatusMessage{Name: "err", Message: err.Error()})
 			return
 		}
 	case standard.MONGOALIAS:
-		driver, err = NewMongoDriver(connection)
+		driver, err = tasks.NewMongoDriver(connection)
 		if err != nil {
 			msg.setStatus(&StatusMessage{Name: "err", Message: err.Error()})
 			return
@@ -79,16 +80,16 @@ func (msg *DatabaseConnectionHandlers) setStatusName(name string, message ...str
 }
 
 func (msg *DatabaseConnectionHandlers) setStatus(status *StatusMessage) {
-	statusString := tools.ToJsonStr(status)
-	if serverLastStatus != statusString {
-		msg.Ch <- &modules.EchoMessage{
+	statusString := utility.ToJsonStr(status)
+	if ServerLastStatus != statusString {
+		msg.Ch <- &containers.EchoMessage{
 			MsgType: "status",
 			Payload: map[string]interface{}{
 				"status":  status,
 				"counter": getStatusCounter(),
 			},
 		}
-		serverLastStatus = statusString
+		ServerLastStatus = statusString
 	}
 }
 
@@ -98,7 +99,7 @@ func (msg *DatabaseConnectionHandlers) readVersion(pool standard.SqlStandard) er
 		return err
 	}
 
-	msg.Ch <- &modules.EchoMessage{
+	msg.Ch <- &containers.EchoMessage{
 		Payload: version,
 		MsgType: "version",
 		Dialect: pool.Dialect(),
@@ -111,14 +112,14 @@ func (msg *DatabaseConnectionHandlers) handleFullRefresh(pool standard.SqlStanda
 	loadingModel = true
 	msg.setStatusName("loadStructure")
 
-	analysedTime = tools.NewUnixTime()
+	analysedTime = utility.NewUnixTime()
 
 	tables, err := pool.Tables(strings...)
 	if err == nil {
-		msg.Ch <- &modules.EchoMessage{MsgType: "structure", Payload: tables}
+		msg.Ch <- &containers.EchoMessage{MsgType: "structure", Payload: tables}
 	}
 
-	msg.Ch <- &modules.EchoMessage{MsgType: "structureTime", Payload: analysedTime}
+	msg.Ch <- &containers.EchoMessage{MsgType: "structureTime", Payload: analysedTime}
 	msg.setStatusName("ok")
 	loadingModel = false
 }
@@ -131,10 +132,10 @@ func (msg *DatabaseConnectionHandlers) handleIncrementalRefresh(forceSend bool, 
 		msg.setStatusName("loadStructure", err.Error())
 		return
 	}
-	analysedTime = tools.NewUnixTime()
+	analysedTime = utility.NewUnixTime()
 
 	if forceSend || tables != nil {
-		msg.Ch <- &modules.EchoMessage{
+		msg.Ch <- &containers.EchoMessage{
 			MsgType: "structure",
 			Payload: map[string]interface{}{
 				"collections": tables,
@@ -143,7 +144,7 @@ func (msg *DatabaseConnectionHandlers) handleIncrementalRefresh(forceSend bool, 
 		}
 	}
 
-	msg.Ch <- &modules.EchoMessage{
+	msg.Ch <- &containers.EchoMessage{
 		MsgType: "structureTime",
 		Payload: analysedTime,
 	}
@@ -157,7 +158,7 @@ func (msg *DatabaseConnectionHandlers) ReadVersion(pool standard.SqlStandard) er
 		return err
 	}
 
-	msg.Ch <- &modules.EchoMessage{
+	msg.Ch <- &containers.EchoMessage{
 		Payload: version,
 		MsgType: "version",
 	}
@@ -176,5 +177,5 @@ func (msg *DatabaseConnectionHandlers) SyncModel() {
 }
 
 func (msg *DatabaseConnectionHandlers) Ping() {
-	databaseLast = tools.NewUnixTime()
+	databaseLast = utility.NewUnixTime()
 }

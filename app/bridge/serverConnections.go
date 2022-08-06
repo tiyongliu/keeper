@@ -3,110 +3,98 @@ package bridge
 import (
 	"errors"
 	"fmt"
-	"keeper/app/code"
-	"keeper/app/modules"
-	"keeper/app/pkg/logger"
+	"github.com/samber/lo"
+	"keeper/app/pkg/containers"
 	"keeper/app/pkg/serializer"
 	"keeper/app/pkg/standard"
 	"keeper/app/sideQuests"
-	"keeper/app/tools"
+	"keeper/app/tasks"
 	"keeper/app/utility"
 	"sync"
-	"time"
-
-	"github.com/samber/lo"
 )
 
 var lock sync.RWMutex
 
 const conidkey = "conid"
 
+var PoolMapFn map[string]func() (driver standard.SqlStandard, err error)
+
 type ServerConnections struct {
-	PoolMap                 map[string]standard.SqlStandard
 	Closed                  map[string]interface{}
-	Opened                  []map[string]interface{}
-	LastPinged              map[string]code.UnixTime
+	Opened                  []*containers.OpenedData
+	LastPinged              map[string]utility.UnixTime
 	ServerConnectionChannel *sideQuests.ServerConnection
-	ch                      chan *modules.EchoMessage
 }
 
 func NewServerConnections() *ServerConnections {
-	ch := make(chan *modules.EchoMessage)
 	return &ServerConnections{
-		// PoolMap:                 make(map[string]standard.SqlStandard),
 		Closed:                  make(map[string]interface{}),
-		LastPinged:              make(map[string]code.UnixTime),
-		ServerConnectionChannel: sideQuests.NewServerConnection(ch),
-		ch:                      ch,
+		LastPinged:              make(map[string]utility.UnixTime),
+		ServerConnectionChannel: sideQuests.NewServerConnection(),
 	}
 }
 
 func (sc *ServerConnections) handleDatabases(conid string, databases interface{}) {
-	existing := findByOpened(sc.Opened, func(x map[string]interface{}) bool {
-		return x[conidkey] != nil && x[conidkey].(string) == conid
+	existing := findByOpened(sc.Opened, func(x *containers.OpenedData) bool {
+		return x.Conid != "" && x.Conid == conid
 	})
 
 	if existing == nil {
 		return
 	}
 
-	existing["databases"] = databases
+	existing.Databases = databases
 	utility.EmitChanged(Application.ctx, fmt.Sprintf("database-list-changed-%s", conid))
 }
 
 func (sc *ServerConnections) handleVersion(conid string, version *standard.VersionMsg) {
-	existing := findByOpened(sc.Opened, func(x map[string]interface{}) bool {
-		uuid, ok := x[conidkey].(string)
-		return ok && uuid == conid
+	existing := findByOpened(sc.Opened, func(x *containers.OpenedData) bool {
+		return x.Conid != "" && x.Conid == conid
 	})
 
 	if existing == nil {
 		return
 	}
 
-	existing["version"] = version
+	existing.Version = version
 	utility.EmitChanged(Application.ctx, fmt.Sprintf("server-version-changed-%s", conid))
 }
 
-func (sc *ServerConnections) handleStatus(conid string, status map[string]string) {
-	existing := findByOpened(sc.Opened, func(x map[string]interface{}) bool {
-		return x[conidkey] != nil && x[conidkey].(string) == conid
+func (sc *ServerConnections) handleStatus(conid string, status *containers.OpenedStatus) {
+	existing := findByOpened(sc.Opened, func(x *containers.OpenedData) bool {
+		return x.Conid != "" && x.Conid == conid
 	})
 
 	if existing == nil {
 		return
 	}
 
-	existing["status"] = &modules.OpenedStatus{Name: status["name"], Message: status["message"]}
+	existing.Status = status
 	utility.EmitChanged(Application.ctx, "server-status-changed")
 }
 
 func (sc *ServerConnections) handlePing() {}
 
-func (sc *ServerConnections) ensureOpened(conid string) map[string]interface{} {
+func (sc *ServerConnections) ensureOpened(conid string) *containers.OpenedData {
 	lock.Lock()
 	defer lock.Unlock()
-	existing := findByOpened(sc.Opened, func(x map[string]interface{}) bool {
-		uuid, ok := x[conidkey].(string)
-		return ok && uuid == conid
+	existing := findByOpened(sc.Opened, func(x *containers.OpenedData) bool {
+		return x.Conid != "" && x.Conid == conid
 	})
 
-	utility.EmitChanged(Application.ctx, "server-status-changed")
 	if existing != nil {
-		if err := sc.checker(conid); err != nil {
-			existing["status"] = &modules.OpenedStatus{Name: "error", Message: err.Error()}
-			sc.Close(conid, true)
-		}
+		utility.EmitChanged(Application.ctx, "server-status-changed")
 		return existing
 	}
 
 	connection := getCore(conid, false)
-	newOpened := map[string]interface{}{
-		conidkey:       conid,
-		"status":       &modules.OpenedStatus{Name: "pending"},
-		"databases":    []interface{}{},
-		"connection":   connection,
-		"disconnected": false,
+	newOpened := &containers.OpenedData{
+		Conid:        conid,
+		Status:       &containers.OpenedStatus{Name: "pending"},
+		Databases:    nil,
+		Connection:   connection,
+		Disconnected: false,
+		Version:      nil,
 	}
 
 	sc.Opened = append(sc.Opened, newOpened)
@@ -115,15 +103,25 @@ func (sc *ServerConnections) ensureOpened(conid string) map[string]interface{} {
 		delete(sc.Closed, conid)
 	}
 
-	go sc.ServerConnectionChannel.Connect(sc.ch, conid, connection)
-	go sc.pipeHandler(sc.ch)
+	ch := make(chan *containers.EchoMessage)
+	utility.EmitChanged(Application.ctx, "server-status-changed")
+	defer func() {
+		go sc.ServerConnectionChannel.Connect(ch, func() (driver standard.SqlStandard, err error) {
+			return tasks.GetSqlDriver(connection)
+		})
+		go sc.pipeHandler(ch, conid)
+	}()
 
 	return newOpened
 }
 
 func (sc *ServerConnections) checker(conid string) error {
-	if sc.PoolMap[conid] != nil {
-		return sc.PoolMap[conid].Ping()
+	if PoolMapFn[conid] != nil {
+		driver, err := PoolMapFn[conid]()
+		if err != nil {
+			return err
+		}
+		return driver.Ping()
 	}
 
 	return errors.New("invalid memory address or nil pointer dereference")
@@ -134,32 +132,28 @@ func (sc *ServerConnections) ListDatabases(request map[string]string) *serialize
 		return serializer.Fail(serializer.IdNotEmpty)
 	}
 	opened := sc.ensureOpened(request[conidkey])
-	return serializer.SuccessData(serializer.SUCCESS, opened["databases"])
+	return serializer.SuccessData(serializer.SUCCESS, opened.Databases)
 }
 
 func (sc *ServerConnections) ServerStatus() interface{} {
-	time.Sleep(time.Millisecond * 100)
 	values := map[string]interface{}{}
-
 	for _, driver := range sc.Opened {
-		values[driver[conidkey].(string)] = driver["status"]
+		values[driver.Conid] = driver.Status
 	}
-
 	for key, val := range sc.Closed {
 		values[key] = val
 	}
-
 	return serializer.SuccessData("", values)
 }
 
 func (sc *ServerConnections) Ping(connections []string) *serializer.Response {
 	for _, conid := range lo.Uniq[string](connections) {
 		last := sc.LastPinged[conid]
-		if last > 0 && tools.NewUnixTime()-last < tools.GetUnixTime(30*1000) {
+		if last > 0 && utility.NewUnixTime()-last < utility.GetUnixTime(30*1000) {
 			continue
 		}
 
-		sc.LastPinged[conid] = tools.NewUnixTime()
+		sc.LastPinged[conid] = utility.NewUnixTime()
 		sc.ensureOpened(conid)
 		sc.ServerConnectionChannel.NewTime()
 	}
@@ -168,20 +162,18 @@ func (sc *ServerConnections) Ping(connections []string) *serializer.Response {
 }
 
 func (sc *ServerConnections) Close(conid string, kill bool) {
-	existing := findByOpened(sc.Opened, func(item map[string]interface{}) bool {
-		return item[conidkey].(string) != "" && item[conidkey].(string) == conid
+	existing := findByOpened(sc.Opened, func(x *containers.OpenedData) bool {
+		return x.Conid != "" && x.Conid == conid
 	})
-
 	if existing != nil {
-		existing["disconnected"] = true
+		existing.Disconnected = true
 		if kill {
-			sc.Opened = lo.Filter[map[string]interface{}](sc.Opened, func(x map[string]interface{}, _ int) bool {
-				uuid, ok := x[conid].(string)
-				return ok && uuid != conid
+			sc.Opened = lo.Filter[*containers.OpenedData](sc.Opened, func(x *containers.OpenedData, _ int) bool {
+				return x.Conid != conid
 			})
 			sc.Closed[conid] = map[string]interface{}{
 				"name":   "error",
-				"status": existing["status"].(*modules.OpenedStatus),
+				"status": existing.Status,
 			}
 			sc.LastPinged[conid] = 0
 		}
@@ -205,15 +197,13 @@ func (sc *ServerConnections) Refresh(req *ServerRefreshRequest) *serializer.Resp
 	})
 }
 
-func (sc *ServerConnections) pipeHandler(chData <-chan *modules.EchoMessage) {
+func (sc *ServerConnections) pipeHandler(chData <-chan *containers.EchoMessage, conid string) {
 	for {
 		message, ok := <-chData
-		logger.Infof("current: %s", message.MsgType)
-		conid := message.Conid
 		if message != nil {
 			switch message.MsgType {
 			case "status":
-				sc.handleStatus(conid, message.Payload.(map[string]string))
+				sc.handleStatus(conid, message.Payload.(*containers.OpenedStatus))
 			case "version":
 				sc.handleVersion(conid, message.Payload.(*standard.VersionMsg))
 			case "databases":
@@ -221,51 +211,24 @@ func (sc *ServerConnections) pipeHandler(chData <-chan *modules.EchoMessage) {
 			case "ping":
 				sc.handlePing()
 			case "exit":
-				if existing := findByOpened(sc.Opened, func(x map[string]interface{}) bool {
-					uuid, ok := x[conidkey].(string)
-					return ok && uuid == conid
-				}); existing != nil {
-					if !existing["disconnected"].(bool) {
-						sc.Close(conid, true)
-					}
-				}
-			case "pool":
-				if sc.PoolMap == nil {
-					sc.PoolMap = map[string]standard.SqlStandard{conid: message.Payload.(standard.SqlStandard)}
-				} else {
-					sc.PoolMap[conid] = message.Payload.(standard.SqlStandard)
-				}
-			}
-
-			if !ok {
-				if existing := findByOpened(sc.Opened, func(x map[string]interface{}) bool {
-					uuid, ok := x[conidkey].(string)
-					return ok && uuid == conid
-				}); existing != nil {
-					if !existing["disconnected"].(bool) {
-						sc.Close(conid, true)
-					}
-				}
 				break
 			}
+		}
+		if !ok {
+			if existing := findByOpened(sc.Opened, func(x *containers.OpenedData) bool {
+				return x.Conid != "" && x.Conid == conid
+			}); existing != nil {
+				if !existing.Disconnected {
+					sc.Close(conid, true)
+				}
+			}
+			break
 		}
 	}
 }
 
-//func findByOpened(s []map[string]interface{}, conid string) map[string]interface{} {
-//	existing, ok := lo.Find[map[string]interface{}](s, func(x map[string]interface{}) bool {
-//		uuid, ok := x[conidkey].(string)
-//		return ok && uuid == conid
-//	})
-//
-//	if existing != nil && ok {
-//		return existing
-//	}
-//	return nil
-//}
-
-func findByOpened(s []map[string]interface{}, predicate func(x map[string]interface{}) bool) map[string]interface{} {
-	existing, ok := lo.Find[map[string]interface{}](s, predicate)
+func findByOpened(s []*containers.OpenedData, predicate func(x *containers.OpenedData) bool) *containers.OpenedData {
+	existing, ok := lo.Find[*containers.OpenedData](s, predicate)
 
 	if existing != nil && ok {
 		return existing

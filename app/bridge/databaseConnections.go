@@ -2,13 +2,11 @@ package bridge
 
 import (
 	"fmt"
-	"keeper/app/code"
-	"keeper/app/modules"
+	"keeper/app/pkg/containers"
 	"keeper/app/pkg/logger"
 	"keeper/app/pkg/serializer"
 	"keeper/app/schema"
 	"keeper/app/sideQuests"
-	"keeper/app/tools"
 	"keeper/app/utility"
 
 	"github.com/wailsapp/wails/v2/pkg/runtime"
@@ -22,14 +20,14 @@ type DatabaseConnections struct {
 	Opened             []map[string]interface{}
 	Closed             map[string]interface{}
 	DatabaseConnection *sideQuests.DatabaseConnectionHandlers
-	Ch                 chan *modules.EchoMessage
+	Ch                 chan *containers.EchoMessage
 }
 
 func NewDatabaseConnections() *DatabaseConnections {
-	ch := make(chan *modules.EchoMessage)
+	ch := make(chan *containers.EchoMessage)
 	return &DatabaseConnections{
-		Ch:                 ch,
-		DatabaseConnection: sideQuests.NewDatabaseConnectionHandlers(ch),
+		Ch: ch,
+		//DatabaseConnection: sideQuests.NewDatabaseConnectionHandlers(ch),
 	}
 }
 
@@ -62,7 +60,7 @@ type DatabaseKeepOpenRequest struct {
 }
 
 func (dc *DatabaseConnections) handleStructure(conid, database string, structure interface{}) {
-	logger.Infof("structure handleStructure %s", tools.ToJsonStr(structure))
+	logger.Infof("structure handleStructure %s", utility.ToJsonStr(structure))
 
 	existing, ok := lo.Find[map[string]interface{}](dc.Opened, func(item map[string]interface{}) bool {
 		return item["conid"] == conid && item["database"] == database
@@ -77,7 +75,7 @@ func (dc *DatabaseConnections) handleStructure(conid, database string, structure
 	utility.EmitChanged(Application.ctx, fmt.Sprintf("database-structure-changed-%s-%s", conid, database))
 }
 
-func (dc *DatabaseConnections) handleStructureTime(conid, database string, analysedTime code.UnixTime) {
+func (dc *DatabaseConnections) handleStructureTime(conid, database string, analysedTime utility.UnixTime) {
 	existing, ok := lo.Find[map[string]interface{}](dc.Opened, func(item map[string]interface{}) bool {
 		if item[conidkey] != nil && item[conidkey].(string) == conid && item["database"] == database {
 			return true
@@ -142,14 +140,14 @@ func (dc *DatabaseConnections) ensureOpened(conid, database string) map[string]i
 		"structure":     nil,
 		"serverVersion": nil,
 		"connection":    connection,
-		"status":        &modules.OpenedStatus{Name: "pending"},
+		"status":        &containers.OpenedStatus{Name: "pending"},
 	}
 
 	if lastClosed == nil || !ok {
 		newOpened["structure"] = schema.CreateEmptyStructure()
 	} else {
-		logger.Infof("newOpened.Opened : %s", tools.ToJsonStr(dc.Opened))
-		logger.Infof("newOpened.Closed : %s", tools.ToJsonStr(dc.Closed))
+		logger.Infof("newOpened.Opened : %s", utility.ToJsonStr(dc.Opened))
+		logger.Infof("newOpened.Closed : %s", utility.ToJsonStr(dc.Closed))
 	}
 
 	dc.Opened = append(dc.Opened, newOpened)
@@ -174,7 +172,7 @@ func (dc *DatabaseConnections) Structure(req *DatabaseRequest) interface{} {
 	return opened["structure"]
 }
 
-func (dc *DatabaseConnections) listener(conid, database string, chData <-chan *modules.EchoMessage) {
+func (dc *DatabaseConnections) listener(conid, database string, chData <-chan *containers.EchoMessage) {
 	for {
 		message, ok := <-chData
 		if message != nil {
@@ -182,7 +180,7 @@ func (dc *DatabaseConnections) listener(conid, database string, chData <-chan *m
 			case "structure":
 				dc.handleStructure(conid, database, message.Payload)
 			case "structureTime":
-				dc.handleStructureTime(conid, database, message.Payload.(code.UnixTime))
+				dc.handleStructureTime(conid, database, message.Payload.(utility.UnixTime))
 			case "exit":
 				dc.close(conid, database, false)
 			}
@@ -274,5 +272,5 @@ func (dc *DatabaseConnections) closeAll(conid string, kill bool) {
 
 func (dc *DatabaseConnections) Disconnect(req *DatabaseRequest) *serializer.Response {
 	dc.close(req.Conid, req.Database, true)
-	return serializer.SuccessData("", &modules.OpenedStatus{Name: "ok"})
+	return serializer.SuccessData("", &containers.OpenedStatus{Name: "ok"})
 }

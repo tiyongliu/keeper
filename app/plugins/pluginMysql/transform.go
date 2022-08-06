@@ -1,6 +1,6 @@
 package pluginMysql
 
-import "keeper/app/modules"
+import "keeper/app/plugins/modules"
 
 type DatabasesItem struct {
 	Name string `json:"name"`

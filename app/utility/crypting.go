@@ -3,7 +3,7 @@ package utility
 import (
 	"encoding/json"
 	"io/ioutil"
-	"keeper/app/tools"
+	"keeper/app/pkg/logger"
 	"log"
 	"os"
 	"path"
@@ -22,12 +22,12 @@ func LoadEncryptionKey() string {
 	if _encryptionKey != "" {
 		return _encryptionKey
 	}
-	defaultFile := tools.DataDirCore()
+	defaultFile := DataDirCore()
 	keyFile := path.Join(defaultFile, ".key")
-
 	encryptor := CreateEncryptor(defaultEncryptionKey)
-	if !tools.IsExist(filepath.Dir(keyFile)) {
-		if err := os.MkdirAll(filepath.Dir(keyFile), tools.SecondFilePerm); err != nil {
+	if !IsExist(keyFile) {
+		logger.Infof("keyFile: %s", path.Dir(keyFile))
+		if err := os.MkdirAll(filepath.Dir(keyFile), SecondFilePerm); err != nil {
 			log.Fatalf("os.MkdirAll failed err: %v\n", err)
 			return ""
 		}
@@ -39,7 +39,7 @@ func LoadEncryptionKey() string {
 		}
 		encrypt := encryptor.encrypt(result)
 
-		if err := ioutil.WriteFile(keyFile, []byte(encrypt), tools.SecondFilePerm); err != nil {
+		if err := ioutil.WriteFile(keyFile, []byte(encrypt), SecondFilePerm); err != nil {
 			log.Fatalf("ioutil.WriteFile failed err: %v\n", err)
 			return ""
 		}
@@ -106,7 +106,7 @@ func MaskConnection(connection map[string]string) map[string]string {
 	if len(connection) == 0 {
 		return connection
 	}
-	return tools.MapOmit(connection, []string{"password", "sshPassword", "sshKeyfilePassword"})
+	return MapOmit(connection, []string{"password", "sshPassword", "sshKeyfilePassword"})
 }
 
 func DecryptConnection(connection map[string]string) map[string]string {
@@ -117,7 +117,7 @@ func DecryptConnection(connection map[string]string) map[string]string {
 }
 
 func PickSafeConnectionInfo(connection map[string]string) map[string]string {
-	return tools.MapValues(connection, func(k, v interface{}) interface{} {
+	return MapValues(connection, func(k, v interface{}) interface{} {
 		if k == "engine" || k == "port" || k == "authType" || k == "sshMode" || k == "passwordMode" {
 			return v
 		}

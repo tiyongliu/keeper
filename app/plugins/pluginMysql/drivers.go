@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"github.com/pkg/errors"
 	"gorm.io/gorm"
-	"keeper/app/modules"
 	"keeper/app/pkg/logger"
 	"keeper/app/pkg/serializer"
 	"keeper/app/pkg/standard"
+	"keeper/app/plugins/modules"
 	"regexp"
 )
 

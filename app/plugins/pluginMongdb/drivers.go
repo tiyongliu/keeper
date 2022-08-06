@@ -3,8 +3,8 @@ package pluginMongdb
 import (
 	"context"
 	"fmt"
-	"keeper/app/modules"
 	"keeper/app/pkg/standard"
+	"keeper/app/plugins/modules"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"

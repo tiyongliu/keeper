@@ -1,22 +1,16 @@
 package sideQuests
 
 import (
-	"keeper/app/code"
-	"keeper/app/modules"
+	"keeper/app/pkg/containers"
 	"keeper/app/pkg/standard"
-	"keeper/app/plugins/pluginMongdb"
-	"keeper/app/plugins/pluginMysql"
-	"keeper/app/tools"
 	"keeper/app/utility"
 	"time"
-
-	"github.com/mitchellh/mapstructure"
 )
 
-var serverLastStatus string
-var serverLastPing code.UnixTime
+var ServerLastStatus string
+var serverLastPing utility.UnixTime
 
-var serverlastDatabases string
+var ServerlastDatabases string
 
 type StatusMessage struct {
 	Name    string `json:"name"`
@@ -24,10 +18,9 @@ type StatusMessage struct {
 }
 
 type ServerConnection struct {
-	SqlDriver standard.SqlStandard
 }
 
-func NewServerConnection(ch chan *modules.EchoMessage) *ServerConnection {
+func NewServerConnection() *ServerConnection {
 	// setInterval(func() {
 	// 	logger.Info("Server connection not alive, exiting")
 	// 	ch <- &modules.EchoMessage{
@@ -46,8 +39,8 @@ func setInterval(fn func()) {
 	ticker := time.NewTicker(time.Minute)
 	go func(ticker *time.Ticker) {
 		for range ticker.C {
-			nowTime := tools.NewUnixTime()
-			if nowTime-serverLastPing > code.UnixTime(120*1000) {
+			nowTime := utility.NewUnixTime()
+			if nowTime-serverLastPing > utility.UnixTime(120*1000) {
 				fn()
 				ticker.Stop()
 			}
@@ -55,35 +48,43 @@ func setInterval(fn func()) {
 	}(ticker)
 }
 
-func (msg *ServerConnection) Connect(ch chan *modules.EchoMessage, conid string, connection map[string]interface{}) {
-	msg.setStatus(ch, conid, "pending")
-	serverLastPing = tools.NewUnixTime()
-	//TODO connectUtility, 可以传递一个func 因为返回值都是一样的，在func内部进行处理
-	sqlDriver, err := GetSqlDriver(connection)
+func setStatus(ch chan *containers.EchoMessage, data func() (*containers.OpenedStatus, error)) {
+	status, err := data()
 	if err != nil {
-		msg.setStatus(ch, conid, "error", err.Error())
+		close(ch)
+		return
+	}
+	statusString := utility.ToJsonStr(status)
+	if ServerLastStatus != statusString {
+		ch <- &containers.EchoMessage{Payload: status, MsgType: "status"}
+		ServerLastStatus = statusString
+	}
+}
+
+func (msg *ServerConnection) Connect(ch chan *containers.EchoMessage, connectUtility func() (driver standard.SqlStandard, err error)) {
+	setStatus(ch, func() (*containers.OpenedStatus, error) {
+		return &containers.OpenedStatus{Name: "pending"}, nil
+	})
+
+	sqlDriver, err := connectUtility()
+	if err != nil {
+		setStatus(ch, func() (*containers.OpenedStatus, error) {
+			return &containers.OpenedStatus{Name: "error", Message: err.Error()}, err
+		})
 		return
 	}
 
-	msg.SqlDriver = sqlDriver
-
-	if err := msg.readVersion(ch, conid, sqlDriver); err != nil {
-		msg.setStatus(ch, conid, "error", err.Error())
+	if err := msg.readVersion(ch, sqlDriver); err != nil {
+		setStatus(ch, func() (*containers.OpenedStatus, error) {
+			return &containers.OpenedStatus{Name: "error", Message: err.Error()}, err
+		})
 		return
 	}
 
-	if err := msg.handleRefresh(ch, conid, sqlDriver); err != nil {
-		msg.setStatus(ch, conid, "error", err.Error())
+	if err := msg.handleRefresh(ch, sqlDriver); err != nil {
 		return
 	}
 
-	msg.setStatus(ch, conid, "ok")
-
-	ch <- &modules.EchoMessage{
-		MsgType: "pool",
-		Payload: sqlDriver,
-		Conid:   conid,
-	}
 	// ticker := time.NewTicker(2 * time.Second)
 	// go func(ticker *time.Ticker) {
 	// 	for range ticker.C {
@@ -100,121 +101,112 @@ func (msg *ServerConnection) Connect(ch chan *modules.EchoMessage, conid string,
 	// }(ticker)
 }
 
-func GetSqlDriver(connection map[string]interface{}) (driver standard.SqlStandard, err error) {
-	switch connection["engine"].(string) {
-	case standard.MYSQLALIAS:
-		driver, err = NewMysqlDriver(connection)
-		if err != nil {
-			return nil, err
-		}
-	case standard.MONGOALIAS:
-		driver, err = NewMongoDriver(connection)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	return driver, nil
-}
+//func (msg *ServerConnection) Connect(ch chan *modules.EchoMessage, connection map[string]interface{}) {
+//	setStatus(ch, func() (*modules.OpenedStatus, error) {
+//		return &modules.OpenedStatus{Name: "ping"}, nil
+//	})
+//	serverLastPing = tools.NewUnixTime()
+//	//TODO connectUtility, 可以传递一个func 因为返回值都是一样的，在func内部进行处理
+//	sqlDriver, err := GetSqlDriver(connection)
+//	if err != nil {
+//		setStatus(ch, func() (*modules.OpenedStatus, error) {
+//			return &modules.OpenedStatus{Name: "error", Message: err.Error()}, err
+//		})
+//		return
+//	}
+//
+//	if err := msg.readVersion(ch, sqlDriver); err != nil {
+//		setStatus(ch, func() (*modules.OpenedStatus, error) {
+//			return &modules.OpenedStatus{Name: "error", Message: err.Error()}, err
+//		})
+//		return
+//	}
+//
+//	if err := msg.handleRefresh(ch, sqlDriver); err != nil {
+//		return
+//	}
+//
+//}
 
 func (msg *ServerConnection) NewTime() {
-	serverLastPing = tools.NewUnixTime()
+	serverLastPing = utility.NewUnixTime()
 }
 
 func (msg *ServerConnection) CreateDatabase() {
 
 }
 
-func (msg *ServerConnection) setStatus(ch chan *modules.EchoMessage, conid, name string, message ...string) {
-	status := map[string]string{"name": name}
+func SendChanMessage(ch chan *containers.EchoMessage, data func() (*containers.EchoMessage, error)) {
+	message, err := data()
+	if err != nil {
+		close(ch)
+		return
+	}
+	ch <- message
+}
+
+func (msg *ServerConnection) setStatus(ch chan *containers.EchoMessage, name string, message ...string) {
+	status := &containers.OpenedStatus{Name: name}
 	if len(message) > 0 {
-		status["message"] = message[0]
+		status.Message = message[0]
 	}
 
-	statusString := tools.ToJsonStr(status)
-	if serverLastStatus != statusString {
-		ch <- &modules.EchoMessage{
+	statusString := utility.ToJsonStr(status)
+	if ServerLastStatus != statusString {
+		ch <- &containers.EchoMessage{
 			MsgType: "status",
 			Payload: status,
-			Conid:   conid,
 		}
-		serverLastStatus = statusString
+		ServerLastStatus = statusString
 	}
 
 	if name == "error" {
-		ch <- &modules.EchoMessage{
+		ch <- &containers.EchoMessage{
 			MsgType: "exit",
-			Conid:   conid,
 		}
 	}
 }
 
-func NewMysqlDriver(connection map[string]interface{}) (standard.SqlStandard, error) {
-	storedConnection := connectUtility(connection)
-	simpleSettingMysql := &modules.SimpleSettingMysql{}
-	err := mapstructure.Decode(storedConnection, simpleSettingMysql)
-	if err != nil {
-		return nil, err
-	}
-
-	pool, err := pluginMysql.NewSimpleMysqlPool(simpleSettingMysql)
-	if err != nil {
-		return nil, err
-	}
-
-	return pool, nil
-}
-
-func NewMongoDriver(connection map[string]interface{}) (standard.SqlStandard, error) {
-	storedConnection := connectUtility(connection)
-	pool, err := pluginMongdb.NewSimpleMongoDBPool(&modules.SimpleSettingMongoDB{
-		Host: storedConnection["host"],
-		Port: storedConnection["port"],
-	})
-
-	if err != nil {
-		return nil, err
-	}
-
-	return pool, nil
-}
-
-func connectUtility(connection map[string]interface{}) map[string]string {
-	return utility.DecryptConnection(tools.TransformStringMap(connection))
-}
-
-func (msg *ServerConnection) readVersion(ch chan *modules.EchoMessage, conid string, pool standard.SqlStandard) error {
+func (msg *ServerConnection) readVersion(ch chan *containers.EchoMessage, pool standard.SqlStandard) error {
 	version, err := pool.GetVersion()
 	if err != nil {
 		return err
 	}
 
-	ch <- &modules.EchoMessage{
+	ch <- &containers.EchoMessage{
 		Payload: version,
 		MsgType: "version",
-		Conid:   conid,
 	}
 
 	return nil
 }
 
-func (msg *ServerConnection) handleRefresh(ch chan *modules.EchoMessage, conid string, pool standard.SqlStandard) error {
+func (msg *ServerConnection) handleRefresh(ch chan *containers.EchoMessage, pool standard.SqlStandard) error {
 	databases, err := pool.ListDatabases()
-	msg.setStatus(ch, conid, "ok")
-	databasesString := tools.ToJsonStr(databases)
 	if err != nil {
+		setStatus(ch, func() (*containers.OpenedStatus, error) {
+			return &containers.OpenedStatus{Name: "error", Message: err.Error()}, err
+		})
 		return err
 	}
 
-	if serverlastDatabases != databasesString {
-		ch <- &modules.EchoMessage{
+	setStatus(ch, func() (*containers.OpenedStatus, error) {
+		return &containers.OpenedStatus{Name: "ok"}, nil
+	})
+
+	databasesString := utility.ToJsonStr(databases)
+	if ServerlastDatabases != databasesString {
+		ch <- &containers.EchoMessage{
 			Payload: databases,
 			MsgType: "databases",
 			Dialect: pool.Dialect(),
-			Conid:   conid,
 		}
-		serverlastDatabases = databasesString
+		ServerlastDatabases = databasesString
 	}
-
+	ch <- &containers.EchoMessage{
+		Payload: nil,
+		MsgType: "exit",
+		Dialect: pool.Dialect(),
+	}
 	return nil
 }
