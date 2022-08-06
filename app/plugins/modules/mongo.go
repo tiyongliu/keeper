@@ -7,9 +7,6 @@ type SimpleSettingMongoDB struct {
 	Port     string `json:"port"`
 }
 
-// mongoUrl := "mongodb://" + user + ":" + password + "@" + url + "/" + dbname
-//clientOptions := options.Client().ApplyURI("mongodb://localhost:27017")
-
 type MongoDBDatabase struct {
 	Name       string `bson:"name" json:"name"`
 	SizeOnDisk int    `bson:"sizeOnDisk" json:"sizeOnDisk"`

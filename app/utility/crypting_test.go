@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"fmt"
 	"io"
-	"keeper/app/tools"
 	"os"
 	"path"
 	"testing"
@@ -47,7 +46,7 @@ func Test_MaskConnection(t *testing.T) {
 
 func Test_PickSafeConnectionInfo(t *testing.T) {
 
-	fmt.Println(path.Join(tools.DataDirCore(), "connections.jsonl"))
+	fmt.Println(path.Join(DataDirCore(), "connections.jsonl"))
 
 	fmt.Println(PickSafeConnectionInfo(map[string]string{
 		"server":     "localhost",
