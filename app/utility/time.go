@@ -1,7 +1,6 @@
-package tools
+package utility
 
 import (
-	"keeper/app/code"
 	"time"
 )
 
@@ -35,10 +34,12 @@ const (
 	Week = 7 * Day
 )
 
-func NewUnixTime() code.UnixTime {
-	return code.UnixTime(time.Now().Unix())
+type UnixTime int64
+
+func NewUnixTime() UnixTime {
+	return UnixTime(time.Now().Unix())
 }
 
-func GetUnixTime(timestamp int64) code.UnixTime {
-	return code.UnixTime(timestamp)
+func GetUnixTime(timestamp int64) UnixTime {
+	return UnixTime(timestamp)
 }

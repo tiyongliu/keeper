@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	"keeper/app/modules"
 	"keeper/app/pkg/standard"
+	"keeper/app/plugins/modules"
 )
 
 func NewSimpleMongoDBPool(setting *modules.SimpleSettingMongoDB) (standard.SqlStandard, error) {

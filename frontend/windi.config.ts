@@ -25,7 +25,7 @@ export default defineConfig({
 
 /**
  * Used for animation when the element is displayed.
- * @param maxOutput The larger the maxOutput output, the larger the generated css volume.
+ * @param maxOutput The larger the maxOutput output, the larger the generated css containers.
  */
 function createEnterPlugin(maxOutput = 6) {
   const createCss = (index: number, d = 'x') => {

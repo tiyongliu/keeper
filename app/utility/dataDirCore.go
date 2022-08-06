@@ -1,9 +1,8 @@
-package tools
+package utility
 
 import (
 	"log"
 	"os"
-	"path/filepath"
 	"strings"
 )
 
@@ -11,7 +10,7 @@ const MkDir = ".keeper"
 
 func ensureDirectory(dir string, clean bool) {
 	if !IsExist(dir) {
-		if err := os.MkdirAll(filepath.Dir(dir), os.ModePerm); err != nil {
+		if err := os.MkdirAll(dir, SecondFilePerm); err != nil {
 			log.Fatalf("os.MkdirAll failed err: %v\n", err)
 		}
 	}

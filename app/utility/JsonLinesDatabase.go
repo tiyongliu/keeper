@@ -5,13 +5,10 @@ import (
 	"fmt"
 	uuid "github.com/satori/go.uuid"
 	"keeper/app/pkg/logger"
-	"keeper/app/tools"
 	"sync"
 )
 
 var lock sync.RWMutex
-
-const database_key = "_id"
 
 type JsonLinesDatabase struct {
 	Filename      string                   `json:"filename"`
@@ -30,10 +27,10 @@ func (j *JsonLinesDatabase) Insert(obj map[string]interface{}) (map[string]inter
 	j.ensureLoaded()
 	dynamicId, ok := obj[database_key]
 	if ok && dynamicId.(string) != "" {
-		return nil, fmt.Errorf("Cannot insert duplicate ID %s into %s", dynamicId.(string), j.Filename)
+		return nil, fmt.Errorf("cannot insert duplicate ID %s into %s", dynamicId.(string), j.Filename)
 	}
 
-	elem := tools.DeepCopyUnknownMap(obj)
+	elem := DeepCopyUnknownMap(obj)
 	elem[database_key] = uuid.NewV4().String()
 	//unique
 	j.Data = append(j.Data, elem)
@@ -105,13 +102,13 @@ func (j *JsonLinesDatabase) ensureLoaded() {
 		lock.Lock()
 		defer lock.Unlock()
 
-		if !tools.IsExist(j.Filename) {
+		if !IsExist(j.Filename) {
 			j.LoadedOk = true
 			j.LoadPerformed = true
 			return
 		}
 
-		line, err := tools.ReadFileAllPool(j.Filename)
+		line, err := ReadFileAllPool(j.Filename)
 		if err != nil {
 			return
 		}
@@ -127,7 +124,7 @@ func (j *JsonLinesDatabase) save() error {
 	}
 	lock.Lock()
 	defer lock.Unlock()
-	return tools.WriteFileAllPool(j.Filename, j.Data)
+	return WriteFileAllPool(j.Filename, j.Data)
 }
 
 func (j *JsonLinesDatabase) EnsureOpened(conid string) {
