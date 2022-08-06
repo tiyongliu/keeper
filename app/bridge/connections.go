@@ -209,7 +209,7 @@ func (conn *Connections) Delete(connection map[string]string) *serializer.Respon
 			return serializer.Fail(err.Error())
 		}
 		sideQuests.ServerLastStatus = ""
-		sideQuests.ServerlastDatabases = ""
+		sideQuests.ServerLastDatabases = ""
 		utility.EmitChanged(Application.ctx, "connection-list-changed")
 		return serializer.SuccessData("", res)
 	}

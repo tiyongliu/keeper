@@ -10,7 +10,7 @@ import (
 var ServerLastStatus string
 var serverLastPing utility.UnixTime
 
-var ServerlastDatabases string
+var ServerLastDatabases string
 
 type StatusMessage struct {
 	Name    string `json:"name"`
@@ -195,13 +195,13 @@ func (msg *ServerConnection) handleRefresh(ch chan *containers.EchoMessage, pool
 	})
 
 	databasesString := utility.ToJsonStr(databases)
-	if ServerlastDatabases != databasesString {
+	if ServerLastDatabases != databasesString {
 		ch <- &containers.EchoMessage{
 			Payload: databases,
 			MsgType: "databases",
 			Dialect: pool.Dialect(),
 		}
-		ServerlastDatabases = databasesString
+		ServerLastDatabases = databasesString
 	}
 	ch <- &containers.EchoMessage{
 		Payload: nil,
