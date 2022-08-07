@@ -1,18 +1,18 @@
-package tasks
+package utility
 
 import (
+	"errors"
 	"github.com/mitchellh/mapstructure"
 	"keeper/app/pkg/standard"
 	"keeper/app/plugins/modules"
 	"keeper/app/plugins/pluginMongdb"
 	"keeper/app/plugins/pluginMysql"
-	"keeper/app/utility"
+	"sync"
 )
 
-type ServerConnection struct {
-}
+var DriverPoolMap sync.Map
 
-func GetSqlDriver(connection map[string]interface{}) (driver standard.SqlStandard, err error) {
+func CreateEngineDriver(connection map[string]interface{}) (driver standard.SqlStandard, err error) {
 	switch connection["engine"].(string) {
 	case standard.MYSQLALIAS:
 		driver, err = NewMysqlDriver(connection)
@@ -60,5 +60,36 @@ func NewMongoDriver(connection map[string]interface{}) (standard.SqlStandard, er
 }
 
 func connectUtility(connection map[string]interface{}) map[string]string {
-	return utility.DecryptConnection(utility.TransformStringMap(connection))
+	return DecryptConnection(TransformStringMap(connection))
+}
+
+func SetDriverPool(conid string, driver standard.SqlStandard) error {
+	if driver == nil {
+		return errors.New("invalid memory address or nil pointer dereference")
+	}
+	DriverPoolMap.Store(conid, driver)
+	return nil
+}
+
+func GetDriverPool(conid string) (driver standard.SqlStandard, err error) {
+	load, ok := DriverPoolMap.Load(conid)
+	if !ok {
+		return nil, errors.New("invalid memory address or nil pointer dereference")
+	}
+	sqlStandard := load.(standard.SqlStandard)
+	if sqlStandard == nil {
+		return nil, errors.New("invalid memory address or nil pointer dereference")
+	}
+
+	return sqlStandard, nil
+}
+
+func DeleteDriverPool(conid string) error {
+	andDelete, ok := DriverPoolMap.LoadAndDelete(conid)
+	if ok {
+		if andDelete != nil {
+			return andDelete.(standard.SqlStandard).Close()
+		}
+	}
+	return nil
 }
