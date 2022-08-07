@@ -6,7 +6,6 @@ import { useI18n } from '/@/hooks/web/useI18n';
 import { useUserStore } from './user';
 import { useAppStoreWithOut } from './app';
 import { toRaw } from 'vue';
-import { transformObjToRoute, flatMultiLevelRoutes } from '/@/router/helper/routeHelper';
 import { transformRouteToMenu } from '/@/router/helper/menuHelper';
 
 import projectSetting from '/@/settings/projectSetting';
@@ -177,7 +176,6 @@ export const usePermissionStore = defineStore({
           routes = routes.filter(routeFilter);
           // Convert multi-level routing to level 2 routing
           // 将多级路由转换为 2 级路由
-          routes = flatMultiLevelRoutes(routes);
           break;
 
         // 路由映射， 默认进入该case
@@ -202,7 +200,6 @@ export const usePermissionStore = defineStore({
 
           // Convert multi-level routing to level 2 routing
           // 将多级路由转换为 2 级路由
-          routes = flatMultiLevelRoutes(routes);
           break;
 
         //  If you are sure that you do not need to do background dynamic permissions, please comment the entire judgment below
@@ -229,7 +226,6 @@ export const usePermissionStore = defineStore({
 
           // Dynamically introduce components
           // 动态引入组件
-          routeList = transformObjToRoute(routeList);
 
           //  Background routing to menu structure
           //  后台路由到菜单结构
@@ -241,7 +237,6 @@ export const usePermissionStore = defineStore({
           routeList = filter(routeList, routeRemoveIgnoreFilter);
           routeList = routeList.filter(routeRemoveIgnoreFilter);
 
-          routeList = flatMultiLevelRoutes(routeList);
           routes = [PAGE_NOT_FOUND_ROUTE, ...routeList];
           break;
       }
