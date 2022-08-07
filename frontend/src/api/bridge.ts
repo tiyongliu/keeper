@@ -78,14 +78,18 @@ async function getCore(loader, args) {
   const key = stableStringify({url, ...params});
 
   async function doLoad() {
-    const resp = await apiCall(url, params);
-    if (resp?.errorMessage && errorValue !== undefined) {
-      if (onLoaded) onLoaded(errorValue)
-      return errorValue;
-    }
-    const res = (transform || (x => x))(resp);
-    if (onLoaded) onLoaded(res);
-    return res;
+   try {
+     const resp = await apiCall(url, params);
+     if (resp?.errorMessage && errorValue !== undefined) {
+       if (onLoaded) onLoaded(errorValue)
+       return errorValue;
+     }
+     const res = (transform || (x => x))(resp);
+     if (onLoaded) onLoaded(res);
+     return res;
+   } catch (e) {
+     console.log(e)
+   }
   }
 
   return await loadCachedValue(reloadTrigger, key, doLoad)
@@ -108,9 +112,13 @@ function useCore<T>(loader, args): ComputedRef<UnwrapRefSimple<T> | null | undef
 
   if (reloadTrigger) {
     for (const item of getAsArray(reloadTrigger)) {
-      EventsOn(item, () => {
-        void handleReload(indicators)
-      })
+      try {
+        EventsOn(item, () => {
+          void handleReload(indicators)
+        })
+      } catch (e) {
+        console.log(e)
+      }
     }
   }
 

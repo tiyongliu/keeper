@@ -31,7 +31,6 @@
   import { BasicModal, useModalInner } from '/@/components/Modal/index';
   import { BasicForm, useForm } from '/@/components/Form/index';
 
-  import { useUserStore } from '/@/store/modules/user';
   import { useLockStore } from '/@/store/modules/lock';
   import headerImg from '/@/assets/images/header.jpg';
   export default defineComponent({
@@ -41,10 +40,8 @@
     setup() {
       const { t } = useI18n();
       const { prefixCls } = useDesign('header-lock-modal');
-      const userStore = useUserStore();
       const lockStore = useLockStore();
 
-      const getRealName = computed(() => userStore.getUserInfo?.realName);
       const [register, { closeModal }] = useModalInner();
 
       const [registerForm, { validateFields, resetFields }] = useForm({
@@ -75,14 +72,13 @@
       }
 
       const avatar = computed(() => {
-        const { avatar } = userStore.getUserInfo;
-        return avatar || headerImg;
+        return headerImg;
       });
 
       return {
         t,
         prefixCls,
-        getRealName,
+        getRealName: 'wails',
         register,
         registerForm,
         handleLock,

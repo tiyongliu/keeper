@@ -20,17 +20,6 @@
     </div>
     <!-- left end -->
 
-    <!-- menu start -->
-    <div :class="`${prefixCls}-menu`" v-if="getShowTopMenu && !getIsMobile">
-      <LayoutMenu
-        :isHorizontal="true"
-        :theme="getHeaderTheme"
-        :splitType="getSplitType"
-        :menuMode="getMenuMode"
-      />
-    </div>
-    <!-- menu-end -->
-
     <!-- action  -->
     <div :class="`${prefixCls}-action`">
       <AppSearch :class="`${prefixCls}-action__item `" v-if="getShowSearch" />
@@ -61,7 +50,6 @@
 
   import { Layout } from 'ant-design-vue';
   import { AppLogo } from '/@/components/Application';
-  import LayoutMenu from '../menu/index.vue';
   import LayoutTrigger from '../trigger/index.vue';
 
   import { AppSearch } from '/@/components/Application';
@@ -88,7 +76,6 @@
       AppLogo,
       LayoutTrigger,
       LayoutBreadcrumb,
-      LayoutMenu,
       UserDropDown,
       AppLocalePicker,
       FullScreen,

@@ -39,7 +39,6 @@
   import { useGo } from '/@/hooks/web/usePage';
 
   import { useMultipleTabStore } from '/@/store/modules/multipleTab';
-  import { useUserStore } from '/@/store/modules/user';
 
   import { initAffixTabs, useTabsDrag } from './useMultipleTabs';
   import { useDesign } from '/@/hooks/web/useDesign';
@@ -65,7 +64,6 @@
 
       useTabsDrag(affixTextList);
       const tabStore = useMultipleTabStore();
-      const userStore = useUserStore();
       const router = useRouter();
 
       const { prefixCls } = useDesign('multiple-tabs');
@@ -89,7 +87,7 @@
 
       listenerRouteChange((route) => {
         const { name } = route;
-        if (name === REDIRECT_NAME || !route || !userStore.getToken) {
+        if (name === REDIRECT_NAME || !route) {
           return;
         }
 
