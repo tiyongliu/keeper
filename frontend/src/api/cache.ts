@@ -119,4 +119,8 @@ function dispatchCacheChange(reloadTrigger) {
   }
 }
 
-EventsOn('changed-cache',reloadTrigger => dispatchCacheChange(reloadTrigger))
+try {
+  EventsOn('changed-cache',reloadTrigger => dispatchCacheChange(reloadTrigger))
+} catch (e) {
+  console.log(e)
+}
