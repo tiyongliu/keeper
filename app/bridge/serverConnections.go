@@ -1,14 +1,12 @@
 package bridge
 
 import (
-	"errors"
 	"fmt"
 	"github.com/samber/lo"
 	"keeper/app/pkg/containers"
 	"keeper/app/pkg/serializer"
 	"keeper/app/pkg/standard"
 	"keeper/app/sideQuests"
-	"keeper/app/tasks"
 	"keeper/app/utility"
 	"sync"
 )
@@ -16,8 +14,6 @@ import (
 var lock sync.RWMutex
 
 const conidkey = "conid"
-
-var PoolMapFn map[string]func() (driver standard.SqlStandard, err error)
 
 type ServerConnections struct {
 	Closed                  map[string]interface{}
@@ -35,9 +31,7 @@ func NewServerConnections() *ServerConnections {
 }
 
 func (sc *ServerConnections) handleDatabases(conid string, databases interface{}) {
-	existing := findByOpened(sc.Opened, func(x *containers.OpenedData) bool {
-		return x.Conid != "" && x.Conid == conid
-	})
+	existing := findByOpened(sc.Opened, conid)
 
 	if existing == nil {
 		return
@@ -48,9 +42,7 @@ func (sc *ServerConnections) handleDatabases(conid string, databases interface{}
 }
 
 func (sc *ServerConnections) handleVersion(conid string, version *standard.VersionMsg) {
-	existing := findByOpened(sc.Opened, func(x *containers.OpenedData) bool {
-		return x.Conid != "" && x.Conid == conid
-	})
+	existing := findByOpened(sc.Opened, conid)
 
 	if existing == nil {
 		return
@@ -61,9 +53,7 @@ func (sc *ServerConnections) handleVersion(conid string, version *standard.Versi
 }
 
 func (sc *ServerConnections) handleStatus(conid string, status *containers.OpenedStatus) {
-	existing := findByOpened(sc.Opened, func(x *containers.OpenedData) bool {
-		return x.Conid != "" && x.Conid == conid
-	})
+	existing := findByOpened(sc.Opened, conid)
 
 	if existing == nil {
 		return
@@ -78,9 +68,7 @@ func (sc *ServerConnections) handlePing() {}
 func (sc *ServerConnections) ensureOpened(conid string) *containers.OpenedData {
 	lock.Lock()
 	defer lock.Unlock()
-	existing := findByOpened(sc.Opened, func(x *containers.OpenedData) bool {
-		return x.Conid != "" && x.Conid == conid
-	})
+	existing := findByOpened(sc.Opened, conid)
 
 	if existing != nil {
 		utility.EmitChanged(Application.ctx, "server-status-changed")
@@ -105,10 +93,9 @@ func (sc *ServerConnections) ensureOpened(conid string) *containers.OpenedData {
 
 	ch := make(chan *containers.EchoMessage)
 	utility.EmitChanged(Application.ctx, "server-status-changed")
+
 	defer func() {
-		go sc.ServerConnectionChannel.Connect(ch, func() (driver standard.SqlStandard, err error) {
-			return tasks.GetSqlDriver(connection)
-		})
+		go sc.ServerConnectionChannel.Connect(ch, conid, connection)
 		go sc.pipeHandler(ch, conid)
 	}()
 
@@ -116,15 +103,11 @@ func (sc *ServerConnections) ensureOpened(conid string) *containers.OpenedData {
 }
 
 func (sc *ServerConnections) checker(conid string) error {
-	if PoolMapFn[conid] != nil {
-		driver, err := PoolMapFn[conid]()
-		if err != nil {
-			return err
-		}
-		return driver.Ping()
+	pool, err := utility.GetDriverPool(conid)
+	if err != nil {
+		return err
 	}
-
-	return errors.New("invalid memory address or nil pointer dereference")
+	return pool.Ping()
 }
 
 func (sc *ServerConnections) ListDatabases(request map[string]string) *serializer.Response {
@@ -149,34 +132,41 @@ func (sc *ServerConnections) ServerStatus() interface{} {
 func (sc *ServerConnections) Ping(connections []string) *serializer.Response {
 	for _, conid := range lo.Uniq[string](connections) {
 		last := sc.LastPinged[conid]
+		if pool, err := utility.GetDriverPool(conid); err == nil {
+			if err = pool.Ping(); err != nil {
+				sc.Close(conid, true)
+				continue
+			}
+		}
+
 		if last > 0 && utility.NewUnixTime()-last < utility.GetUnixTime(30*1000) {
 			continue
 		}
 
 		sc.LastPinged[conid] = utility.NewUnixTime()
 		sc.ensureOpened(conid)
-		sc.ServerConnectionChannel.NewTime()
+		sc.ServerConnectionChannel.Ping()
 	}
 
 	return serializer.SuccessData("", map[string]string{"status": "ok"})
 }
 
 func (sc *ServerConnections) Close(conid string, kill bool) {
-	existing := findByOpened(sc.Opened, func(x *containers.OpenedData) bool {
-		return x.Conid != "" && x.Conid == conid
-	})
+	existing := findByOpened(sc.Opened, conid)
 	if existing != nil {
 		existing.Disconnected = true
 		if kill {
-			sc.Opened = lo.Filter[*containers.OpenedData](sc.Opened, func(x *containers.OpenedData, _ int) bool {
-				return x.Conid != conid
-			})
-			sc.Closed[conid] = map[string]interface{}{
-				"name":   "error",
-				"status": existing.Status,
-			}
-			sc.LastPinged[conid] = 0
 		}
+		sc.Opened = lo.Filter[*containers.OpenedData](sc.Opened, func(x *containers.OpenedData, _ int) bool {
+			return x.Conid != conid
+		})
+		sc.Closed[conid] = map[string]interface{}{
+			"name":   "error",
+			"status": existing.Status,
+		}
+		sc.LastPinged[conid] = 0
+
+		utility.DeleteDriverPool(conid)
 
 		utility.EmitChanged(Application.ctx, "server-status-changed")
 	}
@@ -201,6 +191,11 @@ func (sc *ServerConnections) pipeHandler(chData <-chan *containers.EchoMessage, 
 	for {
 		message, ok := <-chData
 		if message != nil {
+			if message.Err != nil {
+				if existing := findByOpened(sc.Opened, conid); existing != nil && !existing.Disconnected {
+					sc.Close(conid, true)
+				}
+			}
 			switch message.MsgType {
 			case "status":
 				sc.handleStatus(conid, message.Payload.(*containers.OpenedStatus))
@@ -215,20 +210,15 @@ func (sc *ServerConnections) pipeHandler(chData <-chan *containers.EchoMessage, 
 			}
 		}
 		if !ok {
-			if existing := findByOpened(sc.Opened, func(x *containers.OpenedData) bool {
-				return x.Conid != "" && x.Conid == conid
-			}); existing != nil {
-				if !existing.Disconnected {
-					sc.Close(conid, true)
-				}
-			}
 			break
 		}
 	}
 }
 
-func findByOpened(s []*containers.OpenedData, predicate func(x *containers.OpenedData) bool) *containers.OpenedData {
-	existing, ok := lo.Find[*containers.OpenedData](s, predicate)
+func findByOpened(s []*containers.OpenedData, conid string) *containers.OpenedData {
+	existing, ok := lo.Find[*containers.OpenedData](s, func(x *containers.OpenedData) bool {
+		return x.Conid != "" && x.Conid == conid
+	})
 
 	if existing != nil && ok {
 		return existing

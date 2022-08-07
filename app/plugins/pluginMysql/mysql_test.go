@@ -2,9 +2,9 @@ package pluginMysql
 
 import (
 	"fmt"
-	"keeper/app/modules"
 	"keeper/app/pkg/logger"
-	"keeper/app/tools"
+	"keeper/app/plugins/modules"
+	"keeper/app/utility"
 	"testing"
 )
 
@@ -78,7 +78,7 @@ func TestListDatabases(t *testing.T) {
 
 	TransformListDatabases(lastDatabases.([]string))
 
-	fmt.Println(tools.ToJsonStr(TransformListDatabases(lastDatabases.([]string))))
+	fmt.Println(utility.ToJsonStr(TransformListDatabases(lastDatabases.([]string))))
 }
 
 func TestTables(t *testing.T) {
@@ -97,7 +97,7 @@ func TestTables(t *testing.T) {
 
 	tables, err := pool.(*MysqlDrivers).Tables("yami_shops", "tz_user")
 	if err == nil {
-		logger.Infof("list %s", tools.ToJsonStr(tables))
+		logger.Infof("list %s", utility.ToJsonStr(tables))
 	}
 }
 
@@ -116,7 +116,7 @@ func TestColumns(t *testing.T) {
 	defer pool.Close()
 	columns, err := pool.Columns("shop_go", "tz_user")
 	if err == nil {
-		logger.Infof("list %s", tools.ToJsonStr(columns))
+		logger.Infof("list %s", utility.ToJsonStr(columns))
 		for _, item := range columns.([]*modules.MysqlTableColumn) {
 			fmt.Println(string(item.ColumnComment.([]byte)))
 		}
@@ -143,7 +143,7 @@ func TestPrimaryKeys(t *testing.T) {
 
 	keys, err := driver.PrimaryKeys("shop_go", "tz_user")
 	if err == nil {
-		logger.Infof("list %s", tools.ToJsonStr(keys))
+		logger.Infof("list %s", utility.ToJsonStr(keys))
 	}
 }
 
@@ -168,6 +168,6 @@ func TestForeignKeys(t *testing.T) {
 
 	keys, err := driver.ForeignKeys("yami_shops", "tz_user")
 	if err == nil {
-		logger.Infof("list %s", tools.ToJsonStr(keys))
+		logger.Infof("list %s", utility.ToJsonStr(keys))
 	}
 }
