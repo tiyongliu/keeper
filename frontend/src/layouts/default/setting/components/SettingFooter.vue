@@ -22,9 +22,7 @@
   import { CopyOutlined, RedoOutlined } from '@ant-design/icons-vue';
 
   import { useAppStore } from '/@/store/modules/app';
-  import { usePermissionStore } from '/@/store/modules/permission';
   import { useMultipleTabStore } from '/@/store/modules/multipleTab';
-  import { useUserStore } from '/@/store/modules/user';
 
   import { useDesign } from '/@/hooks/web/useDesign';
   import { useI18n } from '/@/hooks/web/useI18n';
@@ -39,12 +37,10 @@
     name: 'SettingFooter',
     components: { CopyOutlined, RedoOutlined },
     setup() {
-      const permissionStore = usePermissionStore();
       const { prefixCls } = useDesign('setting-footer');
       const { t } = useI18n();
       const { createSuccessModal, createMessage } = useMessage();
       const tabStore = useMultipleTabStore();
-      const userStore = useUserStore();
       const appStore = useAppStore();
 
       function handleCopy() {
@@ -73,9 +69,7 @@
       function handleClearAndRedo() {
         localStorage.clear();
         appStore.resetAllState();
-        permissionStore.resetState();
         tabStore.resetState();
-        userStore.resetState();
         location.reload();
       }
       return {

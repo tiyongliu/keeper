@@ -80,14 +80,13 @@
 <script lang="ts">
   import type { Menu } from '/@/router/types';
   import type { CSSProperties } from 'vue';
-  import { computed, defineComponent, onMounted, ref, unref, watch } from 'vue';
+  import { computed, defineComponent, onMounted, ref, unref } from 'vue';
   import type { RouteLocationNormalized } from 'vue-router';
   import { ScrollContainer } from '/@/components/Container';
   import { SimpleMenu, SimpleMenuTag } from '/@/components/SimpleMenu';
   import { Icon } from '/@/components/Icon';
   import { AppLogo } from '/@/components/Application';
   import { useMenuSetting } from '/@/hooks/setting/useMenuSetting';
-  import { usePermissionStore } from '/@/store/modules/permission';
   import { useDragLine } from './useLayoutSider';
   import { useGlobSetting } from '/@/hooks/setting';
   import { useDesign } from '/@/hooks/web/useDesign';
@@ -139,7 +138,6 @@
       } = useMenuSetting();
 
       const { title } = useGlobSetting();
-      const permissionStore = usePermissionStore();
 
       useDragLine(sideRef, dragBarRef, true);
 
@@ -192,17 +190,6 @@
       onMounted(async () => {
         menuModules.value = await getShallowMenus();
       });
-
-      // Menu changes
-      watch(
-        [() => permissionStore.getLastBuildMenuTime, () => permissionStore.getBackMenuList],
-        async () => {
-          menuModules.value = await getShallowMenus();
-        },
-        {
-          immediate: true,
-        },
-      );
 
       listenerRouteChange((route) => {
         currentRoute.value = route;
