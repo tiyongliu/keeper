@@ -47,21 +47,11 @@ func (msg *DatabaseConnectionHandlers) Connect(args map[string]interface{}, stru
 	}
 
 	var driver standard.SqlStandard
-	switch connection["engine"].(string) {
-	case standard.MYSQLALIAS:
-		driver, err = utility.NewMysqlDriver(connection)
-		if err != nil {
-			msg.setStatus(&StatusMessage{Name: "err", Message: err.Error()})
-			return
-		}
-	case standard.MONGOALIAS:
-		driver, err = utility.NewMongoDriver(connection)
-		if err != nil {
-			msg.setStatus(&StatusMessage{Name: "err", Message: err.Error()})
-			return
-		}
+	driver, err = utility.CreateEngineDriver(connection)
+	if err != nil {
+		msg.setStatus(&StatusMessage{Name: "err", Message: err.Error()})
+		return
 	}
-
 	if structure != nil {
 		msg.handleIncrementalRefresh(true, driver, database)
 	} else {
