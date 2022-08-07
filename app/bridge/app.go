@@ -11,8 +11,7 @@ var applicationOnce sync.Once
 
 // App struct
 type App struct {
-	ctx context.Context
-
+	ctx                 context.Context
 	Connections         *Connections
 	DatabaseConnections *DatabaseConnections
 	ServerConnections   *ServerConnections

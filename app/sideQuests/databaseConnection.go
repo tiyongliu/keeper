@@ -5,7 +5,6 @@ import (
 	"keeper/app/pkg/standard"
 	"keeper/app/plugins/modules"
 	"keeper/app/schema"
-	"keeper/app/tasks"
 	"keeper/app/utility"
 
 	"github.com/mitchellh/mapstructure"
@@ -50,13 +49,13 @@ func (msg *DatabaseConnectionHandlers) Connect(args map[string]interface{}, stru
 	var driver standard.SqlStandard
 	switch connection["engine"].(string) {
 	case standard.MYSQLALIAS:
-		driver, err = tasks.NewMysqlDriver(connection)
+		driver, err = utility.NewMysqlDriver(connection)
 		if err != nil {
 			msg.setStatus(&StatusMessage{Name: "err", Message: err.Error()})
 			return
 		}
 	case standard.MONGOALIAS:
-		driver, err = tasks.NewMongoDriver(connection)
+		driver, err = utility.NewMongoDriver(connection)
 		if err != nil {
 			msg.setStatus(&StatusMessage{Name: "err", Message: err.Error()})
 			return
