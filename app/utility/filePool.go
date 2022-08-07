@@ -8,8 +8,6 @@ import (
 	"strings"
 )
 
-const SecondFilePerm = 0666
-
 //读取所有文件读连接池
 func ReadFileAllPool(name string) ([]map[string]interface{}, error) {
 	file, err := os.Open(name)
@@ -47,7 +45,7 @@ func ReadFileAllPool(name string) ([]map[string]interface{}, error) {
 }
 
 func WriteFileAllPool(name string, dataSource []map[string]interface{}) error {
-	file, err := os.OpenFile(name, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, SecondFilePerm)
+	file, err := os.OpenFile(name, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, os.ModePerm)
 	if err != nil {
 		return err
 	}
