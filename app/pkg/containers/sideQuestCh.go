@@ -5,9 +5,10 @@ import (
 )
 
 type EchoMessage struct {
-	Payload interface{} `json:"payload"`
-	MsgType string      `json:"msgType"`
-	Dialect string      `json:"dialect"`
+	Payload interface{}
+	MsgType string
+	Dialect string
+	Err     error
 }
 
 type OpenedStatus struct {

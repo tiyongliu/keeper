@@ -182,12 +182,6 @@ func (conn *Connections) Get(conid map[string]string) *serializer.Response {
 	return serializer.SuccessData("", nil)
 }
 
-func (conn *Connections) getCore(conid string, mask bool) {
-	if conid == "" {
-		return
-	}
-}
-
 func (conn *Connections) Delete(connection map[string]string) *serializer.Response {
 	//ok := dialog.Message("你确认要删除\"%s\"吗?", connection["name"]).Title("确认删除").YesNo()
 	//if !ok {

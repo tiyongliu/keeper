@@ -51,7 +51,9 @@ func setInterval(fn func()) {
 func setStatus(ch chan *containers.EchoMessage, data func() (*containers.OpenedStatus, error)) {
 	status, err := data()
 	if err != nil {
-		close(ch)
+		ch <- &containers.EchoMessage{
+			Err: err,
+		}
 		return
 	}
 	statusString := utility.ToJsonStr(status)
@@ -61,12 +63,19 @@ func setStatus(ch chan *containers.EchoMessage, data func() (*containers.OpenedS
 	}
 }
 
-func (msg *ServerConnection) Connect(ch chan *containers.EchoMessage, connectUtility func() (driver standard.SqlStandard, err error)) {
+func (msg *ServerConnection) Connect(ch chan *containers.EchoMessage, conid string, connection map[string]interface{}) {
+	defer close(ch)
 	setStatus(ch, func() (*containers.OpenedStatus, error) {
 		return &containers.OpenedStatus{Name: "pending"}, nil
 	})
 
-	sqlDriver, err := connectUtility()
+	sqlDriver, err := utility.GetDriverPool(conid)
+	if err == nil || sqlDriver == nil {
+		sqlDriver, err = utility.CreateEngineDriver(connection)
+	} else {
+		err = utility.SetDriverPool(conid, sqlDriver)
+	}
+
 	if err != nil {
 		setStatus(ch, func() (*containers.OpenedStatus, error) {
 			return &containers.OpenedStatus{Name: "error", Message: err.Error()}, err
@@ -74,17 +83,15 @@ func (msg *ServerConnection) Connect(ch chan *containers.EchoMessage, connectUti
 		return
 	}
 
-	if err := msg.readVersion(ch, sqlDriver); err != nil {
-		setStatus(ch, func() (*containers.OpenedStatus, error) {
-			return &containers.OpenedStatus{Name: "error", Message: err.Error()}, err
-		})
+	if err = msg.readVersion(ch, sqlDriver); err != nil {
 		return
 	}
 
-	if err := msg.handleRefresh(ch, sqlDriver); err != nil {
+	if err = msg.handleRefresh(ch, sqlDriver); err != nil {
 		return
 	}
 
+	//tasks.SetDriverPool(connection[conidkey].(string), sqlDriver)
 	// ticker := time.NewTicker(2 * time.Second)
 	// go func(ticker *time.Ticker) {
 	// 	for range ticker.C {
@@ -101,34 +108,7 @@ func (msg *ServerConnection) Connect(ch chan *containers.EchoMessage, connectUti
 	// }(ticker)
 }
 
-//func (msg *ServerConnection) Connect(ch chan *modules.EchoMessage, connection map[string]interface{}) {
-//	setStatus(ch, func() (*modules.OpenedStatus, error) {
-//		return &modules.OpenedStatus{Name: "ping"}, nil
-//	})
-//	serverLastPing = tools.NewUnixTime()
-//	//TODO connectUtility, 可以传递一个func 因为返回值都是一样的，在func内部进行处理
-//	sqlDriver, err := GetSqlDriver(connection)
-//	if err != nil {
-//		setStatus(ch, func() (*modules.OpenedStatus, error) {
-//			return &modules.OpenedStatus{Name: "error", Message: err.Error()}, err
-//		})
-//		return
-//	}
-//
-//	if err := msg.readVersion(ch, sqlDriver); err != nil {
-//		setStatus(ch, func() (*modules.OpenedStatus, error) {
-//			return &modules.OpenedStatus{Name: "error", Message: err.Error()}, err
-//		})
-//		return
-//	}
-//
-//	if err := msg.handleRefresh(ch, sqlDriver); err != nil {
-//		return
-//	}
-//
-//}
-
-func (msg *ServerConnection) NewTime() {
+func (msg *ServerConnection) Ping() {
 	serverLastPing = utility.NewUnixTime()
 }
 
@@ -136,40 +116,12 @@ func (msg *ServerConnection) CreateDatabase() {
 
 }
 
-func SendChanMessage(ch chan *containers.EchoMessage, data func() (*containers.EchoMessage, error)) {
-	message, err := data()
-	if err != nil {
-		close(ch)
-		return
-	}
-	ch <- message
-}
-
-func (msg *ServerConnection) setStatus(ch chan *containers.EchoMessage, name string, message ...string) {
-	status := &containers.OpenedStatus{Name: name}
-	if len(message) > 0 {
-		status.Message = message[0]
-	}
-
-	statusString := utility.ToJsonStr(status)
-	if ServerLastStatus != statusString {
-		ch <- &containers.EchoMessage{
-			MsgType: "status",
-			Payload: status,
-		}
-		ServerLastStatus = statusString
-	}
-
-	if name == "error" {
-		ch <- &containers.EchoMessage{
-			MsgType: "exit",
-		}
-	}
-}
-
 func (msg *ServerConnection) readVersion(ch chan *containers.EchoMessage, pool standard.SqlStandard) error {
 	version, err := pool.GetVersion()
 	if err != nil {
+		setStatus(ch, func() (*containers.OpenedStatus, error) {
+			return &containers.OpenedStatus{Name: "error", Message: err.Error()}, err
+		})
 		return err
 	}
 
