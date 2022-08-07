@@ -27,7 +27,7 @@ func LoadEncryptionKey() string {
 	encryptor := CreateEncryptor(defaultEncryptionKey)
 	if !IsExist(keyFile) {
 		logger.Infof("keyFile: %s", path.Dir(keyFile))
-		if err := os.MkdirAll(filepath.Dir(keyFile), SecondFilePerm); err != nil {
+		if err := os.MkdirAll(filepath.Dir(keyFile), os.ModePerm); err != nil {
 			log.Fatalf("os.MkdirAll failed err: %v\n", err)
 			return ""
 		}
@@ -39,7 +39,7 @@ func LoadEncryptionKey() string {
 		}
 		encrypt := encryptor.encrypt(result)
 
-		if err := ioutil.WriteFile(keyFile, []byte(encrypt), SecondFilePerm); err != nil {
+		if err := ioutil.WriteFile(keyFile, []byte(encrypt), os.ModePerm); err != nil {
 			log.Fatalf("ioutil.WriteFile failed err: %v\n", err)
 			return ""
 		}

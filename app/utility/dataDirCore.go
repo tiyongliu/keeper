@@ -10,7 +10,7 @@ const MkDir = ".keeper"
 
 func ensureDirectory(dir string, clean bool) {
 	if !IsExist(dir) {
-		if err := os.MkdirAll(dir, SecondFilePerm); err != nil {
+		if err := os.MkdirAll(dir, os.ModePerm); err != nil {
 			log.Fatalf("os.MkdirAll failed err: %v\n", err)
 		}
 	}
