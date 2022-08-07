@@ -1,7 +1,6 @@
 import type { AppRouteRecordRaw } from '/@/router/types';
 import { t } from '/@/hooks/web/useI18n';
 import {
-  REDIRECT_NAME,
   LAYOUT,
   EXCEPTION_COMPONENT,
   PAGE_NOT_FOUND_NAME,
@@ -31,27 +30,6 @@ export const PAGE_NOT_FOUND_ROUTE: AppRouteRecordRaw = {
   ],
 };
 
-export const REDIRECT_ROUTE: AppRouteRecordRaw = {
-  path: '/redirect',
-  component: LAYOUT,
-  name: 'RedirectTo',
-  meta: {
-    title: REDIRECT_NAME,
-    hideBreadcrumb: true,
-    hideMenu: true,
-  },
-  children: [
-    {
-      path: '/redirect/:path(.*)',
-      name: REDIRECT_NAME,
-      component: () => import('/@/views/sys/redirect/index.vue'),
-      meta: {
-        title: REDIRECT_NAME,
-        hideBreadcrumb: true,
-      },
-    },
-  ],
-};
 
 export const ERROR_LOG_ROUTE: AppRouteRecordRaw = {
   path: '/error-log',
