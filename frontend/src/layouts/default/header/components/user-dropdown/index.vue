@@ -17,21 +17,9 @@
           v-if="getShowDoc"
         />
         <MenuDivider v-if="getShowDoc" />
-        <MenuItem
-          v-if="getUseLockPage"
-          key="lock"
-          :text="t('layout.header.tooltipLock')"
-          icon="ion:lock-closed-outline"
-        />
-        <MenuItem
-          key="logout"
-          :text="t('layout.header.dropdownItemLoginOut')"
-          icon="ion:power-outline"
-        />
       </Menu>
     </template>
   </Dropdown>
-  <LockAction @register="register" />
 </template>
 <script lang="ts">
   // components
@@ -44,8 +32,6 @@
   import { useHeaderSetting } from '/@/hooks/setting/useHeaderSetting';
   import { useI18n } from '/@/hooks/web/useI18n';
   import { useDesign } from '/@/hooks/web/useDesign';
-  import { useModal } from '/@/components/Modal';
-
   import { propTypes } from '/@/utils/propTypes';
   import { openWindow } from '/@/utils';
 
@@ -60,7 +46,6 @@
       Menu,
       MenuItem: createAsyncComponent(() => import('./DropMenuItem.vue')),
       MenuDivider: Menu.Divider,
-      LockAction: createAsyncComponent(() => import('../lock/LockModal.vue')),
     },
     props: {
       theme: propTypes.oneOf(['dark', 'light']),
@@ -68,14 +53,8 @@
     setup() {
       const { prefixCls } = useDesign('header-user-dropdown');
       const { t } = useI18n();
-      const { getShowDoc, getUseLockPage } = useHeaderSetting();
+      const { getShowDoc } = useHeaderSetting();
 
-
-      const [register, { openModal }] = useModal();
-
-      function handleLock() {
-        openModal(true);
-      }
       // open doc
       function openDoc() {
         openWindow(DOC_URL);
@@ -88,9 +67,6 @@
           case 'doc':
             openDoc();
             break;
-          case 'lock':
-            handleLock();
-            break;
         }
       }
 
@@ -99,8 +75,6 @@
         t,
         handleMenuClick,
         getShowDoc,
-        register,
-        getUseLockPage,
       };
     },
   });
