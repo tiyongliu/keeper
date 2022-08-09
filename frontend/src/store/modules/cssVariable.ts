@@ -1,8 +1,7 @@
 import {defineStore} from "pinia";
-import {store} from "/@/store";
 import {reactive} from "vue";
 import {isNumber} from 'lodash-es'
-import {getWithStorageVariableCache, setWithStorageVariableCache} from '../index'
+import {getWithStorageVariableCache, setWithStorageVariableCache} from '/@/second/utility/storage'
 
 interface IVariableBasic {
   currentDropDownMenu: null
@@ -14,7 +13,7 @@ interface IVariableBasic {
   }
 }
 
-export const LEFTPANELWIDTH = "leftPanelWidth"
+const LEFTPANELWIDTH = "leftPanelWidth"
 
 export const dynamicProps = reactive({splitterVisible: false})
 const _leftPanelWidth = getWithStorageVariableCache(300, LEFTPANELWIDTH)
@@ -57,7 +56,3 @@ export const cssVariableStore = defineStore({
     }
   }
 })
-
-export function useCssVariableStoreWithOut() {
-  return cssVariableStore(store);
-}
