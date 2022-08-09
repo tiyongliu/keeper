@@ -33,7 +33,7 @@
 </template>
 
 <script lang="ts">
-import {defineComponent, onMounted, computed, ref, unref, watch} from 'vue'
+import {defineComponent, ref, unref, watch} from 'vue'
 import {sortBy} from 'lodash-es'
 import SearchBoxWrapper from '/@/second/widgets/SearchBoxWrapper.vue'
 import WidgetsInnerContainer from '/@/second/widgets//WidgetsInnerContainer.vue'
@@ -46,15 +46,12 @@ import getConnectionLabel from '/@/second/utility/getConnectionLabel'
 import ConnectionAppObject from '/@/second/appobj/ConnectionAppObject'
 import SubDatabaseList from '/@/second/appobj/SubDatabaseList'
 import {dataBaseStore} from '/@/store/modules/dataBase'
-import {metadataLoadersStore} from '/@/store/modules/metadataLoaders'
 import runCommand from '/@/second/commands/runCommand'
-
 import LargeButton from '/@/second/buttons/LargeButton.vue'
 
 //TODO
 import ConnectionModal from '/@/second/modals/ConnectionModal.vue'
 import {useModal} from "/@/components/Modal";
-// import {useConnectionList, useServerStatus} from '/@/api/api'
 import {useConnectionList, useServerStatus} from '/@/api/bridge'
 export default defineComponent({
   name: "ConnectionList",
@@ -73,9 +70,6 @@ export default defineComponent({
     const hidden = ref(false)
     const filter = ref('')
     const dataBase = dataBaseStore()
-
-    // const metadataLoaders = metadataLoadersStore()
-
     // const connectionsWithStatus = [{
     //   "server": "localhost",
     //   "engine": "mysql@dbgate-plugin-mysql",
@@ -90,15 +84,6 @@ export default defineComponent({
 
     const handleExpandable = (data) => dataBase.$state.openedConnections.includes(unref(data)._id)
       && !unref(data).singleDatabase
-
-    // onMounted(async () => {
-    //    await metadataLoaders.onConnectionList()
-    // })
-
-    // const connectionsWithStatus = computed(() => {
-    //   return metadataLoaders.connectionsWithStatus
-    // })
-
     const connectionsWithStatus = ref<unknown[]>([])
 
     const connections = useConnectionList()
