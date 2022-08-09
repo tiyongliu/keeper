@@ -194,7 +194,7 @@ export default defineComponent({
     }
 
     return () => {
-      const {onClick, onExpand, ...restProps} = attrs
+      const {...restProps} = attrs
       return <AppObjectCore
         {...restProps}
         data={unref(data) as ConnectionsWithStatus}

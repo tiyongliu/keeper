@@ -28,12 +28,6 @@
          v-splitterDrag="'clientX'"
          :resizeSplitter="(e) => cssVariable.setLeftPanelWidth(e.detail)">
     </div>
-
-
-    <VueDragResize :isActive="true" :w="200" :h="200">
-      <h3>Hello World!</h3>
-    </VueDragResize>
-
     <CurrentDropDownMenu/>
     <div class="snackbar-container">snackbar-container</div>
   </Layout>

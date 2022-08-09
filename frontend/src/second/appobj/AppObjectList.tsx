@@ -5,6 +5,7 @@ import {
   unref,
   toRefs,
   Component,
+  toRaw,
 } from 'vue'
 import {compact, keys, groupBy} from 'lodash-es'
 import AppObjectListItem from '/@/second/appobj/AppObjectListItem.vue'
@@ -62,8 +63,8 @@ export default defineComponent({
       disableContextMenu,
     } = toRefs(props)
 
-    const module = props.module
-    const subItemsComponent = props.subItemsComponent
+    const module = toRaw(props.module)
+    const subItemsComponent = toRaw(props.subItemsComponent)
 
     const filtered = computed(() => {
       return !unref(groupFunc) ? (unref(list)!).filter(data => {
