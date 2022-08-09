@@ -36,3 +36,6 @@ wails.exe
 wails
 
 bin/dbbox.exe
+frontend/src/wailsjs/**
+frontend/src/wailsjs/go/models.ts
+
