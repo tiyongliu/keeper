@@ -1,6 +1,7 @@
 import {defineStore} from "pinia";
 import {store} from "/@/store";
 import {reactive} from "vue";
+import {isNumber} from 'lodash-es'
 import {getWithStorageVariableCache, setWithStorageVariableCache} from '../index'
 
 interface IVariableBasic {
@@ -13,17 +14,18 @@ interface IVariableBasic {
   }
 }
 
-const LEFTPANELWIDTH = "leftPanelWidth"
+export const LEFTPANELWIDTH = "leftPanelWidth"
 
 export const dynamicProps = reactive({splitterVisible: false})
-
+const _leftPanelWidth = getWithStorageVariableCache(300, LEFTPANELWIDTH)
 export const cssVariableStore = defineStore({
   id: "app-cssVariable",
   state: (): IVariableBasic => ({
     currentDropDownMenu: null,
     visibleTitleBar: 0,
     selectedWidget: 1,
-    leftPanelWidth: getWithStorageVariableCache(300, LEFTPANELWIDTH),
+    leftPanelWidth: parseFloat(_leftPanelWidth).toString() !== 'NaN' ?
+      parseFloat(_leftPanelWidth) : 300,
     dynamicProps: {
       splitterVisible: false
     }
@@ -38,9 +40,11 @@ export const cssVariableStore = defineStore({
       this.selectedWidget = value;
     },
     setLeftPanelWidth(value) {
-      this.leftPanelWidth += value;
-      setWithStorageVariableCache(LEFTPANELWIDTH, String(this.leftPanelWidth));
+      this.leftPanelWidth += value
       document.documentElement.style.setProperty("--dim-left-panel-width", `${this.leftPanelWidth}px`);
+      if (isNumber(this.leftPanelWidth)) {
+        setWithStorageVariableCache(LEFTPANELWIDTH, String(this.leftPanelWidth));
+      }
     },
     subscribeCssVariable(value, transform, cssVariable) {
       document.documentElement.style.setProperty(cssVariable, transform(value));
