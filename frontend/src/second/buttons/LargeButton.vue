@@ -7,30 +7,71 @@
       <FontIcon :icon="icon"/>
     </div>
     <div class="inner">
-      <slot/>
+      <slot></slot>
     </div>
   </div>
 </template>
 
-<script lang="ts" setup>
-import {defineEmits, defineProps, toRefs, withDefaults} from 'vue'
+<script lang="ts">
+import {defineComponent, PropType, toRef, toRefs} from 'vue'
 import FontIcon from '/@/second/icons/FontIcon.vue'
 
-const defaultProps = withDefaults(defineProps<{ icon?: string; disabled: boolean; fillHorizontal: boolean }>(), {
-  disabled: false,
-  fillHorizontal: false,
+export default defineComponent({
+  name: "LargeButton",
+  components: {
+    FontIcon
+  },
+  props: {
+    icon: {
+      type: String as PropType<string>,
+    },
+    disabled: {
+      type: Boolean as PropType<boolean>,
+      default: false
+    },
+    fillHorizontal: {
+      type: Boolean as PropType<boolean>,
+      default: false
+    },
+  },
+  emits: ['visible'],
+  setup(props, {emit}) {
+    const disabled = toRef(props, 'disabled')
+    const handleClick = () => {
+      if (!disabled.value) {
+        emit('visible')
+      }
+    }
+
+    return {
+      handleClick,
+      ...toRefs(props),
+    }
+  }
+})
+</script>
+
+<!--<script lang="ts" setup>
+import {defineEmits, defineProps, toRefs, withDefaults} from 'vue'
+import FontIcon from '/@/second/icons/FontIcon.vue'
+//<{ icon?: string, disabled: boolean, fillHorizontal: boolean }>
+//<{icon?: string}, {disabled: boolean, fillHorizontal: boolean}>
+// const defaultProps = withDefaults()
+const defaultProps = withDefaults<any, any>(defineProps({
+  icon: String
+}), {
+  fillHorizontal: Boolean,
+  disabled: Boolean,
 })
 
-const {icon, disabled, fillHorizontal} = toRefs(defaultProps)
-
+const {disabled, fillHorizontal} = toRefs(defaultProps)
 const emit = defineEmits(['visible'])
-
 const handleClick = () => {
   if (!disabled.value) {
     emit('visible')
   }
 }
-</script>
+</script>-->
 
 <style scoped>
 .button {
