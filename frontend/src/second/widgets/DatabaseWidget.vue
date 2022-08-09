@@ -33,7 +33,8 @@
 </template>
 
 <script lang="ts">
-  import {computed, defineComponent, PropType} from 'vue';
+  import {computed, defineComponent, PropType, unref} from 'vue'
+  import {storeToRefs} from 'pinia'
   import {dataBaseStore} from "/@/store/modules/dataBase"
   import ErrorInfo from '/@/second/elements/ErrorInfo.vue'
   import WidgetColumnBar from './WidgetColumnBar.vue'
@@ -61,13 +62,10 @@
     },
     setup() {
       const dataBase = dataBaseStore()
-
-      const pinnedDatabases = computed(() => dataBase.$state.pinnedDatabases)
-      const pinnedTables = computed(() => dataBase.$state.pinnedTables)
-      const conid = computed(() => dataBase.$state.currentDatabase?.connection._id)
-      const currentDatabase = computed(() => dataBase.$state.currentDatabase)
-      const database = computed(() => dataBase.$state.currentDatabase?.name)
-      const singleDatabase = computed(() => dataBase.$state.currentDatabase?.connection?.singleDatabase)
+      const {pinnedDatabases, pinnedTables, currentDatabase} = storeToRefs(dataBase)
+      const database = computed(() => unref(currentDatabase)?.name)
+      const conid = computed(() => unref(currentDatabase)?.connection._id)
+      const singleDatabase = computed(() => unref(currentDatabase)?.connection?.singleDatabase)
 
       return {
         pinnedDatabases,
