@@ -166,7 +166,6 @@ export default defineComponent({
       handleExpand,
       handleClick,
       handleMouseUp,
-
       handleContext,
       handleContextMenu
     }

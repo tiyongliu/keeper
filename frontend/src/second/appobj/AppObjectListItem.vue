@@ -17,7 +17,7 @@
 </template>
 
 <script lang="ts">
-  import {Component, computed, defineComponent, PropType, ref, toRefs, unref, watch} from 'vue'
+import {Component, computed, defineComponent, PropType, ref, toRaw, toRefs, unref, watch} from 'vue'
   import {plusExpandIcon} from '/@/second/icons/expandIcons';
   import {getExpandIcon} from './module'
 
@@ -64,9 +64,8 @@
     },
     setup(props) {
       const {data, isExpandable, expandOnClick} = toRefs(props)
-      const module = props.module
-      const subItemsComponent = props.subItemsComponent
-
+      const module = toRaw(props.module)
+      const subItemsComponent = toRaw(props.subItemsComponent)
       const isExpanded = ref(false)
 
       const expandable = computed(() => {
