@@ -34,6 +34,7 @@
 
 <script lang="ts">
 import {defineComponent, ref, unref, watch} from 'vue'
+import {storeToRefs} from 'pinia'
 import {sortBy} from 'lodash-es'
 import SearchBoxWrapper from '/@/second/widgets/SearchBoxWrapper.vue'
 import WidgetsInnerContainer from '/@/second/widgets//WidgetsInnerContainer.vue'
@@ -53,6 +54,8 @@ import LargeButton from '/@/second/buttons/LargeButton.vue'
 import ConnectionModal from '/@/second/modals/ConnectionModal.vue'
 import {useModal} from "/@/components/Modal";
 import {useConnectionList, useServerStatus} from '/@/api/bridge'
+import {IActiveConnection, IConnectionStatus} from '/@/second/typings/types/connections.d'
+
 export default defineComponent({
   name: "ConnectionList",
   components: {
@@ -70,6 +73,7 @@ export default defineComponent({
     const hidden = ref(false)
     const filter = ref('')
     const dataBase = dataBaseStore()
+    const {openedConnections} = storeToRefs(dataBase)
     // const connectionsWithStatus = [{
     //   "server": "localhost",
     //   "engine": "mysql@dbgate-plugin-mysql",
@@ -82,12 +86,11 @@ export default defineComponent({
     //   "status": {"name": "ok"}
     // }]
 
-    const handleExpandable = (data) => dataBase.$state.openedConnections.includes(unref(data)._id)
+    const handleExpandable = (data) => unref(openedConnections).includes(unref(data)._id)
       && !unref(data).singleDatabase
-    const connectionsWithStatus = ref<unknown[]>([])
-
-    const connections = useConnectionList()
-    const serverStatus = useServerStatus()
+    const connectionsWithStatus = ref<IActiveConnection[]>([])
+    const connections = useConnectionList<IActiveConnection[]>()
+    const serverStatus = useServerStatus<{ _id: IConnectionStatus }>()
 
     watch(() => [connections, serverStatus], () => {
       connectionsWithStatus.value =
