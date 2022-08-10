@@ -16,10 +16,10 @@
 </template>
 
 <script lang="ts">
-import {defineComponent, provide, unref, toRaw} from 'vue'
+import {defineComponent, provide, unref} from 'vue'
+import {storeToRefs} from 'pinia'
 import {pickBy} from 'lodash-es'
 import {Alert, Tabs} from 'ant-design-vue'
-// import {useModal} from '/@/components/Modal'
 import {BasicModal, useModalInner} from '/@/components/Modal'
 import FormProviderCore from '/@/second/forms/FormProviderCore'
 import TabControl from '/@/second/elements/TabControl.vue'
@@ -27,7 +27,7 @@ import ConnectionModalDriverFields from '/@/second/modals/ConnectionModalDriverF
 import ConnectionModalSshTunnelFields from '/@/second/modals/ConnectionModalSshTunnelFields.vue'
 import ConnectionModalSslFields from '/@/second/modals/ConnectionModalSslFields.vue'
 import {handleDriverTestApi, handleDriverSaveApi} from '/@/api/connection'
-import {metadataLoadersStore, metadataLoadersKey} from "/@/store/modules/metadataLoaders"
+import {metadataLoadersStore} from "/@/store/modules/metadataLoaders"
 const TabPane = Tabs.TabPane
 
 export default defineComponent({
@@ -45,14 +45,14 @@ export default defineComponent({
     const [register, {closeModal, setModalProps}] = useModalInner()
     let connParams = {}
     const metadataLoaders = metadataLoadersStore()
+    const {connections} = storeToRefs(metadataLoaders)
     provide('dispatchConnections', (dynamicProps) => {
       connParams = dynamicProps
     })
 
     const handleTest = async () => {
       try {
-        const resp = await handleDriverTestApi(pickBy(unref(connParams), (item) => !!item))
-        console.log(resp, `resp`)
+        await handleDriverTestApi(pickBy(unref(connParams), (item) => !!item))
       } catch (e) {
         console.log(e)
       }
@@ -63,8 +63,7 @@ export default defineComponent({
     const handleSubmit = async () => {
       try {
         const resp = await handleDriverSaveApi(pickBy(unref(connParams), (item) => !!item))
-        console.log(resp, `resp`)
-        void metadataLoaders.setState(metadataLoadersKey.connections, [...metadataLoaders.connectionsWithStatus, resp])
+        void metadataLoaders.setConnections([...unref(connections), resp])
         emit('closeCurrentModal')
       } catch (e) {
         console.log(e)

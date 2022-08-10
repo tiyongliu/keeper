@@ -8,8 +8,7 @@ import App from './App.vue';
 import { createApp } from 'vue';
 import { initAppConfigStore } from '/@/logics/initAppConfig';
 import { setupErrorHandle } from '/@/logics/error-handle';
-import { router, setupRouter } from '/@/router';
-import { setupRouterGuard } from '/@/router/guard';
+import { setupRouter } from '/@/router';
 import { setupStore } from '/@/store';
 import { setupGlobDirectives } from '/@/directives';
 import { setupI18n } from '/@/locales/setupI18n';
@@ -33,9 +32,6 @@ async function bootstrap() {
 
   // Configure routing
   setupRouter(app);
-
-  // router-guard
-  setupRouterGuard(router);
 
   // Register global directive
   setupGlobDirectives(app);
