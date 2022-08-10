@@ -11,7 +11,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/samber/lo v1.27.0
 	github.com/satori/go.uuid v1.2.0
-	github.com/wailsapp/wails/v2 v2.0.0-beta.42
+	github.com/wailsapp/wails/v2 v2.0.0-beta.43
 	go.mongodb.org/mongo-driver v1.10.1
 	go.uber.org/zap v1.21.0
 	gorm.io/driver/mysql v1.3.5
