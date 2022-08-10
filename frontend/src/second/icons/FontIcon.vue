@@ -3,7 +3,7 @@
         :title="title"
         :style="style"
         @click="handleClick"
-  />
+  ></span>
 </template>
 
 <script lang="ts">
@@ -91,7 +91,6 @@
           'icon web': 'mdi mdi-web',
           'icon home': 'mdi mdi-home',
           'icon query-design': 'mdi mdi-vector-polyline-edit',
-          'icon form': 'mdi mdi-form-select',
           'icon history': 'mdi mdi-history',
           'icon structure': 'mdi mdi-tools',
           'icon square': 'mdi mdi-square',
@@ -123,7 +122,6 @@
           'icon checkbox-marked': 'mdi mdi-checkbox-marked-outline',
           'icon dots-horizontal': 'mdi mdi-dots-horizontal',
           'icon dots-vertical': 'mdi mdi-dots-vertical',
-          'icon add': 'mdi mdi-plus-circle',
           'icon json': 'mdi mdi-code-json',
           'icon lock': 'mdi mdi-lock',
 
