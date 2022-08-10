@@ -31,3 +31,10 @@ But there are also many advanced features like schema compare, visual query desi
 
 > Technology stack:  Vue3 + Vite + vben admin + Golang + Wails v2
 
+### web install
+```sh
+pnpm install -g  
+cd scripts
+./install.sh
+npm run build
+```
