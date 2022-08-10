@@ -9,12 +9,6 @@
 
 [dbeaver](https://github.com/dbeaver/dbeaver)
 
-
-
-
-
-
-
 [sqlitestudio](https://github.com/pawelsalawa/sqlitestudio)
 
 [beekeeper-studio](https://github.com/beekeeper-studio/beekeeper-studio)
