@@ -1,13 +1,12 @@
 <template>
   <a href="">
-    <slot />
+    <slot></slot>
   </a>
 </template>
 
 <script lang="ts">
   import {defineComponent, toRefs, PropType} from 'vue'
-  import FontIcon from '/@/second/icons/FontIcon.vue'
-  import {openWebLink} from '/@/second/utility/exportFileTools'
+  // import FontIcon from '/@/second/icons/FontIcon.vue'
   export default defineComponent({
     name: "Link",
     props: {
@@ -15,10 +14,8 @@
         type: String as PropType<string>,
       },
     },
-    components: {FontIcon},
+    // components: {FontIcon},
     setup(props) {
-
-      //openWebLink
       return {
         ...toRefs(props)
       }

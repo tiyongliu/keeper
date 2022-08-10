@@ -1,4 +1,5 @@
-import {defineComponent, unref, computed, PropType, toRefs} from 'vue'
+import {defineComponent, unref, PropType, toRefs} from 'vue'
+import {storeToRefs} from 'pinia'
 import { isEqual, uniqWith, get } from 'lodash-es'
 import AppObjectCore from './AppObjectCore.vue'
 import { dataBaseStore } from "/@/store/modules/dataBase";
@@ -18,12 +19,10 @@ export default defineComponent({
   },
   setup(props, {attrs}) {
     const dataBase = dataBaseStore()
+    const {pinnedDatabases} = storeToRefs(dataBase)
     const {data, passProps} = toRefs(props)
-    const isPinned = computed(() => {
-      return dataBase.$state.pinnedDatabases.find(x => x.name == unref(data)!.name && x.connection?._id == unref(data)!.connection?._id)
-    })
-
-    const currentDatabase = computed(() => dataBase.getCurrentDatabase)
+    const isPinned = unref(pinnedDatabases).find(x => x.name == unref(data)!.name && x.connection?._id == unref(data)!.connection?._id)
+    const currentDatabase = dataBase.getCurrentDatabase
 
     return () => (
       <AppObjectCore
