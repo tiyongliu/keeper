@@ -31,10 +31,18 @@ But there are also many advanced features like schema compare, visual query desi
 
 > Technology stack:  Vue3 + Vite + vben admin + Golang + Wails v2
 
-### web install
+### web install 请按顺序执行
 ```sh
 pnpm install -g  
-cd scripts
-./install.sh
-npm run build
+
+
+cd ./packages/tools
+pnpm install
+pnpm build
+
+cd ./frontend
+pnpm install
+pnpm build
 ```
+
+[wails install](https://wails.io/zh-Hans/docs/gettingstarted/installation)
