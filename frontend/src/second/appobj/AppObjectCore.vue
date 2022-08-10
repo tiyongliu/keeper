@@ -47,7 +47,7 @@
 
     </template>
   </div>
-  <slot />
+  <slot></slot>
 </template>
 
 <script lang="ts">
@@ -158,7 +158,6 @@ export default defineComponent({
           items: props.menu(),
         });
       }
-
     }
 
     return {
