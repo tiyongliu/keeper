@@ -3,12 +3,12 @@ package utility
 import (
 	"log"
 	"os"
-	"strings"
+	"path"
 )
 
 const MkDir = ".keeper"
 
-func ensureDirectory(dir string, clean bool) {
+func ensureDirectory(dir string) {
 	if !IsExist(dir) {
 		if err := os.MkdirAll(dir, os.ModePerm); err != nil {
 			log.Fatalf("os.MkdirAll failed err: %v\n", err)
@@ -17,11 +17,11 @@ func ensureDirectory(dir string, clean bool) {
 }
 func DataDirCore() string {
 	dir, _ := os.UserHomeDir()
-	return strings.Join([]string{dir, MkDir}, "/")
+	return path.Join(dir, MkDir, "/")
 }
 
 func DataDir() string {
 	dir := DataDirCore()
-	ensureDirectory(dir, false)
+	ensureDirectory(dir)
 	return dir
 }
