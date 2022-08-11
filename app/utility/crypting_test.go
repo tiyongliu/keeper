@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"path"
+	"path/filepath"
 	"testing"
 )
 
@@ -32,6 +32,10 @@ func Test_LoadEncryptionKey(t *testing.T) {
 	fmt.Println(key2)
 }
 
+func Test_DataDir(t *testing.T) {
+	NewJsonLinesDatabase(filepath.Join(DataDir(), "connections.jsonl"))
+}
+
 func Test_MaskConnection(t *testing.T) {
 	fmt.Println(MaskConnection(map[string]string{
 		"server":     "localhost",
@@ -46,7 +50,7 @@ func Test_MaskConnection(t *testing.T) {
 
 func Test_PickSafeConnectionInfo(t *testing.T) {
 
-	fmt.Println(path.Join(DataDirCore(), "connections.jsonl"))
+	fmt.Println(DataDir())
 
 	fmt.Println(PickSafeConnectionInfo(map[string]string{
 		"server":     "localhost",
