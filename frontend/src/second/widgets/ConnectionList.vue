@@ -90,7 +90,7 @@ export default defineComponent({
       && !unref(data).singleDatabase
     const connectionsWithStatus = ref<IActiveConnection[]>([])
     const connections = useConnectionList<IActiveConnection[]>()
-    const serverStatus = useServerStatus<{ _id: IConnectionStatus }>()
+    const serverStatus = useServerStatus<{[key: string]: IConnectionStatus}>()
 
     watch(() => [connections, serverStatus], () => {
       connectionsWithStatus.value =

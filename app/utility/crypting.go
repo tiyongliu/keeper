@@ -23,7 +23,7 @@ func LoadEncryptionKey() string {
 		return _encryptionKey
 	}
 	defaultFile := DataDirCore()
-	keyFile := path.Join(defaultFile, ".key")
+	keyFile := filepath.Join(defaultFile, ".key")
 	encryptor := CreateEncryptor(defaultEncryptionKey)
 	if !IsExist(keyFile) {
 		logger.Infof("keyFile: %s", path.Dir(keyFile))
