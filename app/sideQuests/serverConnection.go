@@ -69,12 +69,7 @@ func (msg *ServerConnection) Connect(ch chan *containers.EchoMessage, conid stri
 		return &containers.OpenedStatus{Name: "pending"}, nil
 	})
 
-	sqlDriver, err := utility.GetDriverPool(conid)
-	if err == nil || sqlDriver == nil {
-		sqlDriver, err = utility.CreateEngineDriver(connection)
-	} else {
-		err = utility.SetDriverPool(conid, sqlDriver)
-	}
+	driver, err := utility.TakeAutoDriver(conid, connection)
 
 	if err != nil {
 		setStatus(ch, func() (*containers.OpenedStatus, error) {
@@ -83,11 +78,11 @@ func (msg *ServerConnection) Connect(ch chan *containers.EchoMessage, conid stri
 		return
 	}
 
-	if err = msg.readVersion(ch, sqlDriver); err != nil {
+	if err = msg.readVersion(ch, driver); err != nil {
 		return
 	}
 
-	if err = msg.handleRefresh(ch, sqlDriver); err != nil {
+	if err = msg.handleRefresh(ch, driver); err != nil {
 		return
 	}
 
@@ -116,8 +111,8 @@ func (msg *ServerConnection) CreateDatabase() {
 
 }
 
-func (msg *ServerConnection) readVersion(ch chan *containers.EchoMessage, pool standard.SqlStandard) error {
-	version, err := pool.GetVersion()
+func (msg *ServerConnection) readVersion(ch chan *containers.EchoMessage, driver standard.SqlStandard) error {
+	version, err := driver.GetVersion()
 	if err != nil {
 		setStatus(ch, func() (*containers.OpenedStatus, error) {
 			return &containers.OpenedStatus{Name: "error", Message: err.Error()}, err
@@ -133,8 +128,8 @@ func (msg *ServerConnection) readVersion(ch chan *containers.EchoMessage, pool s
 	return nil
 }
 
-func (msg *ServerConnection) handleRefresh(ch chan *containers.EchoMessage, pool standard.SqlStandard) error {
-	databases, err := pool.ListDatabases()
+func (msg *ServerConnection) handleRefresh(ch chan *containers.EchoMessage, driver standard.SqlStandard) error {
+	databases, err := driver.ListDatabases()
 	if err != nil {
 		setStatus(ch, func() (*containers.OpenedStatus, error) {
 			return &containers.OpenedStatus{Name: "error", Message: err.Error()}, err
@@ -151,14 +146,14 @@ func (msg *ServerConnection) handleRefresh(ch chan *containers.EchoMessage, pool
 		ch <- &containers.EchoMessage{
 			Payload: databases,
 			MsgType: "databases",
-			Dialect: pool.Dialect(),
+			Dialect: driver.Dialect(),
 		}
 		ServerLastDatabases = databasesString
 	}
 	ch <- &containers.EchoMessage{
 		Payload: nil,
 		MsgType: "exit",
-		Dialect: pool.Dialect(),
+		Dialect: driver.Dialect(),
 	}
 	return nil
 }
