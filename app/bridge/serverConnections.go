@@ -17,7 +17,7 @@ const conidkey = "conid"
 
 type ServerConnections struct {
 	Closed                  map[string]interface{}
-	Opened                  []*containers.OpenedData
+	Opened                  []*containers.OpenedServerConnection
 	LastPinged              map[string]utility.UnixTime
 	ServerConnectionChannel *sideQuests.ServerConnection
 }
@@ -31,7 +31,7 @@ func NewServerConnections() *ServerConnections {
 }
 
 func (sc *ServerConnections) handleDatabases(conid string, databases interface{}) {
-	existing := findByOpened(sc.Opened, conid)
+	existing := findByServerConnection(sc.Opened, conid)
 
 	if existing == nil {
 		return
@@ -42,7 +42,7 @@ func (sc *ServerConnections) handleDatabases(conid string, databases interface{}
 }
 
 func (sc *ServerConnections) handleVersion(conid string, version *standard.VersionMsg) {
-	existing := findByOpened(sc.Opened, conid)
+	existing := findByServerConnection(sc.Opened, conid)
 
 	if existing == nil {
 		return
@@ -53,7 +53,7 @@ func (sc *ServerConnections) handleVersion(conid string, version *standard.Versi
 }
 
 func (sc *ServerConnections) handleStatus(conid string, status *containers.OpenedStatus) {
-	existing := findByOpened(sc.Opened, conid)
+	existing := findByServerConnection(sc.Opened, conid)
 
 	if existing == nil {
 		return
@@ -65,10 +65,10 @@ func (sc *ServerConnections) handleStatus(conid string, status *containers.Opene
 
 func (sc *ServerConnections) handlePing() {}
 
-func (sc *ServerConnections) ensureOpened(conid string) *containers.OpenedData {
+func (sc *ServerConnections) ensureOpened(conid string) *containers.OpenedServerConnection {
 	lock.Lock()
 	defer lock.Unlock()
-	existing := findByOpened(sc.Opened, conid)
+	existing := findByServerConnection(sc.Opened, conid)
 
 	if existing != nil {
 		utility.EmitChanged(Application.ctx, "server-status-changed")
@@ -76,7 +76,7 @@ func (sc *ServerConnections) ensureOpened(conid string) *containers.OpenedData {
 	}
 
 	connection := getCore(conid, false)
-	newOpened := &containers.OpenedData{
+	newOpened := &containers.OpenedServerConnection{
 		Conid:        conid,
 		Status:       &containers.OpenedStatus{Name: "pending"},
 		Databases:    nil,
@@ -152,12 +152,12 @@ func (sc *ServerConnections) Ping(connections []string) *serializer.Response {
 }
 
 func (sc *ServerConnections) Close(conid string, kill bool) {
-	existing := findByOpened(sc.Opened, conid)
+	existing := findByServerConnection(sc.Opened, conid)
 	if existing != nil {
 		existing.Disconnected = true
 		if kill {
 		}
-		sc.Opened = lo.Filter[*containers.OpenedData](sc.Opened, func(x *containers.OpenedData, _ int) bool {
+		sc.Opened = lo.Filter[*containers.OpenedServerConnection](sc.Opened, func(x *containers.OpenedServerConnection, _ int) bool {
 			return x.Conid != conid
 		})
 		sc.Closed[conid] = map[string]interface{}{
@@ -192,7 +192,7 @@ func (sc *ServerConnections) pipeHandler(chData <-chan *containers.EchoMessage, 
 		message, ok := <-chData
 		if message != nil {
 			if message.Err != nil {
-				if existing := findByOpened(sc.Opened, conid); existing != nil && !existing.Disconnected {
+				if existing := findByServerConnection(sc.Opened, conid); existing != nil && !existing.Disconnected {
 					sc.Close(conid, true)
 				}
 			}
@@ -215,8 +215,8 @@ func (sc *ServerConnections) pipeHandler(chData <-chan *containers.EchoMessage, 
 	}
 }
 
-func findByOpened(s []*containers.OpenedData, conid string) *containers.OpenedData {
-	existing, ok := lo.Find[*containers.OpenedData](s, func(x *containers.OpenedData) bool {
+func findByServerConnection(s []*containers.OpenedServerConnection, conid string) *containers.OpenedServerConnection {
+	existing, ok := lo.Find[*containers.OpenedServerConnection](s, func(x *containers.OpenedServerConnection) bool {
 		return x.Conid != "" && x.Conid == conid
 	})
 

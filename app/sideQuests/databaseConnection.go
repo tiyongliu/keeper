@@ -3,11 +3,8 @@ package sideQuests
 import (
 	"keeper/app/pkg/containers"
 	"keeper/app/pkg/standard"
-	"keeper/app/plugins/modules"
 	"keeper/app/schema"
 	"keeper/app/utility"
-
-	"github.com/mitchellh/mapstructure"
 )
 
 var databaseLast utility.UnixTime
@@ -23,72 +20,71 @@ func getStatusCounter() int {
 	return statusCounter
 }
 
-type DatabaseConnectionHandlers struct {
-	Ch chan *containers.EchoMessage
+type DatabaseConnection struct {
+	lastStatus string
 }
 
-func NewDatabaseConnectionHandlers(ch chan *containers.EchoMessage) *DatabaseConnectionHandlers {
-	return &DatabaseConnectionHandlers{ch}
+func NewDatabaseConnection() *DatabaseConnection {
+	return &DatabaseConnection{}
 }
 
-func (msg *DatabaseConnectionHandlers) Connect(args map[string]interface{}, structure *schema.DatabaseInfo) {
-	connection := args["connection"].(map[string]interface{})
-	database := args["database"].(string)
-
+func (msg *DatabaseConnection) Connect(ch chan *containers.EchoMessage, newOpened *containers.OpenedDatabaseConnection) {
+	defer close(ch)
 	databaseLast = utility.NewUnixTime()
-	if structure == nil {
-		msg.setStatusName("pending")
+	if newOpened.Structure == nil {
+		msg.setStatus(ch, func() (*containers.OpenedStatus, error) {
+			return &containers.OpenedStatus{Name: "pending"}, nil
+		})
 	}
 
-	simpleSettingMysql := &modules.SimpleSettingMysql{}
-	err := mapstructure.Decode(connection, simpleSettingMysql)
+	driver, err := utility.TakeAutoDriver(newOpened.Conid, newOpened.Connection)
 	if err != nil {
+		msg.setStatus(ch, func() (*containers.OpenedStatus, error) {
+			return &containers.OpenedStatus{Name: "error", Message: err.Error()}, err
+		})
 		return
 	}
 
-	var driver standard.SqlStandard
-	driver, err = utility.CreateEngineDriver(connection)
-	if err != nil {
-		msg.setStatus(&StatusMessage{Name: "err", Message: err.Error()})
+	if newOpened.Structure != nil {
+		msg.handleIncrementalRefresh(ch, true, driver, newOpened.Database)
+	} else {
+		msg.handleFullRefresh(ch, driver, newOpened.Database)
+	}
+
+	if _, err = readVersion(driver); err != nil {
+		setStatus(ch, func() (*containers.OpenedStatus, error) {
+			return &containers.OpenedStatus{Name: "error", Message: err.Error()}, err
+		})
 		return
 	}
-	if structure != nil {
-		msg.handleIncrementalRefresh(true, driver, database)
-	} else {
-		msg.handleFullRefresh(driver, database)
-	}
-
 }
 
-func (msg *DatabaseConnectionHandlers) setStatusName(name string, message ...string) {
-	if len(message) == 0 {
-		msg.setStatus(&StatusMessage{name, ""})
-	} else {
-		msg.setStatus(&StatusMessage{name, message[0]})
+func (msg *DatabaseConnection) setStatus(ch chan *containers.EchoMessage, data func() (*containers.OpenedStatus, error)) {
+	status, err := data()
+	if err != nil {
+		ch <- &containers.EchoMessage{Err: err}
+		return
 	}
-}
-
-func (msg *DatabaseConnectionHandlers) setStatus(status *StatusMessage) {
 	statusString := utility.ToJsonStr(status)
-	if ServerLastStatus != statusString {
-		msg.Ch <- &containers.EchoMessage{
+	if msg.lastStatus != statusString {
+		ch <- &containers.EchoMessage{
 			MsgType: "status",
 			Payload: map[string]interface{}{
 				"status":  status,
 				"counter": getStatusCounter(),
 			},
 		}
-		ServerLastStatus = statusString
+		msg.lastStatus = statusString
 	}
 }
 
-func (msg *DatabaseConnectionHandlers) readVersion(pool standard.SqlStandard) error {
+func (msg *DatabaseConnection) readVersion(ch chan *containers.EchoMessage, pool standard.SqlStandard) error {
 	version, err := pool.GetVersion()
 	if err != nil {
 		return err
 	}
 
-	msg.Ch <- &containers.EchoMessage{
+	ch <- &containers.EchoMessage{
 		Payload: version,
 		MsgType: "version",
 		Dialect: pool.Dialect(),
@@ -97,34 +93,44 @@ func (msg *DatabaseConnectionHandlers) readVersion(pool standard.SqlStandard) er
 	return nil
 }
 
-func (msg *DatabaseConnectionHandlers) handleFullRefresh(pool standard.SqlStandard, strings ...string) {
+func (msg *DatabaseConnection) handleFullRefresh(ch chan *containers.EchoMessage, pool standard.SqlStandard, strings ...string) {
 	loadingModel = true
-	msg.setStatusName("loadStructure")
+	msg.setStatus(ch, func() (*containers.OpenedStatus, error) {
+		return &containers.OpenedStatus{Name: "loadStructure"}, nil
+	})
 
 	analysedTime = utility.NewUnixTime()
 
 	tables, err := pool.Tables(strings...)
 	if err == nil {
-		msg.Ch <- &containers.EchoMessage{MsgType: "structure", Payload: tables}
+		ch <- &containers.EchoMessage{MsgType: "structure", Payload: tables}
 	}
 
-	msg.Ch <- &containers.EchoMessage{MsgType: "structureTime", Payload: analysedTime}
-	msg.setStatusName("ok")
+	ch <- &containers.EchoMessage{MsgType: "structureTime", Payload: analysedTime}
+
+	msg.setStatus(ch, func() (*containers.OpenedStatus, error) {
+		return &containers.OpenedStatus{Name: "ok"}, nil
+	})
+
 	loadingModel = false
 }
 
-func (msg *DatabaseConnectionHandlers) handleIncrementalRefresh(forceSend bool, pool standard.SqlStandard, args ...string) {
-	msg.setStatusName("checkStructure")
+func (msg *DatabaseConnection) handleIncrementalRefresh(ch chan *containers.EchoMessage, forceSend bool, pool standard.SqlStandard, args ...string) {
+	msg.setStatus(ch, func() (*containers.OpenedStatus, error) {
+		return &containers.OpenedStatus{Name: "checkStructure"}, nil
+	})
 
 	tables, err := pool.Tables(args...)
 	if err != nil {
-		msg.setStatusName("loadStructure", err.Error())
+		setStatus(ch, func() (*containers.OpenedStatus, error) {
+			return &containers.OpenedStatus{Name: "error", Message: err.Error()}, err
+		})
 		return
 	}
 	analysedTime = utility.NewUnixTime()
 
 	if forceSend || tables != nil {
-		msg.Ch <- &containers.EchoMessage{
+		ch <- &containers.EchoMessage{
 			MsgType: "structure",
 			Payload: map[string]interface{}{
 				"collections": tables,
@@ -133,21 +139,23 @@ func (msg *DatabaseConnectionHandlers) handleIncrementalRefresh(forceSend bool, 
 		}
 	}
 
-	msg.Ch <- &containers.EchoMessage{
+	ch <- &containers.EchoMessage{
 		MsgType: "structureTime",
 		Payload: analysedTime,
 	}
 
-	msg.setStatusName("ok")
+	msg.setStatus(ch, func() (*containers.OpenedStatus, error) {
+		return &containers.OpenedStatus{Name: "ok"}, nil
+	})
 }
 
-func (msg *DatabaseConnectionHandlers) ReadVersion(pool standard.SqlStandard) error {
+func (msg *DatabaseConnection) ReadVersion(ch chan *containers.EchoMessage, pool standard.SqlStandard) error {
 	version, err := pool.GetVersion()
 	if err != nil {
 		return err
 	}
 
-	msg.Ch <- &containers.EchoMessage{
+	ch <- &containers.EchoMessage{
 		Payload: version,
 		MsgType: "version",
 	}
@@ -155,16 +163,16 @@ func (msg *DatabaseConnectionHandlers) ReadVersion(pool standard.SqlStandard) er
 	return nil
 }
 
-func (msg *DatabaseConnectionHandlers) QueryData() {
+func (msg *DatabaseConnection) QueryData() {
 
 }
 
-func (msg *DatabaseConnectionHandlers) SyncModel() {
+func (msg *DatabaseConnection) SyncModel() {
 	if loadingModel {
 		return
 	}
 }
 
-func (msg *DatabaseConnectionHandlers) Ping() {
+func (msg *DatabaseConnection) Ping() {
 	databaseLast = utility.NewUnixTime()
 }
