@@ -93,3 +93,13 @@ func DeleteDriverPool(conid string) error {
 	}
 	return nil
 }
+
+func TakeAutoDriver(conid string, connection map[string]interface{}) (driver standard.SqlStandard, err error) {
+	driver, err = GetDriverPool(conid)
+	if driver == nil {
+		driver, err = CreateEngineDriver(connection)
+		err = SetDriverPool(conid, driver)
+	}
+
+	return
+}
