@@ -104,7 +104,7 @@ import {Component, computed, defineComponent, PropType, ref, toRaw, toRefs, unre
   })
 </script>
 
-<style lang="less">
+<style lang="less" scoped>
   .subitems {
     margin-left: 28px;
   }

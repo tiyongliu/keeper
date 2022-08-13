@@ -19,10 +19,9 @@ export default defineComponent({
   },
   setup(props, {attrs}) {
     const dataBase = dataBaseStore()
-    const {pinnedDatabases} = storeToRefs(dataBase)
+    const {pinnedDatabases, getCurrentDatabase: currentDatabase} = storeToRefs(dataBase)
     const {data, passProps} = toRefs(props)
     const isPinned = unref(pinnedDatabases).find(x => x.name == unref(data)!.name && x.connection?._id == unref(data)!.connection?._id)
-    const currentDatabase = dataBase.getCurrentDatabase
 
     return () => (
       <AppObjectCore
