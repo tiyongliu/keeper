@@ -51,7 +51,3 @@ func FilterUnknownMap(object map[string]interface{}, keys ...string) map[string]
 
 	return result
 }
-
-func KeyBy(collection []map[string]interface{}, iteratee string) {
-
-}

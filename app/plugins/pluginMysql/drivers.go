@@ -210,33 +210,3 @@ func (mysql *MysqlDrivers) Ping() error {
 	}
 	return db.Ping()
 }
-
-/*
-[2022-07-10 20:53:57.104][localhost_3306][000015][MYSQL]
-SHOW TABLE STATUS LIKE 'tz_user'
-Time: 0.001s
-
-[2022-07-10 20:53:57.106][localhost_3306][000015][MYSQL]
-SHOW CREATE TABLE `tz_user`
-Time: 0.000s
-
-[2022-07-10 20:53:57.107][localhost_3306][000015][MYSQL]
-SHOW FULL COLUMNS FROM `tz_user`
-Time: 0.002s
-
-[2022-07-10 20:53:57.112][localhost_3306][000015][MYSQL]
-SHOW INDEX FROM `tz_user`
-Time: 0.002s
-
-[2022-07-10 20:53:57.115][localhost_3306][000015][MYSQL]
-SELECT action_order, event_object_table, trigger_name, event_manipulation, event_object_table, definer, action_statement, action_timing FROM information_schema.triggers WHERE BINARY event_object_schema = 'shop_go' AND BINARY event_object_table = 'tz_user' ORDER BY event_object_table
-Time: 0.000s
-
-[2022-07-10 20:53:57.116][localhost_3306][000015][MYSQL]
-SELECT TABLE_NAME, PARTITION_NAME, SUBPARTITION_NAME, PARTITION_METHOD, SUBPARTITION_METHOD, PARTITION_EXPRESSION, SUBPARTITION_EXPRESSION, PARTITION_DESCRIPTION, PARTITION_COMMENT, NODEGROUP, TABLESPACE_NAME FROM information_schema.PARTITIONS WHERE NOT ISNULL(PARTITION_NAME) AND TABLE_SCHEMA LIKE 'shop_go' AND TABLE_NAME LIKE 'tz_user' ORDER BY TABLE_NAME, PARTITION_NAME, PARTITION_ORDINAL_POSITION, SUBPARTITION_ORDINAL_POSITION
-Time: 0.001s
-
-[2022-07-10 20:53:57.171][localhost_3306][000015][MYSQL]
-SHOW DATABASES
-Time: 0.000s
-*/
