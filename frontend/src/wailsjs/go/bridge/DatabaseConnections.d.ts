@@ -13,6 +13,6 @@ export function ServerVersion(arg1:bridge.DatabaseRequest):Promise<serializer.Re
 
 export function Status(arg1:bridge.DatabaseRequest):Promise<serializer.Response>;
 
-export function Structure(arg1:bridge.DatabaseRequest):Promise<any>;
+export function Structure(arg1:bridge.DatabaseRequest):Promise<serializer.Response>;
 
 export function SyncModel(arg1:bridge.DatabaseRequest):Promise<serializer.Response>;

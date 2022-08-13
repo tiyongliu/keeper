@@ -2,9 +2,9 @@ package pluginMongdb
 
 import (
 	"fmt"
-	"keeper/app/modules"
 	"keeper/app/pkg/logger"
-	"keeper/app/tools"
+	"keeper/app/plugins/modules"
+	"keeper/app/utility"
 	"testing"
 )
 
@@ -25,7 +25,7 @@ func TestListDatabases(t *testing.T) {
 		return
 	}
 
-	fmt.Println(tools.ToJsonStr(databases))
+	fmt.Println(utility.ToJsonStr(databases))
 }
 
 func TestTables(t *testing.T) {
@@ -40,6 +40,6 @@ func TestTables(t *testing.T) {
 	}
 	tables, err := pool.(*MongoDBDrivers).Collections("auth")
 	if err == nil {
-		logger.Infof("list %s", tools.ToJsonStr(tables))
+		logger.Infof("list %s", utility.ToJsonStr(tables))
 	}
 }

@@ -99,5 +99,6 @@ function fillDatabaseExtendedInfo(db: DatabaseInfo): DatabaseInfo {
 }
 
 export function extendDatabaseInfo(db: DatabaseInfo): DatabaseInfo {
+    console.log(`extendDatabaseInfo`, db)
     return fillDatabaseExtendedInfo(addTableDependencies(db));
 }

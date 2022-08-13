@@ -174,7 +174,7 @@ func (dc *DatabaseConnections) Ping(req *DatabaseRequest) *serializer.Response {
 	return serializer.SuccessData(serializer.SUCCESS, res)
 }
 
-func (dc *DatabaseConnections) Structure(req *DatabaseRequest) interface{} {
+func (dc *DatabaseConnections) Structure(req *DatabaseRequest) *serializer.Response {
 	if req.Conid == "__model" {
 		//todo  const model = await importDbModel(database);
 	}
@@ -182,7 +182,8 @@ func (dc *DatabaseConnections) Structure(req *DatabaseRequest) interface{} {
 	opened := dc.ensureOpened(req.Conid, req.Database)
 
 	logger.Infof("opened.Structure. : %s", utility.ToJsonStr(opened.Structure))
-	return opened.Structure
+	//return serializer.SuccessData(serializer.SUCCESS, schema.CreateEmptyStructure())
+	return serializer.SuccessData(serializer.SUCCESS, opened.Structure)
 }
 
 func (dc *DatabaseConnections) listener(conid, database string, chData <-chan *containers.EchoMessage) {
