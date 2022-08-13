@@ -10,14 +10,13 @@
     <ErrorInfo
       :message="`Database ${database} is empty or structure is not loaded, press Refresh button to reload structure`"
       icon="img alert"/>
-    <div class="m-1"/>
-    <div class="m-1"/>
+    <div class="m-1"></div>
+    <div class="m-1"></div>
     <InlineButton @click="handleRefreshDatabase">Refresh</InlineButton>
 
-    <div class="m-1"/>
+    <div class="m-1"></div>
     <InlineButton @click="runCommand('new.table')">New table</InlineButton>
-
-    <div class="m-1"/>
+    <div class="m-1"></div>
     <InlineButton @click="runCommand('new.collection')">New collection</InlineButton>
   </WidgetsInnerContainer>
 
@@ -119,7 +118,7 @@ export default defineComponent({
 
     const showDatabaseInfo = async ({conid, database}) => {
       const data = await useDatabaseInfo({conid, database})
-      console.log(data, `dddddddddddddddddddddddddddddddddddddddd`)
+      console.log(unref(data), `dddddddddddddddddddddddddddddddddddddddd`)
     }
 
     onMounted(() => {
