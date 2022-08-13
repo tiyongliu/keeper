@@ -1,15 +1,20 @@
 package schema
 
 type DatabaseInfoObjects struct {
-	Tables      []*TableInfo
-	collections []*CollectionInfo
+	Tables      []*TableInfo      `json:"tables"`
+	Collections []*CollectionInfo `json:"collections"`
+	Views       []*ViewInfo       `json:"views"`
+	MatViews    []*ViewInfo       `json:"matViews"`
+	Procedures  []*ProcedureInfo  `json:"procedures"`
+	Functions   []*FunctionInfo   `json:"functions"`
+	Triggers    []*TriggerInfo    `json:"triggers"`
 }
 
 type DatabaseInfo struct {
 	DatabaseInfoObjects
-	Schemas       []*SchemaInfo
-	Engine        string
-	DefaultSchema string
+	Schemas       []*SchemaInfo `json:"schemas"`
+	Engine        string        `json:"engine"`
+	DefaultSchema string        `json:"defaultSchema"`
 }
 
 type SchemaInfo struct {
@@ -134,4 +139,27 @@ type TableInfo struct {
 }
 
 type CollectionInfo struct {
+	DatabaseObjectInfo
+}
+
+type ViewInfo struct {
+	Columns []*ColumnInfo `json:"columns"`
+}
+
+type ProcedureInfo struct {
+	SqlObjectInfo
+}
+
+type FunctionInfo struct {
+	SqlObjectInfo
+}
+
+type TriggerInfo struct {
+	SqlObjectInfo
+}
+
+type SqlObjectInfo struct {
+	DatabaseObjectInfo
+	CreateSql      string `json:"createSql"`
+	RequiresFormat bool   `json:"requiresFormat"`
 }

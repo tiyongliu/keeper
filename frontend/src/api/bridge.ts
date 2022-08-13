@@ -84,6 +84,9 @@ async function getCore(loader, args) {
        if (onLoaded) onLoaded(errorValue)
        return errorValue;
      }
+     if (url == 'bridge.DatabaseConnections.Structure') {
+       console.log(resp, `333333333`, url)
+     }
      const res = (transform || (x => x))(resp);
      if (onLoaded) onLoaded(res);
      return res;
