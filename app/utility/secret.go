@@ -111,7 +111,6 @@ func (simple *SimpleEncryptor) decrypt(opensslEncrypted string) string {
 	if simple.Opts.Reviver != nil {
 	}
 
-	fmt.Println(string(resBytes))
 	return fmt.Sprintf("%s", resBytes)
 }
 

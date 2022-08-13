@@ -15,6 +15,7 @@ type EchoMessage struct {
 type OpenedStatus struct {
 	Name    string `json:"name"`
 	Message string `json:"message"`
+	Counter int    `json:"counter"`
 }
 
 type OpenedServerConnection struct {
