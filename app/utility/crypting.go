@@ -3,10 +3,8 @@ package utility
 import (
 	"encoding/json"
 	"io/ioutil"
-	"keeper/app/pkg/logger"
 	"log"
 	"os"
-	"path"
 	"path/filepath"
 	"strings"
 )
@@ -26,7 +24,6 @@ func LoadEncryptionKey() string {
 	keyFile := filepath.Join(defaultFile, ".key")
 	encryptor := CreateEncryptor(defaultEncryptionKey)
 	if !IsExist(keyFile) {
-		logger.Infof("keyFile: %s", path.Dir(keyFile))
 		if err := os.MkdirAll(filepath.Dir(keyFile), os.ModePerm); err != nil {
 			log.Fatalf("os.MkdirAll failed err: %v\n", err)
 			return ""

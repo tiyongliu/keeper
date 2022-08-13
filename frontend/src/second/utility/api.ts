@@ -1,7 +1,7 @@
 const apiLogging = false
 export async function apiCall<T>(url: string, params?: T): Promise<T | void> {
   //读取环境变量
-  if (apiLogging) {
+  if (!apiLogging) {
     console.log('>>> API CALL', url, params)
   }
 
@@ -20,7 +20,7 @@ export async function apiCall<T>(url: string, params?: T): Promise<T | void> {
 }
 
 function processApiResponse(url, params, resp) {
-  if (!apiLogging) {
+  if (apiLogging) {
     console.log('<<< API RESPONSE', url, params, resp)
   }
 

@@ -14,7 +14,8 @@
       <Link>Uncheck all</Link>
     </div>-->
     <AppObjectListItem
-      v-for="item in items"
+      :key="index"
+      v-for="(item, index) in items"
       :isHidden="!item.isMatched"
       v-bind="$attrs"
       :module="module"

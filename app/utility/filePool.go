@@ -2,7 +2,6 @@ package utility
 
 import (
 	"bufio"
-	"fmt"
 	"io"
 	"os"
 	"strings"
@@ -12,8 +11,7 @@ import (
 func ReadFileAllPool(name string) ([]map[string]interface{}, error) {
 	file, err := os.Open(name)
 	if err != nil {
-		fmt.Println("open file err=", err)
-		return nil, nil
+		return nil, err
 	}
 
 	//当函数退出时，要及时的关闭file

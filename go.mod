@@ -4,7 +4,6 @@ go 1.18
 
 require (
 	github.com/Luzifer/go-openssl/v4 v4.1.0
-	github.com/go-sql-driver/mysql v1.6.0
 	github.com/mgutz/ansi v0.0.0-20200706080929-d51e80ef957d
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/natefinch/lumberjack v2.0.0+incompatible
@@ -22,6 +21,7 @@ require (
 	github.com/BurntSushi/toml v1.2.0 // indirect
 	github.com/bep/debounce v1.2.1 // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect
+	github.com/go-sql-driver/mysql v1.6.0 // indirect
 	github.com/golang/snappy v0.0.1 // indirect
 	github.com/google/uuid v1.1.2 // indirect
 	github.com/imdario/mergo v0.3.12 // indirect

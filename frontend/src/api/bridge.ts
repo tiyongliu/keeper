@@ -37,13 +37,13 @@ const databaseServerVersionLoader = ({conid, database}) => ({
 })
 
 const databaseStatusLoader = ({conid, database}) => ({
-  url: 'database-connections/status',
+  url: 'bridge.DatabaseConnections.Status',
   params: {conid, database},
   reloadTrigger: `database-status-changed-${conid}-${database}`,
 })
 
 const databaseInfoLoader = ({conid, database}) => ({
-  url: 'database-connections/structure',
+  url: 'bridge.DatabaseConnections.Structure',
   params: {conid, database},
   reloadTrigger: `database-structure-changed-${conid}-${database}`,
   transform: extendDatabaseInfo,
