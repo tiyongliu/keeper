@@ -118,7 +118,7 @@ func (dc *DatabaseConnections) ensureOpened(conid, database string) *containers.
 	ch := make(chan *containers.EchoMessage)
 	defer func() {
 		go dc.DatabaseConnection.Connect(ch, newOpened)
-		go dc.listener(conid, database, ch)
+		go dc.listener(ch, conid, database)
 	}()
 
 	return newOpened
@@ -182,11 +182,10 @@ func (dc *DatabaseConnections) Structure(req *DatabaseRequest) *serializer.Respo
 	opened := dc.ensureOpened(req.Conid, req.Database)
 
 	logger.Infof("opened.Structure. : %s", utility.ToJsonStr(opened.Structure))
-	//return serializer.SuccessData(serializer.SUCCESS, schema.CreateEmptyStructure())
 	return serializer.SuccessData(serializer.SUCCESS, opened.Structure)
 }
 
-func (dc *DatabaseConnections) listener(conid, database string, chData <-chan *containers.EchoMessage) {
+func (dc *DatabaseConnections) listener(chData <-chan *containers.EchoMessage, conid, database string) {
 	for {
 		message, ok := <-chData
 		if message != nil {
@@ -194,6 +193,8 @@ func (dc *DatabaseConnections) listener(conid, database string, chData <-chan *c
 				dc.close(conid, database, false)
 			}
 			switch message.MsgType {
+			case "status":
+
 			case "structure":
 				dc.handleStructure(conid, database, message.Payload)
 			case "structureTime":

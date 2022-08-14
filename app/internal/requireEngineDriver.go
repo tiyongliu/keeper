@@ -1,4 +1,4 @@
-package utility
+package internal
 
 import (
 	"keeper/app/pkg/logger"

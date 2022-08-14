@@ -1,6 +1,7 @@
 package sideQuests
 
 import (
+	"keeper/app/internal"
 	"keeper/app/pkg/containers"
 	"keeper/app/pkg/standard"
 	"keeper/app/schema"
@@ -33,14 +34,14 @@ func (msg *DatabaseConnection) Connect(ch chan *containers.EchoMessage, newOpene
 	databaseLast = utility.NewUnixTime()
 	if newOpened.Structure == nil {
 		msg.setStatus(ch, func() (*containers.OpenedStatus, error) {
-			return &containers.OpenedStatus{Name: "pending"}, nil
+			return &containers.OpenedStatus{Name: "pending", Counter: getStatusCounter()}, nil
 		})
 	}
 
-	driver, err := utility.TakeAutoDriver(newOpened.Conid, newOpened.Connection)
+	driver, err := internal.TakeAutoDriver(newOpened.Conid, newOpened.Connection)
 	if err != nil {
 		msg.setStatus(ch, func() (*containers.OpenedStatus, error) {
-			return &containers.OpenedStatus{Name: "error", Message: err.Error()}, err
+			return &containers.OpenedStatus{Name: "error", Message: err.Error(), Counter: getStatusCounter()}, err
 		})
 		return
 	}
@@ -53,7 +54,7 @@ func (msg *DatabaseConnection) Connect(ch chan *containers.EchoMessage, newOpene
 
 	if _, err = readVersion(driver); err != nil {
 		setStatus(ch, func() (*containers.OpenedStatus, error) {
-			return &containers.OpenedStatus{Name: "error", Message: err.Error()}, err
+			return &containers.OpenedStatus{Name: "error", Message: err.Error(), Counter: getStatusCounter()}, err
 		})
 		return
 	}
@@ -117,7 +118,7 @@ func (msg *DatabaseConnection) handleFullRefresh(ch chan *containers.EchoMessage
 
 func (msg *DatabaseConnection) handleIncrementalRefresh(ch chan *containers.EchoMessage, forceSend bool, pool standard.SqlStandard, args ...string) {
 	msg.setStatus(ch, func() (*containers.OpenedStatus, error) {
-		return &containers.OpenedStatus{Name: "checkStructure"}, nil
+		return &containers.OpenedStatus{Name: "checkStructure", Counter: getStatusCounter()}, nil
 	})
 
 	tables, err := pool.Tables(args...)
