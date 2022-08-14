@@ -40,6 +40,7 @@ func main() {
 		OnStartup:         app.Startup,
 		OnDomReady:        app.DomReady,
 		OnShutdown:        app.Shutdown,
+		OnBeforeClose:     app.OnBeforeClose,
 		Bind: []interface{}{
 			app,
 			app.Connections,

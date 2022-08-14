@@ -3,6 +3,7 @@ package internal
 import (
 	"errors"
 	"github.com/mitchellh/mapstructure"
+	"keeper/app/pkg/logger"
 	"keeper/app/pkg/standard"
 	"keeper/app/plugins/modules"
 	"keeper/app/plugins/pluginMongdb"
@@ -103,4 +104,17 @@ func TakeAutoDriver(conid string, connection map[string]interface{}) (driver sta
 	}
 
 	return
+}
+
+func CleanDriver() {
+	storedConnection.Range(func(key, value any) bool {
+		sqlStandard, ok := value.(standard.SqlStandard)
+		if sqlStandard != nil && ok {
+			if err := sqlStandard.Close(); err != nil {
+				logger.Infof("driver by conid: %s close failed: %v", key, err)
+				return false
+			}
+		}
+		return true
+	})
 }

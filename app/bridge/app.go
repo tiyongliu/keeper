@@ -3,6 +3,8 @@ package bridge
 import (
 	"context"
 	"fmt"
+	"keeper/app/internal"
+	"keeper/app/pkg/logger"
 	"sync"
 )
 
@@ -50,4 +52,10 @@ func (a *App) Greet(name string) string {
 // domReady is called after the front-end dom has been loaded
 func (a App) DomReady(ctx context.Context) {
 	// Add your action here
+}
+
+func (a *App) OnBeforeClose(ctx context.Context) bool {
+	internal.CleanDriver()
+	logger.Info("all active driver close")
+	return false
 }
