@@ -5,3 +5,5 @@ import {context} from '../models';
 export function DomReady(arg1:context.Context):void;
 
 export function Greet(arg1:string):Promise<string>;
+
+export function OnBeforeClose(arg1:context.Context):Promise<boolean>;

@@ -9,3 +9,7 @@ export function DomReady(arg1) {
 export function Greet(arg1) {
   return window['go']['bridge']['App']['Greet'](arg1);
 }
+
+export function OnBeforeClose(arg1) {
+  return window['go']['bridge']['App']['OnBeforeClose'](arg1);
+}
