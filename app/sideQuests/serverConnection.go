@@ -1,6 +1,7 @@
 package sideQuests
 
 import (
+	"keeper/app/internal"
 	"keeper/app/pkg/containers"
 	"keeper/app/pkg/standard"
 	"keeper/app/utility"
@@ -69,7 +70,7 @@ func (msg *ServerConnection) Connect(ch chan *containers.EchoMessage, conid stri
 		return &containers.OpenedStatus{Name: "pending"}, nil
 	})
 
-	driver, err := utility.TakeAutoDriver(conid, connection)
+	driver, err := internal.TakeAutoDriver(conid, connection)
 
 	if err != nil {
 		setStatus(ch, func() (*containers.OpenedStatus, error) {

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/mitchellh/mapstructure"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
+	"keeper/app/internal"
 	"keeper/app/pkg/serializer"
 	"keeper/app/pkg/standard"
 	"keeper/app/plugins/modules"
@@ -134,7 +135,7 @@ func (conn *Connections) Test(connection map[string]interface{}) interface{} {
 }
 
 func (conn *Connections) Save(connection map[string]string) *serializer.Response {
-	encrypted := utility.EncryptConnection(connection)
+	encrypted := internal.EncryptConnection(connection)
 	//验证obj的唯一性，除去key字段，所有key对应的值都要一致。
 	unknownMap := utility.TransformUnknownMap(encrypted)
 	if exists := utility.UnknownMapSome(JsonLinesDatabase.Find(), unknownMap); exists {

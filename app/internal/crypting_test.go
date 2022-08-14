@@ -1,9 +1,10 @@
-package utility
+package internal
 
 import (
 	"bufio"
 	"fmt"
 	"io"
+	"keeper/app/utility"
 	"os"
 	"path/filepath"
 	"testing"
@@ -33,7 +34,7 @@ func Test_LoadEncryptionKey(t *testing.T) {
 }
 
 func Test_DataDir(t *testing.T) {
-	NewJsonLinesDatabase(filepath.Join(DataDir(), "connections.jsonl"))
+	utility.NewJsonLinesDatabase(filepath.Join(utility.DataDir(), "connections.jsonl"))
 }
 
 func Test_MaskConnection(t *testing.T) {
@@ -50,7 +51,7 @@ func Test_MaskConnection(t *testing.T) {
 
 func Test_PickSafeConnectionInfo(t *testing.T) {
 
-	fmt.Println(DataDir())
+	fmt.Println(utility.DataDir())
 
 	fmt.Println(PickSafeConnectionInfo(map[string]string{
 		"server":     "localhost",

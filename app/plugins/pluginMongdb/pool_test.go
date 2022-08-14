@@ -38,7 +38,7 @@ func TestTables(t *testing.T) {
 		fmt.Printf("err: %v \n", err)
 		return
 	}
-	tables, err := pool.(*MongoDBDrivers).Collections("auth")
+	tables, err := pool.(*MongoDBDrivers).Collections("local")
 	if err == nil {
 		logger.Infof("list %s", utility.ToJsonStr(tables))
 	}

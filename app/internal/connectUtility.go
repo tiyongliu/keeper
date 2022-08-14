@@ -1,4 +1,4 @@
-package utility
+package internal
 
 import (
 	"errors"
@@ -7,6 +7,7 @@ import (
 	"keeper/app/plugins/modules"
 	"keeper/app/plugins/pluginMongdb"
 	"keeper/app/plugins/pluginMysql"
+	"keeper/app/utility"
 	"sync"
 )
 
@@ -60,7 +61,7 @@ func newMongoDriver(connection map[string]interface{}) (standard.SqlStandard, er
 }
 
 func connectUtility(connection map[string]interface{}) map[string]string {
-	return DecryptConnection(TransformStringMap(connection))
+	return DecryptConnection(utility.TransformStringMap(connection))
 }
 
 func SetDriverPool(conid string, driver standard.SqlStandard) error {

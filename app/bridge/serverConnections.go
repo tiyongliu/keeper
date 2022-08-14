@@ -3,6 +3,7 @@ package bridge
 import (
 	"fmt"
 	"github.com/samber/lo"
+	"keeper/app/internal"
 	"keeper/app/pkg/containers"
 	"keeper/app/pkg/serializer"
 	"keeper/app/pkg/standard"
@@ -103,7 +104,7 @@ func (sc *ServerConnections) ensureOpened(conid string) *containers.OpenedServer
 }
 
 func (sc *ServerConnections) checker(conid string) error {
-	pool, err := utility.GetDriverPool(conid)
+	pool, err := internal.GetDriverPool(conid)
 	if err != nil {
 		return err
 	}
@@ -132,7 +133,7 @@ func (sc *ServerConnections) ServerStatus() interface{} {
 func (sc *ServerConnections) Ping(connections []string) *serializer.Response {
 	for _, conid := range lo.Uniq[string](connections) {
 		last := sc.LastPinged[conid]
-		if pool, err := utility.GetDriverPool(conid); err == nil {
+		if pool, err := internal.GetDriverPool(conid); err == nil {
 			if err = pool.Ping(); err != nil {
 				sc.Close(conid, true)
 				continue
@@ -166,7 +167,7 @@ func (sc *ServerConnections) Close(conid string, kill bool) {
 		}
 		sc.LastPinged[conid] = 0
 
-		utility.DeleteDriverPool(conid)
+		internal.DeleteDriverPool(conid)
 
 		utility.EmitChanged(Application.ctx, "server-status-changed")
 	}
