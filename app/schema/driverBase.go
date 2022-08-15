@@ -1,0 +1,5 @@
+package schema
+
+func AnalyseFull() {
+
+}
