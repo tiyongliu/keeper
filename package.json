@@ -1,0 +1,33 @@
+{
+  "name": "keeper",
+  "version": "0.0.1",
+  "description": "underway wails + go + vue3 = multiple database visualization development tools",
+  "main": "index.js",
+  "directories": {
+    "example": "example"
+  },
+  "workspaces": [
+    "packages/tools",
+    "frontend"
+  ],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tiyongliu/keeper.git"
+  },
+  "keywords": [
+    "wails",
+    "+",
+    "go",
+    "+",
+    "vue3"
+  ],
+  "author": "tiyongliu",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/tiyongliu/keeper/issues"
+  },
+  "homepage": "https://github.com/tiyongliu/keeper#readme"
+}
