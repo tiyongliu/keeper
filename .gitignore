@@ -37,4 +37,6 @@ wails
 
 bin/dbbox.exe
 frontend/src/wailsjs/**
+frontend/*.yaml
+packages/tools/*yaml
 

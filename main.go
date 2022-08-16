@@ -73,4 +73,6 @@ func main() {
 [Golang GUI开发之Webview](https://esc.show/article/Golang-GUI-kai-fa-zhi-Webview)
 
 [QT GIF 编辑器](https://gitee.com/wingsummer/wing-gif-editor)
+
+wails update -pre
 */
