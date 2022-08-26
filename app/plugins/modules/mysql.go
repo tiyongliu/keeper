@@ -32,13 +32,13 @@ type MysqlTableColumn struct {
 	EXTRA            string      `json:"extra"`
 }
 
-type MysqlPrimaryKey struct {
+type PrimaryKey struct {
 	ConstraintName string `json:"constraintName"`
 	PureName       string `json:"pureName"`
 	ColumnName     string `json:"columnName"`
 }
 
-type MysqlForeignKeys struct {
+type ForeignKeys struct {
 	ConstraintName string `json:"constraintName"`
 	PureName       string `json:"pureName"`
 	UpdateAction   string `json:"updateAction"`
@@ -46,4 +46,74 @@ type MysqlForeignKeys struct {
 	RefTableName   string `json:"refTableName"`
 	ColumnName     string `json:"columnName"`
 	RefColumnName  string `json:"refColumnName"`
+}
+
+type MysqlRowsResult struct {
+	Rows    interface{} `json:"rows"`
+	Columns []*Column   `json:"columns"`
+}
+
+type UniqueName struct {
+	ConstraintName string `json:"constraintName"`
+}
+
+type Column struct {
+	ColumnName string `json:"columnName"`
+}
+
+type Indexe struct {
+	ConstraintName string `json:"constraintName"`
+	TableName      string `json:"tableName"`
+	ColumnName     string `json:"columnName"`
+	IndexType      string `json:"indexType"`
+	NonUnique      bool   `json:"nonUnique"`
+}
+
+type Table struct {
+	PureName      string `json:"pureName"`
+	TableRowCount int    `json:"tableRowCount"`
+	ModifyDate    string `json:"modifyDate"`
+}
+
+type TableColumn struct {
+	PureName         string      `json:"pureName"`
+	ColumnName       string      `json:"columnName"`
+	IsNullable       string      `json:"isNullable"`
+	DataType         string      `json:"dataType"`
+	CharMaxLength    *int        `json:"charMaxLength"`
+	NumericPrecision *int        `json:"numericPrecision"`
+	NumericScale     *int        `json:"numericScale"`
+	DefaultValue     interface{} `json:"defaultValue"`
+	ColumnComment    string      `json:"columnComment"`
+	ColumnType       string      `json:"columnType"`
+	Extra            interface{} `json:"extra"`
+}
+
+type TransformColumnInfo struct {
+	NotNull       bool        `json:"notNull"`
+	AutoIncrement bool        `json:"autoIncrement"`
+	ColumnName    string      `json:"columnName"`
+	ColumnComment string      `json:"columnComment"`
+	DataType      string      `json:"dataType"`
+	DefaultValue  interface{} `json:"defaultValue"`
+	IsUnsigned    bool        `json:"isUnsigned"`
+	IsZerofill    bool        `json:"isZerofill"`
+}
+
+type View struct {
+	PureName   string `json:"pureName"`
+	ModifyDate string `json:"modifyDate"`
+}
+
+type Programmable struct {
+	PureName          string      `json:"pureName"`
+	ObjectType        string      `json:"objectType"`
+	ModifyDate        string      `json:"modifyDate"`
+	ReturnDataType    string      `json:"returnDataType"`
+	RoutineDefinition interface{} `json:"routineDefinition"`
+	IsDeterministic   bool        `json:"isDeterministic"`
+}
+
+type ViewTexts struct {
+	PureName string `json:"pureName"`
 }

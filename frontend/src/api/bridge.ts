@@ -1,10 +1,10 @@
 // @ts-ignore
-import {computed, ComputedRef, onBeforeUnmount, ref, UnwrapRefSimple} from "vue";
+import {computed, ComputedRef, onBeforeUnmount, ref, unref, watch, UnwrapRefSimple} from 'vue'
 import stableStringify from 'json-stable-stringify'
-import {isEqual} from "lodash-es";
-import {extendDatabaseInfo} from 'keeper-tools';
+import {isEqual} from 'lodash-es'
+import {extendDatabaseInfo} from '/@/second/keeper-tools'
 import {setLocalStorage} from '/@/second/utility/storageCache'
-import {EventsOff, EventsOn} from '/@/wailsjs/runtime/runtime'
+import {EventsOn} from '/@/wailsjs/runtime/runtime'
 import getAsArray from '/@/second/utility/getAsArray'
 import {apiCall} from '/@/second/utility/api'
 import {loadCachedValue} from './cache'
@@ -49,6 +49,12 @@ const databaseInfoLoader = ({conid, database}) => ({
   transform: extendDatabaseInfo,
 })
 
+const connectionInfoLoader = ({conid}) => ({
+  url: 'bridge.Connections.Get',
+  params: {conid},
+  reloadTrigger: 'connection-list-changed',
+})
+
 export function useConnectionList<T>(): ComputedRef<T> {
   return useCore(connectionListLoader, {});
 }
@@ -65,12 +71,16 @@ export function useDatabaseServerVersion(args) {
   return useCore(databaseServerVersionLoader, args);
 }
 
-export function useDatabaseStatus(args) {
+export function useDatabaseStatus<T>(args): ComputedRef<T> {
   return useCore(databaseStatusLoader, args);
 }
 
-export function useDatabaseInfo(args) {
+export function useDatabaseInfo<T>(args): ComputedRef<T> {
   return useCore(databaseInfoLoader, args);
+}
+
+export function useConnectionInfo<T>(args): ComputedRef<T> {
+  return useCore(connectionInfoLoader, args)
 }
 
 async function getCore(loader, args) {
@@ -78,29 +88,25 @@ async function getCore(loader, args) {
   const key = stableStringify({url, ...params});
 
   async function doLoad() {
-   try {
-     const resp = await apiCall(url, params);
-     if (resp?.errorMessage && errorValue !== undefined) {
-       if (onLoaded) onLoaded(errorValue)
-       return errorValue;
-     }
-     if (url == 'bridge.DatabaseConnections.Structure') {
-       console.log(resp, `333333333`, url)
-     }
-     const res = (transform || (x => x))(resp);
-     if (onLoaded) onLoaded(res);
-     return res;
-   } catch (e) {
-     console.log(e)
-   }
+    const resp = await apiCall(url, params);
+    if (resp?.errorMessage && errorValue !== undefined) {
+      if (onLoaded) onLoaded(errorValue)
+      return errorValue;
+    }
+    if (url == 'bridge.DatabaseConnections.Structure') {
+      // console.log(resp, `333333333`, url)
+    }
+    const res = (transform || (x => x))(resp)
+    if (onLoaded) onLoaded(res);
+    return res
   }
 
   return await loadCachedValue(reloadTrigger, key, doLoad)
 }
 
-
 function useCore<T>(loader, args): ComputedRef<UnwrapRefSimple<T> | null | undefined> {
   const value = ref<[T | null, any]>([null, []])
+  const result = ref()
   const openedCount = ref(0)
   const {url, params, reloadTrigger} = loader(args);
   const cacheKey = stableStringify({url, ...params})
@@ -110,6 +116,8 @@ function useCore<T>(loader, args): ComputedRef<UnwrapRefSimple<T> | null | undef
     const res = await getCore(loader, args);
     if (openedCount.value > 0) {
       value.value = [res, loadedIndicators]
+      result.value = res
+
     }
   }
 
@@ -125,16 +133,38 @@ function useCore<T>(loader, args): ComputedRef<UnwrapRefSimple<T> | null | undef
     }
   }
 
-  openedCount.value += 1
-  void handleReload(indicators)
 
-  onBeforeUnmount(() => {
-    value.value = [null, []]
-    openedCount.value -= 1
-    if (reloadTrigger) {
-      EventsOff(reloadTrigger)
-    }
+  // watch(() => indicators, () => {
+  //
+  // }, {
+  //   immediate: true,
+  // })
+
+  openedCount.value += 1
+
+  watch(() => indicators, () => {
+    void handleReload(indicators)
+  }, {
+    immediate: true
   })
+
+
+  // onBeforeUnmount(() => {
+  //   value.value = [null, []]
+  //   openedCount.value -= 1
+  //   if (reloadTrigger) {
+  //     for (const item of getAsArray(reloadTrigger)) {
+  //       try {
+  //         EventsOn(item, () => {
+  //           void handleReload(indicators)
+  //         })
+  //       } catch (e) {
+  //         console.log(e)
+  //       }
+  //     }
+  //   }
+  // })
+
 
   return computed(() => {
     const [returnValue, loadedIndicators] = value.value

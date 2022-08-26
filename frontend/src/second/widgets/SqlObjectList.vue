@@ -3,9 +3,8 @@
     <ErrorInfo :message="`${status.message}`" icon="img error"/>
     <InlineButton @click="handleRefreshDatabase">Refresh</InlineButton>
   </WidgetsInnerContainer>
-
   <WidgetsInnerContainer v-else-if="objectList.length == 0 &&
-  $status && $status.name != 'pending' && $status.name != 'checkStructure' && $status.name != 'loadStructure' &&
+  status && status.name != 'pending' && status.name != 'checkStructure' && status.name != 'loadStructure' &&
  objects">
     <ErrorInfo
       :message="`Database ${database} is empty or structure is not loaded, press Refresh button to reload structure`"
@@ -30,9 +29,11 @@
     </InlineButton>
   </SearchBoxWrapper>
   <WidgetsInnerContainer>
-    <!--    <LoadingInfo message="Loading database structure" />-->
-
+    <LoadingInfo
+      v-if="(status && (status.name == 'pending' || status.name == 'checkStructure' || status.name == 'loadStructure') && objects) || !objects"
+      message="Loading database structure" />
     <AppObjectList
+      v-else
       :list="objectList.map(x => ({ ...x, conid, database }))"
       :module="databaseObjectAppObject"
       :subItemsComponent="SubColumnParamList"
@@ -43,10 +44,11 @@
       :passProps="{showPinnedInsteadOfUnpin: true}"
     />
   </WidgetsInnerContainer>
+
 </template>
 
 <script lang="ts">
-import {computed, defineComponent, PropType, ref, toRef, toRefs, unref, onMounted, watch} from 'vue';
+import {defineComponent, PropType, ref, toRefs, unref, watch} from 'vue';
 import AppObjectList from '/@/second/appobj/AppObjectList'
 import ErrorInfo from '/@/second/elements/ErrorInfo.vue'
 import FontIcon from '/@/second/icons/FontIcon.vue'
@@ -63,10 +65,12 @@ import SubColumnParamList from '/@/second/appobj/SubColumnParamList'
 import {getObjectTypeFieldLabel} from '/@/second/utility/common'
 import {chevronExpandIcon} from '/@/second/icons/expandIcons'
 //todo api tables dataSource
-import {useDatabaseInfo} from "/@/api/bridge";
-import _objectList from './objectList.json'
-import _objects from './objects.json'
-
+import {storeToRefs} from 'pinia'
+import {flatten, sortBy} from 'lodash-es'
+import {useConnectionInfo, useDatabaseInfo, useDatabaseStatus} from "/@/api/sql"
+import {ApplicationDefinition, DatabaseInfo} from '/@/second/keeper-types'
+import {filterAppsForDatabase} from '/@/second/utility/appTools'
+import {dataBaseStore} from "/@/store/modules/dataBase";
 
 export default defineComponent({
   name: "SqlObjectList",
@@ -92,19 +96,19 @@ export default defineComponent({
   },
   setup(props) {
     const filter = ref('')
-    const _conid = toRef(props, 'conid')
-    const _database = toRef(props, 'database')
-    //todo
-    // $: status = useDatabaseStatus({ conid, database });
-
-    // const status = computed(() => {})
-
+    const {conid, database} = toRefs(props)
     const handleRefreshDatabase = () => {
       // todo apiCall('database-connections/refresh', { conid, database });
     }
 
-    const objectList = computed<any[]>(() => _objectList)
-    const objects = computed<{ tables: any[] }>(() => _objects)
+    const dataBase = dataBaseStore()
+    const {currentDatabase} = storeToRefs(dataBase)
+    let objects = ref()
+    let status = ref()
+    let connection = ref()
+
+    const objectList = ref<unknown[]>([])
+    const dbApps = ref<ApplicationDefinition[]>([])
 
     const handleGroupFunc = (data) => {
       return getObjectTypeFieldLabel(unref(data).objectTypeField)
@@ -113,22 +117,36 @@ export default defineComponent({
     const handleExpandable = (data) => unref(data).objectTypeField == 'tables' ||
       unref(data).objectTypeField == 'views' || unref(data).objectTypeField == 'matviews'
 
+    watch(() => [conid.value, database.value], () => {
+      useDatabaseInfo<DatabaseInfo>({conid: unref(conid), database: unref(database)}, objects)
+      useDatabaseStatus<{
+        name: 'pending' | 'error' | 'loadStructure' | 'ok';
+        counter?: number;
+        analysedTime?: number;
+      }>({conid: unref(conid), database: unref(database)}, status)
+      useConnectionInfo({conid: unref(conid)}, connection)
 
-    //useDatabaseInfo
-
-    const showDatabaseInfo = async ({conid, database}) => {
-      const data = await useDatabaseInfo({conid, database})
-      console.log(unref(data), `dddddddddddddddddddddddddddddddddddddddd`)
-    }
-
-    onMounted(() => {
-      void showDatabaseInfo({conid: _conid.value, database: _database.value})
+      dbApps.value = filterAppsForDatabase(unref(currentDatabase)?.connection, unref(currentDatabase)!.name, [])
+    }, {
+      immediate: true
     })
 
-    watch(() => [_conid.value, _database.value], (ar) => {
-      console.log(ar, `111111111111111111111111111111111`)
-      const [c, d] = ar
-      void showDatabaseInfo({conid: c, database: d})
+    watch(() => [objects.value, dbApps.value], () => {
+      objectList.value = flatten([
+        ...['tables', 'collections', 'views', 'matviews', 'procedures', 'functions'].map(objectTypeField =>
+          sortBy(
+            ((objects.value || {})[objectTypeField] || []).map(obj => ({...obj, objectTypeField})),
+            ['schemaName', 'pureName']
+          )),
+        ...unref(dbApps).map(app => {
+          app.queries.map(query => ({
+            objectTypeField: 'queries',
+            pureName: query.name,
+            schemaName: app.name,
+            sql: query.sql
+          }))
+        })
+      ])
     })
 
     return {
@@ -143,7 +161,7 @@ export default defineComponent({
       SubColumnParamList,
       handleGroupFunc,
       handleExpandable,
-      chevronExpandIcon
+      chevronExpandIcon,
     }
   }
 })

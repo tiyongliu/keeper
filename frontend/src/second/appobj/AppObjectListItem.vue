@@ -8,10 +8,11 @@
       :expandIcon="getExpandIcon(!isExpandedBySearch && expandable, subItemsComponent, isExpanded, expandIconFunc)"
       :disableContextMenu="disableContextMenu"
       :passProps="passProps"
+      v-bind="$attrs"
     />
 
     <div class="subitems" v-if="(isExpanded || isExpandedBySearch) && subItemsComponent">
-      <component :is="subItemsComponent" :data="data" :filter="filter" :passProps="passProps"/>
+      <component :is="subItemsComponent" :data="data" :filter="filter" :passProps="passProps" v-bind="$attrs"/>
     </div>
   </template>
 </template>
@@ -63,7 +64,17 @@ import {Component, computed, defineComponent, PropType, ref, toRaw, toRefs, unre
       }
     },
     setup(props) {
-      const {data, isExpandable, expandOnClick} = toRefs(props)
+      const {
+        data,
+        isHidden,
+        isExpandedBySearch,
+        isExpandable,
+        expandIconFunc,
+        expandOnClick,
+        passProps,
+        filter,
+        disableContextMenu
+      } = toRefs(props)
       const module = toRaw(props.module)
       const subItemsComponent = toRaw(props.subItemsComponent)
       const isExpanded = ref(false)
@@ -90,8 +101,18 @@ import {Component, computed, defineComponent, PropType, ref, toRaw, toRefs, unre
           }
         })
 
+      watch(() => data.value, () => console.log(`data.value`, data.value))
+
       return {
-        ...toRefs(props),
+        data,
+        isHidden,
+        isExpandedBySearch,
+        isExpandable,
+        expandIconFunc,
+        expandOnClick,
+        passProps,
+        filter,
+        disableContextMenu,
         module,
         subItemsComponent,
         expandable,

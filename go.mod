@@ -4,16 +4,17 @@ go 1.18
 
 require (
 	github.com/Luzifer/go-openssl/v4 v4.1.0
+	github.com/fatih/structs v1.1.0
+	github.com/go-sql-driver/mysql v1.6.0
 	github.com/mgutz/ansi v0.0.0-20200706080929-d51e80ef957d
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/natefinch/lumberjack v2.0.0+incompatible
-	github.com/pkg/errors v0.9.1
-	github.com/samber/lo v1.27.0
+	github.com/samber/lo v1.27.1
 	github.com/satori/go.uuid v1.2.0
-	github.com/wailsapp/wails/v2 v2.0.0-beta.43
+	github.com/wailsapp/wails/v2 v2.0.0-beta.44.2
 	go.mongodb.org/mongo-driver v1.10.1
-	go.uber.org/zap v1.21.0
-	gorm.io/driver/mysql v1.3.5
+	go.uber.org/zap v1.23.0
+	gorm.io/driver/mysql v1.3.6
 	gorm.io/gorm v1.23.8
 )
 
@@ -21,7 +22,6 @@ require (
 	github.com/BurntSushi/toml v1.2.0 // indirect
 	github.com/bep/debounce v1.2.1 // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect
-	github.com/go-sql-driver/mysql v1.6.0 // indirect
 	github.com/golang/snappy v0.0.1 // indirect
 	github.com/google/uuid v1.1.2 // indirect
 	github.com/imdario/mergo v0.3.12 // indirect
@@ -38,6 +38,7 @@ require (
 	github.com/mattn/go-isatty v0.0.14 // indirect
 	github.com/montanaflynn/stats v0.0.0-20171201202039-1bf9dbcd8cbe // indirect
 	github.com/pkg/browser v0.0.0-20210706143420-7d21f8c997e2 // indirect
+	github.com/pkg/errors v0.9.1 // indirect
 	github.com/tkrajina/go-reflector v0.5.5 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasttemplate v1.2.1 // indirect

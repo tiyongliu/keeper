@@ -80,13 +80,11 @@ export const dataBaseStore = defineStore({
     }
   },
   actions: {
-    setState<T>(type: string, payload: T): void {
-      this[type] = payload
-    },
     subscribeOpenedConnections(value: string[]) {
       this.openedConnections = value
     },
     subscribeCurrentDatabase(value: IPinnedDatabasesItem) {
+      // console.log(`vvvvvvvvvvvvvvvvvvvvvvvvvv`, value)
       this.currentDatabase = value
     },
     subscribeExtensions(value: ExtensionsDirectory) {

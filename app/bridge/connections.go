@@ -179,8 +179,12 @@ func (conn *Connections) List() *serializer.Response {
 	return serializer.SuccessData("", find)
 }
 
-func (conn *Connections) Get(conid map[string]string) *serializer.Response {
-	return serializer.SuccessData("", nil)
+type GetConnectionsRequest struct {
+	Conid string `json:"conid"`
+}
+
+func (conn *Connections) Get(req *GetConnectionsRequest) *serializer.Response {
+	return serializer.SuccessData("", getCore(req.Conid, true))
 }
 
 func (conn *Connections) Delete(connection map[string]string) *serializer.Response {

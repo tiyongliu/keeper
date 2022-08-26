@@ -1,6 +1,6 @@
 <template>
   <div ref="r" class="main-container" :class="hidden ? 'hidden' : ''">
-    <slot/>
+    <slot></slot>
   </div>
 </template>
 

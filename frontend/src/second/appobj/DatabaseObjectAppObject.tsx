@@ -1,6 +1,6 @@
 import {computed, defineComponent, PropType, unref, toRefs} from 'vue'
 import {isNaN} from 'lodash-es'
-import {filterName} from 'keeper-tools'
+import {filterName} from '/@/second/keeper-tools'
 import AppObjectCore from '/@/second/appobj/AppObjectCore.vue'
 import { dataBaseStore } from '/@/store/modules/dataBase'
 

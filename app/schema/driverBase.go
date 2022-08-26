@@ -1,5 +1,0 @@
-package schema
-
-func AnalyseFull() {
-
-}

@@ -1,13 +1,17 @@
-package schema
+package adapter
 
+/*
 type DatabaseInfoObjects struct {
-	Tables      []*TableInfo      `json:"tables"`
-	Collections []*CollectionInfo `json:"collections"`
-	Views       []*ViewInfo       `json:"views"`
-	MatViews    []*ViewInfo       `json:"matViews"`
-	Procedures  []*ProcedureInfo  `json:"procedures"`
-	Functions   []*FunctionInfo   `json:"functions"`
-	Triggers    []*TriggerInfo    `json:"triggers"`
+	//Tables []*TableInfo `json:"tables"`
+	//Collections []*CollectionInfo `json:"collections"`
+	Tables      []*modules.MysqlTableSchema  `json:"tables"`
+	Collections []*modules.MongoDBCollection `json:"collections"`
+	Views       []*ViewInfo                  `json:"views"`
+
+	MatViews   []*ViewInfo      `json:"matviews"`
+	Procedures []*ProcedureInfo `json:"procedures"`
+	Functions  []*FunctionInfo  `json:"functions"`
+	Triggers   []*TriggerInfo   `json:"triggers"`
 }
 
 type DatabaseInfo struct {
@@ -163,3 +167,4 @@ type SqlObjectInfo struct {
 	CreateSql      string `json:"createSql"`
 	RequiresFormat bool   `json:"requiresFormat"`
 }
+*/

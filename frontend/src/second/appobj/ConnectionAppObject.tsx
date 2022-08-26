@@ -9,7 +9,7 @@ import {
   unref,
   watch
 } from 'vue'
-import {filterName} from 'keeper-tools'
+import {filterName} from '/@/second/keeper-tools'
 import {Modal} from "ant-design-vue";
 import {ExclamationCircleOutlined} from "@ant-design/icons-vue";
 import {getLocalStorage} from '/@/second/utility/storageCache'

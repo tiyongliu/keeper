@@ -1,6 +1,6 @@
 import {defineComponent, PropType, toRef} from 'vue'
 import AppObjectList from './AppObjectList'
-import {findForeignKeyForColumn} from 'keeper-tools'
+import {findForeignKeyForColumn} from '/@/second/keeper-tools'
 import ColumnAppObject from '/@/second/appobj/ColumnAppObject'
 export default defineComponent({
   name: 'SubColumnParamList',

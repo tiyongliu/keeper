@@ -69,7 +69,7 @@
         </div>
       </div>
     </div>
-    <div class="container" v-for="item in contextItems">
+    <div class="container" v-for="(item, index) in contextItems" :key="index">
       <div class="item">
         {#if item.icon}
         <FontIcon icon={item.icon} padRight/>
@@ -81,6 +81,7 @@
 </template>
 <script lang="ts">
 import moment from 'moment';
+import {storeToRefs} from 'pinia'
 import {computed, defineComponent, unref} from 'vue';
 import FontIcon from '/@/second/icons/FontIcon.vue'
 import {dataBaseStore} from "/@/store/modules/dataBase"
@@ -102,13 +103,13 @@ export default defineComponent({
     // });
     //
 
-
-    const databaseName = computed(() => dataBase.$state.currentDatabase?.name)
-    const connection = computed(() => dataBase.$state.currentDatabase?.connection)
-    const dbid = computed(() => connection ? {conid: connection._id, database: databaseName} : null)
+    const {currentDatabase} = storeToRefs(dataBase)
+    const databaseName = computed(() => currentDatabase.value && currentDatabase.value.name)
+    const connection = computed(() => currentDatabase.value && currentDatabase.value.connection)
+    const dbid = computed(() => connection.value ? {conid: connection.value._id, database: databaseName.value} : null)
+    const status = useDatabaseStatus(dbid.value || {})
+    const serverVersion = useDatabaseServerVersion(dbid.value || {})
     const connectionLabel = computed(() => getConnectionLabel(unref(connection), {allowExplicitDatabase: false}))
-    const serverVersion = computed(() => useDatabaseServerVersion(dbid || {}))
-    const status = computed(() => useDatabaseStatus(dbid || {}))
     const contextItems = []
     // const databaseButtonBackground = useConnectionColor(dbid, 6, 'dark', true, false)
     const databaseButtonBackground = '------'

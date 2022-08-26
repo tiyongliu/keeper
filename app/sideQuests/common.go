@@ -6,7 +6,7 @@ import (
 
 func readVersion(driver standard.SqlStandard) (*standard.VersionMsg, error) {
 	version, err := driver.GetVersion()
-	if err == nil {
+	if err != nil {
 		return nil, err
 	}
 

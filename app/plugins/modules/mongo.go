@@ -21,5 +21,5 @@ type MongoDBDatabaseList struct {
 
 type MongoDBCollection struct {
 	PureName string `json:"pureName"`
-	Engine   string `json:"engine"`
+	//Engine   string `json:"engine"`
 }

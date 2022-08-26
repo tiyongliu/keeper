@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
+	"keeper/app/pkg/logger"
 	"keeper/app/pkg/standard"
 	"keeper/app/plugins/modules"
 )
@@ -55,37 +56,38 @@ func (mg *MongoDBDrivers) Close() error {
 	return mg.DB.Disconnect(context.Background())
 }
 
-func (mg *MongoDBDrivers) Tables(args ...string) (interface{}, error) {
-	databaseName := args[0]
+//func (mg *MongoDBDrivers) Tables(args ...string) (interface{}, error) {
+//	databaseName := args[0]
+//	names, err := mg.DB.Database(databaseName).ListCollectionNames(context.Background(), bson.D{})
+//	if err != nil {
+//		return nil, err
+//	}
+//
+//	dialect := mg.Dialect()
+//	var collections []*modules.MongoDBCollection
+//	for _, name := range names {
+//		collections = append(collections, &modules.MongoDBCollection{
+//			PureName: name,
+//			Engine:   dialect,
+//		})
+//	}
+//
+//	return collections, nil
+//}
+
+func (mg *MongoDBDrivers) Collections(databaseName string) ([]*modules.MongoDBCollection, error) {
 	names, err := mg.DB.Database(databaseName).ListCollectionNames(context.Background(), bson.D{})
 	if err != nil {
 		return nil, err
 	}
 
-	dialect := mg.Dialect()
+	//dialect := mg.Dialect()
 	var collections []*modules.MongoDBCollection
+
 	for _, name := range names {
 		collections = append(collections, &modules.MongoDBCollection{
 			PureName: name,
-			Engine:   dialect,
-		})
-	}
-
-	return collections, nil
-}
-
-func (mg *MongoDBDrivers) Collections(databaseName string) (interface{}, error) {
-	names, err := mg.DB.Database(databaseName).ListCollectionNames(context.Background(), bson.D{})
-	if err != nil {
-		return nil, err
-	}
-
-	dialect := mg.Dialect()
-	var collections []*modules.MongoDBCollection
-	for _, name := range names {
-		collections = append(collections, &modules.MongoDBCollection{
-			PureName: name,
-			Engine:   dialect,
+			//Engine:   dialect,
 		})
 	}
 
@@ -94,6 +96,21 @@ func (mg *MongoDBDrivers) Collections(databaseName string) (interface{}, error) 
 
 func (mg *MongoDBDrivers) Columns(databaseName, tableName string) (interface{}, error) {
 	return nil, nil
+}
+
+func (mg *MongoDBDrivers) ListCollections(databaseName string) {
+	ctx := context.Background()
+	cursor, err := mg.DB.Database(databaseName).ListCollections(ctx, bson.D{})
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	for cursor.Next(ctx) {
+		elements, err := cursor.Current.Elements()
+		//{"name": "open_order_scan_history","type": "collection","options": {},"info": {"readOnly": false,"uuid": {"$binary":{"base64":"1gNSWotySlmYnJ9ZXgx3nQ==","subType":"04"}}},"idIndex": {"v": {"$numberInt":"2"},"key": {"_id": {"$numberInt":"1"}},"name": "_id_"}}
+		logger.Infof("ele %s, err: %v", elements, err)
+	}
 }
 
 func (mg *MongoDBDrivers) Ping() error {

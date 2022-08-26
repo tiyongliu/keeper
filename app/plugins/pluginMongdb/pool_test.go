@@ -28,7 +28,7 @@ func TestListDatabases(t *testing.T) {
 	fmt.Println(utility.ToJsonStr(databases))
 }
 
-func TestTables(t *testing.T) {
+func TestCollections(t *testing.T) {
 	pool, err := NewSimpleMongoDBPool(&modules.SimpleSettingMongoDB{
 		Host: "localhost",
 		Port: "27017",
@@ -42,4 +42,19 @@ func TestTables(t *testing.T) {
 	if err == nil {
 		logger.Infof("list %s", utility.ToJsonStr(tables))
 	}
+}
+
+func TestCollectionInfos(t *testing.T) {
+	pool, err := NewSimpleMongoDBPool(&modules.SimpleSettingMongoDB{
+		Host: "localhost",
+		Port: "27017",
+	})
+
+	if err != nil {
+		fmt.Printf("err: %v \n", err)
+		return
+	}
+
+	//.ListCollections()
+	pool.(*MongoDBDrivers).ListCollections("rr-orders")
 }

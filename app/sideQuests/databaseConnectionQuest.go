@@ -1,16 +1,17 @@
 package sideQuests
 
 import (
+	"keeper/app/adapter"
 	"keeper/app/internal"
 	"keeper/app/pkg/containers"
+	"keeper/app/pkg/logger"
 	"keeper/app/pkg/standard"
-	"keeper/app/schema"
 	"keeper/app/utility"
 )
 
 var databaseLast utility.UnixTime
 
-var analysedStructure *schema.DatabaseInfo
+var analysedStructure map[string]interface{}
 
 var analysedTime utility.UnixTime = 0
 var loadingModel bool
@@ -29,35 +30,44 @@ func NewDatabaseConnection() *DatabaseConnection {
 	return &DatabaseConnection{}
 }
 
-func (msg *DatabaseConnection) Connect(ch chan *containers.EchoMessage, newOpened *containers.OpenedDatabaseConnection) {
+func (msg *DatabaseConnection) Connect(ch chan *containers.EchoMessage, newOpened *containers.OpenedDatabaseConnection, structure interface{}) {
 	defer close(ch)
 	databaseLast = utility.NewUnixTime()
-	if newOpened.Structure == nil {
+	if structure == nil {
 		msg.setStatus(ch, func() (*containers.OpenedStatus, error) {
-			return &containers.OpenedStatus{Name: "pending", Counter: getStatusCounter()}, nil
+			return &containers.OpenedStatus{Name: "pending"}, nil
 		})
 	}
 
 	driver, err := internal.TakeAutoDriver(newOpened.Conid, newOpened.Connection)
 	if err != nil {
 		msg.setStatus(ch, func() (*containers.OpenedStatus, error) {
-			return &containers.OpenedStatus{Name: "error", Message: err.Error(), Counter: getStatusCounter()}, err
+			return &containers.OpenedStatus{Name: "error", Message: err.Error()}, err
 		})
 		return
 	}
 
-	if newOpened.Structure != nil {
+	version, err := readVersion(driver)
+
+	if err != nil {
+		msg.setStatus(ch, func() (*containers.OpenedStatus, error) {
+			return &containers.OpenedStatus{Name: "error", Message: err.Error()}, err
+		})
+		return
+	} else {
+		ch <- &containers.EchoMessage{
+			Payload: version,
+			MsgType: "version",
+		}
+	}
+
+	if structure != nil {
+		logger.Info("structure line 66 %s", utility.ToJsonStr(structure))
 		msg.handleIncrementalRefresh(ch, true, driver, newOpened.Database)
 	} else {
-		msg.handleFullRefresh(ch, driver, newOpened.Database)
 	}
 
-	if _, err = readVersion(driver); err != nil {
-		setStatus(ch, func() (*containers.OpenedStatus, error) {
-			return &containers.OpenedStatus{Name: "error", Message: err.Error(), Counter: getStatusCounter()}, err
-		})
-		return
-	}
+	msg.handleFullRefresh(ch, driver, newOpened.Database)
 }
 
 func (msg *DatabaseConnection) setStatus(ch chan *containers.EchoMessage, data func() (*containers.OpenedStatus, error)) {
@@ -68,13 +78,8 @@ func (msg *DatabaseConnection) setStatus(ch chan *containers.EchoMessage, data f
 	}
 	statusString := utility.ToJsonStr(status)
 	if msg.lastStatus != statusString {
-		ch <- &containers.EchoMessage{
-			MsgType: "status",
-			Payload: map[string]interface{}{
-				"status":  status,
-				"counter": getStatusCounter(),
-			},
-		}
+		status.Counter = getStatusCounter()
+		ch <- &containers.EchoMessage{MsgType: "status", Payload: status}
 		msg.lastStatus = statusString
 	}
 }
@@ -94,21 +99,17 @@ func (msg *DatabaseConnection) readVersion(ch chan *containers.EchoMessage, pool
 	return nil
 }
 
-func (msg *DatabaseConnection) handleFullRefresh(ch chan *containers.EchoMessage, pool standard.SqlStandard, strings ...string) {
+func (msg *DatabaseConnection) handleFullRefresh(ch chan *containers.EchoMessage, pool standard.SqlStandard, database string) {
 	loadingModel = true
+
 	msg.setStatus(ch, func() (*containers.OpenedStatus, error) {
 		return &containers.OpenedStatus{Name: "loadStructure"}, nil
 	})
 
+	analysedStructure = adapter.AnalyseFull(pool, database)
 	analysedTime = utility.NewUnixTime()
-
-	tables, err := pool.Tables(strings...)
-	if err == nil {
-		ch <- &containers.EchoMessage{MsgType: "structure", Payload: tables}
-	}
-
+	ch <- &containers.EchoMessage{MsgType: "structure", Payload: analysedStructure}
 	ch <- &containers.EchoMessage{MsgType: "structureTime", Payload: analysedTime}
-
 	msg.setStatus(ch, func() (*containers.OpenedStatus, error) {
 		return &containers.OpenedStatus{Name: "ok"}, nil
 	})
@@ -116,7 +117,8 @@ func (msg *DatabaseConnection) handleFullRefresh(ch chan *containers.EchoMessage
 	loadingModel = false
 }
 
-func (msg *DatabaseConnection) handleIncrementalRefresh(ch chan *containers.EchoMessage, forceSend bool, pool standard.SqlStandard, args ...string) {
+func (msg *DatabaseConnection) handleIncrementalRefresh(ch chan *containers.EchoMessage, forceSend bool, pool standard.SqlStandard, database string) {
+	/*loadingModel = true
 	msg.setStatus(ch, func() (*containers.OpenedStatus, error) {
 		return &containers.OpenedStatus{Name: "checkStructure", Counter: getStatusCounter()}, nil
 	})
@@ -147,7 +149,7 @@ func (msg *DatabaseConnection) handleIncrementalRefresh(ch chan *containers.Echo
 
 	msg.setStatus(ch, func() (*containers.OpenedStatus, error) {
 		return &containers.OpenedStatus{Name: "ok"}, nil
-	})
+	})*/
 }
 
 func (msg *DatabaseConnection) ReadVersion(ch chan *containers.EchoMessage, pool standard.SqlStandard) error {

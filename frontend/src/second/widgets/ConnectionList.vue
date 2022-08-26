@@ -91,7 +91,6 @@ export default defineComponent({
     const connectionsWithStatus = ref<IActiveConnection[]>([])
     const connections = useConnectionList<IActiveConnection[]>()
     const serverStatus = useServerStatus<{[key: string]: IConnectionStatus}>()
-
     watch(() => [connections, serverStatus], () => {
       connectionsWithStatus.value =
         connections.value && serverStatus.value ?

@@ -1,13 +1,5 @@
-import {
-  computed,
-  defineComponent,
-  PropType,
-  unref,
-  toRefs,
-  Component,
-  toRaw,
-} from 'vue'
-import {compact, keys, groupBy} from 'lodash-es'
+import {Component, computed, defineComponent, PropType, toRaw, toRefs, unref} from 'vue'
+import {compact, groupBy, keys} from 'lodash-es'
 import AppObjectListItem from '/@/second/appobj/AppObjectListItem.vue'
 import AppObjectGroup from '/@/second/appobj/AppObjectGroup.vue'
 import {createChildMatcher, createMatcher} from './ConnectionAppObject'
@@ -68,7 +60,7 @@ export default defineComponent({
 
     const filtered = computed(() => {
       return !unref(groupFunc) ? (unref(list)!).filter(data => {
-        const matcher =  createMatcher && createMatcher(data);
+        const matcher = createMatcher && createMatcher(data);
         if (matcher && !matcher(filter)) return false
         return true
       }) : null
@@ -82,17 +74,6 @@ export default defineComponent({
       }) : null
     })
 
-    // const listGrouped = computed(() => {
-    //   groupFunc.value ? compact(
-    //     ((unref(list)!) || []).map(data => {
-    //       const matcher = createMatcher && createMatcher(data);
-    //       const isMatched = matcher && !matcher(filter.value) ? false : true;
-    //       const group = groupFunc.value!(data)
-    //       return { group, data, isMatched };
-    //     })
-    //   ) : null
-    // })
-
 
     function listGrouped() {
       return groupFunc.value ? compact(
@@ -100,18 +81,18 @@ export default defineComponent({
           const matcher = createMatcher && createMatcher(data);
           const isMatched = matcher && !matcher(filter.value) ? false : true;
           const group = groupFunc.value!(data)
-          return { group, data, isMatched };
+          return {group, data, isMatched};
         })
       ) : null
     }
 
-    function _AppObjectGroup() {
-      const groups = groupBy(listGrouped(), 'group')
+    const groups = computed<any>(() => unref(groupFunc) ? groupBy(listGrouped(), 'group') : null)
 
-      return () => keys(groups).map(group => <AppObjectGroup
+    function _AppObjectGroup() {
+      return () => keys(unref(groups)).map(group => <AppObjectGroup
         group={group}
         module={unref(module)}
-        items={groups[group]}
+        items={unref(groups)![group]}
         expandIconFunc={unref(expandIconFunc)}
         isExpandable={unref(isExpandable)}
         subItemsComponent={unref(subItemsComponent)}
@@ -124,16 +105,16 @@ export default defineComponent({
 
     function _AppObjectListItem() {
       return () => (list.value || []).map(data => <AppObjectListItem
-        isHidden={!(filtered.value)!.includes(unref(data))}
-        module={unref(module)}
-        subItemsComponent={unref(subItemsComponent)}
+        isHidden={!(filtered.value)!.includes(data)}
+        module={module}
+        subItemsComponent={subItemsComponent}
         expandOnClick={unref(expandOnClick)}
-        data={unref(data) as Record<string, any>}
+        data={data as Record<string, any>}
         isExpandable={unref(isExpandable)}
         expandIconFunc={unref(expandIconFunc)}
         disableContextMenu={unref(disableContextMenu)}
         filter={unref(filter)}
-        isExpandedBySearch={(childrenMatched.value)!.includes(unref(data))}
+        isExpandedBySearch={(childrenMatched.value)!.includes(data)}
         passProps={unref(passProps)}
       />)
     }

@@ -33,7 +33,7 @@
 </template>
 
 <script lang="ts">
-  import {computed, defineComponent, PropType, unref} from 'vue'
+import {computed, defineComponent, PropType, unref} from 'vue'
   import {storeToRefs} from 'pinia'
   import {dataBaseStore} from "/@/store/modules/dataBase"
   import ErrorInfo from '/@/second/elements/ErrorInfo.vue'
@@ -78,4 +78,3 @@
     }
   })
 </script>
-

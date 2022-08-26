@@ -1,4 +1,4 @@
-import {safeJsonParse} from 'keeper-tools'
+import {safeJsonParse} from '/@/second/keeper-tools'
 
 export function getWithStorageVariableCache<T>(defaultValue: T, storageName) {
   const init = localStorage.getItem(storageName);

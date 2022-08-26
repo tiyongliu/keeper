@@ -33,7 +33,13 @@ type OpenedDatabaseConnection struct {
 	Database      string                 `json:"database"`
 	Connection    map[string]interface{} `json:"connection"`
 	ServerVersion *standard.VersionMsg   `json:"version"`
-	Structure     interface{}            `json:"structure"`
+	Structure     map[string]interface{} `json:"structure"`
 	AnalysedTime  utility.UnixTime       `json:"analysedTime"`
 	Disconnected  bool                   `json:"disconnected"`
+}
+
+type DatabaseConnectionClosed struct {
+	Structure    map[string]interface{} `json:"structure"`
+	AnalysedTime utility.UnixTime       `json:"analysedTime"`
+	Status       *OpenedStatus          `json:"status"`
 }

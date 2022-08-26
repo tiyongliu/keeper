@@ -1,7 +1,8 @@
 package utility
 
 import (
-	"encoding/json"
+	"fmt"
+	"github.com/fatih/structs"
 	"strconv"
 	"strings"
 	"testing"
@@ -98,16 +99,9 @@ func newUser() User {
 
 func TestStructToMap(t *testing.T) {
 	user := newUser()
-	tag := "map"
-	methodName := "StructToMap"
-	res, err := StructToMap(&user, tag, methodName)
-	if err != nil {
-		t.Errorf("struct to map:%s", err.Error())
-		return
-	}
-	for k, v := range res {
-		t.Logf("k:%v,v:%v", k, v)
-	}
+	res := structs.Map(&user)
+
+	fmt.Println(ToJsonStr(res))
 }
 
 type benchmarkUser struct {
@@ -123,25 +117,5 @@ func newBenchmarkUser() benchmarkUser {
 		Age:     18,
 		Address: "github address",
 		Contact: "github contact",
-	}
-}
-
-func BenchmarkStructToMapByJson(b *testing.B) {
-	user := newBenchmarkUser()
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		data, _ := json.Marshal(&user)
-		m := make(map[string]interface{})
-		json.Unmarshal(data, &m)
-	}
-}
-
-func BenchmarkStructToMapByToMap(b *testing.B) {
-	user := newBenchmarkUser()
-	tag := "json"
-	methodName := ""
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		StructToMap(&user, tag, methodName)
 	}
 }
