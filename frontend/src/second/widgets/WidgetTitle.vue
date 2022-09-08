@@ -4,20 +4,6 @@
   </div>
 </template>
 
-<script lang="ts">
-import {defineComponent, ref} from 'vue'
-
-export default defineComponent({
-  name: "WidgetTitle",
-  components: {},
-  setup() {
-    return {
-      hidden: ref(false)
-    }
-  }
-})
-</script>
-
 <style lang="less">
 .widgetTitle {
   padding: 5px;

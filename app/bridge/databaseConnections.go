@@ -176,7 +176,6 @@ func (dc *DatabaseConnections) Ping(req *DatabaseRequest) *serializer.Response {
 }
 
 func (dc *DatabaseConnections) Structure(req *DatabaseRequest) *serializer.Response {
-	//logger.Info("qwertyuiopasdfghjklzxcvbnm")
 	if req.Conid == "__model" {
 		//todo  const model = await importDbModel(database);
 	}
@@ -223,11 +222,8 @@ func (dc *DatabaseConnections) ServerVersion(req *DatabaseRequest) *serializer.R
 }
 
 func (dc *DatabaseConnections) Status(req *DatabaseRequest) *serializer.Response {
-	logger.Info("123456789987654321")
-
 	existing := findByDatabaseConnection(dc.Opened, req.Conid, req.Database)
 
-	//logger.Infof("existing conid: [%s], dataBase: [%s]", req.Conid, req.Database)
 	if existing != nil {
 		return serializer.SuccessData("", map[string]interface{}{
 			"name":         existing.Status.Name,

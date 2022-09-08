@@ -46,6 +46,7 @@ func main() {
 			app.Connections,
 			app.DatabaseConnections,
 			app.ServerConnections,
+			app.Plugins,
 		},
 		// Windows platform specific options
 		Windows: &windows.Options{

@@ -1,11 +1,11 @@
 <template>
-  <DatabaseWidget :hidden="isShow !=='database'"/>
-  <FilesWidget :hidden="isShow !=='file'"/>
-  <HistoryWidget :hidden="isShow !=='history'"/>
-  <ArchiveWidget :hidden="isShow !=='archive'"/>
-  <PluginsWidget :hidden="isShow !=='plugins'"/>
-  <CellDataWidget :hidden="isShow !=='cell-data'"/>
-  <AppWidget :hidden="isShow !=='app'"/>
+  <DatabaseWidget :hidden="selectedWidget != 'database'"/>
+  <FilesWidget v-if="selectedWidget =='file'"/>
+  <HistoryWidget v-if="selectedWidget =='history'"/>
+  <ArchiveWidget  v-if="selectedWidget =='archive'"/>
+  <PluginsWidget v-if="selectedWidget =='plugins'"/>
+  <CellDataWidget v-if="selectedWidget =='cell-data'"/>
+  <AppWidget v-if="selectedWidget =='app'"/>
 </template>
 
 <script lang="ts">
@@ -16,16 +16,15 @@ import HistoryWidget from './HistoryWidget.vue'
 import ArchiveWidget from './ArchiveWidget.vue'
 import PluginsWidget from './PluginsWidget.vue'
 import AppWidget from './AppWidget.vue'
-import {defineComponent, toRefs} from 'vue';
-
+import {defineComponent} from 'vue';
+import {useLocaleStore} from '/@/store/modules/locale'
+import {storeToRefs} from "pinia";
 export default defineComponent({
-  props: {
-    isShow: String
-  },
-  setup(props) {
-    const {isShow} = toRefs(props)
+  setup() {
+    const localeStore = useLocaleStore()
+    const {selectedWidget} = storeToRefs(localeStore)
     return {
-      isShow
+      selectedWidget
     }
   },
   components: {

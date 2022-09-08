@@ -44,8 +44,8 @@ export interface QuickExportDefinition {
 
 export interface ExtensionsDirectory {
   plugins: PluginDefinition[];
-  fileFormats: FileFormatDefinition[];
-  quickExports: QuickExportDefinition[];
+  // fileFormats: FileFormatDefinition[];
+  // quickExports: QuickExportDefinition[];
   drivers: EngineDriver[];
-  themes: ThemeDefinition[];
+  // themes: ThemeDefinition[];
 }

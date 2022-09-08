@@ -9,14 +9,14 @@
 
   <Layout :class="prefixCls" v-bind="lockEvents">
     <div class="iconbar">
-      <WidgetIconPanel @con="con"/>
+      <WidgetIconPanel/>
     </div>
-    <div class="statusbar">iconbar</div>
-    <!--    <div class="statusbar svelte-1veekw4"><StatusBar></StatusBar></div>-->
-    <div class="leftpanel">
+    <div class="statusbar">
+      <StatusBar />
+    </div>
+    <div v-if="selectedWidget" class="leftpanel">
       <!--      <AppDarkModeToggle class="mx-auto" />-->
-
-      <WidgetContainer :isShow="isShow"/>
+      <WidgetContainer/>
     </div>
     <div class="tabs">
       <!--      <TabsPanel/>-->
@@ -24,7 +24,7 @@
     </div>
     <div class="content">content
     </div>
-    <div class="horizontal-split-handle splitter"
+    <div v-if="selectedWidget" class="horizontal-split-handle splitter"
          v-splitterDrag="'clientX'"
          :resizeSplitter="(e) => cssVariable.setLeftPanelWidth(e.detail)">
     </div>
@@ -34,7 +34,7 @@
 </template>
 
 <script lang="ts">
-import {computed, defineComponent, onMounted, ref, unref} from 'vue';
+import {computed, defineComponent, onMounted, unref} from 'vue';
 import {Layout} from 'ant-design-vue';
 import LayoutHeader from './header/index.vue';
 import {useHeaderSetting} from '/@/hooks/setting/useHeaderSetting';
@@ -45,12 +45,14 @@ import {useAppInject} from '/@/hooks/web/useAppInject';
 
 //todo
 import {cssVariableStore} from "/@/store/modules/cssVariable"
+import {useLocaleStore} from '/@/store/modules/locale'
 import WidgetContainer from '/@/second/widgets/WidgetContainer.vue'
 import TabsPanel from '/@/second/widgets/TabsPanel.vue'
 import StatusBar from '/@/second/widgets/StatusBar.vue'
 import {WarningOutlined} from '@ant-design/icons-vue'
 import WidgetIconPanel from '/@/second/widgets/WidgetIconPanel.vue'
 import CurrentDropDownMenu from '/@/second/modals/CurrentDropDownMenu'
+import {storeToRefs} from "pinia";
 
 export default defineComponent({
   name: 'DefaultLayout',
@@ -81,15 +83,14 @@ export default defineComponent({
       return cls;
     });
 
+    const localeStore = useLocaleStore()
+    const {selectedWidget} = storeToRefs(localeStore)
     const cssVariable = cssVariableStore();
     onMounted(() => {
       cssVariable.subscribeCssVariable(cssVariable.$state.selectedWidget, x => (x ? 1 : 0), '--dim-visible-left-panel')
       cssVariable.subscribeCssVariable(cssVariable.$state.leftPanelWidth, x => `${x}px`, '--dim-left-panel-width')
       cssVariable.subscribeCssVariable(cssVariable.$state.visibleTitleBar, x => (x ? 1 : 0), '--dim-visible-titlebar')
-      //https://www.npmjs.com/package/resize-observer-polyfill
-      // import ResizeObserver from 'resize-observer-polyfill';
     })
-    const isShow = ref('database')
 
     return {
       getShowFullHeaderRef,
@@ -99,16 +100,10 @@ export default defineComponent({
       getIsMixSidebar,
       layoutClass,
       lockEvents,
-
+      selectedWidget,
       cssVariable,
-      isShow
     };
   },
-  methods: {
-    con(val) {
-      this.isShow = val
-    }
-  }
 });
 </script>
 <style lang="less">

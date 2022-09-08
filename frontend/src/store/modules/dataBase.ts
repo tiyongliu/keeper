@@ -2,9 +2,6 @@ import {defineStore} from "pinia"
 import {store} from "/@/store"
 import {mapValues} from 'lodash-es'
 import invalidateCommands from '/@/second/commands/invalidateCommands'
-import pluginMongoDrivers from '/@/second/plugins/keeper-plugin-mongo'
-import pluginMysqlDrivers from '/@/second/plugins/keeper-plugin-mysql'
-import pluginRedisDrivers from '/@/second/plugins/keeper-plugin-redis'
 import {getWithStorageVariableCache, setWithStorageVariableCache} from '/@/second/utility/storage'
 import {IPinnedDatabasesItem} from '/@/second/typings/types/standard.d'
 import {ExtensionsDirectory} from '/@/second/typings/types/extensions.d'
@@ -12,7 +9,7 @@ import {ExtensionsDirectory} from '/@/second/typings/types/extensions.d'
 interface IVariableBasic {
   openedConnections: string[]
   currentDatabase: null | IPinnedDatabasesItem,
-  extensions: null | ExtensionsDirectory
+  extensions: ExtensionsDirectory | null
   pinnedDatabases: IPinnedDatabasesItem[],
   pinnedTables: [],
   currentDropDownMenu: null | ICurrentDropDownMenu
@@ -20,6 +17,7 @@ interface IVariableBasic {
   commandsSettings: object
   visibleCommandPalette: null | unknown
   commandsCustomized: object
+  loadingPluginStore: {loaded: boolean, loadingPackageName: string | null}
 }
 
 export interface TabDefinition {
@@ -38,7 +36,7 @@ export interface ICurrentDropDownMenu {
   left: number
   top: number
   items: any[]
-  targetElement: HTMLElement
+  targetElement?: HTMLElement
 }
 
 let visibleCommandPaletteValue = null
@@ -47,9 +45,7 @@ export const dataBaseStore = defineStore({
   state: (): IVariableBasic => ({
     currentDatabase: null,
     openedConnections: [],
-    extensions: {
-      drivers: [].concat(pluginMongoDrivers.drivers).concat(pluginMysqlDrivers.drivers).concat(pluginRedisDrivers.drivers)
-    },
+    extensions: null,
     pinnedDatabases: getWithStorageVariableCache([], 'pinnedDatabases'),
     pinnedTables: getWithStorageVariableCache([], 'pinnedTables'),
     openedTabs: getWithStorageVariableCache<TabDefinition[]>([], 'openedTabs'),
@@ -58,6 +54,10 @@ export const dataBaseStore = defineStore({
     commandsSettings: {},
     visibleCommandPalette: null,
     commandsCustomized: {},
+    loadingPluginStore: {
+      loaded: true,
+      loadingPackageName: null
+    }
   }),
   getters: {
     getOpenedConnections(): string[] {
@@ -75,7 +75,7 @@ export const dataBaseStore = defineStore({
     getPinnedTables(): [] {
       return this.pinnedTables
     },
-    getPinnedExtensions() {
+    getPinnedExtensions(): ExtensionsDirectory | null {
       return this.extensions
     }
   },
@@ -84,7 +84,6 @@ export const dataBaseStore = defineStore({
       this.openedConnections = value
     },
     subscribeCurrentDatabase(value: IPinnedDatabasesItem) {
-      // console.log(`vvvvvvvvvvvvvvvvvvvvvvvvvv`, value)
       this.currentDatabase = value
     },
     subscribeExtensions(value: ExtensionsDirectory) {
@@ -116,6 +115,9 @@ export const dataBaseStore = defineStore({
       this.commandsSettings = value
       this.commandsCustomized = derived(this.commands, this.commandsSettings)
     },
+    subscribeLoadingPluginStore(value: {loaded: boolean, loadingPackageName: string | null}) {
+      this.loadingPluginStore = value
+    }
   }
 });
 

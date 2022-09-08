@@ -79,7 +79,7 @@
       const widgetItemIndex = pushWidgetItemDefinition({
         collapsed,
         height,
-        skip: skip || !show,
+        skip: skip || !show.value,
       }, dynamicProps)
 
       watch(

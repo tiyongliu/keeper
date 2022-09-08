@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"keeper/app/internal"
-	"keeper/app/pkg/logger"
 	"sync"
 )
 
@@ -17,6 +16,7 @@ type App struct {
 	Connections         *Connections
 	DatabaseConnections *DatabaseConnections
 	ServerConnections   *ServerConnections
+	Plugins             *Plugins
 }
 
 // NewApp creates a new App application struct
@@ -26,6 +26,7 @@ func NewApp() *App {
 			Connections:         NewConnections(),
 			DatabaseConnections: NewDatabaseConnections(),
 			ServerConnections:   NewServerConnections(),
+			Plugins:             NewPlugins(),
 		}
 	})
 
@@ -55,7 +56,6 @@ func (a App) DomReady(ctx context.Context) {
 }
 
 func (a *App) OnBeforeClose(ctx context.Context) bool {
-	internal.CleanDriver()
-	logger.Info("all active driver close")
+	internal.CleanStoragePool()
 	return false
 }

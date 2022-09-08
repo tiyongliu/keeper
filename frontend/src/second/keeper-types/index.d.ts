@@ -13,5 +13,7 @@ export interface OpenedDatabaseConnection {
     };
 }
 
+export * from './engines';
 export * from './dbinfo.d';
 export * from './appdefs';
+export * from './extensions';

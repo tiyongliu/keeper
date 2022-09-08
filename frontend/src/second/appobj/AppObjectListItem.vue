@@ -101,8 +101,6 @@ import {Component, computed, defineComponent, PropType, ref, toRaw, toRefs, unre
           }
         })
 
-      watch(() => data.value, () => console.log(`data.value`, data.value))
-
       return {
         data,
         isHidden,

@@ -1,90 +1,108 @@
 <template>
-  <div class="panel_main">
-    <div class="wrapper" :class="{'selected':item.name==test}" v-for="(item, index) in widgets"
-         :key="index">
-      <FontIcon :icon="item.icon" :title="item.title" @click="con(item)"/>
+  <div class="main">
+    <div class="wrapper" :class="{'selected':item.name === selectedWidget}"
+         v-for="(item, index) in widgets" :key="index"
+         @click="handleChangeWidget(item.name)">
+      <FontIcon :icon="item.icon" :title="item.title"/>
     </div>
 
     <div class="flex1">&nbsp;</div>
 
-    <div class="wrapper">
+    <div class="wrapper" @click="handleSettingsMenu" ref="domSettings">
       <FontIcon icon="icon settings"/>
     </div>
   </div>
 </template>
 
-<script>
-import {reactive, toRefs} from 'vue';
+<script lang="ts">
+import {reactive, ref} from 'vue';
+import FontIcon from '/@/second/icons/FontIcon.vue'
+import {useLocaleStore} from '/@/store/modules/locale'
+import {dataBaseStore} from '/@/store/modules/dataBase'
+import {storeToRefs} from 'pinia'
 
-import FontIcon from '../icons/FontIcon.vue';
-import {getWithStorageVariableCache, setWithStorageVariableCache} from '/@/second/utility/storage'
-// import mitt from '../../utils/mitt'
 export default {
-  setup(props, {emit}) {
-    // const test = 'database'
-    const state = reactive({
-      widgets: [
-        {
-          icon: 'icon database',
-          name: 'database',
-          title: 'Database connections',
-        },
-        {
-          icon: 'icon file',
-          name: 'file',
-          title: 'Favorites & Saved files',
-        },
-        {
-          icon: 'icon history',
-          name: 'history',
-          title: 'Query history & Closed tabs',
-        },
-        {
-          icon: 'icon archive',
-          name: 'archive',
-          title: 'Archive (saved tabular data)',
-        },
-        {
-          icon: 'icon plugin',
-          name: 'plugins',
-          title: 'Extensions & Plugins',
-        },
-        {
-          icon: 'icon cell-data',
-          name: 'cell-data',
-          title: 'Selected cell data detail view',
-        },
-        {
-          icon: 'icon app',
-          name: 'app',
-          title: 'Application layers',
-        },
-      ],
-      test: 'database'
-    });
+  setup() {
+    const widgets = reactive([
+      {
+        icon: 'icon database',
+        name: 'database',
+        title: 'Database connections',
+      },
+      // {
+      //   icon: 'fa-table',
+      //   name: 'table',
+      // },
+      {
+        icon: 'icon file',
+        name: 'file',
+        title: 'Favorites & Saved files',
+      },
+      {
+        icon: 'icon history',
+        name: 'history',
+        title: 'Query history & Closed tabs',
+      },
+      {
+        icon: 'icon archive',
+        name: 'archive',
+        title: 'Archive (saved tabular data)',
+      },
+      {
+        icon: 'icon plugin',
+        name: 'plugins',
+        title: 'Extensions & Plugins',
+      },
+      {
+        icon: 'icon cell-data',
+        name: 'cell-data',
+        title: 'Selected cell data detail view',
+      },
+      {
+        icon: 'icon app',
+        name: 'app',
+        title: 'Application layers',
+      },
+      // {
+      //   icon: 'icon settings',
+      //   name: 'settings',
+      // },
+      // {
+      //   icon: 'fa-check',
+      //   name: 'settings',
+      // },
+    ])
 
-    function con(item) {
-      setWithStorageVariableCache('selectedWidget', item.name)
-      this.test = getWithStorageVariableCache('database', 'selectedWidget')
-      emit('con', this.test)
+    const localeStore = useLocaleStore()
+    const dataBase = dataBaseStore()
+    const {selectedWidget} = storeToRefs(localeStore)
+    const domSettings = ref<Nullable<HTMLElement>>(null)
+
+    function handleSettingsMenu() {
+      const rect = domSettings.value!.getBoundingClientRect();
+      const left = rect.right
+      const top = rect.bottom
+      const items = [{command: 'settings.show'}, {command: 'theme.changeTheme'}, {command: 'settings.commands'}]
+      dataBase.subscribeCurrentDropDownMenu({left, top, items})
+    }
+
+    function handleChangeWidget(name) {
+      localeStore.setSelectedWidget(name === selectedWidget.value ? null : name)
     }
 
     return {
-      ...toRefs(state), con
+      widgets,
+      selectedWidget,
+      domSettings,
+      handleSettingsMenu,
+      handleChangeWidget
     };
-  },
-  methods: {
-    //    con(item){
-    //         setWithStorageVariableCache('selectedWidget',item.name)
-    //         this.test = getWithStorageVariableCache('database','selectedWidget')
-    //         console.log(item.name,'====')
-    //    }
   },
   components: {FontIcon},
 };
 </script>
 
-<style lang="less" scoped>
+<style scoped>
 .wrapper {
   font-size: 23pt;
   height: 60px;
@@ -103,7 +121,7 @@ export default {
   background: var(--theme-bg-inv-3);
 }
 
-.panel_main {
+.main {
   display: flex;
   flex: 1;
   flex-direction: column;

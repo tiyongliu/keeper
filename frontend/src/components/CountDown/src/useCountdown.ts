@@ -6,7 +6,7 @@ export function useCountdown(count: number) {
 
   const isStart = ref(false);
 
-  let timerId: ReturnType<typeof setInterval> | null;
+  let timerId: ReturnType<typeof setInterval> | null
 
   function clear() {
     timerId && window.clearInterval(timerId);

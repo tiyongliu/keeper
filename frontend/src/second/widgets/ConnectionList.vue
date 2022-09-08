@@ -2,11 +2,10 @@
   <SearchBoxWrapper>
     <SearchInput placeholder="Search connection or database" v-model:searchValue="filter"/>
     <CloseSearchButton :filter="filter" @close="filter = ''"/>
-    <!--    <InlineButton title="Add new connection" @click="runCommand('new.connection')">-->
     <InlineButton title="Add new connection" @click="openModal">
       <FontIcon icon="icon plus-thick"/>
     </InlineButton>
-    <InlineButton title="Add new connection">
+    <InlineButton title="Add new connection" @click="handleRefreshConnections">
       <FontIcon icon="icon refresh"/>
     </InlineButton>
   </SearchBoxWrapper>
@@ -33,7 +32,7 @@
 </template>
 
 <script lang="ts">
-import {defineComponent, ref, unref, watch} from 'vue'
+import {defineComponent, onMounted, ref, unref, watch} from 'vue'
 import {storeToRefs} from 'pinia'
 import {sortBy} from 'lodash-es'
 import SearchBoxWrapper from '/@/second/widgets/SearchBoxWrapper.vue'
@@ -52,8 +51,9 @@ import LargeButton from '/@/second/buttons/LargeButton.vue'
 
 //TODO
 import ConnectionModal from '/@/second/modals/ConnectionModal.vue'
-import {useModal} from "/@/components/Modal";
-import {useConnectionList, useServerStatus} from '/@/api/bridge'
+import {useModal} from '/@/components/Modal'
+import {handleRefreshApi} from '/@/api/serverConnections'
+import {useConnectionList, useServerStatus} from '/@/api/sql'
 import {IActiveConnection, IConnectionStatus} from '/@/second/typings/types/connections.d'
 
 export default defineComponent({
@@ -74,23 +74,19 @@ export default defineComponent({
     const filter = ref('')
     const dataBase = dataBaseStore()
     const {openedConnections} = storeToRefs(dataBase)
-    // const connectionsWithStatus = [{
-    //   "server": "localhost",
-    //   "engine": "mysql@dbgate-plugin-mysql",
-    //   "sshMode": "userPassword",
-    //   "sshPort": "22",
-    //   "sshKeyfile": "C:\\Users\\Administrator\\.ssh\\id_rsa",
-    //   "user": "root",
-    //   "password": "crypt:7000413edf483ada3770dc5c4b9a69f0beea98f82c2e3b9ba243488a63c0fc056ee70323004cbfe3b5438a7297fcdfe3LC25uegcuz6H5UxZfY2UyA==",
-    //   "_id": "065caa90-a8c6-11ec-9b4b-6f98950c4d7a",
-    //   "status": {"name": "ok"}
-    // }]
 
     const handleExpandable = (data) => unref(openedConnections).includes(unref(data)._id)
       && !unref(data).singleDatabase
     const connectionsWithStatus = ref<IActiveConnection[]>([])
-    const connections = useConnectionList<IActiveConnection[]>()
-    const serverStatus = useServerStatus<{[key: string]: IConnectionStatus}>()
+
+    const connections = ref()
+    const serverStatus = ref()
+
+    onMounted(() => {
+      useConnectionList<IActiveConnection[]>(connections)
+      useServerStatus<{ [key: string]: IConnectionStatus }>(serverStatus)
+    })
+
     watch(() => [connections, serverStatus], () => {
       connectionsWithStatus.value =
         connections.value && serverStatus.value ?
@@ -100,6 +96,12 @@ export default defineComponent({
       deep: true,
       immediate: true,
     })
+
+    const handleRefreshConnections = () => {
+      for (const conid of unref(openedConnections)) {
+        void handleRefreshApi({conid})
+      }
+    }
 
     const [register, {openModal, closeModal}] = useModal()
     return {
@@ -115,7 +117,8 @@ export default defineComponent({
       register,
       openModal,
       closeModal,
-      connections, serverStatus
+      connections, serverStatus,
+      handleRefreshConnections
     }
   }
 })

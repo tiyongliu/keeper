@@ -28,16 +28,9 @@ pnpm-debug.log*
 *.sln
 *.sw?
 
-build/bin/*exe
-build/bin/*exe~
-build/**
+build/bin
 
 wails.exe
-
-wails
-
-bin/dbbox.exe
-frontend/src/wailsjs/**
+wailsjs
 frontend/*.yaml
-packages/tools/*yaml
 

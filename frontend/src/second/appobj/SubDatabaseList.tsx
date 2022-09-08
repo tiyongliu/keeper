@@ -1,14 +1,11 @@
-import {defineComponent, PropType, toRefs, unref} from 'vue'
+import {defineComponent, PropType, toRefs, unref, onMounted, ref} from 'vue'
 import {sortBy} from 'lodash-es'
 import {filterName} from '/@/second/keeper-tools'
 import './SubDatabaseList.less'
 import AppObjectList from './AppObjectList'
 import databaseAppObject from './DatabaseAppObject'
 import {ConnectionsWithStatus, TablesNameSort} from '/@/second/typings/mysql'
-// import {useDatabaseList} from "/@/api/metadataLoaders";
-// import {metadataLoadersStore} from "/@/store/modules/metadataLoaders"
-// import {useDatabaseList} from "/@/api/api";
-import {useDatabaseList} from "/@/api/bridge";
+import {useDatabaseList} from "/@/api/sql";
 
 export default defineComponent({
   name: "SubDatabaseList",
@@ -28,7 +25,12 @@ export default defineComponent({
   },
   setup(props) {
     const {data, filter, passProps} = toRefs(props)
-    const databases = useDatabaseList<TablesNameSort[]>({conid: data.value?._id})
+    const databases = ref()
+
+    onMounted(() => {
+      useDatabaseList<TablesNameSort[]>({conid: data.value?._id}, databases)
+    })
+
     return () => (
       <AppObjectList
         module={databaseAppObject}

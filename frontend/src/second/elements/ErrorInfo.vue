@@ -56,7 +56,7 @@
 <style scoped>
   .container {
     display: flex;
-    margin-right: 10px;
+    padding-right: 10px;
     align-items: center;
   }
   .icon {

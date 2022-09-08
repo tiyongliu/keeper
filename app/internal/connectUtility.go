@@ -73,7 +73,7 @@ func SetDriverPool(conid string, driver standard.SqlStandard) error {
 	return nil
 }
 
-func GetDriverPool(conid string) (driver standard.SqlStandard, err error) {
+func GetStoragePool(conid string) (driver standard.SqlStandard, err error) {
 	load, ok := storedConnection.Load(conid)
 	if !ok {
 		return nil, errors.New("invalid memory address or nil pointer dereference")
@@ -86,7 +86,7 @@ func GetDriverPool(conid string) (driver standard.SqlStandard, err error) {
 	return sqlStandard, nil
 }
 
-func DeleteDriverPool(conid string) error {
+func DeleteStoragePool(conid string) error {
 	andDelete, ok := storedConnection.LoadAndDelete(conid)
 	if ok {
 		if andDelete != nil {
@@ -96,8 +96,8 @@ func DeleteDriverPool(conid string) error {
 	return nil
 }
 
-func TakeAutoDriver(conid string, connection map[string]interface{}) (driver standard.SqlStandard, err error) {
-	driver, err = GetDriverPool(conid)
+func TargetStoragePool(conid string, connection map[string]interface{}) (driver standard.SqlStandard, err error) {
+	driver, err = GetStoragePool(conid)
 	if driver == nil {
 		driver, err = CreateEngineDriver(connection)
 		err = SetDriverPool(conid, driver)
@@ -106,7 +106,7 @@ func TakeAutoDriver(conid string, connection map[string]interface{}) (driver sta
 	return
 }
 
-func CleanDriver() {
+func CleanStoragePool() {
 	storedConnection.Range(func(key, value any) bool {
 		sqlStandard, ok := value.(standard.SqlStandard)
 		if sqlStandard != nil && ok {

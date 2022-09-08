@@ -2,6 +2,7 @@ import {
   computed,
   createVNode,
   defineComponent,
+  onBeforeUnmount,
   onMounted,
   PropType,
   ref,
@@ -64,6 +65,8 @@ export default defineComponent({
     const engineStatusTitleRef = ref()
     const dataBase = dataBaseStore()
 
+    let timerId: ReturnType<typeof setTimeout> | null
+
     const handleConnect = () => {
       if (unref(data)!.singleDatabase) {
         dataBase.subscribeCurrentDatabase({
@@ -71,11 +74,8 @@ export default defineComponent({
           name: unref(data)!.defaultDatabase
         } as unknown as IPinnedDatabasesItem)
       } else {
-        if ('invisible-box' == attrs.expandIcon) {
-          console.log(`--------------------`)
-        }
         dataBase.subscribeOpenedConnections(uniq([...dataBase.getOpenedConnections, unref(data)!._id]))
-        setTimeout(() => {
+        timerId = setTimeout(() => {
           void handleRefreshApi({
             conid: unref(data)!._id,
             keepOpen: true,
@@ -112,7 +112,7 @@ export default defineComponent({
       if (dataBase.$state.openedConnections.includes(_id)) {
         if (!status) statusIconRef.value = 'icon loading'
         else if (status.name == 'pending') statusIconRef.value = 'icon loading';
-        else if (status.name == 'ok')  statusIconRef.value = 'img ok';
+        else if (status.name == 'ok') statusIconRef.value = 'img ok';
         else statusIconRef.value = 'img error';
         if (status && status.name == 'error') {
           statusTitleRef.value = status.message
@@ -132,10 +132,10 @@ export default defineComponent({
       engineStatusTitleRef.value = unref(engineStatusTitle)
       watchExtensions()
       watchStatus()
+    })
 
-      if (window.runtime) {
-
-      }
+    onBeforeUnmount(() => {
+      timerId && clearTimeout(timerId)
     })
 
     const currentDatabase = computed(() => dataBase.$state.currentDatabase)
@@ -165,7 +165,6 @@ export default defineComponent({
     //     console.log(data, 'connections/get');
     //   })
     // }
-
 
 
     const handleClick = async () => {

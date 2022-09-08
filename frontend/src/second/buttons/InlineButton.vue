@@ -2,7 +2,7 @@
   <div class="outer buttonLike" :title="title"
        :class="[disabled && 'disabled', square && 'square', narrow && 'narrow']">
     <div class="inner">
-      <slot/>
+      <slot></slot>
     </div>
   </div>
 </template>
@@ -28,17 +28,12 @@
         default: false
       }
     },
-    components: {
-    },
     setup(props) {
       const hidden = ref(false)
 
       return {
         hidden,
-        title: props.title,
-        disabled: props.disabled,
-        square: props.square,
-        narrow: props.narrow,
+        ...props
       }
     }
   })

@@ -15,6 +15,7 @@
   import {loadDatabasesApi} from '/@/api/connection'
 
   //TODO
+  import initPluginsProvider from '/@/second/plugins/PluginsProvider'
   import { subscribeConnectionPingers } from '/@/api/connectionsPinger';
   let loadedApi = false
 
@@ -24,6 +25,8 @@
 
   // Listening to page changes and dynamically changing site titles
   useTitle()
+
+  initPluginsProvider()
 
   async function loadApi() {
     try {

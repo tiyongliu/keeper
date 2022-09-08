@@ -7,7 +7,6 @@ export function getDatabaseFileLabel(databaseFile) {
 
 function getConnectionLabelCore(connection, { allowExplicitDatabase = true } = {}) {
   if (!connection) {
-    console.log(`gjkldgjlfdgfdgdggdgggg1111111111111111111111111`)
     return null;
   }
   if (connection.displayName) {

@@ -24,10 +24,10 @@ export function addTableDependencies(db: DatabaseInfo): DatabaseInfo {
 }
 
 export function extendTableInfo(table: TableInfo): TableInfo {
-    return {
+  return {
         ...table,
         objectTypeField: 'tables',
-        columns: (table.columns || []).map(column => ({
+        columns: (table.columns || []).map(column => ({ // @ts-ignore
             pureName: table.pureName,
             schemaName: table.schemaName,
             ...column,

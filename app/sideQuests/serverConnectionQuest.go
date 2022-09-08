@@ -70,7 +70,7 @@ func (msg *ServerConnection) Connect(ch chan *containers.EchoMessage, conid stri
 		return &containers.OpenedStatus{Name: "pending"}, nil
 	})
 
-	driver, err := internal.TakeAutoDriver(conid, connection)
+	driver, err := internal.TargetStoragePool(conid, connection)
 
 	if err != nil {
 		setStatus(ch, func() (*containers.OpenedStatus, error) {

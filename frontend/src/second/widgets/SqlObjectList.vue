@@ -12,11 +12,16 @@
     <div class="m-1"></div>
     <div class="m-1"></div>
     <InlineButton @click="handleRefreshDatabase">Refresh</InlineButton>
-
-    <div class="m-1"></div>
-    <InlineButton @click="runCommand('new.table')">New table</InlineButton>
-    <div class="m-1"></div>
-    <InlineButton @click="runCommand('new.collection')">New collection</InlineButton>
+    <template
+      v-if="driver && Array.isArray(driver?.databaseEngineTypes) && driver?.databaseEngineTypes?.includes('sql')">
+      <div class="m-1"></div>
+      <InlineButton @click="runCommand('new.table')">New table</InlineButton>
+    </template>
+    <template
+      v-if="driver && Array.isArray(driver?.databaseEngineTypes) && driver?.databaseEngineTypes?.includes('document')">
+      <div class="m-1"></div>
+      <InlineButton @click="runCommand('new.collection')">New collection</InlineButton>
+    </template>
   </WidgetsInnerContainer>
 
   <SearchBoxWrapper v-else>
@@ -31,7 +36,7 @@
   <WidgetsInnerContainer>
     <LoadingInfo
       v-if="(status && (status.name == 'pending' || status.name == 'checkStructure' || status.name == 'loadStructure') && objects) || !objects"
-      message="Loading database structure" />
+      message="Loading database structure"/>
     <AppObjectList
       v-else
       :list="objectList.map(x => ({ ...x, conid, database }))"
@@ -48,7 +53,7 @@
 </template>
 
 <script lang="ts">
-import {defineComponent, PropType, ref, toRefs, unref, watch} from 'vue';
+import {computed, defineComponent, PropType, ref, toRefs, unref, watch, onBeforeUnmount} from 'vue';
 import AppObjectList from '/@/second/appobj/AppObjectList'
 import ErrorInfo from '/@/second/elements/ErrorInfo.vue'
 import FontIcon from '/@/second/icons/FontIcon.vue'
@@ -68,7 +73,9 @@ import {chevronExpandIcon} from '/@/second/icons/expandIcons'
 import {storeToRefs} from 'pinia'
 import {flatten, sortBy} from 'lodash-es'
 import {useConnectionInfo, useDatabaseInfo, useDatabaseStatus} from "/@/api/sql"
+import {handleRefreshApi} from '/@/api/databaseConnections'
 import {ApplicationDefinition, DatabaseInfo} from '/@/second/keeper-types'
+import {findEngineDriver} from '/@/second/keeper-tools'
 import {filterAppsForDatabase} from '/@/second/utility/appTools'
 import {dataBaseStore} from "/@/store/modules/dataBase";
 
@@ -98,11 +105,11 @@ export default defineComponent({
     const filter = ref('')
     const {conid, database} = toRefs(props)
     const handleRefreshDatabase = () => {
-      // todo apiCall('database-connections/refresh', { conid, database });
+      void handleRefreshApi({conid: unref(conid)!, database: unref(database)!})
     }
 
     const dataBase = dataBaseStore()
-    const {currentDatabase} = storeToRefs(dataBase)
+    const {currentDatabase, extensions} = storeToRefs(dataBase)
     let objects = ref()
     let status = ref()
     let connection = ref()
@@ -149,6 +156,16 @@ export default defineComponent({
       ])
     })
 
+    const driver = computed(() => findEngineDriver(connection.value, extensions.value!))
+
+    onBeforeUnmount(() => {
+      objects.value = null
+      status.value = null
+      connection.value = null
+      objectList.value = []
+      dbApps.value = []
+    })
+
     return {
       filter,
       status,
@@ -162,6 +179,7 @@ export default defineComponent({
       handleGroupFunc,
       handleExpandable,
       chevronExpandIcon,
+      driver,
     }
   }
 })

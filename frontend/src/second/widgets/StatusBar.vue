@@ -29,23 +29,23 @@
         {{ connection.user }}
       </div>
       <div class="item clickable">
-        <template v-if="status.name == 'pending'">
+        <template v-if="status && status.name == 'pending'">
           <FontIcon icon="icon loading" padRight/>
           Loading
         </template>
-        <template v-else-if="status.name == 'checkStructure'">
+        <template v-else-if="status && status.name == 'checkStructure'">
           <FontIcon icon="icon loading" padRight/>
           Checking model
         </template>
-        <template v-else-if="status.name == 'loadStructure'">
+        <template v-else-if="status && status.name == 'loadStructure'">
           <FontIcon icon="icon loading" padRight/>
           Loading model
         </template>
-        <template v-else-if="status.name == 'ok'">
+        <template v-else-if="status && status.name == 'ok'">
           <FontIcon icon="img ok-inv" padRight/>
           Connected
         </template>
-        <template v-else="status.name == 'error'">
+        <template v-else-if="status && status.name == 'error'">
           <FontIcon icon="img error-inv" padRight/>
           Error
         </template>
@@ -60,7 +60,7 @@
           {{ serverVersion.versionText || serverVersion.version }}
         </div>
       </div>
-      <div class="item flex clickable" v-if="status?.analysedTime"
+      <div class="item flex clickable" v-if="status && status?.analysedTime"
            :title="`Last ${databaseName} model refresh: ${moment(status?.analysedTime).format('HH:mm:ss')}\nClick for refresh DB model`"
            @click="handleSyncModel">
         <FontIcon icon="icon history" padRight/>
@@ -71,10 +71,8 @@
     </div>
     <div class="container" v-for="(item, index) in contextItems" :key="index">
       <div class="item">
-        {#if item.icon}
-        <FontIcon icon={item.icon} padRight/>
-        {/if}
-        {item.text}
+        <FontIcon :icon="item.icon" padRight/>
+        {{ item.text }}}
       </div>
     </div>
   </div>
@@ -82,44 +80,64 @@
 <script lang="ts">
 import moment from 'moment';
 import {storeToRefs} from 'pinia'
-import {computed, defineComponent, unref} from 'vue';
+import {computed, defineComponent, onBeforeUnmount, onMounted, ref, unref, watch} from 'vue';
 import FontIcon from '/@/second/icons/FontIcon.vue'
 import {dataBaseStore} from "/@/store/modules/dataBase"
-import {useConnectionColor} from "/@/second/utility/useConnectionColor"
 import getConnectionLabel from "/@/second/utility/getConnectionLabel";
-import {useDatabaseServerVersion, useDatabaseStatus} from "/@/api/bridge"
+import {useDatabaseServerVersion, useDatabaseStatus} from "/@/api/sql"
 
 export default defineComponent({
   name: 'StatusBar',
   components: {
     FontIcon
   },
-  setup(props, attrs) {
+  setup() {
     const dataBase = dataBaseStore()
-
-    useConnectionColor()
-    // const connectionBackground = computed(() => {
-    //   return useConnectionColor()
-    // });
-    //
-
     const {currentDatabase} = storeToRefs(dataBase)
+
     const databaseName = computed(() => currentDatabase.value && currentDatabase.value.name)
     const connection = computed(() => currentDatabase.value && currentDatabase.value.connection)
-    const dbid = computed(() => connection.value ? {conid: connection.value._id, database: databaseName.value} : null)
-    const status = useDatabaseStatus(dbid.value || {})
-    const serverVersion = useDatabaseServerVersion(dbid.value || {})
+    const dbid = computed(() => connection.value ? {
+      conid: connection.value._id,
+      database: databaseName.value
+    } : null)
+
+
     const connectionLabel = computed(() => getConnectionLabel(unref(connection), {allowExplicitDatabase: false}))
     const contextItems = []
     // const databaseButtonBackground = useConnectionColor(dbid, 6, 'dark', true, false)
     const databaseButtonBackground = '------'
     const connectionButtonBackground = '------'
 
+    let timerId: ReturnType<typeof setInterval> | null
+    let status = ref()
+    let serverVersion = ref()
+    const timerValue = ref(1)
+
+    watch(() => [dbid.value, connection.value], () => {
+      useDatabaseStatus<{
+        name: 'pending' | 'error' | 'loadStructure' | 'ok';
+        counter?: number;
+        analysedTime?: number;
+      }>(dbid.value || {}, status)
+
+      useDatabaseServerVersion<Nullable<{ version: string; versionText: string }>>(dbid.value || {}, serverVersion)
+    })
+
+    onMounted(() => {
+      timerId = setInterval(() => {
+        timerValue.value++
+      }, 10000)
+    })
+
+    onBeforeUnmount(() => {
+      timerId && clearInterval(timerId)
+    })
+
     async function handleSyncModel() {
 
     }
 
-    console.log(connection, '----connection')
     return {
       databaseName,
       connection,
@@ -131,7 +149,8 @@ export default defineComponent({
       serverVersion,
       handleSyncModel,
       contextItems,
-      moment
+      moment,
+      timerValue
     }
   }
 
@@ -139,7 +158,8 @@ export default defineComponent({
 })
 
 </script>
-<style lang="less" scoped>
+
+<style scoped>
 .main {
   display: flex;
   color: var(--theme-font-inv-15);
@@ -147,7 +167,6 @@ export default defineComponent({
   justify-content: space-between;
   cursor: default;
   flex: 1;
-  background-color: blue;
 }
 
 .container {
@@ -159,7 +178,6 @@ export default defineComponent({
   padding: 0px 10px;
   display: flex;
   align-items: center;
-  background-color: blue;
 }
 
 .version {

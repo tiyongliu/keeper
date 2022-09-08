@@ -104,7 +104,7 @@ func (sc *ServerConnections) ensureOpened(conid string) *containers.OpenedServer
 }
 
 func (sc *ServerConnections) checker(conid string) error {
-	pool, err := internal.GetDriverPool(conid)
+	pool, err := internal.GetStoragePool(conid)
 	if err != nil {
 		return err
 	}
@@ -133,7 +133,7 @@ func (sc *ServerConnections) ServerStatus() interface{} {
 func (sc *ServerConnections) Ping(connections []string) *serializer.Response {
 	for _, conid := range lo.Uniq[string](connections) {
 		last := sc.LastPinged[conid]
-		if pool, err := internal.GetDriverPool(conid); err == nil {
+		if pool, err := internal.GetStoragePool(conid); err == nil {
 			if err = pool.Ping(); err != nil {
 				sc.Close(conid, true)
 				continue
@@ -166,9 +166,7 @@ func (sc *ServerConnections) Close(conid string, kill bool) {
 			"status": existing.Status,
 		}
 		sc.LastPinged[conid] = 0
-
-		internal.DeleteDriverPool(conid)
-
+		_ = internal.DeleteStoragePool(conid)
 		utility.EmitChanged(Application.ctx, "server-status-changed")
 	}
 }

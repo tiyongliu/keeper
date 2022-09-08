@@ -6,6 +6,7 @@ import { store } from '/@/store';
 import { LOCALE_KEY } from '/@/enums/cacheEnum';
 import { createLocalStorage } from '/@/utils/cache';
 import { localeSetting } from '/@/settings/localeSetting';
+import {setWithStorageVariableCache, getWithStorageVariableCache} from "/@/second/utility/storage";
 
 const ls = createLocalStorage();
 
@@ -13,12 +14,15 @@ const lsLocaleSetting = (ls.get(LOCALE_KEY) || localeSetting) as LocaleSetting;
 
 interface LocaleState {
   localInfo: LocaleSetting;
+  selectedWidget: null | string
 }
 
 export const useLocaleStore = defineStore({
   id: 'app-locale',
   state: (): LocaleState => ({
     localInfo: lsLocaleSetting,
+    // selectedWidget: null
+    selectedWidget: getWithStorageVariableCache('database', 'selectedWidget')
   }),
   getters: {
     getShowPicker(): boolean {
@@ -46,6 +50,10 @@ export const useLocaleStore = defineStore({
         ...this.localInfo,
       });
     },
+    setSelectedWidget(name: string | null) {
+      this.selectedWidget = name
+      setWithStorageVariableCache('selectedWidget', name)
+    }
   },
 });
 

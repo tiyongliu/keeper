@@ -1,5 +1,4 @@
-// @ts-ignore
-import {ComputedRef, onBeforeUnmount, ref, unref, UnwrapRefSimple, watch} from 'vue'
+import {ref, Ref} from 'vue'
 import stableStringify from 'json-stable-stringify'
 import {extendDatabaseInfo} from '/@/second/keeper-tools'
 import {setLocalStorage} from '/@/second/utility/storageCache'
@@ -7,7 +6,7 @@ import {EventsOn} from '/@/wailsjs/runtime/runtime'
 import getAsArray from '/@/second/utility/getAsArray'
 import {apiCall} from '/@/second/utility/api'
 import {loadCachedValue} from './cache'
-import {Ref} from "@vue/reactivity";
+// import {Ref} from "@vue/reactivity";
 
 const connectionListLoader = () => ({
   url: 'bridge.Connections.List',
@@ -31,7 +30,7 @@ const databaseListLoader = ({conid}) => ({
 })
 
 const databaseServerVersionLoader = ({conid, database}) => ({
-  url: 'database-connections/server-version',
+  url: 'bridge.DatabaseConnections.ServerVersion',
   params: {conid, database},
   reloadTrigger: `database-server-version-changed-${conid}-${database}`,
 })
@@ -55,32 +54,42 @@ const connectionInfoLoader = ({conid}) => ({
   reloadTrigger: 'connection-list-changed',
 })
 
-export function useConnectionList<T>(): ComputedRef<T> {
-  return useCore(connectionListLoader, {});
+const installedPluginsLoader = () => ({
+  url: 'bridge.Plugins.Installed',
+  params: {},
+  reloadTrigger: `installed-plugins-changed`,
+})
+
+export function useConnectionList<T>(targetRef: Ref<T>) {
+  return useCore(connectionListLoader, {}, targetRef);
 }
 
-export function useServerStatus<T>(): ComputedRef<T> {
-  return useCore(serverStatusLoader, {});
+export function useServerStatus<T>(targetRef: Ref<T>) {
+  return useCore(serverStatusLoader, {}, targetRef);
 }
 
-export function useDatabaseList<T>(args): ComputedRef<T> {
-  return useCore(databaseListLoader, args);
+export function useDatabaseList<T>(args, targetRef: Ref<T>) {
+  return useCore(databaseListLoader, args, targetRef);
 }
 
-export function useDatabaseServerVersion(args) {
-  return useCore(databaseServerVersionLoader, args);
+export function useDatabaseServerVersion<T>(args, targetRef: Ref<T>) {
+  return useCore(databaseServerVersionLoader, args, targetRef);
 }
 
-export function useDatabaseStatus<T>(args, refObj): ComputedRef<T> {
-  return useCore(databaseStatusLoader, args, refObj);
+export function useDatabaseStatus<T>(args, targetRef: Ref<T>) {
+  return useCore(databaseStatusLoader, args, targetRef);
 }
 
-export function useDatabaseInfo<T>(args, refObj): ComputedRef<T> {
-  return useCore(databaseInfoLoader, args, refObj);
+export function useDatabaseInfo<T>(args, targetRef: Ref<T>) {
+  return useCore(databaseInfoLoader, args, targetRef);
 }
 
-export function useConnectionInfo<T>(args, refObj): Ref<T> {
-  return useCore(connectionInfoLoader, args, refObj)
+export function useConnectionInfo<T>(args, targetRef: Ref<T>) {
+  return useCore(connectionInfoLoader, args, targetRef)
+}
+
+export function useInstalledPlugins<T>(args = {},targetRef: Ref<T>) {
+  return useCore(installedPluginsLoader, args, targetRef);
 }
 
 async function getCore(loader, args) {
@@ -101,20 +110,14 @@ async function getCore(loader, args) {
   return await loadCachedValue(reloadTrigger, key, doLoad)
 }
 
-function useCore<T>(loader, args, refObj: Ref = null): Ref<T | null | undefined> {
-  const value = ref<[T | null, any]>([null, []])
+function useCore<T>(loader, args, targetRef: Ref<T | null | undefined>) {
   const openedCount = ref(0)
-  const {url, params, reloadTrigger} = loader(args);
-  const cacheKey = stableStringify({url, ...params})
-  const indicators = [url, cacheKey, stableStringify(params), openedCount]
-  async function handleReload(loadedIndicators) {
+  const {reloadTrigger} = loader(args);
+
+  async function handleReload() {
     const res = await getCore(loader, args);
-    if (url == 'bridge.DatabaseConnections.Structure') {
-      // console.log(res, `>>>>>>>>>>>>>>>>>>>>>>>>>`)
-    }
     if (openedCount.value > 0) {
-      value.value = [res, loadedIndicators]
-      refObj.value = res
+      targetRef.value = res
     }
   }
 
@@ -122,7 +125,7 @@ function useCore<T>(loader, args, refObj: Ref = null): Ref<T | null | undefined>
     for (const item of getAsArray(reloadTrigger)) {
       try {
         EventsOn(item, () => {
-          void handleReload(indicators)
+          void handleReload()
         })
       } catch (e) {
         console.log(e)
@@ -130,31 +133,6 @@ function useCore<T>(loader, args, refObj: Ref = null): Ref<T | null | undefined>
     }
   }
 
-
-  // watch(() => indicators, () => {
-  //
-  // }, {
-  //   immediate: true,
-  // })
-
   openedCount.value += 1
-
-  void handleReload(indicators)
-
-  // onBeforeUnmount(() => {
-  //   value.value = [null, []]
-  //   openedCount.value -= 1
-  //   if (reloadTrigger) {
-  //     for (const item of getAsArray(reloadTrigger)) {
-  //       try {
-  //         EventsOn(item, () => {
-  //           void handleReload(indicators)
-  //         })
-  //       } catch (e) {
-  //         console.log(e)
-  //       }
-  //     }
-  //   }
-  // })
-
+  void handleReload()
 }

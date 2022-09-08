@@ -68,7 +68,7 @@ const handleClick = (e, item) => {
 
 const emit = defineEmits(['close'])
 
-const element = ref<null | HTMLElement>(null)
+const element = ref<Nullable<HTMLElement>>(null)
 
 const dataBase = dataBaseStore()
 

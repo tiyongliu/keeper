@@ -4,7 +4,6 @@ import (
 	"keeper/app/adapter"
 	"keeper/app/internal"
 	"keeper/app/pkg/containers"
-	"keeper/app/pkg/logger"
 	"keeper/app/pkg/standard"
 	"keeper/app/utility"
 )
@@ -39,7 +38,7 @@ func (msg *DatabaseConnection) Connect(ch chan *containers.EchoMessage, newOpene
 		})
 	}
 
-	driver, err := internal.TakeAutoDriver(newOpened.Conid, newOpened.Connection)
+	driver, err := internal.TargetStoragePool(newOpened.Conid, newOpened.Connection)
 	if err != nil {
 		msg.setStatus(ch, func() (*containers.OpenedStatus, error) {
 			return &containers.OpenedStatus{Name: "error", Message: err.Error()}, err
@@ -62,7 +61,6 @@ func (msg *DatabaseConnection) Connect(ch chan *containers.EchoMessage, newOpene
 	}
 
 	if structure != nil {
-		logger.Info("structure line 66 %s", utility.ToJsonStr(structure))
 		msg.handleIncrementalRefresh(ch, true, driver, newOpened.Database)
 	} else {
 	}

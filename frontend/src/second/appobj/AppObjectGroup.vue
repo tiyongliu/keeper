@@ -8,11 +8,11 @@
   </div>
 
   <template v-if="isExpanded">
-    <!--<div class="ml-2">
-      <Link>Check all</Link>
+    <div class="ml-2" v-if="checkedObjectsStore">
+      <Link @click="handleCheckAll(true)">Check all</Link>
       |
-      <Link>Uncheck all</Link>
-    </div>-->
+      <Link @click="handleCheckAll(false)">Uncheck all</Link>
+    </div>
     <AppObjectListItem
       :key="index"
       v-for="(item, index) in items"
@@ -53,6 +53,9 @@
       disableContextMenu: {
         type: Boolean as PropType<boolean>,
         default: false
+      },
+      checkedObjectsStore: { //todo 它是传递一个数据过来，我们只能传一个标识符过来。
+        type: Object as PropType<unknown>,
       }
     },
     components: {
@@ -69,11 +72,16 @@
 
       const countText = computed(() => unref(filtered).length < unref(items)!.length ? `${unref(filtered).length}/${unref(items)!.length}` : `${unref(items)!.length}`)
 
+      const handleCheckAll = (isChecked: boolean) => {
+        //todo console.log(isChecked)
+      }
+
       return {
         ...toRefs(props),
         isExpanded,
         plusExpandIcon,
         countText,
+        handleCheckAll,
       }
     }
   })

@@ -35,7 +35,7 @@ import { dataBaseStore } from "/@/store/modules/dataBase"
   },
   components: { FontIcon },
   setup() {
-    let tabs = ref(null);
+    let tabs = ref<Nullable<HTMLElement>>(null)
     const dataBase = dataBaseStore()
     const openedTabs = computed(() => dataBase.$state.openedTabs);
     console.log(isRef(openedTabs),'openedTabs-----openedTabs')
