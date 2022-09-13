@@ -1,12 +1,14 @@
-import type { LocaleSetting, LocaleType } from '/#/config';
+import type {LocaleSetting, LocaleType} from '/#/config';
 
-import { defineStore } from 'pinia';
-import { store } from '/@/store';
+import {defineStore} from 'pinia';
+import {store} from '/@/store';
 
-import { LOCALE_KEY } from '/@/enums/cacheEnum';
-import { createLocalStorage } from '/@/utils/cache';
-import { localeSetting } from '/@/settings/localeSetting';
-import {setWithStorageVariableCache, getWithStorageVariableCache} from "/@/second/utility/storage";
+import {LOCALE_KEY} from '/@/enums/cacheEnum';
+import {createLocalStorage} from '/@/utils/cache';
+import {localeSetting} from '/@/settings/localeSetting';
+import {getWithStorageVariableCache, setWithStorageVariableCache} from "/@/second/utility/storage";
+import {IPinnedDatabasesItem} from '/@/second/typings/types/standard.d'
+import {TabDefinition} from "/@/store/modules/dataBase";
 
 const ls = createLocalStorage();
 
@@ -15,6 +17,9 @@ const lsLocaleSetting = (ls.get(LOCALE_KEY) || localeSetting) as LocaleSetting;
 interface LocaleState {
   localInfo: LocaleSetting;
   selectedWidget: null | string
+  pinnedDatabases: IPinnedDatabasesItem[]
+  pinnedTables: any[]
+  openedTabs: any[]
 }
 
 export const useLocaleStore = defineStore({
@@ -22,7 +27,10 @@ export const useLocaleStore = defineStore({
   state: (): LocaleState => ({
     localInfo: lsLocaleSetting,
     // selectedWidget: null
-    selectedWidget: getWithStorageVariableCache('database', 'selectedWidget')
+    openedTabs: getWithStorageVariableCache<TabDefinition[]>([], 'openedTabs'),
+    selectedWidget: getWithStorageVariableCache('database', 'selectedWidget'),
+    pinnedDatabases: getWithStorageVariableCache([], 'pinnedDatabases'),
+    pinnedTables: getWithStorageVariableCache([], 'pinnedTables'),
   }),
   getters: {
     getShowPicker(): boolean {
@@ -38,7 +46,7 @@ export const useLocaleStore = defineStore({
      * @param info multilingual info
      */
     setLocaleInfo(info: Partial<LocaleSetting>) {
-      this.localInfo = { ...this.localInfo, ...info };
+      this.localInfo = {...this.localInfo, ...info};
       ls.set(LOCALE_KEY, this.localInfo);
     },
     /**
@@ -53,7 +61,14 @@ export const useLocaleStore = defineStore({
     setSelectedWidget(name: string | null) {
       this.selectedWidget = name
       setWithStorageVariableCache('selectedWidget', name)
-    }
+    },
+    subscribePinnedDatabases(value: IPinnedDatabasesItem[]) {
+      this.pinnedDatabases = value
+      setWithStorageVariableCache('pinnedDatabases', this.pinnedDatabases)
+    },
+    subscribePinnedTables(value: any[]) {
+      this.pinnedTables = value
+    },
   },
 });
 

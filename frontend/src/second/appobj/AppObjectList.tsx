@@ -2,11 +2,10 @@ import {Component, computed, defineComponent, PropType, toRaw, toRefs, unref} fr
 import {compact, groupBy, keys} from 'lodash-es'
 import AppObjectListItem from '/@/second/appobj/AppObjectListItem.vue'
 import AppObjectGroup from '/@/second/appobj/AppObjectGroup.vue'
-import {createChildMatcher, createMatcher} from './ConnectionAppObject'
 import {IIsExpandable} from '/@/second/typings/types/standard.d'
 
 export default defineComponent({
-  name: "DatabaseWidget",
+  name: "AppObjectList",
   props: {
     list: {
       type: Array as PropType<unknown[]>,
@@ -33,7 +32,7 @@ export default defineComponent({
       }>,
     },
     module: {
-      type: [String, Object] as PropType<string | Component>,
+      type: [String, Object] as PropType<string | Component | any>,
     },
     subItemsComponent: {
       type: [String, Object] as PropType<string | Component>,
@@ -60,7 +59,7 @@ export default defineComponent({
 
     const filtered = computed(() => {
       return !unref(groupFunc) ? (unref(list)!).filter(data => {
-        const matcher = createMatcher && createMatcher(data);
+        const matcher = module.createMatcher && module.createMatcher(data);
         if (matcher && !matcher(filter)) return false
         return true
       }) : null
@@ -68,29 +67,28 @@ export default defineComponent({
 
     const childrenMatched = computed(() => {
       return !unref(groupFunc) ? (unref(list)!).filter(data => {
-        const matcher = createChildMatcher && createChildMatcher(data)
+        const matcher = module.createChildMatcher && module.createChildMatcher(data)
         if (matcher && !matcher(filter.value)) return false
         return true
       }) : null
     })
 
-
-    function listGrouped() {
+    const listGrouped = computed(() => {
       return groupFunc.value ? compact(
-        ((unref(list)!) || []).map(data => {
-          const matcher = createMatcher && createMatcher(data);
+        (list.value! || []).map(data => {
+          const matcher = module.createMatcher && module.createMatcher(data);
           const isMatched = matcher && !matcher(filter.value) ? false : true;
           const group = groupFunc.value!(data)
           return {group, data, isMatched};
         })
       ) : null
-    }
+    })
 
-    const groups = computed<any>(() => unref(groupFunc) ? groupBy(listGrouped(), 'group') : null)
+    const groups = computed<any>(() => unref(groupFunc) ? groupBy(listGrouped.value, 'group') : null)
 
     function _AppObjectGroup() {
       return () => keys(unref(groups)).map(group => <AppObjectGroup
-        group={group}
+        group={unref(group)}
         module={unref(module)}
         items={unref(groups)![group]}
         expandIconFunc={unref(expandIconFunc)}

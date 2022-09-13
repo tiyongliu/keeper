@@ -2,7 +2,7 @@
   <div class="cell-data-wrapper">
     <WidgetTitle>Cell data view</WidgetTitle>
     <div class="main">
-      <div class="cell-data-toolbar">
+      <div class="toolbar">
         Format:<span>&nbsp;</span>
         <Select
           style="width: 200px"
@@ -42,6 +42,7 @@ import JsonCellView from '/@/second/celldata/JsonCellView.vue';
 import JsonRowView from '/@/second/celldata/JsonRowView.vue';
 import PictureCellView from '/@/second/celldata/PictureCellView.vue';
 import WidgetTitle from './WidgetTitle.vue'
+import {selectionCouldBeShownOnMap} from '/@/second/elements/MapView'
 
 const formats = [
   {
@@ -112,6 +113,11 @@ function autodetect(selection) {
   if (selection[0]?.engine?.databaseEngineTypes?.includes('document')) {
     return 'jsonRow';
   }
+
+  if (selectionCouldBeShownOnMap(selection)) {
+    return 'map'
+  }
+
   const value = selection.length == 1 ? selection[0].value : null;
   if (isString(value)) {
     if (value.startsWith('[') || value.startsWith('{')) return 'json';
@@ -135,7 +141,7 @@ function autodetect(selection) {
     flex-direction: column;
   }
 
-  .cell-data-toolbar {
+  .toolbar {
     display: flex;
     background: var(--theme-bg-1);
     align-items: center;

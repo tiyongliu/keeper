@@ -2,7 +2,6 @@ import {defineStore} from "pinia"
 import {store} from "/@/store"
 import {mapValues} from 'lodash-es'
 import invalidateCommands from '/@/second/commands/invalidateCommands'
-import {getWithStorageVariableCache, setWithStorageVariableCache} from '/@/second/utility/storage'
 import {IPinnedDatabasesItem} from '/@/second/typings/types/standard.d'
 import {ExtensionsDirectory} from '/@/second/typings/types/extensions.d'
 
@@ -10,14 +9,12 @@ interface IVariableBasic {
   openedConnections: string[]
   currentDatabase: null | IPinnedDatabasesItem,
   extensions: ExtensionsDirectory | null
-  pinnedDatabases: IPinnedDatabasesItem[],
-  pinnedTables: [],
   currentDropDownMenu: null | ICurrentDropDownMenu
   commands: object
   commandsSettings: object
   visibleCommandPalette: null | unknown
   commandsCustomized: object
-  loadingPluginStore: {loaded: boolean, loadingPackageName: string | null}
+  loadingPluginStore: { loaded: boolean, loadingPackageName: string | null }
 }
 
 export interface TabDefinition {
@@ -46,9 +43,6 @@ export const dataBaseStore = defineStore({
     currentDatabase: null,
     openedConnections: [],
     extensions: null,
-    pinnedDatabases: getWithStorageVariableCache([], 'pinnedDatabases'),
-    pinnedTables: getWithStorageVariableCache([], 'pinnedTables'),
-    openedTabs: getWithStorageVariableCache<TabDefinition[]>([], 'openedTabs'),
     currentDropDownMenu: null,
     commands: {},
     commandsSettings: {},
@@ -66,15 +60,6 @@ export const dataBaseStore = defineStore({
     getCurrentDatabase(): IPinnedDatabasesItem | null {
       return this.currentDatabase
     },
-    getPinnedDatabases(): IPinnedDatabasesItem[] {
-      return this.pinnedDatabases
-    },
-    getOpenedTabs(): IPinnedDatabasesItem[] {
-      return this.openedTabs
-    },
-    getPinnedTables(): [] {
-      return this.pinnedTables
-    },
     getPinnedExtensions(): ExtensionsDirectory | null {
       return this.extensions
     }
@@ -88,13 +73,6 @@ export const dataBaseStore = defineStore({
     },
     subscribeExtensions(value: ExtensionsDirectory) {
       this.extensions = value
-    },
-    subscribePinnedDatabases(value: IPinnedDatabasesItem[]) {
-      this.pinnedDatabases = value
-      setWithStorageVariableCache('pinnedDatabases', this.pinnedDatabases)
-    },
-    subscribePinnedTables(value: any) {
-      this.pinnedTables = value
     },
     subscribeCurrentDropDownMenu(value: null | ICurrentDropDownMenu) {
       this.currentDropDownMenu = value
@@ -115,7 +93,7 @@ export const dataBaseStore = defineStore({
       this.commandsSettings = value
       this.commandsCustomized = derived(this.commands, this.commandsSettings)
     },
-    subscribeLoadingPluginStore(value: {loaded: boolean, loadingPackageName: string | null}) {
+    subscribeLoadingPluginStore(value: { loaded: boolean, loadingPackageName: string | null }) {
       this.loadingPluginStore = value
     }
   }

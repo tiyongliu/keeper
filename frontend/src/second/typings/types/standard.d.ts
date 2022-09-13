@@ -27,6 +27,7 @@ export interface IConnections {
   sshPort: string
   user: string
   _id: string
+  singleDatabase?: string
 }
 
 export interface IPinnedDatabasesItem {

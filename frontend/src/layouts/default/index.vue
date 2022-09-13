@@ -127,7 +127,7 @@ export default defineComponent({
 }
 </style>
 
-<style lang="less">
+<style scoped>
 .root {
   color: var(--theme-font-1);
 }

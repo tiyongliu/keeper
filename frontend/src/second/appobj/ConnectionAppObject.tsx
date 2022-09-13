@@ -10,6 +10,7 @@ import {
   unref,
   watch
 } from 'vue'
+import {storeToRefs} from 'pinia'
 import {filterName} from '/@/second/keeper-tools'
 import {Modal} from "ant-design-vue";
 import {ExclamationCircleOutlined} from "@ant-design/icons-vue";
@@ -64,7 +65,7 @@ export default defineComponent({
     const engineStatusIconRef = ref()
     const engineStatusTitleRef = ref()
     const dataBase = dataBaseStore()
-
+    const {extensions} = storeToRefs(dataBase)
     let timerId: ReturnType<typeof setTimeout> | null
 
     const handleConnect = () => {
@@ -84,7 +85,7 @@ export default defineComponent({
       }
     }
 
-    watch(() => unref(dataBase.$state.extensions), () => watchExtensions())
+    watch(() => unref(extensions), () => watchExtensions())
 
     const watchExtensions = () => {
       const match = (unref(data)!.engine || '').match(/^([^@]*)@/)
@@ -166,7 +167,6 @@ export default defineComponent({
     //   })
     // }
 
-
     const handleClick = async () => {
       // handleConnect()
     }
@@ -212,28 +212,17 @@ export default defineComponent({
         onDblclick={handleConnect}
       />
     }
+  },
+  extractKey: data => data._id,
+  createMatcher: props => filter => {
+    const {_id, displayName, server} = props;
+    const databases = getLocalStorage(`database_list_${_id}`) || [];
+    return filterName(unref(filter), displayName, server, ...databases.map(x => x.name))
+  },
+  createChildMatcher: props => filter => {
+    if (!filter) return false;
+    const {_id} = props;
+    const databases = getLocalStorage(`database_list_${_id}`) || [];
+    return filterName(unref(filter), ...databases.map(x => x.name));
   }
 })
-
-export const extractKey = data => data._id;
-export const createMatcher = props => filter => {
-  const {_id, displayName, server} = props;
-  const databases = getLocalStorage(`database_list_${_id}`) || [];
-  return filterName(unref(filter), displayName, server, ...databases.map(x => x.name));
-};
-export const createChildMatcher = props => filter => {
-
-  if (!filter) {
-    return false;
-  }
-  const {_id} = props;
-  const databases = getLocalStorage(`database_list_${_id}`) || [];
-  return filterName(unref(filter), ...databases.map(x => x.name));
-};
-
-function openConnection(connection) {
-  if (connection.singleDatabase) {
-    //currentDatabase.set({ connection, name: connection.defaultDatabase })
-
-  }
-}

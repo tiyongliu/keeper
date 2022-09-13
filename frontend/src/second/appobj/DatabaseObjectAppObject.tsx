@@ -2,30 +2,29 @@ import {computed, defineComponent, PropType, unref, toRefs} from 'vue'
 import {isNaN} from 'lodash-es'
 import {filterName} from '/@/second/keeper-tools'
 import AppObjectCore from '/@/second/appobj/AppObjectCore.vue'
-import { dataBaseStore } from '/@/store/modules/dataBase'
-
-export const extractKey = ({ schemaName, pureName }) => (schemaName ? `${schemaName}.${pureName}` : pureName);
-export const createMatcher = ({ schemaName, pureName }) => filter => filterName(unref(filter), pureName, schemaName);
-
+import {useLocaleStore} from '/@/store/modules/locale'
+import {storeToRefs} from "pinia";
+export const extractKey = ({ schemaName, pureName }) => (schemaName ? `${schemaName}.${pureName}` : pureName)
+export const createMatcher = ({ schemaName, pureName, columns }) => filter =>
+    filterName(unref(filter), pureName, schemaName, ...(columns?.map(({ columnName }) => ({ childName: columnName })) || []))
+const createTitle = ({ pureName }) => pureName
 export const databaseObjectIcons = {
-  tables: 'img table',
-  collections: 'img collection',
-  views: 'img view',
-  matviews: 'img view',
-  procedures: 'img procedure',
-  functions: 'img function',
-  queries: 'img query-data',
-}
-
-const defaultTabs = {
+    tables: 'img table',
+    collections: 'img collection',
+    views: 'img view',
+    matviews: 'img view',
+    procedures: 'img procedure',
+    functions: 'img function',
+    queries: 'img query-data',
+  }
+export const defaultTabs =  {
   tables: 'TableDataTab',
   collections: 'CollectionDataTab',
   views: 'ViewDataTab',
   matviews: 'ViewDataTab',
   queries: 'QueryDataTab',
-};
-
-const menus = {
+}
+export const menus =  {
   tables: [
     {
       label: 'Open data',
@@ -48,16 +47,33 @@ const menus = {
       icon: 'img table-structure',
     },
     {
+      label: 'Open perspective',
+      tab: 'PerspectiveTab',
+      forceNewTab: true,
+      icon: 'img perspective',
+    },
+    {
+      divider: true,
+    },
+    {
       label: 'Drop table',
       isDrop: true,
+      requiresWriteAccess: true,
     },
     {
       label: 'Rename table',
       isRename: true,
+      requiresWriteAccess: true,
+    },
+    {
+      label: 'Create table backup',
+      isDuplicateTable: true,
+      requiresWriteAccess: true,
     },
     {
       label: 'Query designer',
       isQueryDesigner: true,
+      requiresWriteAccess: true,
     },
     {
       label: 'Show diagram',
@@ -70,6 +86,11 @@ const menus = {
       label: 'Export',
       functionName: 'tableReader',
       isExport: true,
+    },
+    {
+      label: 'Import',
+      isImport: true,
+      requiresWriteAccess: true,
     },
     {
       label: 'Open as data sheet',
@@ -122,6 +143,12 @@ const menus = {
       label: 'Open structure',
       tab: 'TableStructureTab',
       icon: 'img view-structure',
+    },
+    {
+      label: 'Open perspective',
+      tab: 'PerspectiveTab',
+      forceNewTab: true,
+      icon: 'img perspective',
     },
     {
       label: 'Drop view',
@@ -333,7 +360,7 @@ const menus = {
       scriptTemplate: 'findCollection',
     },
   ],
-};
+}
 
 function testEqual(a, b) {
   return (
@@ -367,11 +394,11 @@ export default defineComponent({
     AppObjectCore
   },
   setup(props, {attrs}) {
-    const dataBase = dataBaseStore()
-
+    const localeStore = useLocaleStore()
+    const {pinnedTables} = storeToRefs(localeStore)
     const {data, passProps} = toRefs(props)
 
-    const isPinned = computed(() => !!dataBase.getPinnedTables.find(x => testEqual(data.value, x)))
+    const isPinned = computed(() => !!pinnedTables.value.find(x => testEqual(data.value, x)))
 
     function handleClick() {
       handleDatabaseObjectClick()
@@ -383,17 +410,23 @@ export default defineComponent({
       title={unref(data)!.schemaName ? `${unref(data)!.schemaName}.${unref(data)!.pureName}` : unref(data)!.pureName }
       icon={databaseObjectIcons[data.value!.objectTypeField]}
       showPinnedInsteadOfUnpin={passProps.value?.showPinnedInsteadOfUnpin}
-      onPin={unref(isPinned) ? null : () => dataBase.subscribePinnedTables([
-        ...unref(dataBase.$state.pinnedTables),
+      onPin={unref(isPinned) ? null : () => localeStore.subscribePinnedTables([
+        ...unref(pinnedTables),
         unref(data)!
       ])}
-      onUnpin={unref(isPinned) ? () => dataBase.subscribePinnedTables(
-        unref(dataBase.$state.pinnedTables).filter(x => !testEqual(x, data.value))
+      onUnpin={unref(isPinned) ? () => localeStore.subscribePinnedTables(
+        unref(pinnedTables).filter(x => !testEqual(x, data.value))
       ) : null}
       extInfo={unref(data)!.tableRowCount != null ? `${formatRowCount(unref(data)!.tableRowCount)} rows` : null}
       onClick={() => handleClick()}
     />
-  }
+  },
+  extractKey,
+  createMatcher,
+  createTitle,
+  databaseObjectIcons,
+  defaultTabs,
+  menus
 })
 
 

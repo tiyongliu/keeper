@@ -24,10 +24,10 @@
 </template>
 
 <script lang="ts">
-import {computed, defineComponent, ref, isRef, toRefs} from 'vue';
+import {defineComponent, ref, isRef} from 'vue'
+import {storeToRefs} from 'pinia'
 import FontIcon from '/@/second/icons/FontIcon.vue'
-import { dataBaseStore } from "/@/store/modules/dataBase"
-
+import {useLocaleStore} from '/@/store/modules/locale'
  export default defineComponent({
   name: "TabsPanel",
   props: {
@@ -36,8 +36,8 @@ import { dataBaseStore } from "/@/store/modules/dataBase"
   components: { FontIcon },
   setup() {
     let tabs = ref<Nullable<HTMLElement>>(null)
-    const dataBase = dataBaseStore()
-    const openedTabs = computed(() => dataBase.$state.openedTabs);
+    const localeStore = useLocaleStore()
+    const {openedTabs} = storeToRefs(localeStore)
     console.log(isRef(openedTabs),'openedTabs-----openedTabs')
     // const tabsWithDb = computed(() => {
     //   return openedTabs.filter(x=> !x.colseTime).map(tab =>({

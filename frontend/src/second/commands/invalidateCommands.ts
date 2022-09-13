@@ -9,7 +9,4 @@ export default async function invalidateCommands() {
   await nextTick()
 
   isInvalidated = false
-
-  // dataBase.$state.commands
-
 }
