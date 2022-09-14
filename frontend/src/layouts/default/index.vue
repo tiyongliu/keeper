@@ -12,7 +12,7 @@
       <WidgetIconPanel/>
     </div>
     <div class="statusbar">
-      <StatusBar />
+      <StatusBar/>
     </div>
     <div v-if="selectedWidget" class="leftpanel">
       <!--      <AppDarkModeToggle class="mx-auto" />-->
@@ -26,7 +26,7 @@
     </div>
     <div v-if="selectedWidget" class="horizontal-split-handle splitter"
          v-splitterDrag="'clientX'"
-         :resizeSplitter="(e) => cssVariable.setLeftPanelWidth(e.detail)">
+         :resizeSplitter="(e) => localeStore.subscribeLeftPanelWidth(e.detail)">
     </div>
     <CurrentDropDownMenu/>
     <div class="snackbar-container">snackbar-container</div>
@@ -34,7 +34,7 @@
 </template>
 
 <script lang="ts">
-import {computed, defineComponent, onMounted, unref} from 'vue';
+import {computed, defineComponent, onMounted, unref, watch} from 'vue';
 import {Layout} from 'ant-design-vue';
 import LayoutHeader from './header/index.vue';
 import {useHeaderSetting} from '/@/hooks/setting/useHeaderSetting';
@@ -44,7 +44,6 @@ import {useLockPage} from '/@/hooks/web/useLockPage';
 import {useAppInject} from '/@/hooks/web/useAppInject';
 
 //todo
-import {cssVariableStore} from "/@/store/modules/cssVariable"
 import {useLocaleStore} from '/@/store/modules/locale'
 import WidgetContainer from '/@/second/widgets/WidgetContainer.vue'
 import TabsPanel from '/@/second/widgets/TabsPanel.vue'
@@ -52,7 +51,7 @@ import StatusBar from '/@/second/widgets/StatusBar.vue'
 import {WarningOutlined} from '@ant-design/icons-vue'
 import WidgetIconPanel from '/@/second/widgets/WidgetIconPanel.vue'
 import CurrentDropDownMenu from '/@/second/modals/CurrentDropDownMenu'
-import {storeToRefs} from "pinia";
+import {storeToRefs} from "pinia"
 
 export default defineComponent({
   name: 'DefaultLayout',
@@ -84,13 +83,24 @@ export default defineComponent({
     });
 
     const localeStore = useLocaleStore()
-    const {selectedWidget} = storeToRefs(localeStore)
-    const cssVariable = cssVariableStore();
+    const {selectedWidget, leftPanelWidth, visibleTitleBar} = storeToRefs(localeStore)
     onMounted(() => {
-      cssVariable.subscribeCssVariable(cssVariable.$state.selectedWidget, x => (x ? 1 : 0), '--dim-visible-left-panel')
-      cssVariable.subscribeCssVariable(cssVariable.$state.leftPanelWidth, x => `${x}px`, '--dim-left-panel-width')
-      cssVariable.subscribeCssVariable(cssVariable.$state.visibleTitleBar, x => (x ? 1 : 0), '--dim-visible-titlebar')
+      // localeStore.subscribeCssVariable(localeStore.$state.selectedWidget, x => (x ? 1 : 0), '--dim-visible-left-panel')
+      // localeStore.subscribeCssVariable(localeStore.$state.leftPanelWidth, x => `${x}px`, '--dim-left-panel-width')
+      // localeStore.subscribeCssVariable(localeStore.$state.visibleTitleBar, x => (x ? 1 : 0), '--dim-visible-titlebar')
     })
+
+    watch(() => selectedWidget.value,  () => {
+      localeStore.subscribeCssVariable(selectedWidget.value, x => (x ? 1 : 0), '--dim-visible-left-panel')
+    }, {immediate: true})
+
+    watch(() => leftPanelWidth.value,() => {
+      localeStore.subscribeCssVariable(leftPanelWidth.value, x => `${x}px`, '--dim-left-panel-width')
+    }, {immediate: true})
+
+    watch(() => visibleTitleBar.value,() => {
+      localeStore.subscribeCssVariable(visibleTitleBar.value, x => (x ? 1 : 0), '--dim-visible-titlebar')
+    }, {immediate: true})
 
     return {
       getShowFullHeaderRef,
@@ -101,7 +111,7 @@ export default defineComponent({
       layoutClass,
       lockEvents,
       selectedWidget,
-      cssVariable,
+      localeStore
     };
   },
 });

@@ -1,17 +1,17 @@
 <template>
-  <div v-if="isSmall" class="container-small">
+  <div v-if="isSmall" class="error-container-small">
     <FontIcon :icon="icon" />
     {{message || 'Unknown error'}}
   </div>
   <div v-else-if="alignTop">
-    <div class="container">
+    <div class="error-container">
       <div class="icon">
         <FontIcon :icon="icon" />
       </div>
       {{message || 'Unknown error'}}
     </div>
   </div>
-  <div v-else class="container">
+  <div v-else class="error-container">
     <div class="icon">
       <FontIcon :icon="icon" />
     </div>
@@ -54,9 +54,9 @@
 </script>
 
 <style scoped>
-  .container {
+  .error-container {
     display: flex;
-    padding-right: 10px;
+    margin-right: 10px;
     align-items: center;
   }
   .icon {
@@ -64,7 +64,7 @@
     margin: 10px;
   }
 
-  .container-small {
+  .error-container-small {
     display: flex;
     margin-right: 10px;
   }

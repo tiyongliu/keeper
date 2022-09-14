@@ -1,9 +1,8 @@
 {
   "name": "keeper",
   "outputfilename": "keeper",
+  "assetdir": "frontend/dist",
   "frontend:dev:watcher": "npm run dev",
-  "frontend:dev:serverUrl": "http://localhost:3100",
-  "frontend:build": "npm run build",
   "author": {
     "name": "liutiyong",
     "email": "422720735@qq.com"

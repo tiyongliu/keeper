@@ -15,14 +15,12 @@ var assets embed.FS
 
 func main() {
 	//go app.RunApplication()
-
-	// Create an instance of the app structure
 	app := bridge.NewApp()
 	bridge.Application = app
 
 	// Create application with options
 	err := wails.Run(&options.App{
-		Title:  "wails",
+		Title:  "keeper",
 		Width:  1024,
 		Height: 768,
 		// MinWidth:          720,
@@ -59,22 +57,3 @@ func main() {
 		log.Fatal(err)
 	}
 }
-
-/*
-#### A Lodash-style Go library based on Go 1.18+ Generics (map, filter, contains, find...)
-[go的lodash](https://github.com/samber/lo)
-
-[gui-插件](https://github.com/go-graphics/go-gui-projects.git)
-
-[go windows gui api](https://github.com/rodrigocfd/windigo)
-
-[着色器](https://github.com/gen2brain/iup-go/tree/main/examples/getcolor)
-
-[小而巧的跨平台原生GUI库](https://z-kit.cc/)
-
-[Golang GUI开发之Webview](https://esc.show/article/Golang-GUI-kai-fa-zhi-Webview)
-
-[QT GIF 编辑器](https://gitee.com/wingsummer/wing-gif-editor)
-
-wails update -pre
-*/

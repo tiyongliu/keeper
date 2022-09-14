@@ -1,11 +1,11 @@
 <template>
   <DatabaseWidget :hidden="selectedWidget != 'database'"/>
-  <FilesWidget v-if="selectedWidget =='file'"/>
-  <HistoryWidget v-if="selectedWidget =='history'"/>
-  <ArchiveWidget  v-if="selectedWidget =='archive'"/>
-  <PluginsWidget v-if="selectedWidget =='plugins'"/>
-  <CellDataWidget v-if="selectedWidget =='cell-data'"/>
-  <AppWidget v-if="selectedWidget =='app'"/>
+  <FilesWidget v-if="selectedWidget == 'file'"/>
+  <HistoryWidget v-if="selectedWidget == 'history'"/>
+  <ArchiveWidget  v-if="selectedWidget == 'archive'"/>
+  <PluginsWidget v-if="selectedWidget == 'plugins'"/>
+  <CellDataWidget v-if="selectedWidget == 'cell-data'"/>
+  <AppWidget v-if="selectedWidget == 'app'"/>
 </template>
 
 <script lang="ts">

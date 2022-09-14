@@ -130,13 +130,13 @@ func (dc *DatabaseConnections) Refresh(req *DatabaseKeepOpenRequest) *serializer
 		dc.close(req.Conid, req.Database, true)
 	}
 	dc.ensureOpened(req.Conid, req.Database)
-	return serializer.SuccessData("", map[string]string{"status": "ok"})
+	return serializer.SuccessData(serializer.SUCCESS, map[string]string{"status": "ok"})
 }
 
 func (dc *DatabaseConnections) SyncModel(req *DatabaseRequest) *serializer.Response {
 	dc.ensureOpened(req.Conid, req.Database)
 
-	return serializer.SuccessData("", map[string]string{"status": "ok"})
+	return serializer.SuccessData(serializer.SUCCESS, map[string]string{"status": "ok"})
 }
 
 type databaseConnections struct {
@@ -216,16 +216,16 @@ func (dc *DatabaseConnections) ServerVersion(req *DatabaseRequest) *serializer.R
 
 	opened := dc.ensureOpened(req.Conid, req.Database)
 	if opened != nil && opened.ServerVersion != nil {
-		return serializer.SuccessData("", opened.ServerVersion)
+		return serializer.SuccessData(serializer.SUCCESS, opened.ServerVersion)
 	}
-	return serializer.SuccessData("", nil)
+	return serializer.SuccessData(serializer.SUCCESS, nil)
 }
 
 func (dc *DatabaseConnections) Status(req *DatabaseRequest) *serializer.Response {
 	existing := findByDatabaseConnection(dc.Opened, req.Conid, req.Database)
 
 	if existing != nil {
-		return serializer.SuccessData("", map[string]interface{}{
+		return serializer.SuccessData(serializer.SUCCESS, map[string]interface{}{
 			"name":         existing.Status.Name,
 			"message":      existing.Status.Message,
 			"counter":      existing.Status.Counter,
@@ -235,11 +235,11 @@ func (dc *DatabaseConnections) Status(req *DatabaseRequest) *serializer.Response
 
 	lastClosed := dc.Closed[fmt.Sprintf("%s/%s", req.Conid, req.Database)]
 	if lastClosed != nil {
-		return serializer.SuccessData("", map[string]interface{}{
+		return serializer.SuccessData(serializer.SUCCESS, map[string]interface{}{
 			"analysedTime": lastClosed.AnalysedTime,
 		})
 	}
-	return serializer.SuccessData("", map[string]string{
+	return serializer.SuccessData(serializer.SUCCESS, map[string]string{
 		"name":    "error",
 		"message": "Not connected",
 	})
@@ -291,7 +291,7 @@ func (dc *DatabaseConnections) closeAll(conid string, kill bool) {
 
 func (dc *DatabaseConnections) Disconnect(req *DatabaseRequest) *serializer.Response {
 	dc.close(req.Conid, req.Database, true)
-	return serializer.SuccessData("", &containers.OpenedStatus{Name: "ok"})
+	return serializer.SuccessData(serializer.SUCCESS, &containers.OpenedStatus{Name: "ok"})
 }
 
 func findByDatabaseConnection(s []*containers.OpenedDatabaseConnection, conid, database string) *containers.OpenedDatabaseConnection {

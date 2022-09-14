@@ -7,7 +7,7 @@
           <FontIcon icon="icon database" padRight v-else/>
           {{ databaseName }}
         </div>
-        <div v-if="dbid" class="item clickable" title="Database color. Overrides connection color">
+        <div v-if="dbid" class="item clickable 2" title="Database color. Overrides connection color">
           <div class="colorbox" :style="{databaseButtonBackground}">
             <FontIcon icon="icon palette"/>
           </div>
@@ -18,7 +18,7 @@
           <FontIcon icon="icon server" padRight/>
           {{ connectionLabel }}
         </div>
-        <div class="item clickable" title="Connection color. Can be overriden by database color">
+        <div class="item clickable 1" title="Connection color. Can be overriden by database color">
           <div :style="connectionButtonBackground" class="colorbox">
             <FontIcon icon="icon palette"/>
           </div>
@@ -28,7 +28,7 @@
         <FontIcon icon="icon account" padRight/>
         {{ connection.user }}
       </div>
-      <div class="item clickable">
+      <div class="item clickable" v-if="connection && status">
         <template v-if="status && status.name == 'pending'">
           <FontIcon icon="icon loading" padRight/>
           Loading
@@ -61,11 +61,11 @@
         </div>
       </div>
       <div class="item flex clickable" v-if="status && status?.analysedTime"
-           :title="`Last ${databaseName} model refresh: ${moment(status?.analysedTime).format('HH:mm:ss')}\nClick for refresh DB model`"
+           :title="`Last ${databaseName} model refresh: ${analysedTimeFormat}\nClick for refresh DB model`"
            @click="handleSyncModel">
         <FontIcon icon="icon history" padRight/>
         <div class="version ml-1">
-          {{ moment(status?.analysedTime).fromNow() + (timerValue ? '' : '') }}
+          {{ analysedTimeFromNow + (timerValue ? '' : '') }}
         </div>
       </div>
     </div>
@@ -78,22 +78,21 @@
   </div>
 </template>
 <script lang="ts">
-import moment from 'moment';
 import {storeToRefs} from 'pinia'
 import {computed, defineComponent, onBeforeUnmount, onMounted, ref, unref, watch} from 'vue';
 import FontIcon from '/@/second/icons/FontIcon.vue'
-import {dataBaseStore} from "/@/store/modules/dataBase"
-import getConnectionLabel from "/@/second/utility/getConnectionLabel";
-import {useDatabaseServerVersion, useDatabaseStatus} from "/@/api/sql"
-
+import {useBootstrapStore} from "/@/store/modules/bootstrap"
+import getConnectionLabel from "/@/second/utility/getConnectionLabel"
+import {useDatabaseServerVersion, useDatabaseStatus} from "/@/api/bridge"
+import { formatToDateTime, fromNow } from '/@/utils/dateUtil';
 export default defineComponent({
   name: 'StatusBar',
   components: {
     FontIcon
   },
   setup() {
-    const dataBase = dataBaseStore()
-    const {currentDatabase} = storeToRefs(dataBase)
+    const bootstrap = useBootstrapStore()
+    const {currentDatabase} = storeToRefs(bootstrap)
 
     const databaseName = computed(() => currentDatabase.value && currentDatabase.value.name)
     const connection = computed(() => currentDatabase.value && currentDatabase.value.connection)
@@ -149,8 +148,9 @@ export default defineComponent({
       serverVersion,
       handleSyncModel,
       contextItems,
-      moment,
-      timerValue
+      timerValue,
+      analysedTimeFromNow: fromNow(status.value?.analysedTime),
+      analysedTimeFormat: formatToDateTime(status.value?.analysedTime, 'HH:mm:ss')
     }
   }
 
@@ -168,12 +168,10 @@ export default defineComponent({
   cursor: default;
   flex: 1;
 }
-
 .container {
   display: flex;
   align-items: stretch;
 }
-
 .item {
   padding: 0px 10px;
   display: flex;
@@ -190,7 +188,6 @@ export default defineComponent({
 .clickable {
   cursor: pointer;
 }
-
 .clickable:hover {
   background-color: var(--theme-bg-statusbar-inv-hover);
 }

@@ -31,6 +31,7 @@ pnpm-debug.log*
 build/bin
 
 wails.exe
-wailsjs
+frontend/src/wailsjs/go/
+frontend/dist/**
 frontend/*.yaml
 

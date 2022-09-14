@@ -32,7 +32,7 @@ import {
 import { prepareMenuItems } from '/@/second/utility/contextMenu'
 import {formatKeyText} from '/@/second/utility/common'
 import FontIcon from '/@/second/icons/FontIcon.vue'
-import { dataBaseStore } from "/@/store/modules/dataBase"
+import { useBootstrapStore } from "/@/store/modules/bootstrap"
 import {fixPopupPlacement} from './DropDownMenu_'
 
 const props = defineProps({
@@ -70,7 +70,7 @@ const emit = defineEmits(['close'])
 
 const element = ref<Nullable<HTMLElement>>(null)
 
-const dataBase = dataBaseStore()
+const bootstrap = useBootstrapStore()
 
 onMounted(() => {
   fixPopupPlacement(element.value!)

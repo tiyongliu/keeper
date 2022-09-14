@@ -1,7 +1,6 @@
 package bridge
 
 import (
-	"context"
 	"fmt"
 	"github.com/mitchellh/mapstructure"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
@@ -14,17 +13,11 @@ import (
 	"keeper/app/sideQuests"
 	"keeper/app/utility"
 	"path"
-	"sync"
 )
-
-var ConnectionsBridge *Connections
-
-var bridgeOnce sync.Once
 
 var JsonLinesDatabase *utility.JsonLinesDatabase
 
 type Connections struct {
-	Ctx context.Context
 }
 
 func init() {
@@ -33,11 +26,7 @@ func init() {
 }
 
 func NewConnections() *Connections {
-	bridgeOnce.Do(func() {
-		ConnectionsBridge = &Connections{}
-	})
-
-	return ConnectionsBridge
+	return &Connections{}
 }
 
 func getCore(conid string, mask bool) map[string]interface{} {
@@ -171,12 +160,12 @@ func (conn *Connections) Save(connection map[string]string) *serializer.Response
 		return serializer.Fail("")
 	}
 	utility.EmitChanged(Application.ctx, "connection-list-changed")
-	return serializer.SuccessData("", res)
+	return serializer.SuccessData(serializer.SUCCESS, res)
 }
 
 func (conn *Connections) List() *serializer.Response {
 	find := JsonLinesDatabase.Find()
-	return serializer.SuccessData("", find)
+	return serializer.SuccessData(serializer.SUCCESS, find)
 }
 
 type GetConnectionsRequest struct {
@@ -184,7 +173,7 @@ type GetConnectionsRequest struct {
 }
 
 func (conn *Connections) Get(req *GetConnectionsRequest) *serializer.Response {
-	return serializer.SuccessData("", getCore(req.Conid, true))
+	return serializer.SuccessData(serializer.SUCCESS, getCore(req.Conid, true))
 }
 
 func (conn *Connections) Delete(connection map[string]string) *serializer.Response {
@@ -210,8 +199,8 @@ func (conn *Connections) Delete(connection map[string]string) *serializer.Respon
 		sideQuests.ServerLastStatus = ""
 		sideQuests.ServerLastDatabases = ""
 		utility.EmitChanged(Application.ctx, "connection-list-changed")
-		return serializer.SuccessData("", res)
+		return serializer.SuccessData(serializer.SUCCESS, res)
 	}
 
-	return serializer.Fail("参数错误")
+	return serializer.Fail(serializer.ParamsErr)
 }

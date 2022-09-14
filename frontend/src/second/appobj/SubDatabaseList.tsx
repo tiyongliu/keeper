@@ -1,11 +1,10 @@
 import {defineComponent, PropType, toRefs, unref, onMounted, ref} from 'vue'
 import {sortBy} from 'lodash-es'
 import {filterName} from '/@/second/keeper-tools'
-import './SubDatabaseList.less'
 import AppObjectList from './AppObjectList'
 import databaseAppObject from './DatabaseAppObject'
 import {ConnectionsWithStatus, TablesNameSort} from '/@/second/typings/mysql'
-import {useDatabaseList} from "/@/api/sql";
+import {useDatabaseList} from "/@/api/bridge";
 
 export default defineComponent({
   name: "SubDatabaseList",

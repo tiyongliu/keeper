@@ -32,9 +32,9 @@
 </template>
 
 <script lang="ts">
-import {computed, defineComponent, PropType, ref, unref, watch} from 'vue'
+import {computed, defineComponent, PropType, ref, toRef, unref, watch} from 'vue'
 import {storeToRefs} from 'pinia'
-import {dataBaseStore} from "/@/store/modules/dataBase"
+import {useBootstrapStore} from "/@/store/modules/bootstrap"
 import {useLocaleStore} from '/@/store/modules/locale'
 import ErrorInfo from '/@/second/elements/ErrorInfo.vue'
 import WidgetColumnBar from './WidgetColumnBar.vue'
@@ -44,7 +44,7 @@ import ConnectionList from './ConnectionList.vue'
 import SqlObjectList from './SqlObjectList.vue'
 import PinnedObjectsList from './PinnedObjectsList'
 import {findEngineDriver} from '/@/second/keeper-tools'
-import {useConnectionInfo} from "/@/api/sql";
+import {useConnectionInfo} from "/@/api/bridge";
 
 export default defineComponent({
   name: "DatabaseWidget",
@@ -63,9 +63,9 @@ export default defineComponent({
     PinnedObjectsList,
     ErrorInfo,
   },
-  setup() {
-    const dataBase = dataBaseStore()
-    const {currentDatabase, extensions} = storeToRefs(dataBase)
+  setup(props) {
+    const bootstrap = useBootstrapStore()
+    const {currentDatabase, extensions} = storeToRefs(bootstrap)
     const localeStore = useLocaleStore()
     const {pinnedDatabases, pinnedTables} = storeToRefs(localeStore)
     const database = computed(() => unref(currentDatabase)?.name)
@@ -82,6 +82,7 @@ export default defineComponent({
     const driver = computed(() => findEngineDriver(connection.value, extensions.value!))
 
     return {
+      hidden: toRef(props, 'hidden'),
       pinnedDatabases,
       pinnedTables,
       currentDatabase,

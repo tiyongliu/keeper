@@ -15,7 +15,7 @@ func NewPlugins() *Plugins {
 }
 
 func (p *Plugins) Installed() *serializer.Response {
-	return serializer.SuccessData("", []map[string]string{
+	return serializer.SuccessData(serializer.SUCCESS, []map[string]string{
 		{"name": standard.MONGOALIAS},
 		{"name": standard.MYSQLALIAS},
 	})
@@ -28,10 +28,10 @@ type ScriptRequest struct {
 func (p *Plugins) Script(req *ScriptRequest) *serializer.Response {
 	switch req.PackageName {
 	case standard.MONGOALIAS:
-		return serializer.SuccessData("", map[string]interface{}{"drivers": MongoDBFrontend.Driver()})
+		return serializer.SuccessData(serializer.SUCCESS, map[string]interface{}{"drivers": MongoDBFrontend.Driver()})
 	case standard.MYSQLALIAS:
-		return serializer.SuccessData("", map[string]interface{}{"drivers": MysqlFrontend.Driver()})
+		return serializer.SuccessData(serializer.SUCCESS, map[string]interface{}{"drivers": MysqlFrontend.Driver()})
 	default:
-		return serializer.SuccessData("", nil)
+		return serializer.SuccessData(serializer.SUCCESS, nil)
 	}
 }
