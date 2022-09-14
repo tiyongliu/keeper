@@ -134,9 +134,6 @@
         }
       })
 
-      //VUE3中watch和watchEffect的用法
-      //svelte $ https://blog.csdn.net/qq_33325899/article/details/103554590
-
       return {
         ...toRefs(props),
         show,

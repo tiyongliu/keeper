@@ -127,7 +127,7 @@ func (sc *ServerConnections) ServerStatus() interface{} {
 	for key, val := range sc.Closed {
 		values[key] = val
 	}
-	return serializer.SuccessData("", values)
+	return serializer.SuccessData(serializer.SUCCESS, values)
 }
 
 func (sc *ServerConnections) Ping(connections []string) *serializer.Response {
@@ -149,7 +149,7 @@ func (sc *ServerConnections) Ping(connections []string) *serializer.Response {
 		sc.ServerConnectionChannel.Ping()
 	}
 
-	return serializer.SuccessData("", map[string]string{"status": "ok"})
+	return serializer.SuccessData(serializer.SUCCESS, map[string]string{"status": "ok"})
 }
 
 func (sc *ServerConnections) Close(conid string, kill bool) {
@@ -181,7 +181,7 @@ func (sc *ServerConnections) Refresh(req *ServerRefreshRequest) *serializer.Resp
 		sc.Close(req.Conid, true)
 	}
 	sc.ensureOpened(req.Conid)
-	return serializer.SuccessData("", map[string]string{
+	return serializer.SuccessData(serializer.SUCCESS, map[string]string{
 		"status": "ok",
 	})
 }
