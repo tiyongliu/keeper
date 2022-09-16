@@ -88,8 +88,8 @@ github.com/valyala/fasttemplate v1.2.1 h1:TVEnxayobAdVkhQfrfes2IzOB6o+z4roRkPF52
 github.com/valyala/fasttemplate v1.2.1/go.mod h1:KHLXt3tVN2HBp8eijSv/kGJopbvo7S+qRAEEKiv+SiQ=
 github.com/wailsapp/mimetype v1.4.1 h1:pQN9ycO7uo4vsUUuPeHEYoUkLVkaRntMnHJxVwYhwHs=
 github.com/wailsapp/mimetype v1.4.1/go.mod h1:9aV5k31bBOv5z6u+QP8TltzvNGJPmNJD4XlAL3U+j3o=
-github.com/wailsapp/wails/v2 v2.0.0-beta.44.2 h1:fnOjRIan7rZLq6UGeBItBa4dBuUXcyTObh5VNZL3StM=
-github.com/wailsapp/wails/v2 v2.0.0-beta.44.2/go.mod h1:GplgLNVum9fEKu7Y4nq289pxHs7Htbp/UG7uhPr5zD0=
+github.com/wailsapp/wails/v2 v2.0.0-rc.1.1 h1:oanYrSVD/0ONXOEI4BHUctSYf3Di/bbE8U9oJtwXmKM=
+github.com/wailsapp/wails/v2 v2.0.0-rc.1.1/go.mod h1:z3os4dBFCOmPhFHjjEKY4KygTVFKAGECkS9/mKm1wEU=
 github.com/xdg-go/pbkdf2 v1.0.0 h1:Su7DPu48wXMwC3bs7MCNG+z4FhcyEuz5dlvchbq0B0c=
 github.com/xdg-go/pbkdf2 v1.0.0/go.mod h1:jrpuAogTd400dnrH08LKmI/xc1MbPOebTwRqcT5RDeI=
 github.com/xdg-go/scram v1.1.1 h1:VOMT+81stJgXW3CpHyqHN3AXDYIMsx56mEFrB37Mb/E=

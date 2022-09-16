@@ -14,12 +14,7 @@ import (
 	"keeper/app/sideQuests"
 	"keeper/app/utility"
 	"path"
-	"sync"
 )
-
-var ConnectionsBridge *Connections
-
-var bridgeOnce sync.Once
 
 var JsonLinesDatabase *utility.JsonLinesDatabase
 
@@ -33,11 +28,7 @@ func init() {
 }
 
 func NewConnections() *Connections {
-	bridgeOnce.Do(func() {
-		ConnectionsBridge = &Connections{}
-	})
-
-	return ConnectionsBridge
+	return &Connections{}
 }
 
 func getCore(conid string, mask bool) map[string]interface{} {
