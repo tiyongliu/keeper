@@ -7,7 +7,7 @@
           <FontIcon icon="icon database" padRight v-else/>
           {{ databaseName }}
         </div>
-        <div v-if="dbid" class="item clickable" title="Database color. Overrides connection color">
+        <div v-if="dbid" class="item clickable 2" title="Database color. Overrides connection color">
           <div class="colorbox" :style="{databaseButtonBackground}">
             <FontIcon icon="icon palette"/>
           </div>
@@ -18,7 +18,7 @@
           <FontIcon icon="icon server" padRight/>
           {{ connectionLabel }}
         </div>
-        <div class="item clickable" title="Connection color. Can be overriden by database color">
+        <div class="item clickable 1" title="Connection color. Can be overriden by database color">
           <div :style="connectionButtonBackground" class="colorbox">
             <FontIcon icon="icon palette"/>
           </div>
@@ -28,7 +28,7 @@
         <FontIcon icon="icon account" padRight/>
         {{ connection.user }}
       </div>
-      <div class="item clickable">
+      <div class="item clickable" v-if="connection && status">
         <template v-if="status && status.name == 'pending'">
           <FontIcon icon="icon loading" padRight/>
           Loading
@@ -168,12 +168,10 @@ export default defineComponent({
   cursor: default;
   flex: 1;
 }
-
 .container {
   display: flex;
   align-items: stretch;
 }
-
 .item {
   padding: 0px 10px;
   display: flex;
@@ -190,7 +188,6 @@ export default defineComponent({
 .clickable {
   cursor: pointer;
 }
-
 .clickable:hover {
   background-color: var(--theme-bg-statusbar-inv-hover);
 }
