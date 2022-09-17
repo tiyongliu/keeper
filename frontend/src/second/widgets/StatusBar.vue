@@ -61,11 +61,11 @@
         </div>
       </div>
       <div class="item flex clickable" v-if="status && status?.analysedTime"
-           :title="`Last ${databaseName} model refresh: ${moment(status?.analysedTime).format('HH:mm:ss')}\nClick for refresh DB model`"
+           :title="`Last ${databaseName} model refresh: ${analysedTimeFormat}\nClick for refresh DB model`"
            @click="handleSyncModel">
         <FontIcon icon="icon history" padRight/>
         <div class="version ml-1">
-          {{ moment(status?.analysedTime).fromNow() + (timerValue ? '' : '') }}
+          {{ analysedTimeFromNow + (timerValue ? '' : '') }}
         </div>
       </div>
     </div>
@@ -78,14 +78,13 @@
   </div>
 </template>
 <script lang="ts">
-import moment from 'moment';
 import {storeToRefs} from 'pinia'
 import {computed, defineComponent, onBeforeUnmount, onMounted, ref, unref, watch} from 'vue';
 import FontIcon from '/@/second/icons/FontIcon.vue'
 import {dataBaseStore} from "/@/store/modules/dataBase"
 import getConnectionLabel from "/@/second/utility/getConnectionLabel";
 import {useDatabaseServerVersion, useDatabaseStatus} from "/@/api/sql"
-
+import { formatToDateTime, fromNow } from '/@/utils/dateUtil';
 export default defineComponent({
   name: 'StatusBar',
   components: {
@@ -149,8 +148,9 @@ export default defineComponent({
       serverVersion,
       handleSyncModel,
       contextItems,
-      moment,
-      timerValue
+      timerValue,
+      analysedTimeFromNow: fromNow(status.value?.analysedTime),
+      analysedTimeFormat: formatToDateTime(status.value?.analysedTime, 'HH:mm:ss')
     }
   }
 

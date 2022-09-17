@@ -54,7 +54,6 @@
     "json-stable-stringify": "^1.0.1",
     "lodash-es": "^4.17.21",
     "mockjs": "^1.1.0",
-    "moment": "^2.29.3",
     "nprogress": "^0.2.0",
     "path-to-regexp": "^6.2.0",
     "pinia": "2.0.12",
