@@ -5,7 +5,7 @@
 </template>
 
 <script lang="ts">
-import {defineComponent, onMounted, PropType, provide, reactive, ref, toRef, unref} from 'vue';
+import {computed, defineComponent, PropType, provide, reactive, ref, unref} from 'vue'
 
 export default defineComponent({
   name: "WidgetColumnBar",
@@ -17,12 +17,11 @@ export default defineComponent({
   },
   setup(props) {
     const r = ref<Nullable<HTMLElement>>(null)
-    const widgetColumnBarHeight = ref(0)
 
     let definitions = reactive<{ collapsed: boolean, height: number, skip: boolean }[]>([])
     let dynamicPropsCollection = reactive<{ splitterVisible: boolean }[]>([])
 
-    provide('widgetColumnBarHeight', widgetColumnBarHeight)
+    provide('widgetColumnBarHeight', computed(() => r.value ? r.value.clientHeight : 0))
     provide('pushWidgetItemDefinition', (item, dynamicProps) => {
       dynamicPropsCollection.push(dynamicProps)
       definitions = [...unref(definitions), item];
@@ -40,13 +39,8 @@ export default defineComponent({
       }
     }
 
-    onMounted(() => {
-      widgetColumnBarHeight.value = r.value!.clientHeight
-    })
-
     return {
-      hidden: toRef(props, 'hidden'),
-      clientHeight: widgetColumnBarHeight,
+      ...props,
       r
     }
   }

@@ -16,10 +16,10 @@
 
 <script lang="ts">
 import {reactive, ref} from 'vue';
+import {storeToRefs} from 'pinia'
 import FontIcon from '/@/second/icons/FontIcon.vue'
 import {useLocaleStore} from '/@/store/modules/locale'
-import {dataBaseStore} from '/@/store/modules/dataBase'
-import {storeToRefs} from 'pinia'
+import {useBootstrapStore} from '/@/store/modules/bootstrap'
 
 export default {
   setup() {
@@ -74,7 +74,7 @@ export default {
     ])
 
     const localeStore = useLocaleStore()
-    const dataBase = dataBaseStore()
+    const bootstrap = useBootstrapStore()
     const {selectedWidget} = storeToRefs(localeStore)
     const domSettings = ref<Nullable<HTMLElement>>(null)
 
@@ -83,7 +83,7 @@ export default {
       const left = rect.right
       const top = rect.bottom
       const items = [{command: 'settings.show'}, {command: 'theme.changeTheme'}, {command: 'settings.commands'}]
-      dataBase.subscribeCurrentDropDownMenu({left, top, items})
+      bootstrap.subscribeCurrentDropDownMenu({left, top, items})
     }
 
     function handleChangeWidget(name) {

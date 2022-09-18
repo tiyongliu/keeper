@@ -1,6 +1,6 @@
 import {get} from 'lodash-es'
 import {apiCall} from '/@/second/utility/api'
-import {dataBaseStore} from "/@/store/modules/dataBase"
+import {useBootstrapStore} from "/@/store/modules/bootstrap"
 
 let openedConnectionsHandle: null | number = null
 let currentDatabaseHandle: null | number = null
@@ -18,8 +18,8 @@ const doDatabasePing = value => {
 }
 
 export function subscribeConnectionPingers() {
-  const dataBase = dataBaseStore()
-  dataBase.$subscribe((mutation, state) => {
+  const bootstrap = useBootstrapStore()
+  bootstrap.$subscribe((mutation, state) => {
     const {events} = mutation as any
     if (events.hasOwnProperty('key') && events.key === 'openedConnections') {
       doServerPing(state.openedConnections)

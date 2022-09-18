@@ -12,7 +12,7 @@
   import { useTitle } from '/@/hooks/web/useTitle';
   import { useLocale } from '/@/locales/useLocale';
   import {onMounted} from 'vue'
-  import {loadDatabasesApi} from '/@/api/connection'
+  import {connectionListApi} from '/@/api/simpleApis'
 
   //TODO
   import initPluginsProvider from '/@/second/plugins/PluginsProvider'
@@ -30,7 +30,7 @@
 
   async function loadApi() {
     try {
-      const connections = await loadDatabasesApi()
+      const connections = await connectionListApi()
       if (connections) {
         loadedApi = true
       }

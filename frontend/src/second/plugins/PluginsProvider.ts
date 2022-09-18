@@ -1,15 +1,14 @@
 import {isEmpty, keys, pick} from 'lodash-es'
-import {useInstalledPlugins} from '/@/api/sql'
-import {handleScriptApi} from '/@/api/plugins'
-import {apiCall} from '/@/second/utility/api'
-import {dataBaseStore} from "/@/store/modules/dataBase";
+import {useInstalledPlugins} from '/@/api/bridge'
+import {pluginsScriptApi} from '/@/api/simpleApis'
+import {useBootstrapStore} from "/@/store/modules/bootstrap"
 import {onBeforeUnmount, onMounted, ref, watch} from 'vue'
 import {ExtensionsDirectory} from "/@/second/typings/types/extensions";
 
 
 export default function initPluginsProvider() {
   const installedPlugins = ref()
-  const dataBase = dataBaseStore()
+  const bootstrap = useBootstrapStore()
   let pluginsDict = {}
 
   onMounted(() => {
@@ -23,7 +22,7 @@ export default function initPluginsProvider() {
 
 
   watch(() => installedPlugins.value, () => {
-    loadPlugins(pluginsDict, installedPlugins.value, dataBase)
+    loadPlugins(pluginsDict, installedPlugins.value, bootstrap)
       .then(newPlugins => {
         if (isEmpty(newPlugins)) return
         pluginsDict = pick(
@@ -32,7 +31,7 @@ export default function initPluginsProvider() {
         )
       })
       .then(() => {
-        dataBase.subscribeExtensions(
+        bootstrap.subscribeExtensions(
           buildExtensions(buildPlugins(installedPlugins.value))
         )
       })
@@ -57,7 +56,7 @@ async function loadPlugins(pluginsDict, installedPlugins, dataBase) {
         loaded: false,
         loadingPackageName: installed.name
       })
-      const resp = await handleScriptApi({
+      const resp = await pluginsScriptApi({
         packageName: installed.name,
       })
       newPlugins[installed.name] = resp

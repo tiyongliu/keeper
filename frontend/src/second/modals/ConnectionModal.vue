@@ -26,8 +26,9 @@ import TabControl from '/@/second/elements/TabControl.vue'
 import ConnectionModalDriverFields from '/@/second/modals/ConnectionModalDriverFields.vue'
 import ConnectionModalSshTunnelFields from '/@/second/modals/ConnectionModalSshTunnelFields.vue'
 import ConnectionModalSslFields from '/@/second/modals/ConnectionModalSslFields.vue'
-import {handleDriverTestApi, handleDriverSaveApi} from '/@/api/connection'
-import {metadataLoadersStore} from "/@/store/modules/metadataLoaders"
+import {connectionTestApi, connectionSaveApi} from '/@/api/simpleApis'
+
+import {useBootstrapStore} from "/@/store/modules/bootstrap"
 const TabPane = Tabs.TabPane
 
 export default defineComponent({
@@ -44,15 +45,15 @@ export default defineComponent({
   setup(_, {emit}) {
     const [register, {closeModal, setModalProps}] = useModalInner()
     let connParams = {}
-    const metadataLoaders = metadataLoadersStore()
-    const {connections} = storeToRefs(metadataLoaders)
+    const bootstrap = useBootstrapStore()
+    const {connections} = storeToRefs(bootstrap)
     provide('dispatchConnections', (dynamicProps) => {
       connParams = dynamicProps
     })
 
     const handleTest = async () => {
       try {
-        await handleDriverTestApi(pickBy(unref(connParams), (item) => !!item))
+        await connectionTestApi(pickBy(unref(connParams), (item) => !!item))
       } catch (e) {
         console.log(e)
       }
@@ -62,8 +63,8 @@ export default defineComponent({
 
     const handleSubmit = async () => {
       try {
-        const resp = await handleDriverSaveApi(pickBy(unref(connParams), (item) => !!item))
-        void metadataLoaders.setConnections([...unref(connections), resp])
+        const resp = await connectionSaveApi(pickBy(unref(connParams), (item) => !!item))
+        void bootstrap.subscribeConnections([...unref(connections), resp])
         emit('closeCurrentModal')
       } catch (e) {
         console.log(e)

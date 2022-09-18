@@ -2,7 +2,7 @@ import {defineComponent, PropType, toRefs, unref, computed} from 'vue'
 import {storeToRefs} from 'pinia'
 import {get, isEqual, uniqWith} from 'lodash-es'
 import AppObjectCore from './AppObjectCore.vue'
-import {dataBaseStore} from "/@/store/modules/dataBase"
+import {useBootstrapStore} from "/@/store/modules/bootstrap"
 import {useLocaleStore} from '/@/store/modules/locale'
 import {IPinnedDatabasesItem} from "/@/second/typings/types/standard.d"
 import {getDatabaseMenuItems} from './PinnedAppObject_'
@@ -20,8 +20,8 @@ export default defineComponent({
     },
   },
   setup(props, {attrs}) {
-    const dataBase = dataBaseStore()
-    const {getCurrentDatabase: currentDatabase} = storeToRefs(dataBase)
+    const bootstrap = useBootstrapStore()
+    const {getCurrentDatabase: currentDatabase} = storeToRefs(bootstrap)
     const localeStore = useLocaleStore()
     const {pinnedDatabases} = storeToRefs(localeStore)
     const {data, passProps} = toRefs(props)
@@ -36,7 +36,7 @@ export default defineComponent({
         isBold={get(unref(currentDatabase), 'connection._id') == get(unref(data)!.connection, '_id') &&
           get(unref(currentDatabase), 'name') == unref(data)!.name
         }
-        onClick={() => dataBase.subscribeCurrentDatabase(unref(data)!)}
+        onClick={() => bootstrap.subscribeCurrentDatabase(unref(data)!)}
         menu={createMenu}
         showPinnedInsteadOfUnpin={unref(passProps)?.showPinnedInsteadOfUnpin}
         onPin={unref(isPinned) ? null : () => localeStore.subscribePinnedDatabases(uniqWith([

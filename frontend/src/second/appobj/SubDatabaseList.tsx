@@ -4,7 +4,7 @@ import {filterName} from '/@/second/keeper-tools'
 import AppObjectList from './AppObjectList'
 import databaseAppObject from './DatabaseAppObject'
 import {ConnectionsWithStatus, TablesNameSort} from '/@/second/typings/mysql'
-import {useDatabaseList} from "/@/api/sql";
+import {useDatabaseList} from "/@/api/bridge";
 
 export default defineComponent({
   name: "SubDatabaseList",

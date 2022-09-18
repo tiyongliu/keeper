@@ -1,5 +1,5 @@
-import getAsArray from './getAsArray';
-
+import getAsArray from '/@/second/utility/getAsArray';
+import {EventsOn} from '/@/wailsjs/runtime/runtime'
 const cachedByKey = {};
 const cachedPromisesByKey = {};
 const cachedKeysByReloadTrigger = {};
@@ -8,34 +8,10 @@ const cacheGenerationByKey = {};
 
 let cacheGeneration = 0;
 
-export function cacheGet(key) {
+
+function cacheGet(key) {
   return cachedByKey[key];
 }
-
-export function cacheSet(key, value, reloadTrigger) {
-  cachedByKey[key] = value;
-  for (const item of getAsArray(reloadTrigger)) {
-    if (!(item in cachedKeysByReloadTrigger)) {
-      cachedKeysByReloadTrigger[item] = [];
-    }
-    cachedKeysByReloadTrigger[item].push(key);
-  }
-  delete cachedPromisesByKey[key];
-}
-
-export function cacheClean(reloadTrigger) {
-  for (const item of getAsArray(reloadTrigger)) {
-    const keys = cachedKeysByReloadTrigger[item];
-    if (keys) {
-      for (const key of keys) {
-        delete cachedByKey[key];
-        delete cachedPromisesByKey[key];
-      }
-    }
-    delete cachedKeysByReloadTrigger[item];
-  }
-}
-
 
 function addCacheKeyToReloadTrigger(cacheKey, reloadTrigger) {
   for (const item of getAsArray(reloadTrigger)) {
@@ -44,6 +20,38 @@ function addCacheKeyToReloadTrigger(cacheKey, reloadTrigger) {
     }
     cachedKeysByReloadTrigger[item].push(cacheKey);
   }
+}
+
+function cacheSet(cacheKey, value, reloadTrigger, generation) {
+  cachedByKey[cacheKey] = value;
+  addCacheKeyToReloadTrigger(cacheKey, reloadTrigger);
+  delete cachedPromisesByKey[cacheKey];
+  cacheGenerationByKey[cacheKey] = generation;
+}
+
+function cacheClean(reloadTrigger) {
+  cacheGeneration += 1;
+  for (const item of getAsArray(reloadTrigger)) {
+    const keys = cachedKeysByReloadTrigger[item];
+    if (keys) {
+      for (const key of keys) {
+        delete cachedByKey[key];
+        delete cachedPromisesByKey[key];
+        cacheGenerationByKey[key] = cacheGeneration;
+      }
+    }
+    delete cachedKeysByReloadTrigger[item];
+  }
+}
+
+async function getCachedPromise(reloadTrigger, cacheKey, func) {
+  if (cacheKey in cachedPromisesByKey) {
+    return cachedPromisesByKey[cacheKey];
+  }
+  const promise = await func();
+  cachedPromisesByKey[cacheKey] = promise;
+  addCacheKeyToReloadTrigger(cacheKey, reloadTrigger);
+  return promise;
 }
 
 function acquireCacheGeneration() {
@@ -56,34 +64,30 @@ function getCacheGenerationForKey(cacheKey) {
 }
 
 export async function loadCachedValue(reloadTrigger, cacheKey, func) {
-  // const fromCache = cacheGet(cacheKey)
-  // if (fromCache) {
-  //   return fromCache;
-  // } else {
-  //   const generation = acquireCacheGeneration();
-  //   try {
-  //     const res = await getCachedPromise(reloadTrigger, cacheKey, func);
-  //     if (getCacheGenerationForKey(cacheKey) > generation) {
-  //       return cacheGet(cacheKey) || res;
-  //     } else {
-  //       cacheSet(cacheKey, res, reloadTrigger, generation);
-  //       return res;
-  //     }
-  //   } catch (err) {
-  //     console.error('Error when using cached promise', err);
-  //     cacheClean(cacheKey);
-  //     const res = await func();
-  //     cacheSet(cacheKey, res, reloadTrigger, generation);
-  //     return res;
-  //   }
-  // }
-
-
-  if (cacheKey) {}
-  return await func()
+  const fromCache = cacheGet(cacheKey);
+  if (fromCache) {
+    return fromCache;
+  } else {
+    const generation = acquireCacheGeneration();
+    try {
+      const res = await getCachedPromise(reloadTrigger, cacheKey, func);
+      if (getCacheGenerationForKey(cacheKey) > generation) {
+        return cacheGet(cacheKey) || res;
+      } else {
+        cacheSet(cacheKey, res, reloadTrigger, generation);
+        return res;
+      }
+    } catch (err) {
+      console.error('Error when using cached promise', err);
+      cacheClean(cacheKey);
+      const res = await func();
+      cacheSet(cacheKey, res, reloadTrigger, generation);
+      return res;
+    }
+  }
 }
 
-export async function subscribeCacheChange(reloadTrigger, cacheKey, reloadHandler) {
+export async function subscribeCacheChange(reloadTrigger, reloadHandler) {
   for (const item of getAsArray(reloadTrigger)) {
     if (!subscriptionsByReloadTrigger[item]) {
       subscriptionsByReloadTrigger[item] = [];
@@ -92,7 +96,7 @@ export async function subscribeCacheChange(reloadTrigger, cacheKey, reloadHandle
   }
 }
 
-export async function unsubscribeCacheChange(reloadTrigger, cacheKey, reloadHandler) {
+export async function unsubscribeCacheChange(reloadTrigger, reloadHandler) {
   for (const item of getAsArray(reloadTrigger)) {
     if (subscriptionsByReloadTrigger[item]) {
       subscriptionsByReloadTrigger[item] = subscriptionsByReloadTrigger[item].filter(x => x != reloadHandler);
@@ -103,9 +107,20 @@ export async function unsubscribeCacheChange(reloadTrigger, cacheKey, reloadHand
   }
 }
 
-export function getCachedPromise(key, func) {
-  if (key in cachedPromisesByKey) return cachedPromisesByKey[key];
-  const promise = func();
-  cachedPromisesByKey[key] = promise;
-  return promise;
+function dispatchCacheChange(reloadTrigger) {
+  // console.log('CHANGE', reloadTrigger);
+  cacheClean(reloadTrigger);
+  for (const item of getAsArray(reloadTrigger)) {
+    if (subscriptionsByReloadTrigger[item]) {
+      for (const handler of subscriptionsByReloadTrigger[item]) {
+        handler();
+      }
+    }
+  }
+}
+
+try {
+  EventsOn('changed-cache',reloadTrigger => dispatchCacheChange(reloadTrigger))
+} catch (e) {
+  console.log(e)
 }

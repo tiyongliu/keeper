@@ -81,9 +81,9 @@
 import {storeToRefs} from 'pinia'
 import {computed, defineComponent, onBeforeUnmount, onMounted, ref, unref, watch} from 'vue';
 import FontIcon from '/@/second/icons/FontIcon.vue'
-import {dataBaseStore} from "/@/store/modules/dataBase"
-import getConnectionLabel from "/@/second/utility/getConnectionLabel";
-import {useDatabaseServerVersion, useDatabaseStatus} from "/@/api/sql"
+import {useBootstrapStore} from "/@/store/modules/bootstrap"
+import getConnectionLabel from "/@/second/utility/getConnectionLabel"
+import {useDatabaseServerVersion, useDatabaseStatus} from "/@/api/bridge"
 import { formatToDateTime, fromNow } from '/@/utils/dateUtil';
 export default defineComponent({
   name: 'StatusBar',
@@ -91,8 +91,8 @@ export default defineComponent({
     FontIcon
   },
   setup() {
-    const dataBase = dataBaseStore()
-    const {currentDatabase} = storeToRefs(dataBase)
+    const bootstrap = useBootstrapStore()
+    const {currentDatabase} = storeToRefs(bootstrap)
 
     const databaseName = computed(() => currentDatabase.value && currentDatabase.value.name)
     const connection = computed(() => currentDatabase.value && currentDatabase.value.connection)

@@ -8,7 +8,7 @@ import {createLocalStorage} from '/@/utils/cache';
 import {localeSetting} from '/@/settings/localeSetting';
 import {getWithStorageVariableCache, setWithStorageVariableCache} from "/@/second/utility/storage";
 import {IPinnedDatabasesItem} from '/@/second/typings/types/standard.d'
-import {TabDefinition} from "/@/store/modules/dataBase";
+import {TabDefinition} from "/@/store/modules/bootstrap";
 
 const ls = createLocalStorage();
 

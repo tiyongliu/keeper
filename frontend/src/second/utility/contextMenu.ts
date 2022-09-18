@@ -1,8 +1,8 @@
 import {isFunction, isPlainObject, isArray, intersection, compact} from 'lodash-es'
 import invalidateCommands from '/@/second/commands/invalidateCommands'
-import { dataBaseStore } from '/@/store/modules/dataBase'
+import { useBootstrapStore } from '/@/store/modules/bootstrap'
 import getAsArray from './getAsArray'
-const dataBase = dataBaseStore()
+const bootstrap = useBootstrapStore()
 
 
 export async function handleContextMenu(e, items: any = []) {
@@ -17,7 +17,7 @@ export async function handleContextMenu(e, items: any = []) {
 
     console.log(`targetElement`, e.target)
     console.log(items, `console----------items-----------`)
-    dataBase.subscribeCurrentDropDownMenu({left, top, items, targetElement: e.target})
+    bootstrap.subscribeCurrentDropDownMenu({left, top, items, targetElement: e.target})
   }
 
   if (items === '__no_menu') return
@@ -107,7 +107,7 @@ function mapItem(item, commands) {
         text: item.text || command.menuName || command.toolbarName || command.name,
         keyText: command.keyText || command.keyTextFromGroup,
         onClick: () => {
-          if (command.getSubCommands) dataBase.setVisibleCommandPalette(command)
+          if (command.getSubCommands) bootstrap.setVisibleCommandPalette(command)
           else if (command.onClick) command.onClick();
         },
         disabled: !command.enabled,

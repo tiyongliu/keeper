@@ -15,14 +15,14 @@ import {filterName} from '/@/second/keeper-tools'
 import {Modal} from "ant-design-vue";
 import {ExclamationCircleOutlined} from "@ant-design/icons-vue";
 import {getLocalStorage} from '/@/second/utility/storageCache'
-import {dataBaseStore} from "/@/store/modules/dataBase"
+import {useBootstrapStore} from "/@/store/modules/bootstrap"
 import {get, uniq} from 'lodash-es'
 import AppObjectCore from '/@/second/appobj/AppObjectCore.vue'
 import getConnectionLabel from '/@/second/utility/getConnectionLabel'
 import {ConnectionsWithStatus} from '/@/second/typings/mysql'
 import {IPinnedDatabasesItem} from '/@/second/typings/types/standard.d'
-import {handleDeleteApi} from '/@/api/connection'
-import {handleRefreshApi} from '/@/api/serverConnections'
+import {connectionDeleteApi} from '/@/api/simpleApis'
+import {serverConnectionsRefreshApi} from '/@/api/simpleApis'
 
 export default defineComponent({
   name: 'ConnectionAppObject',
@@ -64,20 +64,20 @@ export default defineComponent({
     const extInfoRef = ref()
     const engineStatusIconRef = ref()
     const engineStatusTitleRef = ref()
-    const dataBase = dataBaseStore()
-    const {extensions} = storeToRefs(dataBase)
+    const bootstrap = useBootstrapStore()
+    const {extensions} = storeToRefs(bootstrap)
     let timerId: ReturnType<typeof setTimeout> | null
 
     const handleConnect = () => {
       if (unref(data)!.singleDatabase) {
-        dataBase.subscribeCurrentDatabase({
+        bootstrap.subscribeCurrentDatabase({
           connection: unref(data)!,
           name: unref(data)!.defaultDatabase
         } as unknown as IPinnedDatabasesItem)
       } else {
-        dataBase.subscribeOpenedConnections(uniq([...dataBase.getOpenedConnections, unref(data)!._id]))
+        bootstrap.subscribeOpenedConnections(uniq([...bootstrap.getOpenedConnections, unref(data)!._id]))
         timerId = setTimeout(() => {
-          void handleRefreshApi({
+          void serverConnectionsRefreshApi({
             conid: unref(data)!._id,
             keepOpen: true,
           })
@@ -110,7 +110,7 @@ export default defineComponent({
 
     const watchStatus = () => {
       const {_id, status} = unref(data)!
-      if (dataBase.$state.openedConnections.includes(_id)) {
+      if (bootstrap.$state.openedConnections.includes(_id)) {
         if (!status) statusIconRef.value = 'icon loading'
         else if (status.name == 'pending') statusIconRef.value = 'icon loading';
         else if (status.name == 'ok') statusIconRef.value = 'img ok';
@@ -139,7 +139,7 @@ export default defineComponent({
       timerId && clearTimeout(timerId)
     })
 
-    const currentDatabase = computed(() => dataBase.$state.currentDatabase)
+    const currentDatabase = computed(() => bootstrap.$state.currentDatabase)
 
     const handleDelete = async () => {
       const r = Modal.confirm({
@@ -150,7 +150,7 @@ export default defineComponent({
         cancelText: '取消',
         onOk: async () => {
           try {
-            await handleDeleteApi({_id: data.value?._id})
+            await connectionDeleteApi({_id: data.value?._id})
             r.destroy()
           } catch (e) {
             console.log(e)

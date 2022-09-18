@@ -72,12 +72,12 @@ import {chevronExpandIcon} from '/@/second/icons/expandIcons'
 //todo api tables dataSource
 import {storeToRefs} from 'pinia'
 import {flatten, sortBy} from 'lodash-es'
-import {useConnectionInfo, useDatabaseInfo, useDatabaseStatus} from "/@/api/sql"
-import {handleRefreshApi} from '/@/api/databaseConnections'
+import {useConnectionInfo, useDatabaseInfo, useDatabaseStatus} from "/@/api/bridge"
+import {databaseConnectionsRefreshApi} from '/@/api/simpleApis'
 import {ApplicationDefinition, DatabaseInfo} from '/@/second/keeper-types'
 import {findEngineDriver} from '/@/second/keeper-tools'
 import {filterAppsForDatabase} from '/@/second/utility/appTools'
-import {dataBaseStore} from "/@/store/modules/dataBase";
+import {useBootstrapStore} from "/@/store/modules/bootstrap"
 
 export default defineComponent({
   name: "SqlObjectList",
@@ -105,11 +105,11 @@ export default defineComponent({
     const filter = ref('')
     const {conid, database} = toRefs(props)
     const handleRefreshDatabase = () => {
-      void handleRefreshApi({conid: unref(conid)!, database: unref(database)!})
+      void databaseConnectionsRefreshApi({conid: unref(conid)!, database: unref(database)!})
     }
 
-    const dataBase = dataBaseStore()
-    const {currentDatabase, extensions} = storeToRefs(dataBase)
+    const bootstrap = useBootstrapStore()
+    const {currentDatabase, extensions} = storeToRefs(bootstrap)
     let objects = ref()
     let status = ref()
     let connection = ref()

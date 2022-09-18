@@ -45,15 +45,15 @@ import FontIcon from '/@/second/icons/FontIcon.vue'
 import getConnectionLabel from '/@/second/utility/getConnectionLabel'
 import ConnectionAppObject from '/@/second/appobj/ConnectionAppObject'
 import SubDatabaseList from '/@/second/appobj/SubDatabaseList'
-import {dataBaseStore} from '/@/store/modules/dataBase'
+import {useBootstrapStore} from '/@/store/modules/bootstrap'
 import runCommand from '/@/second/commands/runCommand'
 import LargeButton from '/@/second/buttons/LargeButton.vue'
 
 //TODO
 import ConnectionModal from '/@/second/modals/ConnectionModal.vue'
 import {useModal} from '/@/components/Modal'
-import {handleRefreshApi} from '/@/api/serverConnections'
-import {useConnectionList, useServerStatus} from '/@/api/sql'
+import {serverConnectionsRefreshApi} from '/@/api/simpleApis'
+import {useConnectionList, useServerStatus} from '/@/api/bridge'
 import {IActiveConnection, IConnectionStatus} from '/@/second/typings/types/connections.d'
 
 export default defineComponent({
@@ -72,8 +72,8 @@ export default defineComponent({
   setup() {
     const hidden = ref(false)
     const filter = ref('')
-    const dataBase = dataBaseStore()
-    const {openedConnections} = storeToRefs(dataBase)
+    const bootstrap = useBootstrapStore()
+    const {openedConnections} = storeToRefs(bootstrap)
 
     const handleExpandable = (data) => unref(openedConnections).includes(unref(data)._id)
       && !unref(data).singleDatabase
@@ -99,7 +99,7 @@ export default defineComponent({
 
     const handleRefreshConnections = () => {
       for (const conid of unref(openedConnections)) {
-        void handleRefreshApi({conid})
+        void serverConnectionsRefreshApi({conid})
       }
     }
 

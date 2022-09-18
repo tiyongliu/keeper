@@ -15,6 +15,9 @@ interface IVariableBasic {
   visibleCommandPalette: null | unknown
   commandsCustomized: object
   loadingPluginStore: { loaded: boolean, loadingPackageName: string | null }
+
+  connections: []
+  databases: []
 }
 
 export interface TabDefinition {
@@ -37,8 +40,8 @@ export interface ICurrentDropDownMenu {
 }
 
 let visibleCommandPaletteValue = null
-export const dataBaseStore = defineStore({
-  id: "app-dataBase",
+export const useBootstrapStore = defineStore({
+  id: "app-bootstrap",
   state: (): IVariableBasic => ({
     currentDatabase: null,
     openedConnections: [],
@@ -51,7 +54,10 @@ export const dataBaseStore = defineStore({
     loadingPluginStore: {
       loaded: true,
       loadingPackageName: null
-    }
+    },
+
+    connections: [],
+    databases: []
   }),
   getters: {
     getOpenedConnections(): string[] {
@@ -79,6 +85,7 @@ export const dataBaseStore = defineStore({
     },
     subscribeVisibleCommandPalette(value) {
       visibleCommandPaletteValue = value
+      console.log(visibleCommandPaletteValue)
       void invalidateCommands()
     },
     setVisibleCommandPalette(value: null | unknown) {
@@ -95,12 +102,15 @@ export const dataBaseStore = defineStore({
     },
     subscribeLoadingPluginStore(value: { loaded: boolean, loadingPackageName: string | null }) {
       this.loadingPluginStore = value
-    }
+    },
+    subscribeConnections(payload): void {
+      this.connections = payload
+    },
   }
 });
 
-export function useDataBaseStoreWithOut() {
-  return dataBaseStore(store);
+export function useBootstrapStoreWithOut() {
+  return useBootstrapStore(store);
 }
 
 const derived = (commands, commandsSettings): object => {
