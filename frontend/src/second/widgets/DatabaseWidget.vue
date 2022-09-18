@@ -32,7 +32,7 @@
 </template>
 
 <script lang="ts">
-import {computed, defineComponent, PropType, ref, unref, watch} from 'vue'
+import {computed, defineComponent, PropType, ref, toRef, unref, watch} from 'vue'
 import {storeToRefs} from 'pinia'
 import {useBootstrapStore} from "/@/store/modules/bootstrap"
 import {useLocaleStore} from '/@/store/modules/locale'
@@ -63,7 +63,7 @@ export default defineComponent({
     PinnedObjectsList,
     ErrorInfo,
   },
-  setup() {
+  setup(props) {
     const bootstrap = useBootstrapStore()
     const {currentDatabase, extensions} = storeToRefs(bootstrap)
     const localeStore = useLocaleStore()
@@ -82,6 +82,7 @@ export default defineComponent({
     const driver = computed(() => findEngineDriver(connection.value, extensions.value!))
 
     return {
+      hidden: toRef(props, 'hidden'),
       pinnedDatabases,
       pinnedTables,
       currentDatabase,

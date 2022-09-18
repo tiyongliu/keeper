@@ -93,8 +93,7 @@ export default defineComponent({
           connections.value.map(conn => ({...conn, status: serverStatus.value[conn._id]})) :
           connections.value
     }, {
-      deep: true,
-      immediate: true,
+      deep: true
     })
 
     const handleRefreshConnections = () => {

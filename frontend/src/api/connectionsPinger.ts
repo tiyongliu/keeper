@@ -21,13 +21,13 @@ export function subscribeConnectionPingers() {
   const bootstrap = useBootstrapStore()
   bootstrap.$subscribe((mutation, state) => {
     const {events} = mutation as any
-    if (events.hasOwnProperty('key') && events.key === 'openedConnections') {
+    if (events && events.hasOwnProperty('key') && events.key === 'openedConnections') {
       doServerPing(state.openedConnections)
       if (openedConnectionsHandle) window.clearInterval(openedConnectionsHandle)
       openedConnectionsHandle = window.setInterval(() => doServerPing(state.openedConnections), 30 * 1000)
     }
 
-    if (events.hasOwnProperty('key') && events.key === 'currentDatabase') {
+    if (events && events.hasOwnProperty('key') && events.key === 'currentDatabase') {
       doDatabasePing(state.currentDatabase)
       if (currentDatabaseHandle) window.clearInterval(currentDatabaseHandle)
       currentDatabaseHandle = window.setInterval(() => doDatabasePing(state.currentDatabase), 30 * 1000)

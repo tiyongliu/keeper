@@ -1,7 +1,7 @@
 import {defineComponent, PropType, toRefs, unref} from 'vue';
 import InlineButton from '/@/second/buttons/InlineButton.vue'
 import FontIcon from '/@/second/icons/FontIcon.vue'
-import {cssVariableStore} from '/@/store/modules/cssVariable'
+import {useLocaleStore} from '/@/store/modules/locale'
 
 export default defineComponent({
   name: 'DropDownButton',
@@ -19,7 +19,7 @@ export default defineComponent({
     },
   },
   setup(props) {
-    const cssVariable = cssVariableStore()
+    const locale = useLocaleStore()
     const {narrow, icon} = toRefs(props)
 
     function handleClick() {
@@ -29,7 +29,7 @@ export default defineComponent({
        const top = rect.bottom;
        currentDropDownMenu.set({ left, top, items: menu });
       * */
-      cssVariable.subscribeCurrentDropDownMenu()
+      locale.subscribeCurrentDropDownMenu()
     }
 
     return () => (

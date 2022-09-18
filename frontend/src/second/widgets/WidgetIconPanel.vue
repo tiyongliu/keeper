@@ -87,7 +87,7 @@ export default {
     }
 
     function handleChangeWidget(name) {
-      localeStore.setSelectedWidget(name === selectedWidget.value ? null : name)
+      localeStore.subscribeSelectedWidget(name === selectedWidget.value ? null : name)
     }
 
     return {

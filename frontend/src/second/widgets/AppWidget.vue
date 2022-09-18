@@ -1,32 +1,17 @@
 <template>
-    <WidgetColumnBar :hidden="hidden">
+    <WidgetColumnBar>
         AppWidget---没写
     </WidgetColumnBar>
 </template>
 
-<script>
-import { reactive, toRefs } from 'vue'
+<script lang="ts">
+import {defineComponent} from 'vue'
 import WidgetColumnBar from './WidgetColumnBar.vue'
-export default {
-    props:{
-        hidden:{
-            type:Boolean,
-            default:false
-        }
-    },
-    setup () {
-        const state = reactive({
-            count: 0,
-        })
-    
-        return {
-            ...toRefs(state),
-        }
-    },
-    components:{WidgetColumnBar}
-}
+
+export default defineComponent({
+  name: 'AppWidget',
+  components: {
+    WidgetColumnBar
+  }
+})
 </script>
-
-<style lang="scss" scoped>
-
-</style>
