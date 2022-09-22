@@ -41,11 +41,11 @@
 
       if (!loadedApi) {
         console.log('API not initialized correctly, trying again in 1s');
-        setTimeout(loadApi, 1000000);
+        setTimeout(loadApi, 1000);
       }
     } catch (err) {
       console.log('Error calling API, trying again in 1s', err);
-      setTimeout(loadApi, 1000000);
+      setTimeout(loadApi, 1000);
     }
   }
 
