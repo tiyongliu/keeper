@@ -19,8 +19,8 @@
       <WidgetContainer/>
     </div>
     <div class="tabs">
-      <!--      <TabsPanel/>-->
-      <LayoutHeader/>
+      <TabsPanel/>
+<!--      <LayoutHeader/>-->
     </div>
     <div class="content">content
     </div>
@@ -36,7 +36,7 @@
 <script lang="ts">
 import {computed, defineComponent, onMounted, unref, watch} from 'vue';
 import {Layout} from 'ant-design-vue';
-import LayoutHeader from './header/index.vue';
+// import LayoutHeader from './header/index.vue';
 import {useHeaderSetting} from '/@/hooks/setting/useHeaderSetting';
 import {useMenuSetting} from '/@/hooks/setting/useMenuSetting';
 import {useDesign} from '/@/hooks/web/useDesign';
@@ -44,6 +44,7 @@ import {useLockPage} from '/@/hooks/web/useLockPage';
 import {useAppInject} from '/@/hooks/web/useAppInject';
 
 //todo
+import {storeToRefs} from "pinia"
 import {useLocaleStore} from '/@/store/modules/locale'
 import WidgetContainer from '/@/second/widgets/WidgetContainer.vue'
 import TabsPanel from '/@/second/widgets/TabsPanel.vue'
@@ -51,12 +52,11 @@ import StatusBar from '/@/second/widgets/StatusBar.vue'
 import {WarningOutlined} from '@ant-design/icons-vue'
 import WidgetIconPanel from '/@/second/widgets/WidgetIconPanel.vue'
 import CurrentDropDownMenu from '/@/second/modals/CurrentDropDownMenu'
-import {storeToRefs} from "pinia"
 
 export default defineComponent({
   name: 'DefaultLayout',
   components: {
-    LayoutHeader,
+    // LayoutHeader,
     Layout,
     WidgetContainer,
     WarningOutlined,

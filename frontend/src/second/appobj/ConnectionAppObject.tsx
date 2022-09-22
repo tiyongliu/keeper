@@ -65,7 +65,7 @@ export default defineComponent({
     const engineStatusIconRef = ref()
     const engineStatusTitleRef = ref()
     const bootstrap = useBootstrapStore()
-    const {extensions} = storeToRefs(bootstrap)
+    const {extensions, openedConnections} = storeToRefs(bootstrap)
     let timerId: ReturnType<typeof setTimeout> | null
 
     const handleConnect = () => {
@@ -85,32 +85,24 @@ export default defineComponent({
       }
     }
 
-    watch(() => unref(extensions), () => watchExtensions())
+    watch(() => [data.value, extensions.value], () => {
+      if (extensions.value?.drivers.find(x => x.engine == data.value?.engine)) {
+        const match = (unref(data)!.engine || '').match(/^([^@]*)@/)
+        extInfoRef.value = match ? match[1] : unref(data)!.engine;
+        engineStatusIconRef.value = null
+        engineStatusTitleRef.value = null
+      } else {
+        extInfo.value = data.value?.engine
+        engineStatusIconRef.value = 'img warn'
+        engineStatusTitleRef.value = `Engine driver ${data.value?.engine} not found, review installed plugins and change engine in edit connection dialog`
+      }
+    }, {
+      immediate: true,
+    })
 
-    const watchExtensions = () => {
-      const match = (unref(data)!.engine || '').match(/^([^@]*)@/)
-      extInfoRef.value = match ? match[1] : unref(data)!.engine;
-      engineStatusIconRef.value = null
-      engineStatusTitleRef.value = null
-
-      // if (unref(dataBase.$state.extensions!).drivers.find(x => x.engine == data!.engine)) {
-      //   const match = (data!.engine || '').match(/^([^@]*)@/)
-      //   extInfoRef.value = match ? match[1] : data!.engine;
-      //   engineStatusIconRef.value = null
-      //   engineStatusTitleRef.value = nulld
-      // } else {
-      //
-      //   extInfoRef.value = data!.engine;
-      //   engineStatusIconRef.value = 'img warn'
-      //   engineStatusTitleRef.value = `Engine schema ${data!.engine} not found, review installed plugins and change engine in edit connection dialog`
-      // }
-    }
-
-    watch(() => unref(data), () => watchStatus())
-
-    const watchStatus = () => {
+    watch(() => [data.value, openedConnections.value], () => {
       const {_id, status} = unref(data)!
-      if (bootstrap.$state.openedConnections.includes(_id)) {
+      if (openedConnections.value.includes(_id)) {
         if (!status) statusIconRef.value = 'icon loading'
         else if (status.name == 'pending') statusIconRef.value = 'icon loading';
         else if (status.name == 'ok') statusIconRef.value = 'img ok';
@@ -122,7 +114,9 @@ export default defineComponent({
         statusIconRef.value = null
         statusTitleRef.value = null
       }
-    }
+    }, {
+      immediate: true
+    })
 
     onMounted(() => {
       // dataBase.subscribeExtensions(buildExtensions() as any)
@@ -131,8 +125,6 @@ export default defineComponent({
       extInfoRef.value = unref(extInfo)
       engineStatusIconRef.value = unref(engineStatusIcon)
       engineStatusTitleRef.value = unref(engineStatusTitle)
-      watchExtensions()
-      watchStatus()
     })
 
     onBeforeUnmount(() => {

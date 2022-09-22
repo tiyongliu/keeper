@@ -74,7 +74,7 @@ export const useBootstrapStore = defineStore({
     subscribeOpenedConnections(value: string[]) {
       this.openedConnections = value
     },
-    subscribeCurrentDatabase(value: IPinnedDatabasesItem) {
+    subscribeCurrentDatabase(value: null | IPinnedDatabasesItem) {
       this.currentDatabase = value
     },
     subscribeExtensions(value: ExtensionsDirectory) {

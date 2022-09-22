@@ -83,6 +83,10 @@ export function useDatabaseInfo<T>(args, targetRef: Ref<T>) {
   return useCore(databaseInfoLoader, args, targetRef);
 }
 
+export function getConnectionInfo(args) {
+  return getCore(connectionInfoLoader, args);
+}
+
 export function useConnectionInfo<T>(args, targetRef: Ref<T>) {
   return useCore(connectionInfoLoader, args, targetRef)
 }
