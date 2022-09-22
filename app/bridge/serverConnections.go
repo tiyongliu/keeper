@@ -5,6 +5,7 @@ import (
 	"github.com/samber/lo"
 	"keeper/app/internal"
 	"keeper/app/pkg/containers"
+	"keeper/app/pkg/logger"
 	"keeper/app/pkg/serializer"
 	"keeper/app/pkg/standard"
 	"keeper/app/sideQuests"
@@ -39,6 +40,7 @@ func (sc *ServerConnections) handleDatabases(conid string, databases interface{}
 	}
 
 	existing.Databases = databases
+
 	utility.EmitChanged(Application.ctx, fmt.Sprintf("database-list-changed-%s", conid))
 }
 
@@ -61,6 +63,8 @@ func (sc *ServerConnections) handleStatus(conid string, status *containers.Opene
 	}
 
 	existing.Status = status
+
+	logger.Infof("Opened: %s", utility.ToJsonStr(sc.Opened))
 	utility.EmitChanged(Application.ctx, "server-status-changed")
 }
 
@@ -72,7 +76,7 @@ func (sc *ServerConnections) ensureOpened(conid string) *containers.OpenedServer
 	existing := findByServerConnection(sc.Opened, conid)
 
 	if existing != nil {
-		utility.EmitChanged(Application.ctx, "server-status-changed")
+		logger.Infof("existing.Opened: %s", utility.ToJsonStr(sc.Opened))
 		return existing
 	}
 
@@ -91,7 +95,7 @@ func (sc *ServerConnections) ensureOpened(conid string) *containers.OpenedServer
 	if sc.Closed != nil {
 		delete(sc.Closed, conid)
 	}
-
+	utility.EmitChanged(Application.ctx, "server-status-changed")
 	ch := make(chan *containers.EchoMessage)
 	utility.EmitChanged(Application.ctx, "server-status-changed")
 
