@@ -1,7 +1,6 @@
 package bridge
 
 import (
-	"context"
 	"fmt"
 	"github.com/mitchellh/mapstructure"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
@@ -19,7 +18,6 @@ import (
 var JsonLinesDatabase *utility.JsonLinesDatabase
 
 type Connections struct {
-	Ctx context.Context
 }
 
 func init() {

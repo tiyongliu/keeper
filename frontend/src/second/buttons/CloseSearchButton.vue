@@ -1,11 +1,11 @@
 <template>
-  <InlineButton v-if="filterValue || showDisabled" @click="clear">
+  <InlineButton v-if="filter || showDisabled" @click="clear">
     <close-outlined/>
   </InlineButton>
 </template>
 
 <script lang="ts">
-  import {computed, defineComponent, unref} from 'vue'
+  import {defineComponent, toRef} from 'vue'
   import {CloseOutlined} from '@ant-design/icons-vue'
   import InlineButton from './InlineButton.vue'
 
@@ -26,20 +26,16 @@
     },
     emits: ['close'],
     setup(props, {emit}) {
-      const filterValue = computed(() => unref(props.filter))
+      const filter = toRef(props, 'filter')
 
       function clear() {
         emit('close')
       }
 
       return {
-        filterValue,
+        filter,
         clear
       }
     }
   })
 </script>
-
-<style scoped>
-
-</style>
