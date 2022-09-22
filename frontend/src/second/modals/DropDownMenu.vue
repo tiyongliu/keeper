@@ -27,7 +27,8 @@ import {
   computed,
   PropType,
   ref,
-  toRefs
+  toRefs,
+  nextTick
 } from 'vue'
 import { prepareMenuItems } from '/@/second/utility/contextMenu'
 import {formatKeyText} from '/@/second/utility/common'
@@ -72,7 +73,8 @@ const element = ref<Nullable<HTMLElement>>(null)
 
 const bootstrap = useBootstrapStore()
 
-onMounted(() => {
+onMounted(async () => {
+  await nextTick()
   fixPopupPlacement(element.value!)
   document.addEventListener('mousedown', handleClickOutside, true)
 })

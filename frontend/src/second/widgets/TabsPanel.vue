@@ -30,9 +30,6 @@ import FontIcon from '/@/second/icons/FontIcon.vue'
 import {useLocaleStore} from '/@/store/modules/locale'
  export default defineComponent({
   name: "TabsPanel",
-  props: {
-
-  },
   components: { FontIcon },
   setup() {
     let tabs = ref<Nullable<HTMLElement>>(null)
@@ -50,6 +47,7 @@ import {useLocaleStore} from '/@/store/modules/locale'
     const handleTabsWheel = (e) =>{
       if(!e.shiftKey){
         // dbgate中是滚动tabs元素，暂未验证出效果
+        // await nextTick()
         // tabs.scrollBy({ top: 0, left: e.deltaY < 0 ? -150 : 150, behavior: 'smooth' })
         window.scrollBy({ top: 0, left: e.deltaY < 0 ? -150 : 150, behavior: 'smooth' })
       }

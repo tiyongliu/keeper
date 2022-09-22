@@ -127,7 +127,7 @@ function useCore<T>(loader, args, targetRef: Ref<T | null | undefined>) {
           void handleReload()
         })
       } catch (e) {
-        console.log(e)
+        console.error(`listener event ${reloadTrigger} failed ${e}`)
       }
     }
   }

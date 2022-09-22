@@ -15,7 +15,7 @@
 </template>
 
 <script lang="ts">
-import {reactive, ref} from 'vue';
+import {reactive, ref, nextTick} from 'vue';
 import {storeToRefs} from 'pinia'
 import FontIcon from '/@/second/icons/FontIcon.vue'
 import {useLocaleStore} from '/@/store/modules/locale'
@@ -78,7 +78,8 @@ export default {
     const {selectedWidget} = storeToRefs(localeStore)
     const domSettings = ref<Nullable<HTMLElement>>(null)
 
-    function handleSettingsMenu() {
+    async function handleSettingsMenu() {
+      await nextTick()
       const rect = domSettings.value!.getBoundingClientRect();
       const left = rect.right
       const top = rect.bottom

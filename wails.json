@@ -1,5 +1,6 @@
 {
   "name": "keeper",
+  "version": "0.0.1-rc.1",
   "outputfilename": "keeper",
   "assetdir": "frontend/dist",
   "frontend:dev:watcher": "npm run dev",
@@ -7,5 +8,12 @@
     "name": "liutiyong",
     "email": "422720735@qq.com"
   },
-  "wailsjsdir": "frontend/src"
+  "wailsjsdir": "frontend/src",
+  "info": {
+    "companyName": "Individual Developer tiyong",
+    "productName": "keeper",
+    "productVersion": "0.0.1-rc.1",
+    "comments": "multiple database visualization development tools"
+  },
+  "obfuscated": true
 }
