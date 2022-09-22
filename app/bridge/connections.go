@@ -10,7 +10,6 @@ import (
 	"keeper/app/plugins/modules"
 	"keeper/app/plugins/pluginMongdb"
 	"keeper/app/plugins/pluginMysql"
-	"keeper/app/sideQuests"
 	"keeper/app/utility"
 	"path"
 )
@@ -36,91 +35,93 @@ func getCore(conid string, mask bool) map[string]interface{} {
 	return JsonLinesDatabase.Get(conid)
 }
 
-func (conn *Connections) Test(connection map[string]interface{}) interface{} {
-	if connection["engine"].(string) == standard.MYSQLALIAS {
+const (
+	testTitleFailed   = "Test failed"
+	testTitleSuccess  = "Test success"
+	connectionFailed  = "Connection failed"
+	connectionSuccess = "Connection success"
+	deleteFailed      = "Delete failed"
+	oK                = "OK"
+)
+
+func (conn *Connections) Test(connection map[string]interface{}) {
+	switch connection["engine"].(string) {
+	case standard.MYSQLALIAS:
 		simpleSettingMysql := &modules.SimpleSettingMysql{}
 		err := mapstructure.Decode(connection, simpleSettingMysql)
 		if err != nil {
-			return err.Error()
+			runtime.MessageDialog(Application.ctx, runtime.MessageDialogOptions{
+				Type:          runtime.ErrorDialog,
+				Title:         "Error",
+				Message:       err.Error(),
+				Buttons:       []string{oK},
+				DefaultButton: oK,
+			})
+			return
 		}
 
 		pool, err := pluginMysql.NewSimpleMysqlPool(simpleSettingMysql)
-
 		if err != nil {
-			selection, _ := runtime.MessageDialog(Application.ctx, runtime.MessageDialogOptions{
+			runtime.MessageDialog(Application.ctx, runtime.MessageDialogOptions{
 				Type:          runtime.ErrorDialog,
-				Title:         "测试失败",
+				Title:         testTitleFailed,
 				Message:       err.Error(),
-				Buttons:       []string{"确认"},
-				DefaultButton: "确认",
+				Buttons:       []string{oK},
+				DefaultButton: oK,
 			})
-
-			return selection
-		}
-
-		defer pool.Close()
-
-		driver, err := pool.GetVersion()
-		if err != nil {
-			selection, _ := runtime.MessageDialog(Application.ctx, runtime.MessageDialogOptions{
-				Type:          runtime.ErrorDialog,
-				Title:         "测试失败",
-				Message:       err.Error(),
-				Buttons:       []string{"确认"},
-				DefaultButton: "确认",
+		} else {
+			defer pool.Close()
+			driver, err := pool.GetVersion()
+			if err != nil {
+				runtime.MessageDialog(Application.ctx, runtime.MessageDialogOptions{
+					Type:          runtime.ErrorDialog,
+					Title:         testTitleFailed,
+					Message:       err.Error(),
+					Buttons:       []string{oK},
+					DefaultButton: oK,
+				})
+			}
+			runtime.MessageDialog(Application.ctx, runtime.MessageDialogOptions{
+				Title:         testTitleSuccess,
+				Message:       "Connected" + fmt.Sprintf(": %s", driver.VersionText),
+				Buttons:       []string{oK},
+				DefaultButton: oK,
 			})
-			return selection
 		}
-
-		selection, _ := runtime.MessageDialog(Application.ctx, runtime.MessageDialogOptions{
-			Title:         "连接成功",
-			Message:       "Connected" + fmt.Sprintf(": %s", driver.VersionText),
-			Buttons:       []string{"确认"},
-			DefaultButton: "确认",
-		})
-		return selection
-
-	} else if connection["engine"].(string) == standard.MONGOALIAS {
+	case standard.MONGOALIAS:
 		pool, err := pluginMongdb.NewSimpleMongoDBPool(&modules.SimpleSettingMongoDB{
 			Host: connection["host"].(string),
 			Port: connection["port"].(string),
 		})
-
-		defer pool.Close()
-
 		if err != nil {
 			runtime.MessageDialog(Application.ctx, runtime.MessageDialogOptions{
 				Type:          runtime.ErrorDialog,
-				Title:         "测试失败",
+				Title:         testTitleFailed,
 				Message:       err.Error(),
-				Buttons:       []string{"确认"},
-				DefaultButton: "确认",
+				Buttons:       []string{oK},
+				DefaultButton: oK,
 			})
-			return err.Error()
-		}
+		} else {
+			defer pool.Close()
+			driver, err := pool.GetVersion()
+			if err != nil {
+				runtime.MessageDialog(Application.ctx, runtime.MessageDialogOptions{
+					Type:          runtime.ErrorDialog,
+					Title:         testTitleFailed,
+					Message:       err.Error(),
+					Buttons:       []string{oK},
+					DefaultButton: oK,
+				})
+			}
 
-		driver, err := pool.GetVersion()
-		if err != nil {
 			runtime.MessageDialog(Application.ctx, runtime.MessageDialogOptions{
-				Type:          runtime.ErrorDialog,
-				Title:         "测试失败",
-				Message:       err.Error(),
-				Buttons:       []string{"确认"},
-				DefaultButton: "确认",
+				Title:         connectionSuccess,
+				Message:       "Connected" + fmt.Sprintf(": %s", driver.VersionText),
+				Buttons:       []string{oK},
+				DefaultButton: oK,
 			})
-			return err.Error()
 		}
-
-		selection, _ := runtime.MessageDialog(Application.ctx, runtime.MessageDialogOptions{
-			Title:         "连接成功",
-			Message:       "Connected" + fmt.Sprintf(": %s", driver.VersionText),
-			Buttons:       []string{"确认"},
-			DefaultButton: "确认",
-		})
-		return selection
 	}
-
-	return nil
 }
 
 func (conn *Connections) Save(connection map[string]string) *serializer.Response {
@@ -130,10 +131,10 @@ func (conn *Connections) Save(connection map[string]string) *serializer.Response
 	if exists := utility.UnknownMapSome(JsonLinesDatabase.Find(), unknownMap); exists {
 		runtime.MessageDialog(Application.ctx, runtime.MessageDialogOptions{
 			Type:          runtime.ErrorDialog,
-			Title:         "错误",
+			Title:         connectionFailed,
 			Message:       "Connection with same connection name already exists in the project.",
-			Buttons:       []string{"确认"},
-			DefaultButton: "确认",
+			Buttons:       []string{oK},
+			DefaultButton: oK,
 		})
 		return serializer.Fail("")
 	}
@@ -151,10 +152,10 @@ func (conn *Connections) Save(connection map[string]string) *serializer.Response
 	if err != nil {
 		runtime.MessageDialog(Application.ctx, runtime.MessageDialogOptions{
 			Type:          runtime.ErrorDialog,
-			Title:         "连接失败",
+			Title:         testTitleFailed,
 			Message:       err.Error(),
-			Buttons:       []string{"确认"},
-			DefaultButton: "确认",
+			Buttons:       []string{oK},
+			DefaultButton: oK,
 		})
 
 		return serializer.Fail("")
@@ -188,16 +189,14 @@ func (conn *Connections) Delete(connection map[string]string) *serializer.Respon
 		if err != nil {
 			runtime.MessageDialog(Application.ctx, runtime.MessageDialogOptions{
 				Type:          runtime.ErrorDialog,
-				Title:         "删除失败",
+				Title:         deleteFailed,
 				Message:       err.Error(),
-				Buttons:       []string{"确认"},
-				DefaultButton: "确认",
+				Buttons:       []string{oK},
+				DefaultButton: oK,
 			})
 
 			return serializer.Fail(err.Error())
 		}
-		sideQuests.ServerLastStatus = ""
-		sideQuests.ServerLastDatabases = ""
 		utility.EmitChanged(Application.ctx, "connection-list-changed")
 		return serializer.SuccessData(serializer.SUCCESS, res)
 	}

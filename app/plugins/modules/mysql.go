@@ -117,3 +117,16 @@ type Programmable struct {
 type ViewTexts struct {
 	PureName string `json:"pureName"`
 }
+
+//todo 需要先写页面
+type MysqlSelectRequest struct {
+	CommandType string `json:"commandType"`
+	Form        *Form  `json:"form"`
+}
+
+type Form struct {
+	Name  ViewTexts `json:"name"`
+	Alias string    `json:"alias"`
+}
+
+type MysqlSelectColumn struct{}

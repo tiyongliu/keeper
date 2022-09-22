@@ -15,6 +15,7 @@ var analysedStructure map[string]interface{}
 var analysedTime utility.UnixTime = 0
 var loadingModel bool
 var statusCounter int
+var lastStatusString string
 
 func getStatusCounter() int {
 	statusCounter += 1
@@ -22,11 +23,14 @@ func getStatusCounter() int {
 }
 
 type DatabaseConnection struct {
-	lastStatus string
 }
 
 func NewDatabaseConnection() *DatabaseConnection {
 	return &DatabaseConnection{}
+}
+
+func (msg *DatabaseConnection) ResetVars() {
+	lastStatusString = ""
 }
 
 func (msg *DatabaseConnection) Connect(ch chan *containers.EchoMessage, newOpened *containers.OpenedDatabaseConnection, structure interface{}) {
@@ -75,10 +79,10 @@ func (msg *DatabaseConnection) setStatus(ch chan *containers.EchoMessage, data f
 		return
 	}
 	statusString := utility.ToJsonStr(status)
-	if msg.lastStatus != statusString {
+	if lastStatusString != statusString {
 		status.Counter = getStatusCounter()
 		ch <- &containers.EchoMessage{MsgType: "status", Payload: status}
-		msg.lastStatus = statusString
+		lastStatusString = statusString
 	}
 }
 
@@ -176,4 +180,8 @@ func (msg *DatabaseConnection) SyncModel() {
 
 func (msg *DatabaseConnection) Ping() {
 	databaseLast = utility.NewUnixTime()
+}
+
+func HandleSqlSelect() {
+
 }

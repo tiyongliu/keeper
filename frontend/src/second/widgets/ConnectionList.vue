@@ -74,6 +74,7 @@ export default defineComponent({
     const filter = ref('')
     const bootstrap = useBootstrapStore()
     const {openedConnections} = storeToRefs(bootstrap)
+    const flag = ref(true)
 
     const handleExpandable = (data) => unref(openedConnections).includes(unref(data)._id)
       && !unref(data).singleDatabase
@@ -96,9 +97,16 @@ export default defineComponent({
       deep: true
     })
 
-    const handleRefreshConnections = () => {
-      for (const conid of unref(openedConnections)) {
-        void serverConnectionsRefreshApi({conid})
+    const handleRefreshConnections = async () => {
+      try {
+        if (flag.value) {
+          flag.value = false
+          for (const conid of unref(openedConnections)) {
+            await serverConnectionsRefreshApi({conid})
+          }
+        }
+      } finally {
+        flag.value = true
       }
     }
 

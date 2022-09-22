@@ -104,8 +104,17 @@ export default defineComponent({
   setup(props) {
     const filter = ref('')
     const {conid, database} = toRefs(props)
-    const handleRefreshDatabase = () => {
-      void databaseConnectionsRefreshApi({conid: unref(conid)!, database: unref(database)!})
+    const flag = ref(true)
+
+    const handleRefreshDatabase = async () => {
+      try {
+        if (flag.value) {
+          flag.value = false
+          await databaseConnectionsRefreshApi({conid: unref(conid)!, database: unref(database)!})
+        }
+      } finally {
+        flag.value = true
+      }
     }
 
     const bootstrap = useBootstrapStore()

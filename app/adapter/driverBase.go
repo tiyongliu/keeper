@@ -22,3 +22,8 @@ func AnalyseFull(driver standard.SqlStandard, database string) map[string]interf
 func AnalyseIncremental() {
 
 }
+
+//查询表
+func CreateDumper() {
+
+}

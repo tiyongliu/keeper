@@ -39,6 +39,7 @@ func (sc *ServerConnections) handleDatabases(conid string, databases interface{}
 	}
 
 	existing.Databases = databases
+
 	utility.EmitChanged(Application.ctx, fmt.Sprintf("database-list-changed-%s", conid))
 }
 
@@ -61,6 +62,7 @@ func (sc *ServerConnections) handleStatus(conid string, status *containers.Opene
 	}
 
 	existing.Status = status
+
 	utility.EmitChanged(Application.ctx, "server-status-changed")
 }
 
@@ -72,7 +74,6 @@ func (sc *ServerConnections) ensureOpened(conid string) *containers.OpenedServer
 	existing := findByServerConnection(sc.Opened, conid)
 
 	if existing != nil {
-		utility.EmitChanged(Application.ctx, "server-status-changed")
 		return existing
 	}
 
@@ -91,11 +92,11 @@ func (sc *ServerConnections) ensureOpened(conid string) *containers.OpenedServer
 	if sc.Closed != nil {
 		delete(sc.Closed, conid)
 	}
-
-	ch := make(chan *containers.EchoMessage)
 	utility.EmitChanged(Application.ctx, "server-status-changed")
 
+	ch := make(chan *containers.EchoMessage)
 	defer func() {
+		sc.ServerConnectionChannel.ResetVars()
 		go sc.ServerConnectionChannel.Connect(ch, conid, connection)
 		go sc.pipeHandler(ch, conid)
 	}()
@@ -192,7 +193,7 @@ func (sc *ServerConnections) pipeHandler(chData <-chan *containers.EchoMessage, 
 		if message != nil {
 			if message.Err != nil {
 				if existing := findByServerConnection(sc.Opened, conid); existing != nil && !existing.Disconnected {
-					sc.Close(conid, true)
+					sc.Close(conid, false)
 				}
 			}
 			switch message.MsgType {
@@ -204,8 +205,6 @@ func (sc *ServerConnections) pipeHandler(chData <-chan *containers.EchoMessage, 
 				sc.handleDatabases(conid, message.Payload)
 			case "ping":
 				sc.handlePing()
-			case "exit":
-				break
 			}
 		}
 		if !ok {
@@ -216,7 +215,7 @@ func (sc *ServerConnections) pipeHandler(chData <-chan *containers.EchoMessage, 
 
 func findByServerConnection(s []*containers.OpenedServerConnection, conid string) *containers.OpenedServerConnection {
 	existing, ok := lo.Find[*containers.OpenedServerConnection](s, func(x *containers.OpenedServerConnection) bool {
-		return x.Conid != "" && x.Conid == conid
+		return x.Conid == conid
 	})
 
 	if existing != nil && ok {

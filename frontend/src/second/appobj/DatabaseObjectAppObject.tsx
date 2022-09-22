@@ -1,30 +1,36 @@
-import {computed, defineComponent, PropType, unref, toRefs} from 'vue'
+import {computed, defineComponent, PropType, toRefs, unref} from 'vue'
 import {isNaN} from 'lodash-es'
 import {filterName} from '/@/second/keeper-tools'
 import AppObjectCore from '/@/second/appobj/AppObjectCore.vue'
 import {useLocaleStore} from '/@/store/modules/locale'
-import {storeToRefs} from "pinia";
-export const extractKey = ({ schemaName, pureName }) => (schemaName ? `${schemaName}.${pureName}` : pureName)
-export const createMatcher = ({ schemaName, pureName, columns }) => filter =>
-    filterName(unref(filter), pureName, schemaName, ...(columns?.map(({ columnName }) => ({ childName: columnName })) || []))
-const createTitle = ({ pureName }) => pureName
+import {storeToRefs} from "pinia"
+import {getConnectionInfo} from '/@/api/bridge'
+import fullDisplayName from '/@/second/utility/fullDisplayName'
+import getConnectionLabel from '/@/second/utility/getConnectionLabel'
+import openNewTab from '/@/second/utility/openNewTab'
+
+export const extractKey = ({schemaName, pureName}) =>
+  (schemaName ? `${schemaName}.${pureName}` : pureName)
+export const createMatcher = ({schemaName, pureName, columns}) => filter =>
+  filterName(unref(filter), pureName, schemaName, ...(columns?.map(({columnName}) => ({childName: columnName})) || []))
+const createTitle = ({pureName}) => pureName
 export const databaseObjectIcons = {
-    tables: 'img table',
-    collections: 'img collection',
-    views: 'img view',
-    matviews: 'img view',
-    procedures: 'img procedure',
-    functions: 'img function',
-    queries: 'img query-data',
-  }
-export const defaultTabs =  {
+  tables: 'img table',
+  collections: 'img collection',
+  views: 'img view',
+  matviews: 'img view',
+  procedures: 'img procedure',
+  functions: 'img function',
+  queries: 'img query-data',
+}
+export const defaultTabs = {
   tables: 'TableDataTab',
   collections: 'CollectionDataTab',
   views: 'ViewDataTab',
   matviews: 'ViewDataTab',
   queries: 'QueryDataTab',
 }
-export const menus =  {
+export const menus = {
   tables: [
     {
       label: 'Open data',
@@ -382,7 +388,7 @@ export default defineComponent({
   name: 'DatabaseObjectAppObject',
   props: {
     data: {
-      type: Object as PropType<{name: string, schemaName: string, objectTypeField: string, pureName: string, tableRowCount?: null}>,
+      type: Object as PropType<{ name: string, schemaName: string, objectTypeField: string, pureName: string, tableRowCount?: null }>,
     },
     passProps: {
       type: Object as PropType<{
@@ -393,6 +399,7 @@ export default defineComponent({
   components: {
     AppObjectCore
   },
+  emits: ['middleclick'],
   setup(props, {attrs}) {
     const localeStore = useLocaleStore()
     const {pinnedTables} = storeToRefs(localeStore)
@@ -400,14 +407,14 @@ export default defineComponent({
 
     const isPinned = computed(() => !!pinnedTables.value.find(x => testEqual(data.value, x)))
 
-    function handleClick() {
-      handleDatabaseObjectClick()
+    function handleClick(forceNewTab = false) {
+      handleDatabaseObjectClick(data.value, forceNewTab)
     }
 
     return () => <AppObjectCore
       {...attrs}
       data={data.value}
-      title={unref(data)!.schemaName ? `${unref(data)!.schemaName}.${unref(data)!.pureName}` : unref(data)!.pureName }
+      title={unref(data)!.schemaName ? `${unref(data)!.schemaName}.${unref(data)!.pureName}` : unref(data)!.pureName}
       icon={databaseObjectIcons[data.value!.objectTypeField]}
       showPinnedInsteadOfUnpin={passProps.value?.showPinnedInsteadOfUnpin}
       onPin={unref(isPinned) ? null : () => localeStore.subscribePinnedTables([
@@ -419,6 +426,7 @@ export default defineComponent({
       ) : null}
       extInfo={unref(data)!.tableRowCount != null ? `${formatRowCount(unref(data)!.tableRowCount)} rows` : null}
       onClick={() => handleClick()}
+      onMiddleclick={() => handleClick(true)}
     />
   },
   extractKey,
@@ -430,9 +438,76 @@ export default defineComponent({
 })
 
 
-export async function openDatabaseObjectDetail() {
+export async function openDatabaseObjectDetail(
+  tabComponent,
+  scriptTemplate,
+  {schemaName, pureName, conid, database, objectTypeField},
+  forceNewTab?,
+  initialData?,
+  icon?,
+  appObjectData?
+) {
+  const connection = await getConnectionInfo({conid})
+  const tooltip = `${getConnectionLabel(connection)}\n${database}\n${fullDisplayName({
+    schemaName,
+    pureName,
+  })}`
+
+  await openNewTab(
+    {
+      title: scriptTemplate ? 'Query #' : pureName,
+      tooltip,
+      icon: icon || (scriptTemplate ? 'img sql-file' : databaseObjectIcons[objectTypeField]),
+      tabComponent: scriptTemplate ? 'QueryTab' : tabComponent,
+      appObject: 'DatabaseObjectAppObject',
+      appObjectData,
+      props: {
+        schemaName,
+        pureName,
+        conid,
+        database,
+        objectTypeField,
+        initialArgs: scriptTemplate ? {scriptTemplate} : null,
+      },
+    },
+    initialData,
+    {forceNewTab}
+  )
 }
 
-export function handleDatabaseObjectClick() {
+export function handleDatabaseObjectClick(data, forceNewTab = false) {
+  const {schemaName, pureName, conid, database, objectTypeField} = data
+  // const configuredAction = getCurrentSettings()[`defaultAction.dbObjectClick.${objectTypeField}`];
+  const configuredAction = undefined
+  const overrideMenu = menus[objectTypeField].find(x => x.label && x.label == configuredAction);
+  if (overrideMenu) {
+    void databaseObjectMenuClickHandler(data, overrideMenu);
+    return
+  }
 
+  void openDatabaseObjectDetail(
+    defaultTabs[objectTypeField],
+    defaultTabs[objectTypeField] ? null : 'CREATE OBJECT',
+    {
+      schemaName,
+      pureName,
+      conid,
+      database,
+      objectTypeField,
+    },
+    forceNewTab,
+    null,
+    null,
+    data
+  );
+}
+
+async function databaseObjectMenuClickHandler(data, menu) {
+  console.log(data, menu)
+  // const getDriver = async () => {
+  //   const conn = await getConnectionInfo(data);
+  //   if (!conn) return;
+  //   const driver = findEngineDriver(conn, getExtensions());
+  //   return driver;
+  // }
 }

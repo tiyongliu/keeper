@@ -8,10 +8,9 @@ import (
 	"time"
 )
 
-var ServerLastStatus string
+var serverLastStatus string
+var serverLastDatabases string
 var serverLastPing utility.UnixTime
-
-var ServerLastDatabases string
 
 type StatusMessage struct {
 	Name    string `json:"name"`
@@ -58,14 +57,20 @@ func setStatus(ch chan *containers.EchoMessage, data func() (*containers.OpenedS
 		return
 	}
 	statusString := utility.ToJsonStr(status)
-	if ServerLastStatus != statusString {
+	if serverLastStatus != statusString {
 		ch <- &containers.EchoMessage{Payload: status, MsgType: "status"}
-		ServerLastStatus = statusString
+		serverLastStatus = statusString
 	}
+}
+
+func (msg *ServerConnection) ResetVars() {
+	serverLastStatus = ""
+	serverLastDatabases = ""
 }
 
 func (msg *ServerConnection) Connect(ch chan *containers.EchoMessage, conid string, connection map[string]interface{}) {
 	defer close(ch)
+
 	setStatus(ch, func() (*containers.OpenedStatus, error) {
 		return &containers.OpenedStatus{Name: "pending"}, nil
 	})
@@ -143,18 +148,13 @@ func (msg *ServerConnection) handleRefresh(ch chan *containers.EchoMessage, driv
 	})
 
 	databasesString := utility.ToJsonStr(databases)
-	if ServerLastDatabases != databasesString {
+	if serverLastDatabases != databasesString {
 		ch <- &containers.EchoMessage{
 			Payload: databases,
 			MsgType: "databases",
 			Dialect: driver.Dialect(),
 		}
-		ServerLastDatabases = databasesString
-	}
-	ch <- &containers.EchoMessage{
-		Payload: nil,
-		MsgType: "exit",
-		Dialect: driver.Dialect(),
+		serverLastDatabases = databasesString
 	}
 	return nil
 }
