@@ -4,7 +4,6 @@ go 1.18
 
 require (
 	github.com/Luzifer/go-openssl/v4 v4.1.0
-	github.com/fatih/structs v1.1.0
 	github.com/go-sql-driver/mysql v1.6.0
 	github.com/mgutz/ansi v0.0.0-20200706080929-d51e80ef957d
 	github.com/mitchellh/mapstructure v1.5.0

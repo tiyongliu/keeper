@@ -75,11 +75,10 @@ const handleClick = () => {
 
 <style scoped>
 .button {
-  padding: 5px 15px;
+  padding: 0 15px;
   color: var(--theme-font-1);
   border: 1px solid var(--theme-border);
   width: 120px;
-  height: 72px;
   background-color: var(--theme-bg-1);
   cursor: pointer;
 }
