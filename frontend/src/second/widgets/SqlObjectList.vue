@@ -134,8 +134,6 @@ export default defineComponent({
       useConnectionInfo({conid: unref(conid)}, connection)
 
       dbApps.value = filterAppsForDatabase(unref(currentDatabase)?.connection, unref(currentDatabase)!.name, [])
-    }, {
-      immediate: true
     })
 
     watch(() => [objects.value, dbApps.value], () => {

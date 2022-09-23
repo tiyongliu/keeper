@@ -75,8 +75,6 @@ export default defineComponent({
     let connection = ref()
     watch(() => [conid.value, database.value], () => {
       useConnectionInfo({conid: unref(conid)}, connection)
-    }, {
-      immediate: true
     })
 
     const driver = computed(() => findEngineDriver(connection.value, extensions.value!))

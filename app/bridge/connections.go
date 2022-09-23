@@ -36,6 +36,15 @@ func getCore(conid string, mask bool) map[string]interface{} {
 	return JsonLinesDatabase.Get(conid)
 }
 
+const (
+	testTitleFailed   = "Test failed"
+	testTitleSuccess  = "Test success"
+	connectionFailed  = "Connection failed"
+	connectionSuccess = "Connection success"
+	deleteFailed      = "Delete failed"
+	oK                = "OK"
+)
+
 func (conn *Connections) Test(connection map[string]interface{}) interface{} {
 	if connection["engine"].(string) == standard.MYSQLALIAS {
 		simpleSettingMysql := &modules.SimpleSettingMysql{}
@@ -49,10 +58,10 @@ func (conn *Connections) Test(connection map[string]interface{}) interface{} {
 		if err != nil {
 			selection, _ := runtime.MessageDialog(Application.ctx, runtime.MessageDialogOptions{
 				Type:          runtime.ErrorDialog,
-				Title:         "测试失败",
+				Title:         testTitleFailed,
 				Message:       err.Error(),
-				Buttons:       []string{"确认"},
-				DefaultButton: "确认",
+				Buttons:       []string{oK},
+				DefaultButton: oK,
 			})
 
 			return selection
@@ -64,19 +73,19 @@ func (conn *Connections) Test(connection map[string]interface{}) interface{} {
 		if err != nil {
 			selection, _ := runtime.MessageDialog(Application.ctx, runtime.MessageDialogOptions{
 				Type:          runtime.ErrorDialog,
-				Title:         "测试失败",
+				Title:         testTitleFailed,
 				Message:       err.Error(),
-				Buttons:       []string{"确认"},
-				DefaultButton: "确认",
+				Buttons:       []string{oK},
+				DefaultButton: oK,
 			})
 			return selection
 		}
 
 		selection, _ := runtime.MessageDialog(Application.ctx, runtime.MessageDialogOptions{
-			Title:         "连接成功",
+			Title:         testTitleSuccess,
 			Message:       "Connected" + fmt.Sprintf(": %s", driver.VersionText),
-			Buttons:       []string{"确认"},
-			DefaultButton: "确认",
+			Buttons:       []string{oK},
+			DefaultButton: oK,
 		})
 		return selection
 
@@ -91,10 +100,10 @@ func (conn *Connections) Test(connection map[string]interface{}) interface{} {
 		if err != nil {
 			runtime.MessageDialog(Application.ctx, runtime.MessageDialogOptions{
 				Type:          runtime.ErrorDialog,
-				Title:         "测试失败",
+				Title:         testTitleFailed,
 				Message:       err.Error(),
-				Buttons:       []string{"确认"},
-				DefaultButton: "确认",
+				Buttons:       []string{oK},
+				DefaultButton: oK,
 			})
 			return err.Error()
 		}
@@ -103,19 +112,19 @@ func (conn *Connections) Test(connection map[string]interface{}) interface{} {
 		if err != nil {
 			runtime.MessageDialog(Application.ctx, runtime.MessageDialogOptions{
 				Type:          runtime.ErrorDialog,
-				Title:         "测试失败",
+				Title:         testTitleFailed,
 				Message:       err.Error(),
-				Buttons:       []string{"确认"},
-				DefaultButton: "确认",
+				Buttons:       []string{oK},
+				DefaultButton: oK,
 			})
 			return err.Error()
 		}
 
 		selection, _ := runtime.MessageDialog(Application.ctx, runtime.MessageDialogOptions{
-			Title:         "连接成功",
+			Title:         connectionSuccess,
 			Message:       "Connected" + fmt.Sprintf(": %s", driver.VersionText),
-			Buttons:       []string{"确认"},
-			DefaultButton: "确认",
+			Buttons:       []string{oK},
+			DefaultButton: oK,
 		})
 		return selection
 	}
@@ -130,10 +139,10 @@ func (conn *Connections) Save(connection map[string]string) *serializer.Response
 	if exists := utility.UnknownMapSome(JsonLinesDatabase.Find(), unknownMap); exists {
 		runtime.MessageDialog(Application.ctx, runtime.MessageDialogOptions{
 			Type:          runtime.ErrorDialog,
-			Title:         "错误",
+			Title:         "Err",
 			Message:       "Connection with same connection name already exists in the project.",
-			Buttons:       []string{"确认"},
-			DefaultButton: "确认",
+			Buttons:       []string{oK},
+			DefaultButton: oK,
 		})
 		return serializer.Fail("")
 	}
@@ -151,10 +160,10 @@ func (conn *Connections) Save(connection map[string]string) *serializer.Response
 	if err != nil {
 		runtime.MessageDialog(Application.ctx, runtime.MessageDialogOptions{
 			Type:          runtime.ErrorDialog,
-			Title:         "连接失败",
+			Title:         testTitleFailed,
 			Message:       err.Error(),
-			Buttons:       []string{"确认"},
-			DefaultButton: "确认",
+			Buttons:       []string{oK},
+			DefaultButton: oK,
 		})
 
 		return serializer.Fail("")
@@ -188,10 +197,10 @@ func (conn *Connections) Delete(connection map[string]string) *serializer.Respon
 		if err != nil {
 			runtime.MessageDialog(Application.ctx, runtime.MessageDialogOptions{
 				Type:          runtime.ErrorDialog,
-				Title:         "删除失败",
+				Title:         deleteFailed,
 				Message:       err.Error(),
-				Buttons:       []string{"确认"},
-				DefaultButton: "确认",
+				Buttons:       []string{oK},
+				DefaultButton: oK,
 			})
 
 			return serializer.Fail(err.Error())

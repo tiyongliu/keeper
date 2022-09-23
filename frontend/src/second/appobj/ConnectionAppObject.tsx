@@ -96,10 +96,6 @@ export default defineComponent({
         engineStatusIconRef.value = 'img warn'
         engineStatusTitleRef.value = `Engine driver ${data.value?.engine} not found, review installed plugins and change engine in edit connection dialog`
       }
-    }, {
-      immediate: true,
-      deep: true,
-      flush: "post",
     })
 
     // @ts-ignore
@@ -117,8 +113,6 @@ export default defineComponent({
         statusIconRef.value = null
         statusTitleRef.value = null
       }
-    }, {
-      immediate: true,
     })
 
     onMounted(() => {
