@@ -5,7 +5,6 @@ import (
 	"github.com/samber/lo"
 	"keeper/app/internal"
 	"keeper/app/pkg/containers"
-	"keeper/app/pkg/logger"
 	"keeper/app/pkg/serializer"
 	"keeper/app/pkg/standard"
 	"keeper/app/sideQuests"
@@ -64,7 +63,6 @@ func (sc *ServerConnections) handleStatus(conid string, status *containers.Opene
 
 	existing.Status = status
 
-	logger.Infof("Opened: %s", utility.ToJsonStr(sc.Opened))
 	utility.EmitChanged(Application.ctx, "server-status-changed")
 }
 
@@ -76,7 +74,6 @@ func (sc *ServerConnections) ensureOpened(conid string) *containers.OpenedServer
 	existing := findByServerConnection(sc.Opened, conid)
 
 	if existing != nil {
-		logger.Infof("existing.Opened: %s", utility.ToJsonStr(sc.Opened))
 		return existing
 	}
 
@@ -96,13 +93,11 @@ func (sc *ServerConnections) ensureOpened(conid string) *containers.OpenedServer
 		delete(sc.Closed, conid)
 	}
 	utility.EmitChanged(Application.ctx, "server-status-changed")
-	ch := make(chan *containers.EchoMessage)
-	utility.EmitChanged(Application.ctx, "server-status-changed")
 
-	defer func() {
-		go sc.ServerConnectionChannel.Connect(ch, conid, connection)
-		go sc.pipeHandler(ch, conid)
-	}()
+	sc.ServerConnectionChannel.ResetVars()
+	ch := make(chan *containers.EchoMessage)
+	go sc.ServerConnectionChannel.Connect(ch, conid, connection)
+	go sc.pipeHandler(ch, conid)
 
 	return newOpened
 }
@@ -196,7 +191,7 @@ func (sc *ServerConnections) pipeHandler(chData <-chan *containers.EchoMessage, 
 		if message != nil {
 			if message.Err != nil {
 				if existing := findByServerConnection(sc.Opened, conid); existing != nil && !existing.Disconnected {
-					sc.Close(conid, true)
+					sc.Close(conid, false)
 				}
 			}
 			switch message.MsgType {
@@ -208,8 +203,6 @@ func (sc *ServerConnections) pipeHandler(chData <-chan *containers.EchoMessage, 
 				sc.handleDatabases(conid, message.Payload)
 			case "ping":
 				sc.handlePing()
-			case "exit":
-				break
 			}
 		}
 		if !ok {
@@ -220,7 +213,7 @@ func (sc *ServerConnections) pipeHandler(chData <-chan *containers.EchoMessage, 
 
 func findByServerConnection(s []*containers.OpenedServerConnection, conid string) *containers.OpenedServerConnection {
 	existing, ok := lo.Find[*containers.OpenedServerConnection](s, func(x *containers.OpenedServerConnection) bool {
-		return x.Conid != "" && x.Conid == conid
+		return x.Conid == conid
 	})
 
 	if existing != nil && ok {

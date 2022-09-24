@@ -10,7 +10,6 @@ import (
 	"keeper/app/plugins/modules"
 	"keeper/app/plugins/pluginMongdb"
 	"keeper/app/plugins/pluginMysql"
-	"keeper/app/sideQuests"
 	"keeper/app/utility"
 	"path"
 )
@@ -45,58 +44,55 @@ const (
 	oK                = "OK"
 )
 
-func (conn *Connections) Test(connection map[string]interface{}) interface{} {
-	if connection["engine"].(string) == standard.MYSQLALIAS {
+func (conn *Connections) Test(connection map[string]interface{}) {
+	switch connection["engine"].(string) {
+	case standard.MYSQLALIAS:
 		simpleSettingMysql := &modules.SimpleSettingMysql{}
 		err := mapstructure.Decode(connection, simpleSettingMysql)
 		if err != nil {
-			return err.Error()
+			runtime.MessageDialog(Application.ctx, runtime.MessageDialogOptions{
+				Type:          runtime.ErrorDialog,
+				Title:         "Error",
+				Message:       err.Error(),
+				Buttons:       []string{oK},
+				DefaultButton: oK,
+			})
+			return
 		}
 
 		pool, err := pluginMysql.NewSimpleMysqlPool(simpleSettingMysql)
-
 		if err != nil {
-			selection, _ := runtime.MessageDialog(Application.ctx, runtime.MessageDialogOptions{
+			runtime.MessageDialog(Application.ctx, runtime.MessageDialogOptions{
 				Type:          runtime.ErrorDialog,
 				Title:         testTitleFailed,
 				Message:       err.Error(),
 				Buttons:       []string{oK},
 				DefaultButton: oK,
 			})
-
-			return selection
-		}
-
-		defer pool.Close()
-
-		driver, err := pool.GetVersion()
-		if err != nil {
-			selection, _ := runtime.MessageDialog(Application.ctx, runtime.MessageDialogOptions{
-				Type:          runtime.ErrorDialog,
-				Title:         testTitleFailed,
-				Message:       err.Error(),
+		} else {
+			defer pool.Close()
+			driver, err := pool.GetVersion()
+			if err != nil {
+				runtime.MessageDialog(Application.ctx, runtime.MessageDialogOptions{
+					Type:          runtime.ErrorDialog,
+					Title:         testTitleFailed,
+					Message:       err.Error(),
+					Buttons:       []string{oK},
+					DefaultButton: oK,
+				})
+			}
+			runtime.MessageDialog(Application.ctx, runtime.MessageDialogOptions{
+				Title:         testTitleSuccess,
+				Message:       "Connected" + fmt.Sprintf(": %s", driver.VersionText),
 				Buttons:       []string{oK},
 				DefaultButton: oK,
 			})
-			return selection
 		}
-
-		selection, _ := runtime.MessageDialog(Application.ctx, runtime.MessageDialogOptions{
-			Title:         testTitleSuccess,
-			Message:       "Connected" + fmt.Sprintf(": %s", driver.VersionText),
-			Buttons:       []string{oK},
-			DefaultButton: oK,
-		})
-		return selection
-
-	} else if connection["engine"].(string) == standard.MONGOALIAS {
+	case standard.MONGOALIAS:
 		pool, err := pluginMongdb.NewSimpleMongoDBPool(&modules.SimpleSettingMongoDB{
 			Host: connection["host"].(string),
 			Port: connection["port"].(string),
 		})
-
-		defer pool.Close()
-
 		if err != nil {
 			runtime.MessageDialog(Application.ctx, runtime.MessageDialogOptions{
 				Type:          runtime.ErrorDialog,
@@ -105,31 +101,27 @@ func (conn *Connections) Test(connection map[string]interface{}) interface{} {
 				Buttons:       []string{oK},
 				DefaultButton: oK,
 			})
-			return err.Error()
-		}
+		} else {
+			defer pool.Close()
+			driver, err := pool.GetVersion()
+			if err != nil {
+				runtime.MessageDialog(Application.ctx, runtime.MessageDialogOptions{
+					Type:          runtime.ErrorDialog,
+					Title:         testTitleFailed,
+					Message:       err.Error(),
+					Buttons:       []string{oK},
+					DefaultButton: oK,
+				})
+			}
 
-		driver, err := pool.GetVersion()
-		if err != nil {
 			runtime.MessageDialog(Application.ctx, runtime.MessageDialogOptions{
-				Type:          runtime.ErrorDialog,
-				Title:         testTitleFailed,
-				Message:       err.Error(),
+				Title:         connectionSuccess,
+				Message:       "Connected" + fmt.Sprintf(": %s", driver.VersionText),
 				Buttons:       []string{oK},
 				DefaultButton: oK,
 			})
-			return err.Error()
 		}
-
-		selection, _ := runtime.MessageDialog(Application.ctx, runtime.MessageDialogOptions{
-			Title:         connectionSuccess,
-			Message:       "Connected" + fmt.Sprintf(": %s", driver.VersionText),
-			Buttons:       []string{oK},
-			DefaultButton: oK,
-		})
-		return selection
 	}
-
-	return nil
 }
 
 func (conn *Connections) Save(connection map[string]string) *serializer.Response {
@@ -139,7 +131,7 @@ func (conn *Connections) Save(connection map[string]string) *serializer.Response
 	if exists := utility.UnknownMapSome(JsonLinesDatabase.Find(), unknownMap); exists {
 		runtime.MessageDialog(Application.ctx, runtime.MessageDialogOptions{
 			Type:          runtime.ErrorDialog,
-			Title:         "Err",
+			Title:         connectionFailed,
 			Message:       "Connection with same connection name already exists in the project.",
 			Buttons:       []string{oK},
 			DefaultButton: oK,
@@ -205,8 +197,6 @@ func (conn *Connections) Delete(connection map[string]string) *serializer.Respon
 
 			return serializer.Fail(err.Error())
 		}
-		sideQuests.ServerLastStatus = ""
-		sideQuests.ServerLastDatabases = ""
 		utility.EmitChanged(Application.ctx, "connection-list-changed")
 		return serializer.SuccessData(serializer.SUCCESS, res)
 	}
