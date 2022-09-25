@@ -3,6 +3,7 @@ package bridge
 import (
 	"fmt"
 	"github.com/samber/lo"
+	uuid "github.com/satori/go.uuid"
 	"keeper/app/pkg/containers"
 	"keeper/app/pkg/logger"
 	"keeper/app/pkg/serializer"
@@ -298,4 +299,16 @@ func findByDatabaseConnection(s []*containers.OpenedDatabaseConnection, conid, d
 		return existing
 	}
 	return nil
+}
+
+type SqlSelectRequest struct {
+	databaseConnections
+}
+
+func (dc *DatabaseConnections) SqlSelect(req *SqlSelectRequest) *serializer.Response {
+	return serializer.SuccessData(serializer.SUCCESS, nil)
+}
+
+func sendRequest(conn string) {
+	uuid.NewV4().String()
 }

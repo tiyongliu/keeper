@@ -181,3 +181,7 @@ func (msg *DatabaseConnection) SyncModel() {
 func (msg *DatabaseConnection) Ping() {
 	databaseLast = utility.NewUnixTime()
 }
+
+func HandleSqlSelect() {
+
+}
