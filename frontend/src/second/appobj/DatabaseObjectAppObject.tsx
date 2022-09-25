@@ -9,10 +9,8 @@ import fullDisplayName from '/@/second/utility/fullDisplayName'
 import getConnectionLabel from '/@/second/utility/getConnectionLabel'
 import openNewTab from '/@/second/utility/openNewTab'
 
-export const extractKey = ({
-                             schemaName,
-                             pureName
-                           }) => (schemaName ? `${schemaName}.${pureName}` : pureName)
+export const extractKey = ({schemaName, pureName}) =>
+  (schemaName ? `${schemaName}.${pureName}` : pureName)
 export const createMatcher = ({schemaName, pureName, columns}) => filter =>
   filterName(unref(filter), pureName, schemaName, ...(columns?.map(({columnName}) => ({childName: columnName})) || []))
 const createTitle = ({pureName}) => pureName

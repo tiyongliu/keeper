@@ -94,10 +94,12 @@ func (sc *ServerConnections) ensureOpened(conid string) *containers.OpenedServer
 	}
 	utility.EmitChanged(Application.ctx, "server-status-changed")
 
-	sc.ServerConnectionChannel.ResetVars()
 	ch := make(chan *containers.EchoMessage)
-	go sc.ServerConnectionChannel.Connect(ch, conid, connection)
-	go sc.pipeHandler(ch, conid)
+	defer func() {
+		sc.ServerConnectionChannel.ResetVars()
+		go sc.ServerConnectionChannel.Connect(ch, conid, connection)
+		go sc.pipeHandler(ch, conid)
+	}()
 
 	return newOpened
 }

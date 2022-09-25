@@ -111,10 +111,12 @@ func (dc *DatabaseConnections) ensureOpened(conid, database string) *containers.
 		structure = nil
 	}
 
-	dc.DatabaseConnection.ResetVars()
 	ch := make(chan *containers.EchoMessage)
-	go dc.DatabaseConnection.Connect(ch, newOpened, structure)
-	go dc.pipeHandler(ch, conid, database)
+	defer func() {
+		dc.DatabaseConnection.ResetVars()
+		go dc.DatabaseConnection.Connect(ch, newOpened, structure)
+		go dc.pipeHandler(ch, conid, database)
+	}()
 
 	return newOpened
 }
