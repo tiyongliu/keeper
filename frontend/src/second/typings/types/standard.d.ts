@@ -31,7 +31,7 @@ export interface IConnections {
 }
 
 export interface IPinnedDatabasesItem {
-  extInfo: string | Ref<string> | undefined;
+  extInfo?: string | Ref<string> | undefined;
   connection: IConnections
   name: string
 }

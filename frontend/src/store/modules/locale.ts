@@ -21,7 +21,7 @@ interface LocaleState {
   selectedWidget: null | string
   pinnedDatabases: IPinnedDatabasesItem[]
   pinnedTables: any[]
-  openedTabs: any[]
+  openedTabs: TabDefinition[]
   currentDropDownMenu: null
   leftPanelWidth: number
   visibleTitleBar: number
@@ -59,6 +59,9 @@ export const useLocaleStore = defineStore({
     },
     getDynamicProps(): { splitterVisible: boolean } {
       return this.dynamicProps
+    },
+    getOpenedTabs(): TabDefinition[] {
+      return this.openedTabs
     }
   },
   actions: {
@@ -106,7 +109,14 @@ export const useLocaleStore = defineStore({
     },
     subscribeCurrentDropDownMenu() {
 
-    }
+    },
+    subscribeOpenedTabs(value) {
+      if (typeof value == 'function') {
+        this.openedTabs = value()
+      } else {
+        this.openedTabs = value
+      }
+    },
   },
 });
 
