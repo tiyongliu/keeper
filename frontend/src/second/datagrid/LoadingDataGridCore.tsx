@@ -1,0 +1,80 @@
+import {defineComponent, PropType, ref, toRefs, watch} from 'vue'
+import {getIntSettingsValue} from '/@/second/settings/settingsTools'
+import createRef from '/@/second/utility/createRef'
+import DataGridCore from './DataGridCore.vue'
+import {TableGridDisplay} from "/@/second/keeper-datalib";
+
+export default defineComponent({
+  name: 'LoadingDataGridCore',
+  props: {
+    loadDataPage: {
+      type: Function as PropType<(props: any, offset: any, limit: any) => Promise<any[]>>,
+    },
+    isLoading: {
+      type: Boolean as PropType<boolean>,
+      default: false
+    },
+    loadedRows: {
+      type: Array as PropType<any[]>,
+      default: []
+    },
+    display: {
+      type: Object as PropType<TableGridDisplay>
+    },
+  },
+  setup(props, {attrs}) {
+    const allRowCount = ref(null)
+    const loadedTime = ref(new Date().getTime())
+
+    const {isLoading, loadDataPage, loadedRows, display} = toRefs(props)
+
+    const loadedTimeRef = createRef(null)
+
+    const handleLoadRowCount = async () => {
+
+    }
+
+    async function loadNextData() {
+      if (isLoading.value) return
+      isLoading.value = true
+
+      const loadStart = new Date().getTime()
+
+      const nextRows = await loadDataPage.value!(
+        Object.assign(props, attrs),
+        loadedRows.value.length,
+        getIntSettingsValue('dataGrid.pageSize', 100, 5, 1000)
+      )
+
+      if (loadedTimeRef.get() !== loadStart) {
+        return
+      }
+
+      isLoading.value = false
+    }
+
+    function handleLoadNextData() {
+
+    }
+
+    function reload() {
+      allRowCount.value = null
+      isLoading.value = false
+      loadedRows.value = []
+      loadedTime.value = new Date().getTime()
+    }
+
+    watch(() => [display, loadedTime], () => {
+      // @ts-ignore
+      if (display.value?.cache?.refreshTime > loadedTime.value) {
+        reload()
+      }
+    })
+
+    return () => (
+      <DataGridCore display={display.value} />
+    )
+  }
+})
+
+

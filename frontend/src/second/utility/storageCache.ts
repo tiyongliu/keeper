@@ -1,6 +1,6 @@
 const cache = {};
 
-export function getLocalStorage(key, defaultValue = undefined) {
+export function getLocalStorage(key, defaultValue: any = undefined) {
   if (key in cache) return cache[key];
   const item = localStorage.getItem(key);
   if (item) {

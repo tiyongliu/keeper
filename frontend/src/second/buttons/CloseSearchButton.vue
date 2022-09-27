@@ -16,7 +16,7 @@
         type: String as PropType<string>,
       },
       showDisabled: {
-        type: Boolean as PropType<false>,
+        type: Boolean as PropType<boolean>,
         default: false
       }
     },

@@ -21,7 +21,7 @@
         type: String as PropType<string>,
       },
       isDebounced: {
-        type: Boolean as PropType<false>,
+        type: Boolean as PropType<boolean>,
       },
       searchValue: {
         type: String as PropType<string>,

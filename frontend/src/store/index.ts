@@ -8,3 +8,11 @@ export function setupStore(app: App<Element>) {
 }
 
 export {store}
+
+const currentSettingsValue = {
+  app: {
+    useNativeMenu: false
+  }
+}
+//todo 临时写死
+export const getCurrentSettings = () => currentSettingsValue || {};

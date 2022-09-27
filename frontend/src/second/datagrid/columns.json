@@ -1,0 +1,160 @@
+[
+  {
+    "columnName": "_id",
+    "headerText": "_id",
+    "uniqueName": "_id",
+    "uniquePath": [
+      "_id"
+    ],
+    "isStructured": true,
+    "parentHeaderText": "undefined",
+    "filterType": "mongo",
+    "pureName": "credential",
+    "isExpandable": true,
+    "isChecked": true
+  },
+  {
+    "columnName": "createat",
+    "headerText": "createat",
+    "uniqueName": "createat",
+    "uniquePath": [
+      "createat"
+    ],
+    "isStructured": true,
+    "parentHeaderText": "undefined",
+    "filterType": "mongo",
+    "pureName": "credential",
+    "isChecked": true
+  },
+  {
+    "columnName": "name",
+    "headerText": "name",
+    "uniqueName": "name",
+    "uniquePath": [
+      "name"
+    ],
+    "isStructured": true,
+    "parentHeaderText": "undefined",
+    "filterType": "mongo",
+    "pureName": "credential",
+    "isChecked": true
+  },
+  {
+    "columnName": "nickname",
+    "headerText": "nickname",
+    "uniqueName": "nickname",
+    "uniquePath": [
+      "nickname"
+    ],
+    "isStructured": true,
+    "parentHeaderText": "undefined",
+    "filterType": "mongo",
+    "pureName": "credential",
+    "isChecked": true
+  },
+  {
+    "columnName": "lastmodifiedat",
+    "headerText": "lastmodifiedat",
+    "uniqueName": "lastmodifiedat",
+    "uniquePath": [
+      "lastmodifiedat"
+    ],
+    "isStructured": true,
+    "parentHeaderText": "undefined",
+    "filterType": "mongo",
+    "pureName": "credential",
+    "isChecked": true
+  },
+  {
+    "columnName": "password",
+    "headerText": "password",
+    "uniqueName": "password",
+    "uniquePath": [
+      "password"
+    ],
+    "isStructured": true,
+    "parentHeaderText": "undefined",
+    "filterType": "mongo",
+    "pureName": "credential",
+    "isChecked": true
+  },
+  {
+    "columnName": "disabled",
+    "headerText": "disabled",
+    "uniqueName": "disabled",
+    "uniquePath": [
+      "disabled"
+    ],
+    "isStructured": true,
+    "parentHeaderText": "undefined",
+    "filterType": "mongo",
+    "pureName": "credential",
+    "isChecked": true
+  },
+  {
+    "columnName": "namespace",
+    "headerText": "namespace",
+    "uniqueName": "namespace",
+    "uniquePath": [
+      "namespace"
+    ],
+    "isStructured": true,
+    "parentHeaderText": "undefined",
+    "filterType": "mongo",
+    "pureName": "credential",
+    "isChecked": true
+  },
+  {
+    "columnName": "lastModifiedAt",
+    "headerText": "lastModifiedAt",
+    "uniqueName": "lastModifiedAt",
+    "uniquePath": [
+      "lastModifiedAt"
+    ],
+    "isStructured": true,
+    "parentHeaderText": "undefined",
+    "filterType": "mongo",
+    "pureName": "credential",
+    "isChecked": true
+  },
+  {
+    "columnName": "roleids",
+    "headerText": "roleids",
+    "uniqueName": "roleids",
+    "uniquePath": [
+      "roleids"
+    ],
+    "isStructured": true,
+    "parentHeaderText": "undefined",
+    "filterType": "mongo",
+    "pureName": "credential",
+    "isExpandable": true,
+    "isChecked": true
+  },
+  {
+    "columnName": "currency",
+    "headerText": "currency",
+    "uniqueName": "currency",
+    "uniquePath": [
+      "currency"
+    ],
+    "isStructured": true,
+    "parentHeaderText": "undefined",
+    "filterType": "mongo",
+    "pureName": "credential",
+    "isChecked": true
+  },
+  {
+    "columnName": "dayquotaamount",
+    "headerText": "dayquotaamount",
+    "uniqueName": "dayquotaamount",
+    "uniquePath": [
+      "dayquotaamount"
+    ],
+    "isStructured": true,
+    "parentHeaderText": "undefined",
+    "filterType": "mongo",
+    "pureName": "credential",
+    "isChecked": true
+  }
+]

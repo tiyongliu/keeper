@@ -1,4 +1,3 @@
-
 export interface EngineDriver {
   engine: string;
   title: string;
@@ -8,6 +7,7 @@ export interface EngineDriver {
   readOnlySessions: boolean;
   supportedKeyTypes: SupportedDbKeyType[];
   supportsDatabaseUrl?: boolean;
+  supportsDatabaseDump?: boolean;
   isElectronOnly?: boolean;
   supportedCreateDatabase?: boolean;
   showConnectionField?: (field: string, values: any) => boolean;
@@ -15,6 +15,8 @@ export interface EngineDriver {
   beforeConnectionSave?: (values: any) => any;
   databaseUrlPlaceholder?: string;
   defaultAuthTypeName?: string;
+  defaultSocketPath?: string;
+  authTypeLabel?: string;
   importExportArgs?: any[];
   connect({ server, port, user, password, database }): Promise<any>;
   close(pool): Promise<any>;
@@ -30,9 +32,7 @@ export interface EngineDriver {
   ): Promise<TableInfo | ViewInfo | ProcedureInfo | FunctionInfo | TriggerInfo>;
   analyseSingleTable(pool: any, name: NamedObjectInfo): Promise<TableInfo>;
   getVersion(pool: any): Promise<{ version: string }>;
-  listDatabases(
-    pool: any
-  ): Promise<
+  listDatabases(pool: any): Promise<
     {
       name: string;
     }[]
@@ -47,12 +47,14 @@ export interface EngineDriver {
   dialect: SqlDialect;
   dialectByVersion(version): SqlDialect;
   createDumper(options = null): SqlDumper;
+  createBackupDumper(pool: any, options): Promise<SqlBackupDumper>;
   getAuthTypes(): EngineAuthType[];
   readCollection(pool: any, options: ReadCollectionOptions): Promise<any>;
   updateCollection(pool: any, changeSet: any): Promise<any>;
   getCollectionUpdateScript(changeSet: any): string;
   createDatabase(pool: any, name: string): Promise;
-  getQuerySplitterOptions(usage: 'stream' | 'script'): any;
+  dropDatabase(pool: any, name: string): Promise;
+  getQuerySplitterOptions(usage: 'stream' | 'script' | 'editor'): any;
   script(pool: any, sql: string): Promise;
   getNewObjectTemplates(): NewObjectTemplate[];
   // direct call of pool method, only some methods could be supported, on only some drivers

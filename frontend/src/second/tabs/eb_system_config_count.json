@@ -1,0 +1,13 @@
+{
+  "msgtype": "response",
+  "rows": [
+    {
+      "count": "179"
+    }
+  ],
+  "columns": [
+    {
+      "columnName": "count"
+    }
+  ]
+}

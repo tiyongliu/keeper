@@ -22,7 +22,8 @@
       <TabsPanel/>
 <!--      <LayoutHeader/>-->
     </div>
-    <div class="content">content
+    <div class="content">
+      <TabRegister />
     </div>
     <div v-if="selectedWidget" class="horizontal-split-handle splitter"
          v-splitterDrag="'clientX'"
@@ -48,6 +49,7 @@ import {storeToRefs} from "pinia"
 import {useLocaleStore} from '/@/store/modules/locale'
 import WidgetContainer from '/@/second/widgets/WidgetContainer.vue'
 import TabsPanel from '/@/second/widgets/TabsPanel.vue'
+import TabRegister from './TabRegister'
 import StatusBar from '/@/second/widgets/StatusBar.vue'
 import {WarningOutlined} from '@ant-design/icons-vue'
 import WidgetIconPanel from '/@/second/widgets/WidgetIconPanel.vue'
@@ -64,6 +66,7 @@ export default defineComponent({
     CurrentDropDownMenu,
     StatusBar,
     TabsPanel,
+    TabRegister,
   },
   setup() {
     const {prefixCls} = useDesign('default-layout');
