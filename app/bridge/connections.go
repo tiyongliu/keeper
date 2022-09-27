@@ -44,7 +44,7 @@ const (
 	oK                = "OK"
 )
 
-func (conn *Connections) Test(connection map[string]interface{}) {
+func (conn *Connections) Test(connection map[string]interface{}) *serializer.Response {
 	switch connection["engine"].(string) {
 	case standard.MYSQLALIAS:
 		simpleSettingMysql := &modules.SimpleSettingMysql{}
@@ -57,7 +57,7 @@ func (conn *Connections) Test(connection map[string]interface{}) {
 				Buttons:       []string{oK},
 				DefaultButton: oK,
 			})
-			return
+			return serializer.Fail(err.Error())
 		}
 
 		pool, err := pluginMysql.NewSimpleMysqlPool(simpleSettingMysql)
@@ -69,6 +69,7 @@ func (conn *Connections) Test(connection map[string]interface{}) {
 				Buttons:       []string{oK},
 				DefaultButton: oK,
 			})
+			return serializer.Fail(err.Error())
 		} else {
 			defer pool.Close()
 			driver, err := pool.GetVersion()
@@ -80,6 +81,7 @@ func (conn *Connections) Test(connection map[string]interface{}) {
 					Buttons:       []string{oK},
 					DefaultButton: oK,
 				})
+				return serializer.Fail(err.Error())
 			}
 			runtime.MessageDialog(Application.ctx, runtime.MessageDialogOptions{
 				Title:         testTitleSuccess,
@@ -87,6 +89,7 @@ func (conn *Connections) Test(connection map[string]interface{}) {
 				Buttons:       []string{oK},
 				DefaultButton: oK,
 			})
+			return serializer.SuccessData(serializer.SUCCESS, nil)
 		}
 	case standard.MONGOALIAS:
 		pool, err := pluginMongdb.NewSimpleMongoDBPool(&modules.SimpleSettingMongoDB{
@@ -101,6 +104,7 @@ func (conn *Connections) Test(connection map[string]interface{}) {
 				Buttons:       []string{oK},
 				DefaultButton: oK,
 			})
+			return serializer.Fail(err.Error())
 		} else {
 			defer pool.Close()
 			driver, err := pool.GetVersion()
@@ -112,6 +116,7 @@ func (conn *Connections) Test(connection map[string]interface{}) {
 					Buttons:       []string{oK},
 					DefaultButton: oK,
 				})
+				return serializer.Fail(err.Error())
 			}
 
 			runtime.MessageDialog(Application.ctx, runtime.MessageDialogOptions{
@@ -120,7 +125,11 @@ func (conn *Connections) Test(connection map[string]interface{}) {
 				Buttons:       []string{oK},
 				DefaultButton: oK,
 			})
+
+			return serializer.SuccessData(serializer.SUCCESS, nil)
 		}
+	default:
+		return serializer.Fail(serializer.ParamsErr)
 	}
 }
 
@@ -136,7 +145,7 @@ func (conn *Connections) Save(connection map[string]string) *serializer.Response
 			Buttons:       []string{oK},
 			DefaultButton: oK,
 		})
-		return serializer.Fail("")
+		return serializer.Fail(serializer.ParamsErr)
 	}
 
 	uuid, ok := connection["_id"]
@@ -158,7 +167,7 @@ func (conn *Connections) Save(connection map[string]string) *serializer.Response
 			DefaultButton: oK,
 		})
 
-		return serializer.Fail("")
+		return serializer.Fail(serializer.ParamsErr)
 	}
 	utility.EmitChanged(Application.ctx, "connection-list-changed")
 	return serializer.SuccessData(serializer.SUCCESS, res)

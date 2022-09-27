@@ -1,3 +1,4 @@
+import {Component, PropType} from 'vue'
 import {defineStore} from "pinia"
 import {store} from "/@/store"
 import {mapValues} from 'lodash-es'
@@ -28,7 +29,7 @@ export interface TabDefinition {
   selected: boolean;
   busy: boolean;
   tabid: string;
-  tabComponent: string;
+  tabComponent: PropType<string | Component>;
   tabOrder?: number;
 }
 
@@ -68,6 +69,13 @@ export const useBootstrapStore = defineStore({
     },
     getPinnedExtensions(): ExtensionsDirectory | null {
       return this.extensions
+    },
+    getCommandsCustomized(): any[] {
+      return mapValues([this.commands, this.commandsSettings], (v, k) => ({
+        // @ts-ignore
+        ...v,
+        ...this.commandsSettings[k]
+      }))
     }
   },
   actions: {

@@ -437,7 +437,6 @@ export default defineComponent({
   menus
 })
 
-
 export async function openDatabaseObjectDetail(
   tabComponent,
   scriptTemplate,

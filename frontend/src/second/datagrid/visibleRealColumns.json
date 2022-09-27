@@ -1,0 +1,33 @@
+[
+  {
+    "columnName": "_id",
+    "headerText": "_id",
+    "uniqueName": "_id",
+    "uniquePath": [
+      "_id"
+    ],
+    "isStructured": true,
+    "parentHeaderText": "undefined",
+    "filterType": "mongo",
+    "pureName": "credential",
+    "isExpandable": true,
+    "isChecked": true,
+    "colIndex": 0,
+    "width": 191.1103515625
+  },
+  {
+    "columnName": "createat",
+    "headerText": "createat",
+    "uniqueName": "createat",
+    "uniquePath": [
+      "createat"
+    ],
+    "isStructured": true,
+    "parentHeaderText": "undefined",
+    "filterType": "mongo",
+    "pureName": "credential",
+    "isChecked": true,
+    "colIndex": 1,
+    "width": 161.4609375
+  }
+]

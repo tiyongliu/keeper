@@ -10,7 +10,7 @@ require (
 	github.com/natefinch/lumberjack v2.0.0+incompatible
 	github.com/samber/lo v1.27.1
 	github.com/satori/go.uuid v1.2.0
-	github.com/wailsapp/wails/v2 v2.0.0
+	github.com/wailsapp/wails/v2 v2.1.0
 	go.mongodb.org/mongo-driver v1.10.1
 	go.uber.org/zap v1.23.0
 	gorm.io/driver/mysql v1.3.6
@@ -28,7 +28,7 @@ require (
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/klauspost/compress v1.13.6 // indirect
-	github.com/labstack/echo/v4 v4.7.2 // indirect
+	github.com/labstack/echo/v4 v4.9.0 // indirect
 	github.com/labstack/gommon v0.3.1 // indirect
 	github.com/leaanthony/go-ansi-parser v1.0.1 // indirect
 	github.com/leaanthony/gosod v1.0.3 // indirect
@@ -50,9 +50,9 @@ require (
 	go.uber.org/multierr v1.6.0 // indirect
 	golang.org/x/crypto v0.0.0-20220622213112-05595931fe9d // indirect
 	golang.org/x/exp v0.0.0-20220303212507-bbda1eaf7a17 // indirect
-	golang.org/x/net v0.0.0-20211112202133-69e39bad7dc2 // indirect
+	golang.org/x/net v0.0.0-20220722155237-a158d28d115b // indirect
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c // indirect
-	golang.org/x/sys v0.0.0-20220114195835-da31bd327af9 // indirect
+	golang.org/x/sys v0.0.0-20220722155257-8c9f86f7a55f // indirect
 	golang.org/x/text v0.3.7 // indirect
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0 // indirect
 )

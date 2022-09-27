@@ -1,6 +1,8 @@
 export interface NamedObjectInfo {
   pureName: string;
   schemaName?: string;
+  contentHash?: string;
+  engine?: string;
 }
 
 export interface ColumnReference {
@@ -43,8 +45,8 @@ export interface CheckInfo extends ConstraintInfo {
 export interface ColumnInfo extends NamedObjectInfo {
   pairingId?: string;
   columnName: string;
-  notNull: boolean;
-  autoIncrement: boolean;
+  notNull?: boolean;
+  autoIncrement?: boolean;
   dataType: string;
   precision?: number;
   scale?: number;

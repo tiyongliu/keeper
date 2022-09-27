@@ -28,7 +28,7 @@
         type: String as PropType<string>,
       },
       wrapper: {
-        type: Boolean as PropType<false>,
+        type: Boolean as PropType<boolean>,
         default: false
       }
     },

@@ -34,11 +34,11 @@
         default: 'img error'
       },
       isSmall: {
-        type: Boolean as PropType<false>,
+        type: Boolean as PropType<boolean>,
         default: false
       },
       alignTop: {
-        type: Boolean as PropType<false>,
+        type: Boolean as PropType<boolean>,
         default: false
       },
     },

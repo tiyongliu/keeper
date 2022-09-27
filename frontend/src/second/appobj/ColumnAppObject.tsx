@@ -1,6 +1,6 @@
 import {computed, defineComponent, PropType, toRefs, unref,} from 'vue'
 import AppObjectCore from '/@/second/appobj/AppObjectCore.vue'
-import {_getColumnIcon} from '/@/second/elements/ColumnLabel_'
+import {getColumnIcon} from '/@/second/elements/ColumnLabel.vue'
 
 export default defineComponent({
   name: 'ColumnAppObject',
@@ -18,7 +18,7 @@ export default defineComponent({
         data={unref(data)}
         title={unref(data)!.columnName}
         extInfo={unref(extInfo)}
-        icon={_getColumnIcon(unref(data), true)}
+        icon={getColumnIcon(unref(data), true)}
       />
     )
   }
