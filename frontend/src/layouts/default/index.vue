@@ -4,10 +4,11 @@
       <WarningOutlined/>
     </div>
     <div class="m-3">Sorry, DbGate is not supported on mobile devices.</div>
-    <div class="m-3">Please visit <a href="https://dbgate.org">DbGate web</a> for more info.</div>
+    <div class="m-3">Please visit <a href="https://github.com/tiyongliu/keeper">keeper
+      web</a> for more info.
+    </div>
   </div>
-
-  <Layout :class="prefixCls" v-bind="lockEvents">
+  <div>
     <div class="iconbar">
       <WidgetIconPanel/>
     </div>
@@ -15,15 +16,13 @@
       <StatusBar/>
     </div>
     <div v-if="selectedWidget" class="leftpanel">
-      <!--      <AppDarkModeToggle class="mx-auto" />-->
       <WidgetContainer/>
     </div>
     <div class="tabs">
       <TabsPanel/>
-<!--      <LayoutHeader/>-->
     </div>
     <div class="content">
-      <TabRegister />
+      <TabRegister/>
     </div>
     <div v-if="selectedWidget" class="horizontal-split-handle splitter"
          v-splitterDrag="'clientX'"
@@ -31,20 +30,11 @@
     </div>
     <CurrentDropDownMenu/>
     <div class="snackbar-container">snackbar-container</div>
-  </Layout>
+  </div>
 </template>
 
 <script lang="ts">
-import {computed, defineComponent, onMounted, unref, watch} from 'vue';
-import {Layout} from 'ant-design-vue';
-// import LayoutHeader from './header/index.vue';
-import {useHeaderSetting} from '/@/hooks/setting/useHeaderSetting';
-import {useMenuSetting} from '/@/hooks/setting/useMenuSetting';
-import {useDesign} from '/@/hooks/web/useDesign';
-import {useLockPage} from '/@/hooks/web/useLockPage';
-import {useAppInject} from '/@/hooks/web/useAppInject';
-
-//todo
+import {defineComponent, watch} from 'vue'
 import {storeToRefs} from "pinia"
 import {useLocaleStore} from '/@/store/modules/locale'
 import WidgetContainer from '/@/second/widgets/WidgetContainer.vue'
@@ -58,8 +48,6 @@ import CurrentDropDownMenu from '/@/second/modals/CurrentDropDownMenu'
 export default defineComponent({
   name: 'DefaultLayout',
   components: {
-    // LayoutHeader,
-    Layout,
     WidgetContainer,
     WarningOutlined,
     WidgetIconPanel,
@@ -69,76 +57,28 @@ export default defineComponent({
     TabRegister,
   },
   setup() {
-    const {prefixCls} = useDesign('default-layout');
-    const {getIsMobile} = useAppInject();
-    const {getShowFullHeaderRef} = useHeaderSetting();
-    const {getShowSidebar, getIsMixSidebar, getShowMenu} = useMenuSetting();
-
-    // Create a lock screen monitor
-    const lockEvents = useLockPage();
-
-    const layoutClass = computed(() => {
-      let cls: string[] = ['ant-layout'];
-      if (unref(getIsMixSidebar) || unref(getShowMenu)) {
-        cls.push('ant-layout-has-sider');
-      }
-      return cls;
-    });
-
     const localeStore = useLocaleStore()
     const {selectedWidget, leftPanelWidth, visibleTitleBar} = storeToRefs(localeStore)
-    onMounted(() => {
-      // localeStore.subscribeCssVariable(localeStore.$state.selectedWidget, x => (x ? 1 : 0), '--dim-visible-left-panel')
-      // localeStore.subscribeCssVariable(localeStore.$state.leftPanelWidth, x => `${x}px`, '--dim-left-panel-width')
-      // localeStore.subscribeCssVariable(localeStore.$state.visibleTitleBar, x => (x ? 1 : 0), '--dim-visible-titlebar')
-    })
 
-    watch(() => selectedWidget.value,  () => {
+    watch(() => selectedWidget.value, () => {
       localeStore.subscribeCssVariable(selectedWidget.value, x => (x ? 1 : 0), '--dim-visible-left-panel')
     }, {immediate: true})
 
-    watch(() => leftPanelWidth.value,() => {
+    watch(() => leftPanelWidth.value, () => {
       localeStore.subscribeCssVariable(leftPanelWidth.value, x => `${x}px`, '--dim-left-panel-width')
     }, {immediate: true})
 
-    watch(() => visibleTitleBar.value,() => {
+    watch(() => visibleTitleBar.value, () => {
       localeStore.subscribeCssVariable(visibleTitleBar.value, x => (x ? 1 : 0), '--dim-visible-titlebar')
     }, {immediate: true})
 
     return {
-      getShowFullHeaderRef,
-      getShowSidebar,
-      prefixCls,
-      getIsMobile,
-      getIsMixSidebar,
-      layoutClass,
-      lockEvents,
       selectedWidget,
       localeStore
     };
   },
 });
 </script>
-<style lang="less">
-@prefix-cls: ~'@{namespace}-default-layout';
-
-.@{prefix-cls} {
-  display: flex;
-  width: 100%;
-  min-height: 100%;
-  background-color: @content-bg;
-  flex-direction: column;
-
-  > .ant-layout {
-    min-height: 100%;
-  }
-
-  &-main {
-    width: 100%;
-    margin-left: 1px;
-  }
-}
-</style>
 
 <style scoped>
 .root {
@@ -252,196 +192,3 @@ export default defineComponent({
   font-size: 20pt;
 }
 </style>
-
-<style>
-body {
-  font-family: -apple-system, BlinkMacSystemFont, Segoe WPC, Segoe UI, HelveticaNeue-Light, Ubuntu, Droid Sans,
-  sans-serif;
-  font-size: 14px;
-  /* font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-    */
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-.horizontal-split-handle {
-  background-color: var(--theme-border);
-  width: var(--dim-splitter-thickness);
-  cursor: col-resize;
-}
-
-.horizontal-split-handle:hover {
-  background-color: var(--theme-bg-2);
-}
-
-.vertical-split-handle {
-  background-color: var(--theme-border);
-  height: var(--dim-splitter-thickness);
-  cursor: row-resize;
-}
-
-.vertical-split-handle:hover {
-  background-color: var(--theme-bg-2);
-}
-
-.icon-invisible {
-  visibility: hidden;
-}
-
-.space-between {
-  display: flex;
-  justify-content: space-between;
-}
-
-.flex {
-  display: flex;
-}
-
-.flexcol {
-  display: flex;
-  flex-direction: column;
-}
-
-.nowrap {
-  white-space: nowrap;
-}
-
-.noselect {
-  user-select: none;
-}
-
-.bold {
-  font-weight: bold;
-}
-
-.flex1 {
-  flex: 1;
-}
-
-.relative {
-  position: relative;
-}
-
-.col-10 {
-  flex-basis: 83.3333%;
-  max-width: 83.3333%;
-}
-
-.col-9 {
-  flex-basis: 75%;
-  max-width: 75%;
-}
-
-.col-8 {
-  flex-basis: 66.6667%;
-  max-width: 66.6667%;
-}
-
-.col-7 {
-  flex-basis: 58.3333%;
-  max-width: 58.3333%;
-}
-
-.col-6 {
-  flex-basis: 50%;
-  max-width: 50%;
-}
-
-.col-5 {
-  flex-basis: 41.6667%;
-  max-width: 41.6667%;
-}
-
-.col-4 {
-  flex-basis: 33.3333%;
-  max-width: 33.3333%;
-}
-
-.col-3 {
-  flex-basis: 25%;
-  max-width: 25%;
-}
-
-.col-2 {
-  flex-basis: 16.6666%;
-  max-width: 16.6666%;
-}
-
-.largeFormMarker input[type='text'] {
-  width: 100%;
-  padding: 10px 10px;
-  font-size: 14px;
-  box-sizing: border-box;
-  border-radius: 4px;
-  border: 1px solid var(--theme-border);
-}
-
-.largeFormMarker input[type='password'] {
-  width: 100%;
-  padding: 10px 10px;
-  font-size: 14px;
-  box-sizing: border-box;
-  border-radius: 4px;
-}
-
-.largeFormMarker select {
-  width: 100%;
-  padding: 10px 10px;
-  font-size: 14px;
-  box-sizing: border-box;
-  border-radius: 4px;
-}
-
-body *::-webkit-scrollbar {
-  height: 0.8em;
-  width: 0.8em;
-}
-
-body *::-webkit-scrollbar-track {
-  border-radius: 1px;
-  background-color: var(--theme-bg-1);
-}
-
-body *::-webkit-scrollbar-corner {
-  border-radius: 1px;
-  background-color: var(--theme-bg-2);
-}
-
-body *::-webkit-scrollbar-thumb {
-  border-radius: 1px;
-  background-color: var(--theme-bg-3);
-}
-
-body *::-webkit-scrollbar-thumb:hover {
-  background-color: var(--theme-bg-4);
-}
-
-input {
-  background-color: var(--theme-bg-0);
-  color: var(--theme-font-1);
-  border: 1px solid var(--theme-border);
-}
-
-input[disabled] {
-  background-color: var(--theme-bg-1);
-}
-
-select {
-  background-color: var(--theme-bg-0);
-  color: var(--theme-font-1);
-  border: 1px solid var(--theme-border);
-}
-
-select[disabled] {
-  background-color: var(--theme-bg-1);
-}
-
-textarea {
-  background-color: var(--theme-bg-0);
-  color: var(--theme-font-1);
-  border: 1px solid var(--theme-border);
-}
-</style>
-

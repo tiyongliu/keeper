@@ -2,7 +2,7 @@ import {defineComponent, PropType, ref, toRefs, watch} from 'vue'
 import {getIntSettingsValue} from '/@/second/settings/settingsTools'
 import createRef from '/@/second/utility/createRef'
 import DataGridCore from './DataGridCore.vue'
-import {TableGridDisplay} from "/@/second/keeper-datalib";
+import {GridDisplay} from "/@/second/keeper-datalib";
 
 export default defineComponent({
   name: 'LoadingDataGridCore',
@@ -19,7 +19,7 @@ export default defineComponent({
       default: []
     },
     display: {
-      type: Object as PropType<TableGridDisplay>
+      type: Object as PropType<GridDisplay>
     },
   },
   setup(props, {attrs}) {
@@ -28,7 +28,7 @@ export default defineComponent({
 
     const {isLoading, loadDataPage, loadedRows, display} = toRefs(props)
 
-    const loadedTimeRef = createRef(null)
+    const loadedTimeRef = createRef<Number | null>(null)
 
     const handleLoadRowCount = async () => {
 
@@ -39,9 +39,10 @@ export default defineComponent({
       isLoading.value = true
 
       const loadStart = new Date().getTime()
+      loadedTimeRef.set(loadStart)
 
       const nextRows = await loadDataPage.value!(
-        Object.assign(props, attrs),
+        Object.assign({}, props, attrs),
         loadedRows.value.length,
         getIntSettingsValue('dataGrid.pageSize', 100, 5, 1000)
       )
@@ -54,7 +55,8 @@ export default defineComponent({
     }
 
     function handleLoadNextData() {
-
+      void loadNextData()
+      console.log(``)
     }
 
     function reload() {
@@ -72,7 +74,10 @@ export default defineComponent({
     })
 
     return () => (
-      <DataGridCore display={display.value} />
+      <DataGridCore
+        {...Object.assign({}, props, attrs)}
+        display={display.value}
+        onLoadNextData={handleLoadNextData}/>
     )
   }
 })

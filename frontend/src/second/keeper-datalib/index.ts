@@ -1,4 +1,5 @@
 export * from './GridConfig';
+export * from './GridDisplay';
 export * from './ChangeSet';
 export * from './MacroDefinition';
 export * from './TableGridDisplay';

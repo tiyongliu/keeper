@@ -5,7 +5,7 @@ import {GridDisplay} from '/@/second/keeper-datalib'
 import Grider from './Grider'
 import {isJsonLikeLongString, safeJsonParse} from '/@/second/keeper-tools'
 
-export function countColumnSizes(grider: Grider, columns, containerWidth, display: GridDisplay) {
+export function countColumnSizes(grider: Grider, columns, containerWidth, display: GridDisplay): SeriesSizes {
   // console.log('COUNT SIZES');
 
   const columnSizes = new SeriesSizes();
@@ -38,10 +38,10 @@ export function countColumnSizes(grider: Grider, columns, containerWidth, displa
 
     // if (column.columnClientObject != null && column.columnClientObject.notNull) context.font = "bold 14px Helvetica";
     // else context.font = "14px Helvetica";
-    context.font = 'bold 14px Helvetica';
+    context!.font = 'bold 14px Helvetica';
 
     const text = column.headerText;
-    const headerWidth = context.measureText(text).width + 64;
+    const headerWidth = context!.measureText(text).width + 64;
 
     // if (column.columnClientObject != null && column.columnClientObject.icon != null) headerWidth += 16;
     // if (this.getFilterOnColumn(column.uniquePath)) headerWidth += 16;
@@ -55,7 +55,7 @@ export function countColumnSizes(grider: Grider, columns, containerWidth, displa
   // this.rowHeaderWidth = this.rowHeaderWidthDefault;
   // if (headerWidth > this.rowHeaderWidth) this.rowHeaderWidth = headerWidth;
 
-  context.font = '14px Helvetica';
+  context!.font = '14px Helvetica';
   for (let rowIndex = 0; rowIndex < Math.min(grider.rowCount, 20); rowIndex += 1) {
     const row = grider.getRowData(rowIndex);
     if (!row) {
@@ -73,7 +73,7 @@ export function countColumnSizes(grider: Grider, columns, containerWidth, displa
       if (isArray(value)) text = `[${value.length} items]`;
       else if (value?.$oid) text = `ObjectId("${value.$oid}")`;
       else if (isJsonLikeLongString(value) && safeJsonParse(value)) text = '(JSON)';
-      const width = context.measureText(text).width + 8;
+      const width = context!.measureText(text).width + 8;
       // console.log('colName', colName, text, width);
       columnSizes.putSizeOverride(colIndex, width);
       // let colName = this.columns[colIndex].uniquePath;
@@ -98,10 +98,10 @@ export function countVisibleRealColumns(columnSizes, firstVisibleColumnScrollInd
   // console.log('visibleColumnCount', visibleColumnCount)
   // console.log('gridScrollAreaWidth', gridScrollAreaWidth)
 
-  const visibleRealColumnIndexes = [];
+  const visibleRealColumnIndexes: any[] = [];
   const modelIndexes = {};
   /** @type {(import('dbgate-datalib').DisplayColumn & {width: number; colIndex: number})[]} */
-  const realColumns = [];
+  const realColumns: any[] = [];
 
   // frozen columns
   for (let colIndex = 0; colIndex < columnSizes.frozenCount; colIndex++) {
