@@ -26,6 +26,10 @@ export async function databaseConnectionsRefreshApi(params: {conid: string, data
   return await apiCall('bridge.DatabaseConnections.Refresh', params)
 }
 
+export async function databaseConnectionsSqlSelectApi(params: {conid: string, database: string, select: unknown}) {
+  return await apiCall('bridge.DatabaseConnections.SqlSelect', params)
+}
+
 /**
  * @description plugins
  */

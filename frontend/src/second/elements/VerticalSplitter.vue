@@ -1,14 +1,14 @@
 <template>
   <div class="container" ref="clientHeight">
     <div
-      class="child1 111111111111111111111111111111111111111111111111111111111111111111"
+      class="child1"
       :style="isSplitter
       ? collapsed1
-      ? 'display:none'
-      : collapsed2
-      ? 'flex:1' :
-       `height:${size}px; min-height:${size}px; max-height:${size}px}`
-       : `flex:1`"
+        ? 'display:none'
+        : collapsed2
+        ? 'flex:1'
+        : `height:${size}px; min-height:${size}px; max-height:${size}px}`
+      : `flex:1`"
     >
       <slot name="1"></slot>
     </div>
@@ -27,18 +27,20 @@
         <div v-if="collapsed1" class="collapse" style="top: 0px" @click="() => collapsed1 = false">
           <FontIcon icon="icon chevron-double-down"/>
         </div>
-        <div v-else class="collapse" :style="`top: ${size - 16}px`" @click="() => collapsed1 = true">
+        <div v-else class="collapse" :style="`top: ${size - 16}px`"
+             @click="() => collapsed1 = true">
           <FontIcon icon="icon chevron-double-up"/>
         </div>
       </template>
 
       <template v-if="allowCollapseChild2 && !collapsed1 && isSplitter">
-        <div v-if="collapsed2" class="collapse" style="bottom: 0px" @click="() => collapsed2 = false">
-          <FontIcon icon="icon chevron-double-up" />
+        <div v-if="collapsed2" class="collapse" style="bottom: 0px"
+             @click="() => collapsed2 = false">
+          <FontIcon icon="icon chevron-double-up"/>
         </div>
 
         <div v-else class="collapse" :style="`top: ${size}px`" @click="() => collapsed2 = true">
-          <FontIcon icon="icon chevron-double-down" />
+          <FontIcon icon="icon chevron-double-down"/>
         </div>
       </template>
     </div>
@@ -46,7 +48,7 @@
 </template>
 
 <script lang="ts">
-import {defineComponent, nextTick, ref, toRef, watch, onMounted} from 'vue'
+import {defineComponent, nextTick, ref, toRef, watch} from 'vue'
 import FontIcon from '/@/second/icons/FontIcon.vue'
 import {computeSplitterSize} from '/@/second/elements/HorizontalSplitter.vue'
 

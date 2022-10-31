@@ -180,6 +180,7 @@ export default defineComponent({
         display.value = null
       }
 
+
       if (connection.value && serverVersion.value) {
         formDisplay.value = new TableFormViewDisplay(
           {schemaName: schemaName.value, pureName: pureName.value!},
@@ -274,9 +275,7 @@ export default defineComponent({
       childCache: childCache.value,
       myLoadedTime: myLoadedTime.value,
       childConfig: childConfig.value,
-      fullProps: {
-        ...Object.assign(props, attrs)
-      },
+      fullProps: Object.assign({}, props, attrs),
     }
   }
 })

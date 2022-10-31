@@ -87,7 +87,7 @@ export class SeriesSizes {
     this.frozenItems = [];
     let lastpos = 0;
     for (let i = 0; i < this.frozenCount; i++) {
-      const modelIndex: number = this.frozenModelIndexes[i];
+      const modelIndex: number = this.frozenModelIndexes![i];
       const size: number = this.getSizeByModelIndex(modelIndex);
       const item = new SeriesSizeItem();
       item.frozenIndex = i;

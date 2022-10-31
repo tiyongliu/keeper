@@ -1,12 +1,9 @@
 <template>
-<!--  <LoadingInfo wrapper message="Waiting for structure"/>-->
-<!--  <ErrorInfo :message="errorMessage" alignTop/>-->
-  <div
-    class="container"
-    ref="container"
-  >
-    <input/>
-    <table class="table  sdfssdfsdfsdfsfsd">
+  <!--  <LoadingInfo wrapper message="Waiting for structure"/>-->
+  <!--  <ErrorInfo :message="errorMessage" alignTop/>-->
+  <div class="container" ref="container">
+    <input />
+    <table class="table">
       <thead>
       <tr>
         <td class="header-cell" data-row="header" data-col="header"
@@ -43,17 +40,28 @@
 </template>
 
 <script lang="ts">
-import {computed, defineComponent, PropType, ref, toRefs, unref, onMounted, nextTick, } from 'vue'
+import {
+  computed,
+  defineComponent,
+  nextTick,
+  onMounted,
+  PropType,
+  ref,
+  toRefs,
+  unref,
+  watch
+} from 'vue'
 import ErrorInfo from '/@/second/elements/ErrorInfo.vue'
 import LoadingInfo from '/@/second/elements/LoadingInfo.vue'
 import CollapseButton from '/@/second/datagrid/CollapseButton.vue'
 import ColumnHeaderControl from '/@/second/datagrid/ColumnHeaderControl.vue'
 import DataGridRow from '/@/second/datagrid/DataGridRow.vue'
-import {countColumnSizes, countVisibleRealColumns} from '/@/second/datagrid/gridutil'
-import _columns from './columns.json'
-import _columnSizes from './columnSizes.json'
+import {countColumnSizes} from '/@/second/datagrid/gridutil'
 import _visibleRealColumns from './visibleRealColumns.json'
-import {TableGridDisplay} from "/@/second/keeper-datalib";
+import {GridDisplay} from "/@/second/keeper-datalib";
+import Grider from "/@/second/datagrid/Grider";
+import {SeriesSizes} from "/@/second/datagrid/SeriesSizes";
+
 export default defineComponent({
   name: 'DataGridCore',
   components: {
@@ -65,8 +73,7 @@ export default defineComponent({
   },
   props: {
     grider: {
-      type: Object as PropType<{[key in string]: unknown}>,
-      default: undefined
+      type: Object as PropType<Grider>,
     },
     errorMessage: {
       type: String as PropType<string>,
@@ -85,28 +92,34 @@ export default defineComponent({
       type: Boolean as PropType<boolean>,
       default: false
     },
-
-
     display: {
-      type: Object as PropType<TableGridDisplay>
+      type: Object as PropType<GridDisplay>
     },
+    onLoadNextData: {
+      type: Function as PropType<() => void>
+    }
   },
   setup(props) {
     const container = ref<Nullable<HTMLElement>>(null)
+    const firstVisibleRowScrollIndex = ref(0)
     const firstVisibleColumnScrollIndex = ref(0)
-    const containerWidth = ref(310)
-    const containerHeight = ref(618)
-    const containerWidth = ref(0)
-    const {errorMessage, display} = toRefs(props)
-
-    const columnSizes = computed(() => _columnSizes)
+    const containerWidth = ref(603)
+    const containerHeight = ref(908)
+    const {errorMessage, grider, display, onLoadNextData} = toRefs(props)
 
 
     const {collapsedLeftColumnStore} = toRefs(props)
     const headerColWidth = computed(() => 40)
 
     const gridScrollAreaWidth = computed(() => 205)
-    const columns = computed(() => _columns)
+    // const columns = computed(() => _columns)
+
+
+    const columns = computed(() => display.value?.allColumns || [])
+    const columnSizes = ref<SeriesSizes>()
+    // const columnSizes = computed(() => _columnSizes)
+
+
     // const visibleRealColumns = computed(() => countVisibleRealColumns(
     //   unref(columnSizes),
     //   unref(firstVisibleColumnScrollIndex),
@@ -124,20 +137,22 @@ export default defineComponent({
 
     }
 
-    const columns = computed(() => display.value?.allColumns || [])
+    // const columns = computed(() => display.value?.allColumns || [])
     // countColumnSizes()
-    onMounted(async () => {
+
+    watch(() => [grider.value, columns.value, containerWidth.value, display.value], async () => {
       await nextTick()
-
-      // console.log(visibleRealColumns, `visibleRealColumnsvisibleRealColumnsvisibleRealColumnsvisibleRealColumnsvisibleRealColumns`)
-
-      // container.value!.clientWidth = 310
-      // container.value!.clientHeight = 680
-      // container.value!.clientWidth = clientWidth.value
-      // container.value!.clientHeight = clientHeight.value
+      columnSizes.value = countColumnSizes(grider.value!, columns.value, containerWidth.value, display.value!)
     })
+
+    watch(() => [onLoadNextData.value], () => {
+      if (onLoadNextData.value) {
+        onLoadNextData.value()
+      }
+    }, {immediate: true})
+
     return {
-      ...toRefs(props),
+      ...props,
       errorMessage,
       columnSizes,
       headerColWidth,

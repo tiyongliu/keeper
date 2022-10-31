@@ -1,10 +1,10 @@
-import {defineComponent, PropType, provide, ref, toRefs, unref} from 'vue'
+import {defineComponent, PropType, provide, ref, toRefs, unref, watch, onBeforeUnmount} from 'vue'
 import {createChangeSet, createGridCache} from '/@/second/keeper-datalib'
 import ToolStripContainer from '/@/second/buttons/ToolStripContainer.vue'
 import TableDataGrid from '/@/second/datagrid/TableDataGrid.vue'
 import useGridConfig from '/@/second/utility/useGridConfig'
 import createUndoReducer from '/@/second/utility/createUndoReducer'
-import {getLocalStorage} from '/@/second/utility/storageCache'
+import {getLocalStorage, setLocalStorage} from '/@/second/utility/storageCache'
 
 export default defineComponent({
   name: 'TableDataTab',
@@ -26,6 +26,7 @@ export default defineComponent({
     }
   },
   setup(props, {attrs}) {
+    let autoRefreshTimer: number | null = null
     const {tabid} = toRefs(props)
     // const autoRefreshInterval = ref(getIntSettingsValue('dataGrid.defaultAutoRefreshInterval', 10, 1, 3600));
     // const autoRefreshStarted = ref(false)
@@ -51,6 +52,19 @@ export default defineComponent({
 
     const collapsedLeftColumnStore = ref(getLocalStorage('dataGrid_collapsedLeftColumn', false))
     provide('collapsedLeftColumnStore', collapsedLeftColumnStore)
+
+    watch(() => collapsedLeftColumnStore.value, (_, newValue) =>{
+      setLocalStorage('dataGrid_collapsedLeftColumn', unref(newValue))
+    })
+
+    function closeRefreshTimer() {
+      if (autoRefreshTimer) {
+        clearInterval(autoRefreshTimer)
+        autoRefreshTimer = null
+      }
+    }
+
+    onBeforeUnmount(() => closeRefreshTimer())
 
     return () => (
       <ToolStripContainer>

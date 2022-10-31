@@ -1,24 +1,25 @@
 <template>
   <HorizontalSplitter :initialValue="getInitialManagerSize()" :size="managerSize">
-<!--<div class="left">
-      <WidgetColumnBar>
-        <WidgetColumnBarItem title="Columns" name="columns" height="45%">
-          <ColumnManager />
-        </WidgetColumnBarItem>
+    <!--<div class="left">
+          <WidgetColumnBar>
+            <WidgetColumnBarItem title="Columns" name="columns" height="45%">
+              <ColumnManager />
+            </WidgetColumnBarItem>
 
-        <WidgetColumnBarItem title="Filters" name="jsonFilters" height="30%">
+            <WidgetColumnBarItem title="Filters" name="jsonFilters" height="30%">
 
-        </WidgetColumnBarItem>
-      </WidgetColumnBar>
+            </WidgetColumnBarItem>
+          </WidgetColumnBar>
 
-    </div>-->
+        </div>-->
 
     <template #2>
       <VerticalSplitter initialValue="70%" :isSplitter="false">
         <template #1>
           <component v-if="isFormView" :is="formViewComponent" v-bind="fullProps"/>
           <component v-else-if="isJsonView" :is="jsonViewComponent" v-bind="fullProps"/>
-          <component v-else :is="gridCoreComponent" v-bind="fullProps" :macroPreview="selectedMacro"/>
+          <component v-else :is="gridCoreComponent" v-bind="fullProps"
+                     :macroPreview="selectedMacro"/>
         </template>
 
         <template #2>
@@ -30,18 +31,8 @@
 </template>
 
 <script lang="ts">
-import {
-  Component,
-  defineComponent,
-  PropType,
-  ref,
-  toRaw,
-  onMounted,
-  computed,
-  toRefs,
-  provide
-} from 'vue'
-import {isNumber, fromPairs, mapKeys} from 'lodash-es'
+import {Component, computed, defineComponent, PropType, provide, ref, toRaw, toRefs, onMounted} from 'vue'
+import {fromPairs, isNumber, mapKeys} from 'lodash-es'
 import HorizontalSplitter from '/@/second/elements/HorizontalSplitter.vue'
 import WidgetColumnBar from '/@/second/widgets/WidgetColumnBar.vue'
 import WidgetColumnBarItem from '/@/second/widgets/WidgetColumnBarItem.vue'
@@ -49,12 +40,11 @@ import VerticalSplitter from '/@/second/elements/VerticalSplitter.vue'
 import MacroDetail from '/@/second/freetable/MacroDetail.vue'
 import ColumnManager from '/@/second/datagrid/ColumnManager.vue'
 import {getLocalStorage} from '/@/second/utility/storageCache'
-
 import {
-  TableGridDisplay,
-  TableFormViewDisplay, GridConfig
+  GridConfig,
+  GridDisplay,
+  TableFormViewDisplay,
 } from '/@/second/keeper-datalib'
-
 
 function extractMacroValuesForMacro(macroValues, macro) {
   // return {};
@@ -81,7 +71,7 @@ export default defineComponent({
       type: Object as PropType<GridConfig>,
     },
     display: {
-      type: Object as PropType<TableGridDisplay>
+      type: Object as PropType<GridDisplay>
     },
     formDisplay: {
       type: Object as PropType<TableFormViewDisplay>
@@ -116,7 +106,7 @@ export default defineComponent({
       return '300px';
     }
 
-    const {config, formDisplay, selectedCellsPublished} = toRefs(props)
+    const {config, formDisplay, selectedCellsPublished, display} = toRefs(props)
     const isFormView = computed(() => !!(formDisplay.value && formDisplay.value.config && formDisplay.value.config.isFormView))
     const isJsonView = computed(() => !!(config.value?.isJsonView))
 
@@ -125,6 +115,11 @@ export default defineComponent({
       selectedMacro.value = null
     }
 
+    onMounted(() => {
+      setTimeout(() => {
+        console.log(Object.assign(props.display, attrs), `5555555555555555555555555555555555555`)
+      }, 5555)
+    })
     return {
       gridCoreComponent,
       formViewComponent,
@@ -135,9 +130,7 @@ export default defineComponent({
       selectedMacro,
       isFormView,
       isJsonView,
-      fullProps: {
-        ...Object.assign(props, attrs)
-      },
+      fullProps: Object.assign({}, props, attrs),
     }
   }
 })
