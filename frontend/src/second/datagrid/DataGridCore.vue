@@ -92,6 +92,10 @@ export default defineComponent({
       type: Boolean as PropType<boolean>,
       default: false
     },
+    formViewAvailable: {
+      type: Boolean as PropType<boolean>,
+      default: false
+    },
     display: {
       type: Object as PropType<GridDisplay>
     },
@@ -145,11 +149,11 @@ export default defineComponent({
       columnSizes.value = countColumnSizes(grider.value!, columns.value, containerWidth.value, display.value!)
     })
 
-    watch(() => [onLoadNextData.value], () => {
-      if (onLoadNextData.value) {
+    watch(() => [onLoadNextData.value, display.value], () => {
+      if (onLoadNextData.value && display.value) {
         onLoadNextData.value()
       }
-    }, {immediate: true})
+    })
 
     return {
       ...props,

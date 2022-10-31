@@ -177,6 +177,8 @@ export default defineComponent({
           unref(serverVersion),
           table => getDictionaryDescription(table, conid.value!, database.value!, apps.value, connections.value) as any
         )
+
+        console.log(`display.value.getPageQuery(1, 100)`, display.value.getPageQuery(1, 100))
       } else {
         display.value = null
       }

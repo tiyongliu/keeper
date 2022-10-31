@@ -630,14 +630,151 @@ export abstract class GridDisplay {
   }
 
   getPageQuery(offset: number, count: number) {
-    if (!this.driver) return null;
-    let select = this.createSelect();
-    if (!select) return null;
-    if (this.dialect.rangeSelect) select.range = {offset: offset, limit: count};
-    else if (this.dialect.rowNumberOverPaging && offset > 0)
-      select = this.getRowNumberOverSelect(select, offset, count);
-    else if (this.dialect.limitSelect) select.topRecords = count;
-    return select;
+    return {
+      "commandType": "select",
+      "from": {
+        "name": {
+          "pureName": "tz_attach_file"
+        },
+        "alias": "basetbl"
+      },
+      "columns": [
+        {
+          "exprType": "column",
+          "alias": "file_id",
+          "source": {
+            "alias": "basetbl"
+          },
+          "pureName": "tz_attach_file",
+          "notNull": true,
+          "autoIncrement": true,
+          "columnName": "file_id",
+          "columnComment": "",
+          "dataType": "bigint",
+          "defaultValue": null,
+          "isUnsigned": false,
+          "isZerofill": false
+        },
+        {
+          "exprType": "column",
+          "alias": "file_path",
+          "source": {
+            "alias": "basetbl"
+          },
+          "pureName": "tz_attach_file",
+          "notNull": false,
+          "autoIncrement": false,
+          "columnName": "file_path",
+          "columnComment": "文件路径",
+          "dataType": "varchar(255)",
+          "defaultValue": null,
+          "isUnsigned": false,
+          "isZerofill": false
+        },
+        {
+          "exprType": "column",
+          "alias": "file_type",
+          "source": {
+            "alias": "basetbl"
+          },
+          "pureName": "tz_attach_file",
+          "notNull": false,
+          "autoIncrement": false,
+          "columnName": "file_type",
+          "columnComment": "文件类型",
+          "dataType": "varchar(20)",
+          "defaultValue": null,
+          "isUnsigned": false,
+          "isZerofill": false
+        },
+        {
+          "exprType": "column",
+          "alias": "file_size",
+          "source": {
+            "alias": "basetbl"
+          },
+          "pureName": "tz_attach_file",
+          "notNull": false,
+          "autoIncrement": false,
+          "columnName": "file_size",
+          "columnComment": "文件大小",
+          "dataType": "int",
+          "defaultValue": null,
+          "isUnsigned": false,
+          "isZerofill": false
+        },
+        {
+          "exprType": "column",
+          "alias": "upload_time",
+          "source": {
+            "alias": "basetbl"
+          },
+          "pureName": "tz_attach_file",
+          "notNull": false,
+          "autoIncrement": false,
+          "columnName": "upload_time",
+          "columnComment": "上传时间",
+          "dataType": "datetime",
+          "defaultValue": null,
+          "isUnsigned": false,
+          "isZerofill": false
+        },
+        {
+          "exprType": "column",
+          "alias": "file_join_id",
+          "source": {
+            "alias": "basetbl"
+          },
+          "pureName": "tz_attach_file",
+          "notNull": false,
+          "autoIncrement": false,
+          "columnName": "file_join_id",
+          "columnComment": "文件关联的表主键id",
+          "dataType": "bigint",
+          "defaultValue": null,
+          "isUnsigned": false,
+          "isZerofill": false
+        },
+        {
+          "exprType": "column",
+          "alias": "file_join_type",
+          "source": {
+            "alias": "basetbl"
+          },
+          "pureName": "tz_attach_file",
+          "notNull": false,
+          "autoIncrement": false,
+          "columnName": "file_join_type",
+          "columnComment": "文件关联表类型：1 商品表  FileJoinType",
+          "dataType": "tinyint",
+          "defaultValue": null,
+          "isUnsigned": false,
+          "isZerofill": false
+        }
+      ],
+      "orderBy": [
+        {
+          "exprType": "column",
+          "columnName": "file_id",
+          "direction": "ASC"
+        }
+      ],
+      "range": {
+        "offset": 8,
+        "limit": 100
+      }
+    }
+
+
+    // todo
+    // if (!this.driver) return null;
+    // let select = this.createSelect();
+    // if (!select) return null;
+    // if (this.dialect.rangeSelect) select.range = {offset: offset, limit: count};
+    // else if (this.dialect.rowNumberOverPaging && offset > 0)
+    //   select = this.getRowNumberOverSelect(select, offset, count);
+    // else if (this.dialect.limitSelect) select.topRecords = count;
+    // return select;
     // const sql = treeToSql(this.driver, select, dumpSqlSelect);
     // return sql;
   }

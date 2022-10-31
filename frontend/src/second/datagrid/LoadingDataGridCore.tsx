@@ -1,4 +1,4 @@
-import {defineComponent, PropType, ref, toRefs, unref, watch, onMounted} from 'vue'
+import {defineComponent, PropType, ref, toRefs, watch} from 'vue'
 import {getIntSettingsValue} from '/@/second/settings/settingsTools'
 import createRef from '/@/second/utility/createRef'
 import DataGridCore from './DataGridCore.vue'
@@ -73,12 +73,11 @@ export default defineComponent({
       }
     })
 
-    watch(() => display.value, () => {
-      console.log(display.value, `displaydisplaydisplaydisplaydisplaydisplay`)
-    })
-
     return () => (
-      <DataGridCore display={display.value} onLoadNextData={handleLoadNextData} />
+      <DataGridCore
+        {...Object.assign({}, props, attrs)}
+        display={display.value}
+        onLoadNextData={handleLoadNextData}/>
     )
   }
 })

@@ -10,11 +10,13 @@ import {databaseConnectionsSqlSelectApi} from '/@/api/simpleApis'
 async function loadDataPage(props, offset, limit) {
   const { display } = props
 
-
+  const select = display.getPageQuery(offset, limit)
   console.log(`-----------------------props`, )
   console.log(`-----------------------offset`, offset)
   console.log(`-----------------------limit`, limit)
-  console.log(`-----------------------display`, display)
+  console.log(`-----------------------display`, display.getPageQuery(offset, limit))
+
+
   // const response = await databaseConnectionsSqlSelectApi({
   //   conid: unref(conid)!,
   //   database: unref(database)!,

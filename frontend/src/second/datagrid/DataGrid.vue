@@ -1,24 +1,39 @@
 <template>
   <HorizontalSplitter :initialValue="getInitialManagerSize()" :size="managerSize">
-    <!--<div class="left">
-          <WidgetColumnBar>
-            <WidgetColumnBarItem title="Columns" name="columns" height="45%">
-              <ColumnManager />
-            </WidgetColumnBarItem>
+    <template #1>
+      <div class="left">
+        <WidgetColumnBar>
+          <WidgetColumnBarItem title="Columns" name="columns" height="45%">
+            <ColumnManager
+              v-if="false"
+              v-bind="Object.assign({}, $props, $attrs)"
+              :isJsonView="isJsonView" :isDynamicStructure="isDynamicStructure"/>
+          </WidgetColumnBarItem>
 
-            <WidgetColumnBarItem title="Filters" name="jsonFilters" height="30%">
+          <WidgetColumnBarItem title="Filters" name="jsonFilters" height="30%">
 
-            </WidgetColumnBarItem>
-          </WidgetColumnBar>
+          </WidgetColumnBarItem>
+        </WidgetColumnBar>
 
-        </div>-->
-
+      </div>
+    </template>
     <template #2>
       <VerticalSplitter initialValue="70%" :isSplitter="false">
         <template #1>
-          <component v-if="isFormView" :is="formViewComponent"  v-bind="Object.assign({}, $props, $attrs)"/>
-          <component v-else-if="isJsonView" :is="jsonViewComponent"  v-bind="Object.assign({}, $props, $attrs)"/>
-          <component v-else :is="gridCoreComponent"  v-bind="Object.assign({}, $props, $attrs)" :macroPreview="selectedMacro"/>
+          <component
+            v-if="isFormView"
+            :is="formViewComponent"
+            v-bind="Object.assign({}, $props, $attrs)"/>
+          <component
+            v-else-if="isJsonView"
+            :is="jsonViewComponent"
+            v-bind="Object.assign({}, $props, $attrs)"/>
+          <component
+            v-else
+            :is="gridCoreComponent"
+            v-bind="Object.assign({}, $props, $attrs)"
+            :macroPreview="selectedMacro"
+            :formViewAvailable="!!formViewComponent && !!formDisplay"/>
         </template>
 
         <template #2>
@@ -30,7 +45,7 @@
 </template>
 
 <script lang="ts">
-import {Component, computed, defineComponent, PropType, provide, ref, toRaw, toRefs, onMounted, watch} from 'vue'
+import {Component, computed, defineComponent, PropType, provide, ref, toRaw, toRefs} from 'vue'
 import {fromPairs, isNumber, mapKeys} from 'lodash-es'
 import HorizontalSplitter from '/@/second/elements/HorizontalSplitter.vue'
 import WidgetColumnBar from '/@/second/widgets/WidgetColumnBar.vue'
@@ -39,11 +54,7 @@ import VerticalSplitter from '/@/second/elements/VerticalSplitter.vue'
 import MacroDetail from '/@/second/freetable/MacroDetail.vue'
 import ColumnManager from '/@/second/datagrid/ColumnManager.vue'
 import {getLocalStorage} from '/@/second/utility/storageCache'
-import {
-  GridConfig,
-  GridDisplay,
-  TableFormViewDisplay,
-} from '/@/second/keeper-datalib'
+import {GridConfig, GridDisplay, TableFormViewDisplay,} from '/@/second/keeper-datalib'
 
 function extractMacroValuesForMacro(macroValues, macro) {
   // return {};
@@ -77,6 +88,10 @@ export default defineComponent({
     },
     macroCondition: {
       type: Function as PropType<(macro: any) => boolean>
+    },
+    isDynamicStructure: {
+      type: Boolean as PropType<boolean>,
+      default: false
     }
   },
   components: {
@@ -108,7 +123,7 @@ export default defineComponent({
       return '300px';
     }
 
-    const {config, formDisplay, selectedCellsPublished, display} = toRefs(props)
+    const {config, formDisplay, selectedCellsPublished, display, isDynamicStructure} = toRefs(props)
     const isFormView = computed(() => !!(formDisplay.value && formDisplay.value.config && formDisplay.value.config.isFormView))
     const isJsonView = computed(() => !!(config.value?.isJsonView))
 
@@ -126,8 +141,10 @@ export default defineComponent({
       getInitialManagerSize,
       handleExecuteMacro,
       selectedMacro,
+      formDisplay,
       isFormView,
       isJsonView,
+      isDynamicStructure
     }
   }
 })
