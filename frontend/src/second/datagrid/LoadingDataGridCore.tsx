@@ -73,6 +73,9 @@ export default defineComponent({
       }
     })
 
+    watch(() => display.value, () => {
+      console.log(display.value, `displaydisplaydisplaydisplaydisplaydisplay`)
+    })
 
     return () => (
       <DataGridCore display={display.value} onLoadNextData={handleLoadNextData} />

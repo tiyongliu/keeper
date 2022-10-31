@@ -2,7 +2,7 @@
   <VerticalSplitter :isSplitter="!!reference">
     <template #1>
       <DataGrid
-        v-bind="$attrs"
+        v-bind="Object.assign({}, $props, $attrs)"
         :gridCoreComponent="SqlDataGridCore"
         :formViewComponent="SqlFormView"
         :display="display"
@@ -10,6 +10,7 @@
         showReferences
         showMacros
         @runMacro="handleRunMacro"
+        :macroCondition="macro => macro.type == 'transformValue'"
         :multipleGridsOnTab="multipleGridsOnTab || !!reference"
         allowDefineVirtualReferences
       />
@@ -19,7 +20,7 @@
         <ReferenceHeader :reference="reference" @close="handleCloseReference"/>
         <div class="detail">
           <TableDataGrid
-            v-bind="fullProps"
+            v-bind="Object.assign({}, $props, $attrs)"
             :pureName="reference.pureName"
             :schemaName="reference.schemaName"
             :config="childConfig"
@@ -48,14 +49,13 @@ import {
   unref,
   watch,
 } from 'vue'
+import {storeToRefs} from 'pinia'
+import {fromPairs, isFunction} from 'lodash-es'
 import VerticalSplitter from '/@/second/elements/VerticalSplitter.vue'
 import DataGrid from '/@/second/datagrid/DataGrid.vue'
 import ReferenceHeader from '/@/second/datagrid/ReferenceHeader.vue'
 import SqlDataGridCore from '/@/second/datagrid/SqlDataGridCore'
 import SqlFormView from '/@/second/formview/SqlFormView'
-
-import {storeToRefs} from "pinia";
-import {fromPairs, isFunction} from 'lodash-es'
 import {useBootstrapStore} from "/@/store/modules/bootstrap"
 import {
   useConnectionInfo,
@@ -76,6 +76,7 @@ import {
 import {extendDatabaseInfoFromApps, findEngineDriver} from '/@/second/keeper-tools'
 import {getFilterValueExpression} from '/@/second/keeper-filterparser'
 import stableStringify from 'json-stable-stringify'
+import {ExtensionsDirectory} from "/@/second/keeper-types";
 
 export default defineComponent({
   name: "TableDataGrid",
@@ -166,7 +167,7 @@ export default defineComponent({
       if (connection.value && serverVersion.value) {
         display.value = new TableGridDisplay(
           {schemaName: schemaName.value, pureName: pureName.value!},
-          findEngineDriver(connection.value, extensions.value!),
+          findEngineDriver(connection.value, <ExtensionsDirectory>extensions.value!),
           config.value!,
           unref(setConfig) as (changeFunc: (config: GridConfig) => GridConfig) => void,
           cache.value!,
@@ -184,7 +185,7 @@ export default defineComponent({
       if (connection.value && serverVersion.value) {
         formDisplay.value = new TableFormViewDisplay(
           {schemaName: schemaName.value, pureName: pureName.value!},
-          findEngineDriver(connection.value, extensions.value!),
+          findEngineDriver(connection.value, <ExtensionsDirectory>extensions.value!),
           config.value!,
           unref(setConfig) as (changeFunc: (config: GridConfig) => GridConfig) => void,
           cache.value!,
@@ -275,7 +276,6 @@ export default defineComponent({
       childCache: childCache.value,
       myLoadedTime: myLoadedTime.value,
       childConfig: childConfig.value,
-      fullProps: Object.assign({}, props, attrs),
     }
   }
 })

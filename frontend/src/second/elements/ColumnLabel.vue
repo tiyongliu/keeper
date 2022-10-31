@@ -91,7 +91,7 @@ export default defineComponent({
     } = toRefs(props)
 
     // const icon = ref<Nullable<string>>(null)
-    const icon = computed(() => getColumnIcon(Object.assign(props, attrs), forceIcon.value))
+    const icon = computed(() => getColumnIcon(Object.assign({}, props, attrs), forceIcon.value))
 
     function handler(e: Event) {
       e.stopPropagation()

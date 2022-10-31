@@ -95,17 +95,9 @@ export default defineComponent({
       }
     })
 
-    const fullProps = Object.assign({}, props, attrs)
-
-    onMounted(() => {
-      setTimeout(() => {
-        console.log(`-----------??????????fullProps`, fullProps)
-      }, 5000)
-    })
-
     return () => (
       <LoadingDataGridCore
-        {...fullProps}
+        {...Object.assign({}, props, attrs)}
         loadDataPage={loadDataPage}
         loadRowCount={loadRowCount}
         display={display.value}

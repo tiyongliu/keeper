@@ -16,10 +16,9 @@
     <template #2>
       <VerticalSplitter initialValue="70%" :isSplitter="false">
         <template #1>
-          <component v-if="isFormView" :is="formViewComponent" v-bind="fullProps"/>
-          <component v-else-if="isJsonView" :is="jsonViewComponent" v-bind="fullProps"/>
-          <component v-else :is="gridCoreComponent" v-bind="fullProps"
-                     :macroPreview="selectedMacro"/>
+          <component v-if="isFormView" :is="formViewComponent"  v-bind="Object.assign({}, $props, $attrs)"/>
+          <component v-else-if="isJsonView" :is="jsonViewComponent"  v-bind="Object.assign({}, $props, $attrs)"/>
+          <component v-else :is="gridCoreComponent"  v-bind="Object.assign({}, $props, $attrs)" :macroPreview="selectedMacro"/>
         </template>
 
         <template #2>
@@ -31,7 +30,7 @@
 </template>
 
 <script lang="ts">
-import {Component, computed, defineComponent, PropType, provide, ref, toRaw, toRefs, onMounted} from 'vue'
+import {Component, computed, defineComponent, PropType, provide, ref, toRaw, toRefs, onMounted, watch} from 'vue'
 import {fromPairs, isNumber, mapKeys} from 'lodash-es'
 import HorizontalSplitter from '/@/second/elements/HorizontalSplitter.vue'
 import WidgetColumnBar from '/@/second/widgets/WidgetColumnBar.vue'
@@ -75,6 +74,9 @@ export default defineComponent({
     },
     formDisplay: {
       type: Object as PropType<TableFormViewDisplay>
+    },
+    macroCondition: {
+      type: Function as PropType<(macro: any) => boolean>
     }
   },
   components: {
@@ -115,11 +117,7 @@ export default defineComponent({
       selectedMacro.value = null
     }
 
-    onMounted(() => {
-      setTimeout(() => {
-        console.log(Object.assign(props.display, attrs), `5555555555555555555555555555555555555`)
-      }, 5555)
-    })
+
     return {
       gridCoreComponent,
       formViewComponent,
@@ -130,7 +128,6 @@ export default defineComponent({
       selectedMacro,
       isFormView,
       isJsonView,
-      fullProps: Object.assign({}, props, attrs),
     }
   }
 })

@@ -69,7 +69,7 @@ export default defineComponent({
     return () => (
       <ToolStripContainer>
         <TableDataGrid
-          {...Object.assign(props, attrs)}
+          {...Object.assign({}, props, attrs)}
           config={config.value}
           setConfig={configUpdate}
           cache={unref(cache)}
