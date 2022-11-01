@@ -178,6 +178,22 @@ export default defineComponent({
           table => getDictionaryDescription(table, conid.value!, database.value!, apps.value, connections.value) as any
         )
 
+
+        console.log(`??????????????????????????????????????????????`)
+        // console.log(`1`, {schemaName: schemaName.value, pureName: pureName.value!})
+        console.log(`2`, findEngineDriver(connection.value, <ExtensionsDirectory>extensions.value!))
+        // console.log(`3`, config)
+        // console.log(`4`, setConfig)
+        // console.log(`5`, cache)
+        // console.log(`6`, setCache)
+        // console.log(`7`, extendedDbInfo)
+        // console.log(`8`, { showHintColumns: getBoolSettingsValue('dataGrid.showHintColumns', true) })
+        // console.log(`9`, $serverVersion)
+        // console.log(`10`, table => getDictionaryDescription(table, conid, database, $apps, $connections))
+        // console.log(`11`, $connection?.isReadOnly)
+        // console.log(`??????????????????????????????????????????????`)
+
+
         console.log(`display.value.getPageQuery(1, 100)`, display.value.getPageQuery(1, 100))
       } else {
         display.value = null
