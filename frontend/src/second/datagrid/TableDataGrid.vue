@@ -76,7 +76,7 @@ import {
 import {extendDatabaseInfoFromApps, findEngineDriver} from '/@/second/keeper-tools'
 import {getFilterValueExpression} from '/@/second/keeper-filterparser'
 import stableStringify from 'json-stable-stringify'
-import {ExtensionsDirectory} from "/@/second/keeper-types";
+import {DatabaseInfo, ExtensionsDirectory} from "/@/second/keeper-types";
 
 export default defineComponent({
   name: "TableDataGrid",
@@ -155,7 +155,7 @@ export default defineComponent({
 
     watch(() => [conid.value, database.value], () => {
       useConnectionInfo({conid: unref(conid)}, connection)
-      useDatabaseInfo({conid: unref(conid)}, dbinfo)
+      useDatabaseInfo<DatabaseInfo>({conid: unref(conid), database: unref(database)}, dbinfo)
       useDatabaseServerVersion({conid: unref(conid), database: unref(database)}, serverVersion)
     }, {immediate: true})
 
@@ -181,20 +181,20 @@ export default defineComponent({
 
         console.log(`??????????????????????????????????????????????`)
         // console.log(`1`, {schemaName: schemaName.value, pureName: pureName.value!})
-        console.log(`2`, findEngineDriver(connection.value, <ExtensionsDirectory>extensions.value!))
-        // console.log(`3`, config)
-        // console.log(`4`, setConfig)
-        // console.log(`5`, cache)
-        // console.log(`6`, setCache)
-        // console.log(`7`, extendedDbInfo)
+        // console.log(`2`, findEngineDriver(connection.value, <ExtensionsDirectory>extensions.value!))
+        console.log(`3`, config.value)
+        console.log(`4`, setConfig.value)
+        console.log(`5`, cache.value)
+        console.log(`6`, setCache.value)
+        console.log(`7`, extendedDbInfo.value)
         // console.log(`8`, { showHintColumns: getBoolSettingsValue('dataGrid.showHintColumns', true) })
         // console.log(`9`, $serverVersion)
         // console.log(`10`, table => getDictionaryDescription(table, conid, database, $apps, $connections))
         // console.log(`11`, $connection?.isReadOnly)
-        // console.log(`??????????????????????????????????????????????`)
+        console.log(`??????????????????????????????????????????????`)
 
 
-        console.log(`display.value.getPageQuery(1, 100)`, display.value.getPageQuery(1, 100))
+        // console.log(`display.value.getPageQuery(1, 100)`, display.value.getPageQuery(1, 100))
       } else {
         display.value = null
       }

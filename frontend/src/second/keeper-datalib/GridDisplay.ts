@@ -630,7 +630,6 @@ export abstract class GridDisplay {
   }
 
   getPageQuery(offset: number, count: number) {
-   /*
     return {
       "commandType": "select",
       "from": {
@@ -765,34 +764,17 @@ export abstract class GridDisplay {
         "limit": 100
       }
     }
-   * */
 
 
     // todo
-    if (!this.driver) {
-      console.log(`! - 1`)
-      return null
-    };
-    let select = this.createSelect();
-    if (!select) {
-      console.log(`! - 2`)
-      return null;
-    }
-    if (this.dialect.rangeSelect) {
-      console.log(`! - 3`)
-      select.range = { offset: offset, limit: count };
-    }
-    else if (this.dialect.rowNumberOverPaging && offset > 0) {
-      console.log(`! - 4`)
-      select = this.getRowNumberOverSelect(select, offset, count);
-    }
-    else if (this.dialect.limitSelect) {
-      console.log(`! - 5`)
-      select.topRecords = count
-    }
-    console.log(`! - 6`)
-    return select;
-
+    // if (!this.driver) return null;
+    // let select = this.createSelect();
+    // if (!select) return null;
+    // if (this.dialect.rangeSelect) select.range = {offset: offset, limit: count};
+    // else if (this.dialect.rowNumberOverPaging && offset > 0)
+    //   select = this.getRowNumberOverSelect(select, offset, count);
+    // else if (this.dialect.limitSelect) select.topRecords = count;
+    // return select;
     // const sql = treeToSql(this.driver, select, dumpSqlSelect);
     // return sql;
   }

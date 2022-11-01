@@ -3,7 +3,6 @@ package frontend
 import (
 	"github.com/samber/lo"
 	"keeper/app/utility"
-	"strings"
 )
 
 type ConnectionFieldValues struct {
@@ -12,29 +11,12 @@ type ConnectionFieldValues struct {
 
 func mysqlDriverBase() map[string]interface{} {
 	return map[string]interface{}{
-		"databaseEngineTypes": []string{"sql"},
-		"showConnectionField": func(field string, values *ConnectionFieldValues) bool {
-			return lo.Contains([]string{"authType", "user", "password", "defaultDatabase", "singleDatabase", "isReadOnly"}, field) ||
-				valuesAuthType(field, values)
-		},
+		"databaseEngineTypes":  []string{"sql"},
 		"defaultPort":          3306,
 		"readOnlySessions":     true,
 		"supportsDatabaseDump": true,
 		"authTypeLabel":        "Connection mode",
 		"defaultAuthTypeName":  "hostPort",
-		"getNewObjectTemplates": func() []map[string]string {
-			return []map[string]string{
-				{"label": "New view", "sql": "CREATE VIEW myview\nAS\nSELECT * FROM table1"},
-				{
-					"label": "New procedure",
-					"sql":   "DELIMITER //\n\nCREATE PROCEDURE myproc (IN arg1 INT)\nBEGIN\n  SELECT * FROM table1;\nEND\n\nDELIMITER ;",
-				},
-				{
-					"label": "New function",
-					"sql":   "CREATE FUNCTION myfunc (arg1 INT)\nRETURNS INT DETERMINISTIC\nRETURN 1",
-				},
-			}
-		},
 	}
 }
 
@@ -78,14 +60,12 @@ var spatialTypes = []string{
 }
 
 var dialect = map[string]interface{}{
-	"rangeSelect":               true,
-	"stringEscapeChar":          "\\",
-	"fallbackDataType":          "longtext",
-	"enableConstraintsPerTable": false,
-	"anonymousPrimaryKey":       true,
-	"explicitDropConstraint":    true,
-	"quoteIdentifier":           func(s string) string { return "`" + s + "`" },
-
+	"rangeSelect":                true,
+	"stringEscapeChar":           "\\",
+	"fallbackDataType":           "longtext",
+	"enableConstraintsPerTable":  false,
+	"anonymousPrimaryKey":        true,
+	"explicitDropConstraint":     true,
 	"createColumn":               true,
 	"dropColumn":                 true,
 	"changeColumn":               true,
@@ -139,24 +119,5 @@ var dialect = map[string]interface{}{
 		"timestamp",
 		"time",
 		"year",
-	},
-
-	"createColumnViewExpression": func(columnName, dataType, source string, alias interface{}) map[string]interface{} {
-		if dataType != "" && lo.Contains(spatialTypes, strings.ToUpper(dataType)) {
-			m := map[string]interface{}{
-				"exprType": "call",
-				"func":     "ST_AsText",
-				"args": []map[string]interface{}{
-					{"exprType": "column", "columnName": columnName, "source": source},
-				},
-			}
-			if alias != nil {
-				m["alias"] = alias
-			} else {
-				m["alias"] = columnName
-			}
-			return m
-		}
-		return nil
 	},
 }
