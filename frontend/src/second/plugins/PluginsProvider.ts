@@ -1,10 +1,8 @@
 import {isEmpty, keys, pick} from 'lodash-es'
 import {useInstalledPlugins} from '/@/api/bridge'
-import {pluginsScriptApi} from '/@/api/simpleApis'
 import {useBootstrapStore} from "/@/store/modules/bootstrap"
 import {onBeforeUnmount, onMounted, ref, watch} from 'vue'
 import {ExtensionsDirectory} from "/@/second/typings/types/extensions";
-
 
 export default function initPluginsProvider() {
   const installedPlugins = ref()
@@ -56,10 +54,16 @@ async function loadPlugins(pluginsDict, installedPlugins, dataBase) {
         loaded: false,
         loadingPackageName: installed.name
       })
-      const resp = await pluginsScriptApi({
-        packageName: installed.name,
-      })
-      newPlugins[installed.name] = resp
+
+
+      //todo v0.0.2 从接口获取改为静态文件
+
+      // const resp = await pluginsScriptApi({
+      //   packageName: installed.name,
+      // })
+
+      const defaultFrontend = await import(`./keeper-plugin-${installed.name}`)
+      newPlugins[installed.name] = defaultFrontend.default ?? {}
     }
   }
 

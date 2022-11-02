@@ -59,6 +59,12 @@ const installedPluginsLoader = () => ({
   reloadTrigger: `installed-plugins-changed`,
 })
 
+const settingsLoader = () => ({
+  url: 'config/get-settings',
+  params: {},
+  reloadTrigger: 'settings-changed',
+})
+
 export function useConnectionList<T>(targetRef: Ref<T>) {
   return useCore(connectionListLoader, {}, targetRef);
 }
@@ -91,8 +97,12 @@ export function useConnectionInfo<T>(args, targetRef: Ref<T>) {
   return useCore(connectionInfoLoader, args, targetRef)
 }
 
-export function useInstalledPlugins<T>(args = {},targetRef: Ref<T>) {
+export function useInstalledPlugins<T>(args = {}, targetRef: Ref<T>) {
   return useCore(installedPluginsLoader, args, targetRef);
+}
+
+export function useSettings<T>(targetRef: Ref<T>) {
+  return useCore(settingsLoader, {}, targetRef);
 }
 
 async function getCore(loader, args) {

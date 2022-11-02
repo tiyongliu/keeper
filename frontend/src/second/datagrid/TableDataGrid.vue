@@ -123,7 +123,7 @@ export default defineComponent({
     SqlDataGridCore,
     SqlFormView
   },
-  setup(props, {attrs}) {
+  setup(props) {
     const bootstrap = useBootstrapStore()
     const {extensions} = storeToRefs(bootstrap)
     const {
@@ -164,55 +164,34 @@ export default defineComponent({
     })
 
     watch(() => [connection.value, serverVersion.value], () => {
-      if (connection.value && serverVersion.value) {
-        display.value = new TableGridDisplay(
-          {schemaName: schemaName.value, pureName: pureName.value!},
-          findEngineDriver(connection.value, <ExtensionsDirectory>extensions.value!),
-          config.value!,
-          unref(setConfig) as (changeFunc: (config: GridConfig) => GridConfig) => void,
-          cache.value!,
-          unref(setCache) as (changeFunc: (cache: GridCache) => GridCache) => void,
-          unref(extendedDbInfo),
-          {showHintColumns: getBoolSettingsValue('dataGrid.showHintColumns', true)},
-          unref(serverVersion),
-          table => getDictionaryDescription(table, conid.value!, database.value!, apps.value, connections.value) as any
-        )
-
-
-        console.log(`??????????????????????????????????????????????`)
-        // console.log(`1`, {schemaName: schemaName.value, pureName: pureName.value!})
-        // console.log(`2`, findEngineDriver(connection.value, <ExtensionsDirectory>extensions.value!))
-        console.log(`3`, config.value)
-        console.log(`4`, setConfig.value)
-        console.log(`5`, cache.value)
-        console.log(`6`, setCache.value)
-        console.log(`7`, extendedDbInfo.value)
-        // console.log(`8`, { showHintColumns: getBoolSettingsValue('dataGrid.showHintColumns', true) })
-        // console.log(`9`, $serverVersion)
-        // console.log(`10`, table => getDictionaryDescription(table, conid, database, $apps, $connections))
-        // console.log(`11`, $connection?.isReadOnly)
-        console.log(`??????????????????????????????????????????????`)
-
-
-        // console.log(`display.value.getPageQuery(1, 100)`, display.value.getPageQuery(1, 100))
-      } else {
-        display.value = null
-      }
-
+      display.value = connection.value && serverVersion.value ? new TableGridDisplay(
+        {schemaName: schemaName.value, pureName: pureName.value!},
+        findEngineDriver(connection.value, <ExtensionsDirectory>extensions.value!),
+        config.value!,
+        setConfig.value as (changeFunc: (config: GridConfig) => GridConfig) => void,
+        cache.value!,
+        setCache.value as (changeFunc: (cache: GridCache) => GridCache) => void,
+        extendedDbInfo.value,
+        {showHintColumns: getBoolSettingsValue('dataGrid.showHintColumns', true)},
+        serverVersion.value,
+        table => getDictionaryDescription(table, conid.value!, database.value!, apps.value, connections.value) as any
+      ) : null
 
       if (connection.value && serverVersion.value) {
         formDisplay.value = new TableFormViewDisplay(
           {schemaName: schemaName.value, pureName: pureName.value!},
           findEngineDriver(connection.value, <ExtensionsDirectory>extensions.value!),
           config.value!,
-          unref(setConfig) as (changeFunc: (config: GridConfig) => GridConfig) => void,
+          setConfig.value as (changeFunc: (config: GridConfig) => GridConfig) => void,
           cache.value!,
-          unref(setCache) as (changeFunc: (cache: GridCache) => GridCache) => void,
-          unref(extendedDbInfo),
+          setCache.value as (changeFunc: (cache: GridCache) => GridCache) => void,
+          extendedDbInfo.value,
           {showHintColumns: getBoolSettingsValue('dataGrid.showHintColumns', true)},
-          unref(serverVersion),
+          serverVersion.value,
           table => getDictionaryDescription(table, conid.value!, database.value!, apps.value, connections.value) as any
         )
+
+        console.log(`formDisplay?`, formDisplay.value)
       } else {
         formDisplay.value = null
       }

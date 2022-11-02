@@ -1,30 +1,21 @@
-import {omit} from 'lodash-es'
-import {Component, defineComponent, onMounted, PropType, ref, toRefs, unref, watch} from 'vue'
+import {Component, defineComponent, PropType, ref, toRefs, unref, watch} from 'vue'
 import LoadingDataGridCore from '/@/second/datagrid/LoadingDataGridCore'
-import eb_system_config from '/@/second/tabs/eb_system_config.json'
+// import eb_system_config from '/@/second/tabs/eb_system_config.json'
 import credential_count from '/@/second/tabs/credential_count.json'
 import {GridConfig, GridDisplay, MacroDefinition} from "/@/second/keeper-datalib";
 import ChangeSetGrider from './ChangeSetGrider'
 import {databaseConnectionsSqlSelectApi} from '/@/api/simpleApis'
 
 async function loadDataPage(props, offset, limit) {
-  const { display } = props
-
+  const {display, conid, database} = props
   const select = display.getPageQuery(offset, limit)
-  console.log(`-----------------------props`, )
-  console.log(`-----------------------offset`, offset)
-  console.log(`-----------------------limit`, limit)
-  console.log(`-----------------------display`, display.getPageQuery(offset, limit))
 
-
-  // const response = await databaseConnectionsSqlSelectApi({
-  //   conid: unref(conid)!,
-  //   database: unref(database)!,
-  //   select,
-  // });
-
-
-  return eb_system_config.rows
+  const response = await databaseConnectionsSqlSelectApi({
+    conid: unref(conid)!,
+    database: unref(database)!,
+    select,
+  }) as any
+  return response.rows
 }
 
 export default defineComponent({
@@ -69,8 +60,6 @@ export default defineComponent({
     const grider = ref()
     const loadedRows = ref([])
     const {
-      conid,
-      database,
       macroPreview,
       changeSetState,
       dispatchChangeSet,
