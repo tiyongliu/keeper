@@ -26,6 +26,7 @@ function processApiResponse(url, params, resp) {
 
   if (resp.status === 1) {
     return {
+      ...resp,
       errorMessage: resp.message
     }
     // return resp.result.message

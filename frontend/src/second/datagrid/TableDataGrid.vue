@@ -51,6 +51,7 @@ import {
 } from 'vue'
 import {storeToRefs} from 'pinia'
 import {fromPairs, isFunction} from 'lodash-es'
+import stableStringify from 'json-stable-stringify'
 import VerticalSplitter from '/@/second/elements/VerticalSplitter.vue'
 import DataGrid from '/@/second/datagrid/DataGrid.vue'
 import ReferenceHeader from '/@/second/datagrid/ReferenceHeader.vue'
@@ -62,7 +63,7 @@ import {
   useConnectionList,
   useDatabaseInfo,
   useDatabaseServerVersion
-} from "/@/api/bridge";
+} from '/@/api/bridge'
 import {getBoolSettingsValue} from '/@/second/settings/settingsTools'
 import {getDictionaryDescription} from '/@/second/utility/dictionaryDescriptionTools'
 import {
@@ -75,11 +76,10 @@ import {
 } from '/@/second/keeper-datalib'
 import {extendDatabaseInfoFromApps, findEngineDriver} from '/@/second/keeper-tools'
 import {getFilterValueExpression} from '/@/second/keeper-filterparser'
-import stableStringify from 'json-stable-stringify'
-import {DatabaseInfo, ExtensionsDirectory} from "/@/second/keeper-types";
+import {DatabaseInfo, ExtensionsDirectory} from '/@/second/keeper-types'
 
 export default defineComponent({
-  name: "TableDataGrid",
+  name: 'TableDataGrid',
   props: {
     conid: {
       type: String as PropType<string>
@@ -190,8 +190,6 @@ export default defineComponent({
           serverVersion.value,
           table => getDictionaryDescription(table, conid.value!, database.value!, apps.value, connections.value) as any
         )
-
-        console.log(`formDisplay?`, formDisplay.value)
       } else {
         formDisplay.value = null
       }
