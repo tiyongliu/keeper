@@ -1,11 +1,12 @@
 import {Component, defineComponent, PropType, ref, toRefs, unref, watch} from 'vue'
 import LoadingDataGridCore from '/@/second/datagrid/LoadingDataGridCore'
 // import eb_system_config from '/@/second/tabs/eb_system_config.json'
-import credential_count from '/@/second/tabs/credential_count.json'
+// import credential_count from '/@/second/tabs/credential_count.json'
 import {GridConfig, GridDisplay, MacroDefinition} from "/@/second/keeper-datalib";
 import ChangeSetGrider from './ChangeSetGrider'
 import {databaseConnectionsSqlSelectApi} from '/@/api/simpleApis'
 
+//这个要写活，查看node源码是怎么写的。
 async function loadDataPage(props, offset, limit) {
   const {display, conid, database} = props
   const select = display.getPageQuery(offset, limit)
@@ -16,6 +17,19 @@ async function loadDataPage(props, offset, limit) {
     select,
   }) as any
   return response.rows
+}
+
+async function loadRowCount(props) {
+  const {display, conid, database} = props
+
+  const select = display.getCountQuery()
+
+  await databaseConnectionsSqlSelectApi({
+    conid: unref(conid)!,
+    database: unref(database)!,
+    select,
+  })
+  return parseInt("7")
 }
 
 export default defineComponent({
@@ -70,10 +84,6 @@ export default defineComponent({
 
     function dataPageAvailable(props) {
 
-    }
-
-    async function loadRowCount() {
-      return parseInt(credential_count.count)
     }
 
     watch(() => macroPreview.value, () => {

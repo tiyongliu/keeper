@@ -10,6 +10,9 @@ export default defineComponent({
     loadDataPage: {
       type: Function as PropType<(props: any, offset: any, limit: any) => Promise<any[]>>,
     },
+    loadRowCount: {
+      type: Function as PropType<(props: any) => Promise<number>>,
+    },
     isLoading: {
       type: Boolean as PropType<boolean>,
       default: false
@@ -26,12 +29,12 @@ export default defineComponent({
     const allRowCount = ref(null)
     const loadedTime = ref(new Date().getTime())
 
-    const {isLoading, loadDataPage, loadedRows, display} = toRefs(props)
+    const {isLoading, loadDataPage, loadedRows, loadRowCount, display} = toRefs(props)
 
     const loadedTimeRef = createRef<Number | null>(null)
 
     const handleLoadRowCount = async () => {
-
+      const rowCount = await loadRowCount.value!(Object.assign({}, props, attrs))
     }
 
     async function loadNextData() {
@@ -52,6 +55,8 @@ export default defineComponent({
       }
 
       isLoading.value = false
+
+      void handleLoadRowCount()
     }
 
     function handleLoadNextData() {
