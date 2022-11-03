@@ -2,9 +2,10 @@ import {defineComponent, PropType, ref, toRefs, watch} from 'vue'
 import {getIntSettingsValue} from '/@/second/settings/settingsTools'
 import createRef from '/@/second/utility/createRef'
 import DataGridCore from './DataGridCore.vue'
-import {GridDisplay} from "/@/second/keeper-datalib";
-import {isFunction} from "/@/utils/is";
-import Grider from "/@/second/datagrid/Grider";
+import {GridDisplay} from '/@/second/keeper-datalib'
+import {isFunction} from '/@/utils/is'
+import Grider from '/@/second/datagrid/Grider'
+
 export default defineComponent({
   name: 'LoadingDataGridCore',
   props: {
@@ -31,6 +32,9 @@ export default defineComponent({
     display: {
       type: Object as PropType<GridDisplay>
     },
+    masterLoadedTime: {
+      type: Number as PropType<number>,
+    }
   },
   emits: ['loadedRows'],
   setup(props, {attrs, emit}) {
@@ -40,7 +44,16 @@ export default defineComponent({
 
     const loadedTime = ref(new Date().getTime())
 
-    const {isLoading, loadDataPage, loadedRows, loadRowCount, display, dataPageAvailable, grider} = toRefs(props)
+    const {
+      isLoading,
+      loadDataPage,
+      loadedRows,
+      loadRowCount,
+      display,
+      dataPageAvailable,
+      grider,
+      masterLoadedTime
+    } = toRefs(props)
 
     const loadNextDataRef = createRef<boolean>(false)
     const loadedTimeRef = createRef<number | boolean | null>(null)
@@ -99,12 +112,19 @@ export default defineComponent({
       isLoading.value = false
       loadedRows.value = []
       loadedTime.value = new Date().getTime()
+      errorMessage.value = null
+      loadNextDataRef.set(false)
     }
 
     watch(() => [display, loadedTime], () => {
-      // @ts-ignore
-      if (display.value?.cache?.refreshTime > loadedTime.value) {
+      if ((display.value! && display.value?.cache?.refreshTime) > loadedTime.value) {
         reload()
+      }
+    })
+
+    watch(() => [masterLoadedTime.value, loadedTime.value, display.value], () => {
+      if (masterLoadedTime.value && masterLoadedTime.value > loadedTime.value && display.value) {
+        display.value.reload()
       }
     })
 
