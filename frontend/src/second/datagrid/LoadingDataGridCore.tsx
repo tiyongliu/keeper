@@ -3,12 +3,16 @@ import {getIntSettingsValue} from '/@/second/settings/settingsTools'
 import createRef from '/@/second/utility/createRef'
 import DataGridCore from './DataGridCore.vue'
 import {GridDisplay} from "/@/second/keeper-datalib";
-
+import {isFunction} from "/@/utils/is";
+import Grider from "/@/second/datagrid/Grider";
 export default defineComponent({
   name: 'LoadingDataGridCore',
   props: {
     loadDataPage: {
-      type: Function as PropType<(props: any, offset: any, limit: any) => Promise<any[]>>,
+      type: Function as PropType<(props: any, offset: any, limit: any) => Promise<any>>,
+    },
+    dataPageAvailable: {
+      type: Function as PropType<(props: any) => boolean>,
     },
     loadRowCount: {
       type: Function as PropType<(props: any) => Promise<number>>,
@@ -21,27 +25,37 @@ export default defineComponent({
       type: Array as PropType<any[]>,
       default: []
     },
+    grider: {
+      type: Object as PropType<Grider>
+    },
     display: {
       type: Object as PropType<GridDisplay>
     },
   },
-  setup(props, {attrs}) {
-    const allRowCount = ref(null)
+  emits: ['loadedRows'],
+  setup(props, {attrs, emit}) {
+    const isLoadedAll = ref<boolean>(false)
+    const allRowCount = ref<number | null>(null)
+    const errorMessage = ref<string | null>(null)
+
     const loadedTime = ref(new Date().getTime())
 
-    const {isLoading, loadDataPage, loadedRows, loadRowCount, display} = toRefs(props)
+    const {isLoading, loadDataPage, loadedRows, loadRowCount, display, dataPageAvailable, grider} = toRefs(props)
 
-    const loadedTimeRef = createRef<Number | null>(null)
+    const loadNextDataRef = createRef<boolean>(false)
+    const loadedTimeRef = createRef<number | boolean | null>(null)
 
     const handleLoadRowCount = async () => {
-      const rowCount = await loadRowCount.value!(Object.assign({}, props, attrs))
+      allRowCount.value = await loadRowCount.value!(Object.assign({}, props, attrs))
     }
 
     async function loadNextData() {
       if (isLoading.value) return
+      loadedTimeRef.set(false)
       isLoading.value = true
 
       const loadStart = new Date().getTime()
+
       loadedTimeRef.set(loadStart)
 
       const nextRows = await loadDataPage.value!(
@@ -56,12 +70,28 @@ export default defineComponent({
 
       isLoading.value = false
 
-      void handleLoadRowCount()
+      if (nextRows.errorMessage) {
+        errorMessage.value = nextRows.errorMessage
+      } else {
+        if (allRowCount.value == null) await handleLoadRowCount()
+      }
+
+      loadedRows.value = [...loadedRows.value, ...nextRows]
+      isLoadedAll.value = nextRows.length === 0
+
+      if (loadNextDataRef.get()) {
+        loadNextData()
+      }
+
+      emit('loadedRows', loadedRows.value)
     }
 
     function handleLoadNextData() {
-      void loadNextData()
-      console.log(``)
+      if (!isLoadedAll.value && !errorMessage.value) {
+        if (isFunction(dataPageAvailable.value) && dataPageAvailable.value!(Object.assign({}, props, attrs))) {
+          void loadNextData()
+        }
+      }
     }
 
     function reload() {
@@ -81,8 +111,14 @@ export default defineComponent({
     return () => (
       <DataGridCore
         {...Object.assign({}, props, attrs)}
+        onLoadNextData={handleLoadNextData}
+        errorMessage={errorMessage.value}
+        isLoading={isLoading.value}
+        isLoadedAll={isLoadedAll.value}
+        loadedTime={loadedTime.value}
+        grider={grider.value}
         display={display.value}
-        onLoadNextData={handleLoadNextData}/>
+      />
     )
   }
 })

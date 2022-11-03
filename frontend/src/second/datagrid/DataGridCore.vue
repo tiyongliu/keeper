@@ -75,12 +75,8 @@ export default defineComponent({
     grider: {
       type: Object as PropType<Grider>,
     },
-    errorMessage: {
-      type: String as PropType<string>,
-    },
-    collapsedLeftColumnStore: {
-      type: Boolean as PropType<boolean>,
-      default: true
+    display: {
+      type: Object as PropType<GridDisplay>,
     },
     conid: {
       type: String as PropType<string>
@@ -88,7 +84,17 @@ export default defineComponent({
     database: {
       type: String as PropType<string>
     },
-    allowDefineVirtualReferences: {
+    frameSelection: {
+      type: Boolean as PropType<boolean>
+    },
+    isLoading: {
+      type: Boolean as PropType<boolean>,
+      default: false
+    },
+    allRowCount: {
+      type: Number as PropType<number>,
+    },
+    focusOnVisible: {
       type: Boolean as PropType<boolean>,
       default: false
     },
@@ -96,11 +102,43 @@ export default defineComponent({
       type: Boolean as PropType<boolean>,
       default: false
     },
-    display: {
-      type: Object as PropType<GridDisplay>
+    errorMessage: {
+      type: String as PropType<string | null>,
+    },
+    collapsedLeftColumnStore: {
+      type: Boolean as PropType<boolean>,
+      default: true
+    },
+    allowDefineVirtualReferences: {
+      type: Boolean as PropType<boolean>,
+      default: false
     },
     onLoadNextData: {
       type: Function as PropType<() => void>
+    },
+    isDynamicStructure: {
+      type: Boolean as PropType<boolean>,
+      default: false
+    },
+    multipleGridsOnTab: {
+      type: Boolean as PropType<boolean>,
+      default: false
+    },
+    tabControlHiddenTab: {
+      type: Boolean as PropType<boolean>,
+      default: false
+    },
+    useEvalFilters: {
+      type: Boolean as PropType<boolean>,
+      default: false
+    },
+    isLoadedAll: {
+      type: Boolean as PropType<boolean>,
+      default: false
+    },
+    loadedTime: {
+      type: Number as PropType<number>,
+      default: 0
     }
   },
   setup(props) {

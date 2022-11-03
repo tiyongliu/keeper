@@ -16,6 +16,7 @@ async function loadDataPage(props, offset, limit) {
     database: unref(database)!,
     select,
   }) as any
+  if (response.errorMessage) return response;
   return response.rows
 }
 
@@ -83,7 +84,9 @@ export default defineComponent({
     } = toRefs(props)
 
     function dataPageAvailable(props) {
-
+      const { display } = props;
+      const select = display.getPageQuery(0, 1);
+      return !!select;
     }
 
     watch(() => macroPreview.value, () => {
@@ -94,13 +97,24 @@ export default defineComponent({
       if (!macroPreview.value) {
         grider.value = new ChangeSetGrider(loadedRows.value, changeSetState.value, dispatchChangeSet.value, display.value!)
       }
+
+
+      console.log(grider.value, `ggggggggggggggggggggggggggg`)
     })
+
+    function handlerRows(rows: []) {
+      loadedRows.value = rows
+    }
 
     return () => (
       <LoadingDataGridCore
         {...Object.assign({}, props, attrs)}
         loadDataPage={loadDataPage}
+        dataPageAvailable={dataPageAvailable}
         loadRowCount={loadRowCount}
+        onLoadedRows={handlerRows}
+        frameSelection={!!macroPreview.value}
+        grider={grider.value}
         display={display.value}
       />
     )
