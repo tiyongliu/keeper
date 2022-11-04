@@ -165,10 +165,12 @@ export default defineComponent({
     }
   },
   setup(props) {
+
+
     const container = ref<Nullable<HTMLElement>>(null)
     const firstVisibleRowScrollIndex = ref(0)
     const firstVisibleColumnScrollIndex = ref(0)
-    const containerWidth = ref(603)
+    const containerWidth = ref(503)
     const containerHeight = ref(908)
     const {errorMessage, grider, display, onLoadNextData} = toRefs(props)
     const selectedCells = ref([topLeftCell])
@@ -202,17 +204,25 @@ export default defineComponent({
     }
 
     const columns = computed(() => display.value?.allColumns || [])
+
+    watch(() => [grider.value, columns.value, containerWidth.value, display.value], async () => {
+      await nextTick()
+      columnSizes.value = countColumnSizes(grider.value!, columns.value, containerWidth.value, display.value!)
+      console.log(`ccccccccccccc`, containerWidth.value)
+    })
+
+
     const columnSizes = ref<SeriesSizes>()
     // const columnSizes = computed(() => _columnSizes)
 
+    // const visibleRealColumns = computed(() => countVisibleRealColumns(
+    //   columnSizes.value,
+    //   firstVisibleColumnScrollIndex.value,
+    //   gridScrollAreaWidth.value,
+    //   columns.value,
+    // ))
 
-    const visibleRealColumns = computed(() => countVisibleRealColumns(
-      columnSizes.value,
-      firstVisibleColumnScrollIndex.value,
-      gridScrollAreaWidth.value,
-      columns.value,
-    ))
-    // const visibleRealColumns = computed(() => _visibleRealColumns)
+    const visibleRealColumns = computed(() => _visibleRealColumns)
 
 
 
@@ -236,10 +246,7 @@ export default defineComponent({
     // const columns = computed(() => display.value?.allColumns || [])
     // countColumnSizes()
 
-    watch(() => [grider.value, columns.value, containerWidth.value, display.value], async () => {
-      await nextTick()
-      columnSizes.value = countColumnSizes(grider.value!, columns.value, containerWidth.value, display.value!)
-    })
+
 
     watch(() => [onLoadNextData.value, display.value], () => {
       if (onLoadNextData.value && display.value) {
@@ -247,7 +254,11 @@ export default defineComponent({
       }
     })
 
-
+    onMounted(() => {
+      setTimeout(() => {
+        console.log(columnSizes.value, `----------------------------`)
+      }, 8888)
+    })
 
     return {
       ...props,
