@@ -29,6 +29,7 @@ import {defineComponent, PropType, toRefs} from 'vue'
 import InlineButton from '/@/second/buttons/InlineButton.vue'
 import FontIcon from '/@/second/icons/FontIcon.vue'
 import {EngineDriver} from '/@/second/keeper-types'
+import {FilterType} from '/@/second/keeper-filterparser'
 export default defineComponent({
   name: 'DataFilterControl',
   components: {
@@ -39,6 +40,12 @@ export default defineComponent({
     isReadOnly: {
       type: Boolean as PropType<boolean>,
       default: false
+    },
+    filterType: {
+      type: [Boolean, String] as PropType<boolean | FilterType>,
+    },
+    setFilter: {
+      type: Function as PropType<(value: any) => void>
     },
     foreignKey: {
       type: Object as PropType<{ refTableName: string }>

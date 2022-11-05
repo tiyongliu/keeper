@@ -1,7 +1,25 @@
 <template>
-  <!--  <LoadingInfo wrapper message="Waiting for structure"/>-->
-  <!--  <ErrorInfo :message="errorMessage" alignTop/>-->
-  <div class="container" ref="container" @wheel="handleGridWheel">
+  <LoadingInfo
+    v-if="!display || (!isDynamicStructure && (!columns || columns.length == 0))"
+    wrapper message="Waiting for structure"/>
+
+  <div v-else-if="errorMessage">
+    <ErrorInfo :message="errorMessage" alignTop/>
+  </div>
+
+  <div v-else-if="isDynamicStructure && isLoadedAll && grider && grider?.rowCount == 0">
+    <ErrorInfo
+      alignTop
+      :message="grider.editable ? 'No rows loaded, check filter or add new documents. You could copy documents from ohter collections/tables with Copy advanved/Copy as JSON command.'
+        : 'No rows loaded'"
+    />
+  </div>
+
+  <div v-else-if="grider && grider.errors && grider.errors.length > 0">
+    <ErrorInfo v-for="(err, key) in grider.errors" :key="key" :message="err" isSmall />
+  </div>
+
+  <div v-else class="container" ref="container" @wheel="handleGridWheel">
     <input/>
     <table
       class="table"
@@ -52,7 +70,24 @@
           data-row="filter"
           :data-col="col.colIndex"
           :style="`width:${col.width}px; min-width:${col.width}px; max-width:${col.width}px`"
-        ></td>
+        >
+          <DataFilterControl
+            :foreignKey="col.foreignKey"
+            :columnName="col.uniquePath.length == 1 ? col.uniquePath[0] : null"
+            :uniqueName="col.uniqueName"
+            :pureName="col.pureName"
+            :schemaName="col.schemaName"
+            :conid="conid"
+            :database="database"
+            :jslid="jslid"
+            :driver="display?.driver"
+            :filterType="useEvalFilters ? 'eval' : col.filterType || getFilterType(col.dataType)"
+            :filter="display.getFilter(col.uniqueName)"
+            :setFilter="value => display.setFilter(col.uniqueName, value)"
+            showResizeSplitter
+            :resizeSplitter="(e) => display.resizeColumn(col.uniqueName, col.width, e.detail)"
+          />
+        </td>
       </tr>
       </thead>
 
@@ -88,6 +123,7 @@ import ErrorInfo from '/@/second/elements/ErrorInfo.vue'
 import LoadingInfo from '/@/second/elements/LoadingInfo.vue'
 import CollapseButton from '/@/second/datagrid/CollapseButton.vue'
 import ColumnHeaderControl from '/@/second/datagrid/ColumnHeaderControl.vue'
+import DataFilterControl from '/@/second/datagrid/DataFilterControl.vue'
 import DataGridRow from '/@/second/datagrid/DataGridRow.vue'
 import InlineButton from '/@/second/buttons/InlineButton.vue'
 import FontIcon from '/@/second/icons/FontIcon.vue'
@@ -110,6 +146,7 @@ import {
   nullCell,
   topLeftCell
 } from './selection'
+import {getFilterType} from '/@/second/keeper-filterparser'
 import createRef from '/@/second/utility/createRef'
 import {isCtrlOrCommandKey} from '/@/second/utility/common'
 import createReducer from '/@/second/utility/createReducer'
@@ -142,6 +179,7 @@ export default defineComponent({
   components: {
     ErrorInfo,
     LoadingInfo,
+    DataFilterControl,
     CollapseButton,
     ColumnHeaderControl,
     DataGridRow,
@@ -216,6 +254,9 @@ export default defineComponent({
     loadedTime: {
       type: Number as PropType<number>,
       default: 0
+    },
+    jslid: {
+      type: [String, Number] as PropType<string | number>
     }
   },
   setup(props) {
@@ -448,6 +489,7 @@ export default defineComponent({
       container,
       ...toRefs(props),
       errorMessage,
+      columns,
       columnSizes,
       headerColWidth,
       collapsedLeftColumnStore,
@@ -456,6 +498,7 @@ export default defineComponent({
       autofillSelectedCells,
       selectedCells,
       autofillMarkerCell,
+      getFilterType,
       handleGridWheel,
       updateCollapsedLeftColumn,
       filterCellsForRow,
