@@ -1,7 +1,7 @@
 <template>
   <!--  <LoadingInfo wrapper message="Waiting for structure"/>-->
   <!--  <ErrorInfo :message="errorMessage" alignTop/>-->
-  <div class="container" ref="container">
+  <div class="container" ref="container" @wheel="handleGridWheel">
     <input/>
     <table
       class="table"
@@ -39,9 +39,10 @@
         <td
           class="header-cell"
           data-row="filter"
-          data-col="header" :style="`width:${headerColWidth}px; min-width:${headerColWidth}px; max-width:${headerColWidth}px`">
+          data-col="header"
+          :style="`width:${headerColWidth}px; min-width:${headerColWidth}px; max-width:${headerColWidth}px`">
           <InlineButton v-if="display.filterCount > 0" @click="() => display.clearFilters()" square>
-            <FontIcon icon="icon filter-off" />
+            <FontIcon icon="icon filter-off"/>
           </InlineButton>
         </td>
 
@@ -57,38 +58,33 @@
       </thead>
 
       <tbody>
-        <DataGridRow
-          v-for="(rowIndex, i) in rowsIndexs"
-          :key="i"
-          :rowIndex="rowIndex"
-          :grider="grider"
-          :conid="conid"
-          :database="database"
-          :visibleRealColumns="visibleRealColumns"
-          :rowHeight="rowHeight"
-          :autofillSelectedCells="autofillSelectedCells"
-          :focusedColumns="display ? display.focusedColumns : null"
-          :inplaceEditorState="inplaceEditorState"
-        />
+      <DataGridRow
+        v-for="(rowIndex, i) in rowsIndexs"
+        :key="i"
+        :rowIndex="rowIndex"
+        :grider="grider"
+        :conid="conid"
+        :database="database"
+        :visibleRealColumns="visibleRealColumns"
+        :rowHeight="rowHeight"
+        :autofillSelectedCells="autofillSelectedCells"
+        :isDynamicStructure="isDynamicStructure"
+        :selectedCells="filterCellsForRow(selectedCells, rowIndex)"
+        :autofillMarkerCell="filterCellForRow(autofillMarkerCell, rowIndex)"
+        :focusedColumns="display ? display.focusedColumns : null"
+        :inplaceEditorState="inplaceEditorState"
+        :currentCellColumn="currentCell && currentCell[0] == rowIndex ? currentCell[1] : null"
+        :dispatchInsplaceEditor="dispatchInsplaceEditor"
+        :frameSelection="frameSelection"
+      />
       </tbody>
     </table>
   </div>
 </template>
 
 <script lang="ts">
-import {
-  computed,
-  inject,
-  defineComponent,
-  nextTick,
-  onMounted,
-  PropType,
-  ref,
-  toRefs,
-  unref,
-  watch
-} from 'vue'
-import {compact, isNaN, isNumber, range, sumBy, uniq, isEqual} from 'lodash-es'
+import {computed, defineComponent, inject, nextTick, PropType, ref, toRefs, unref, watch} from 'vue'
+import {compact, isEqual, isNaN, isNumber, max, range, sumBy, uniq} from 'lodash-es'
 import ErrorInfo from '/@/second/elements/ErrorInfo.vue'
 import LoadingInfo from '/@/second/elements/LoadingInfo.vue'
 import CollapseButton from '/@/second/datagrid/CollapseButton.vue'
@@ -96,14 +92,29 @@ import ColumnHeaderControl from '/@/second/datagrid/ColumnHeaderControl.vue'
 import DataGridRow from '/@/second/datagrid/DataGridRow.vue'
 import InlineButton from '/@/second/buttons/InlineButton.vue'
 import FontIcon from '/@/second/icons/FontIcon.vue'
-import {countColumnSizes, countVisibleRealColumns, cellIsSelected} from '/@/second/datagrid/gridutil'
+import {
+  cellIsSelected,
+  countColumnSizes,
+  countVisibleRealColumns,
+  filterCellForRow,
+  filterCellsForRow
+} from '/@/second/datagrid/gridutil'
 import {GridDisplay} from "/@/second/keeper-datalib";
 import Grider from "/@/second/datagrid/Grider";
 import {SeriesSizes} from "/@/second/datagrid/SeriesSizes";
-import { cellFromEvent, emptyCellArray, getCellRange, isRegularCell, nullCell, topLeftCell, CellAddress} from './selection'
+import {
+  CellAddress,
+  cellFromEvent,
+  emptyCellArray,
+  getCellRange,
+  isRegularCell,
+  nullCell,
+  topLeftCell
+} from './selection'
 import createRef from '/@/second/utility/createRef'
 import {isCtrlOrCommandKey} from '/@/second/utility/common'
 import createReducer from '/@/second/utility/createReducer'
+
 function getSelectedCellsInfo(selectedCells, grider: Grider, realColumnUniqueNames, selectedRowData) {
   if (selectedCells.length > 1 && selectedCells.every(x => isNumber(x[0]) && isNumber(x[1]))) {
     let sum = sumBy(selectedCells, (cell: string[]) => {
@@ -222,7 +233,6 @@ export default defineComponent({
     const firstVisibleColumnScrollIndex = ref(0)
 
 
-
     const currentCell = ref<CellAddress>(topLeftCell)
     const selectedCells = ref<CellAddress[]>([topLeftCell])
     const dragStartCell = ref<CellAddress | null>(nullCell)
@@ -257,6 +267,10 @@ export default defineComponent({
       );
     }
 
+    const autofillMarkerCell = computed(() => selectedCells.value && selectedCells.value.length > 0 && uniq(selectedCells.value.map(x => x[0])).length == 1
+      ? [max(selectedCells.value.map(x => x[0])), max(selectedCells.value.map(x => x[1]))]
+      : null)
+
     const columns = computed(() => display.value?.allColumns || [])
 
     const columnSizes = ref<SeriesSizes>()
@@ -270,7 +284,7 @@ export default defineComponent({
     const gridScrollAreaHeight = computed(() => containerHeight.value - 2 * rowHeight.value)
     const gridScrollAreaWidth = computed(() => 205)
     // const gridScrollAreaWidth = computed(() => columnSizes.value ? containerWidth.value - columnSizes.value?.frozenSize - headerColWidth.value - 32 : 0)
-    const visibleRowCountUpperBound = computed(() =>  Math.ceil(gridScrollAreaHeight.value / Math.floor(Math.max(1, rowHeight.value))))
+    const visibleRowCountUpperBound = computed(() => Math.ceil(gridScrollAreaHeight.value / Math.floor(Math.max(1, rowHeight.value))))
     const visibleRowCountLowerBound = computed(() => Math.floor(gridScrollAreaHeight.value / Math.ceil(Math.max(1, rowHeight.value))))
 
     const visibleRealColumns = computed(() => columnSizes.value ? countVisibleRealColumns(
@@ -288,8 +302,8 @@ export default defineComponent({
       realIndex => (columns.value[columnSizes.value!.realToModel(realIndex)] || {}).uniqueName
     ))
 
-    const maxScrollColumn = computed(() => columnSizes.value.scrollInView(0, columns.value.length - 1 - columnSizes.value.frozenCount, gridScrollAreaWidth.value))
-
+    const maxScrollColumn = computed(() => (columns.value && columnSizes.value) ?
+      columnSizes.value?.scrollInView(0, columns.value.length - 1 - columnSizes.value.frozenCount, gridScrollAreaWidth.value) : 0)
 
     const [inplaceEditorState, dispatchInsplaceEditor] = createReducer((_, action) => {
       switch (action.type) {
@@ -338,11 +352,6 @@ export default defineComponent({
       }
     })
 
-    onMounted(() => {
-      setTimeout(() => {
-        console.log(`visibleRealColumns99999999999@@@@@@@@@@`, visibleRealColumns.value)
-      }, 5005)
-    })
 
     function showMultilineCellEditorConditional(cell) {
       if (!cell) return false
@@ -358,6 +367,23 @@ export default defineComponent({
         return true;
       }*/
       return false
+    }
+
+    function handleGridWheel(event) {
+      if (event.shiftKey) {
+        scrollHorizontal(event.deltaY, event.deltaX);
+      } else {
+        scrollHorizontal(event.deltaX, event.deltaY);
+        scrollVertical(event.deltaX, event.deltaY);
+      }
+    }
+
+    function scrollVertical(deltaX, deltaY) {
+
+    }
+
+    function scrollHorizontal(deltaX, deltaY) {
+
     }
 
     function handleGridMouseDown(event) {
@@ -401,10 +427,10 @@ export default defineComponent({
 
           if (isRegularCell(cell) && !isEqual(cell, inplaceEditorState.value.cell) && isEqual(cell, oldCurrentCell)) {
             if (!showMultilineCellEditorConditional(cell)) {
-              dispatchInsplaceEditor({ type: 'show', cell, selectAll: true });
+              dispatchInsplaceEditor({type: 'show', cell, selectAll: true});
             }
           } else if (!isEqual(cell, inplaceEditorState.value.cell)) {
-            dispatchInsplaceEditor({ type: 'close' });
+            dispatchInsplaceEditor({type: 'close'});
           }
         }
       }
@@ -425,8 +451,14 @@ export default defineComponent({
       headerColWidth,
       collapsedLeftColumnStore,
       rowHeight,
+      currentCell,
       autofillSelectedCells,
+      selectedCells,
+      autofillMarkerCell,
+      handleGridWheel,
       updateCollapsedLeftColumn,
+      filterCellsForRow,
+      filterCellForRow,
       visibleRowCountUpperBound,
       visibleRowCountLowerBound,
       visibleRealColumns,
@@ -434,6 +466,7 @@ export default defineComponent({
       containerWidth,
       containerHeight,
       inplaceEditorState,
+      dispatchInsplaceEditor,
       firstVisibleRowScrollIndex,
       handleGridMouseDown,
       handleGridMouseMove,
