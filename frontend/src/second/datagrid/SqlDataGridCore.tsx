@@ -97,10 +97,7 @@ export default defineComponent({
       if (!macroPreview.value) {
         grider.value = new ChangeSetGrider(loadedRows.value, changeSetState.value, dispatchChangeSet.value, display.value!)
       }
-
-
-      console.log(grider.value, `ggggggggggggggggggggggggggg`)
-    })
+    }, {immediate: true})
 
     function handlerRows(rows: []) {
       loadedRows.value = rows

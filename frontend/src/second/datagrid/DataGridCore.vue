@@ -2,12 +2,21 @@
   <!--  <LoadingInfo wrapper message="Waiting for structure"/>-->
   <!--  <ErrorInfo :message="errorMessage" alignTop/>-->
   <div class="container" ref="container">
-    <input />
-    <table class="table">
+    <input/>
+    <table
+      class="table"
+      @mousedown="handleGridMouseDown"
+      @mousemove="handleGridMouseMove"
+      @mouseup="handleGridMouseUp"
+    >
       <thead>
       <tr>
-        <td class="header-cell" data-row="header" data-col="header"
-            :style="`width:${headerColWidth}px; min-width:${headerColWidth}px; max-width:${headerColWidth}px`">
+        <td
+          class="header-cell"
+          data-row="header"
+          data-col="header"
+          :style="`width:${headerColWidth}px; min-width:${headerColWidth}px; max-width:${headerColWidth}px`"
+        >
           <CollapseButton :collapsed="collapsedLeftColumnStore" @click="updateCollapsedLeftColumn"/>
         </td>
         <td
@@ -26,14 +35,41 @@
           />
         </td>
       </tr>
+      <tr v-if="display && display.filterable">
+        <td
+          class="header-cell"
+          data-row="filter"
+          data-col="header" :style="`width:${headerColWidth}px; min-width:${headerColWidth}px; max-width:${headerColWidth}px`">
+          <InlineButton v-if="display.filterCount > 0" @click="() => display.clearFilters()" square>
+            <FontIcon icon="icon filter-off" />
+          </InlineButton>
+        </td>
+
+        <td
+          v-for="(col, index) in visibleRealColumns"
+          class="filter-cell"
+          data-row="filter"
+          :data-col="col.colIndex"
+          :style="`width:${col.width}px; min-width:${col.width}px; max-width:${col.width}px`"
+        ></td>
+      </tr>
+
       </thead>
 
       <tbody>
-      <DataGridRow
-        v-for="(rowIndex, i) in [0, -1]"
-        :key="i"
-        :rowIndex="rowIndex"
-      />
+        <DataGridRow
+          v-for="(rowIndex, i) in rowsIndexs"
+          :key="i"
+          :rowIndex="rowIndex"
+          :grider="grider"
+          :conid="conid"
+          :database="database"
+          :visibleRealColumns="visibleRealColumns"
+          :rowHeight="rowHeight"
+          :autofillSelectedCells="autofillSelectedCells"
+          :focusedColumns="display ? display.focusedColumns : null"
+          :inplaceEditorState="inplaceEditorState"
+        />
       </tbody>
     </table>
   </div>
@@ -42,6 +78,7 @@
 <script lang="ts">
 import {
   computed,
+  inject,
   defineComponent,
   nextTick,
   onMounted,
@@ -51,18 +88,22 @@ import {
   unref,
   watch
 } from 'vue'
-import {isNumber, sumBy, isNaN, range, compact, uniq} from 'lodash-es'
+import {compact, isNaN, isNumber, range, sumBy, uniq, isEqual} from 'lodash-es'
 import ErrorInfo from '/@/second/elements/ErrorInfo.vue'
 import LoadingInfo from '/@/second/elements/LoadingInfo.vue'
 import CollapseButton from '/@/second/datagrid/CollapseButton.vue'
 import ColumnHeaderControl from '/@/second/datagrid/ColumnHeaderControl.vue'
 import DataGridRow from '/@/second/datagrid/DataGridRow.vue'
-import {countColumnSizes, countVisibleRealColumns} from '/@/second/datagrid/gridutil'
-import _visibleRealColumns from './visibleRealColumns.json'
+import InlineButton from '/@/second/buttons/InlineButton.vue'
+import FontIcon from '/@/second/icons/FontIcon.vue'
+import {countColumnSizes, countVisibleRealColumns, cellIsSelected} from '/@/second/datagrid/gridutil'
 import {GridDisplay} from "/@/second/keeper-datalib";
 import Grider from "/@/second/datagrid/Grider";
 import {SeriesSizes} from "/@/second/datagrid/SeriesSizes";
-import {topLeftCell} from './selection'
+import { cellFromEvent, emptyCellArray, getCellRange, isRegularCell, nullCell, topLeftCell, CellAddress} from './selection'
+import createRef from '/@/second/utility/createRef'
+import {isCtrlOrCommandKey} from '/@/second/utility/common'
+import createReducer from '/@/second/utility/createReducer'
 function getSelectedCellsInfo(selectedCells, grider: Grider, realColumnUniqueNames, selectedRowData) {
   if (selectedCells.length > 1 && selectedCells.every(x => isNumber(x[0]) && isNumber(x[1]))) {
     let sum = sumBy(selectedCells, (cell: string[]) => {
@@ -85,6 +126,7 @@ function getSelectedCellsInfo(selectedCells, grider: Grider, realColumnUniqueNam
   }
   return null;
 }
+
 export default defineComponent({
   name: 'DataGridCore',
   components: {
@@ -93,6 +135,8 @@ export default defineComponent({
     CollapseButton,
     ColumnHeaderControl,
     DataGridRow,
+    InlineButton,
+    FontIcon,
   },
   props: {
     grider: {
@@ -165,20 +209,30 @@ export default defineComponent({
     }
   },
   setup(props) {
-
-
+    const {errorMessage, grider, display, onLoadNextData, collapsedLeftColumnStore} = toRefs(props)
     const container = ref<Nullable<HTMLElement>>(null)
-    const firstVisibleRowScrollIndex = ref(0)
-    const firstVisibleColumnScrollIndex = ref(0)
+
+    const wheelRowCount = ref(5)
+    const tabVisible = inject('tabVisible')
     const containerWidth = ref(503)
     const containerHeight = ref(908)
-    const {errorMessage, grider, display, onLoadNextData} = toRefs(props)
-    const selectedCells = ref([topLeftCell])
+    const rowHeight = computed(() => 25) //todo  $: rowHeight = $dataGridRowHeight;
 
-    const {collapsedLeftColumnStore} = toRefs(props)
-    const headerColWidth = computed(() => 40)
+    const firstVisibleRowScrollIndex = ref(0)
+    const firstVisibleColumnScrollIndex = ref(0)
 
-    const gridScrollAreaWidth = computed(() => 205)
+
+
+    const currentCell = ref<CellAddress>(topLeftCell)
+    const selectedCells = ref<CellAddress[]>([topLeftCell])
+    const dragStartCell = ref<CellAddress | null>(nullCell)
+    const shiftDragStartCell = ref<CellAddress | null>(nullCell)
+    const autofillDragStartCell = ref<CellAddress | null>(nullCell)
+    const autofillSelectedCells = ref<CellAddress[]>(emptyCellArray)
+    const domFilterControlsRef = createRef<object>({})
+    const tabid = inject('tabid')
+
+
     // const columns = computed(() => _columns)
 
     function getSelectedRowIndexes() {
@@ -205,25 +259,27 @@ export default defineComponent({
 
     const columns = computed(() => display.value?.allColumns || [])
 
+    const columnSizes = ref<SeriesSizes>()
     watch(() => [grider.value, columns.value, containerWidth.value, display.value], async () => {
       await nextTick()
       columnSizes.value = countColumnSizes(grider.value!, columns.value, containerWidth.value, display.value!)
-      console.log(`ccccccccccccc`, containerWidth.value)
     })
-
-
-    const columnSizes = ref<SeriesSizes>()
     // const columnSizes = computed(() => _columnSizes)
+    const headerColWidth = computed(() => 40)
 
-    // const visibleRealColumns = computed(() => countVisibleRealColumns(
-    //   columnSizes.value,
-    //   firstVisibleColumnScrollIndex.value,
-    //   gridScrollAreaWidth.value,
-    //   columns.value,
-    // ))
+    const gridScrollAreaHeight = computed(() => containerHeight.value - 2 * rowHeight.value)
+    const gridScrollAreaWidth = computed(() => 205)
+    // const gridScrollAreaWidth = computed(() => columnSizes.value ? containerWidth.value - columnSizes.value?.frozenSize - headerColWidth.value - 32 : 0)
+    const visibleRowCountUpperBound = computed(() =>  Math.ceil(gridScrollAreaHeight.value / Math.floor(Math.max(1, rowHeight.value))))
+    const visibleRowCountLowerBound = computed(() => Math.floor(gridScrollAreaHeight.value / Math.ceil(Math.max(1, rowHeight.value))))
 
-    const visibleRealColumns = computed(() => _visibleRealColumns)
-
+    const visibleRealColumns = computed(() => columnSizes.value ? countVisibleRealColumns(
+      columnSizes.value,
+      firstVisibleColumnScrollIndex.value,
+      gridScrollAreaWidth.value,
+      columns.value,
+    ) : [])
+    // const visibleRealColumns = computed(() => _visibleRealColumns)
 
 
     const selectedCellsInfo = computed(() => getSelectedCellsInfo(selectedCells.value, grider.value!, realColumnUniqueNames.value, getSelectedRowData()))
@@ -234,6 +290,35 @@ export default defineComponent({
 
     const maxScrollColumn = computed(() => columnSizes.value.scrollInView(0, columns.value.length - 1 - columnSizes.value.frozenCount, gridScrollAreaWidth.value))
 
+
+    const [inplaceEditorState, dispatchInsplaceEditor] = createReducer((_, action) => {
+      switch (action.type) {
+        case 'show':
+          if (grider.value && !grider.value.editable) return {}
+          return {
+            cell: action.cell,
+            text: action.text,
+            selectAll: action.selectAll,
+          }
+        case 'close':
+
+          if (action.mode == 'enter' || action.mode == 'tab' || action.mode == 'shiftTab') {
+            setTimeout(() => {
+              if (isRegularCell(currentCell.value)) {
+                switch (action.mode) {
+                  case 'enter':
+                    break
+                  case 'tab':
+                    break
+                  case 'shiftTab':
+                    break
+                }
+              }
+            }, 0)
+          }
+      }
+      return {}
+    }, {})
 
     function updateCollapsedLeftColumn() {
       collapsedLeftColumnStore.value = !unref(collapsedLeftColumnStore)
@@ -247,7 +332,6 @@ export default defineComponent({
     // countColumnSizes()
 
 
-
     watch(() => [onLoadNextData.value, display.value], () => {
       if (onLoadNextData.value && display.value) {
         onLoadNextData.value()
@@ -256,21 +340,105 @@ export default defineComponent({
 
     onMounted(() => {
       setTimeout(() => {
-        console.log(columnSizes.value, `----------------------------`)
-      }, 8888)
+        console.log(`visibleRealColumns99999999999@@@@@@@@@@`, visibleRealColumns.value)
+      }, 5005)
     })
 
+    function showMultilineCellEditorConditional(cell) {
+      if (!cell) return false
+      const rowData = grider.value!.getRowData(cell[0])
+      if (!rowData) return null
+      const cellData = rowData[realColumnUniqueNames.value[cell[1]]]
+      //todo
+      /*if (shouldOpenMultilineDialog(cellData)) {
+        showModal(EditCellDataModal, {
+          value: cellData,
+          onSave: value => grider.setCellValue(cell[0], realColumnUniqueNames[cell[1]], value),
+        });
+        return true;
+      }*/
+      return false
+    }
+
+    function handleGridMouseDown(event) {
+      if (event.target.closest('.buttonLike')) return
+      if (event.target.closest('.resizeHandleControl')) return
+      if (event.target.closest('.collapseButtonMarker')) return
+      if (event.target.closest('.showFormButtonMarker')) return
+      if (event.target.closest('input')) return
+
+      shiftDragStartCell.value = null
+      event.preventDefault()
+
+      const cell = cellFromEvent(event)
+      if (event.button == 2) {
+        if (cell && !cellIsSelected(cell[0], cell[1], selectedCells.value)) {
+          selectedCells.value = [cell]
+        }
+        return
+      }
+
+      const autofill = event.target.closest('div.autofillHandleMarker')
+      if (autofill) {
+        autofillDragStartCell.value = cell;
+      } else {
+        const oldCurrentCell = currentCell.value;
+        currentCell.value = cell;
+
+        if (isCtrlOrCommandKey(event)) {
+          if (isRegularCell(cell)) {
+            if (selectedCells.value.find(x => x[0] == cell[0] && x[1] == cell[1])) {
+              selectedCells.value = selectedCells.value.filter(x => x[0] != cell[0] || x[1] != cell[1]);
+            } else {
+              selectedCells.value = [...selectedCells.value, cell];
+            }
+          }
+        } else if (event.shiftKey) {
+          selectedCells.value = getCellRange(oldCurrentCell, cell);
+        } else {
+          selectedCells.value = getCellRange(cell, cell);
+          dragStartCell.value = cell;
+
+          if (isRegularCell(cell) && !isEqual(cell, inplaceEditorState.value.cell) && isEqual(cell, oldCurrentCell)) {
+            if (!showMultilineCellEditorConditional(cell)) {
+              dispatchInsplaceEditor({ type: 'show', cell, selectAll: true });
+            }
+          } else if (!isEqual(cell, inplaceEditorState.value.cell)) {
+            dispatchInsplaceEditor({ type: 'close' });
+          }
+        }
+      }
+    }
+
+    function handleGridMouseMove() {
+
+    }
+
+    function handleGridMouseUp() {
+
+    }
+
     return {
-      ...props,
+      ...toRefs(props),
       errorMessage,
       columnSizes,
       headerColWidth,
       collapsedLeftColumnStore,
+      rowHeight,
+      autofillSelectedCells,
       updateCollapsedLeftColumn,
+      visibleRowCountUpperBound,
+      visibleRowCountLowerBound,
       visibleRealColumns,
       updateResizeSplitter,
       containerWidth,
       containerHeight,
+      inplaceEditorState,
+      firstVisibleRowScrollIndex,
+      handleGridMouseDown,
+      handleGridMouseMove,
+      handleGridMouseUp,
+      rowsIndexs: range(firstVisibleRowScrollIndex.value, Math.min(firstVisibleRowScrollIndex.value + visibleRowCountUpperBound.value, grider.value!.rowCount))
     }
   }
 })
