@@ -75,7 +75,7 @@ export default defineComponent({
           cache={unref(cache)}
           setCache={cacheUpdate}
           focusOnVisible
-          changeSetStore={changeSetStore.value}
+          changeSetState={changeSetStore.value}
           dispatchChangeSet={dispatchChangeSet}
         />
       </ToolStripContainer>

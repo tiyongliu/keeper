@@ -108,6 +108,9 @@ export default defineComponent({
     changeSetState: {
       type: Object as PropType<any>
     },
+    changeSetStore: {
+      type: Object as PropType<any>
+    },
     dispatchChangeSet: {
       type: Function as PropType<(action: any) => void>
     },

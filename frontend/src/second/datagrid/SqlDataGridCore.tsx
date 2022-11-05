@@ -89,13 +89,18 @@ export default defineComponent({
       return !!select;
     }
 
-    watch(() => macroPreview.value, () => {
+    watch(() => [macroPreview.value, ...loadedRows.value, changeSetState.value, dispatchChangeSet.value, display.value], () => {
       if (macroPreview.value) {
         grider.value = new ChangeSetGrider(loadedRows.value, changeSetState.value, dispatchChangeSet.value, display.value!, macroPreview.value! as MacroDefinition, macroValues.value, selectedCellsPublished.value())
       }
 
       if (!macroPreview.value) {
+        console.log(`3333333333333333333 changeSetState`, changeSetState.value)
+        console.log(`3333333333333333333 dispatchChangeSet`, dispatchChangeSet.value)
+        console.log(`3333333333333333333 display`, display.value!)
         grider.value = new ChangeSetGrider(loadedRows.value, changeSetState.value, dispatchChangeSet.value, display.value!)
+
+        console.log(`grider 3333333333333333333 grider`, grider.value)
       }
     }, {immediate: true})
 
