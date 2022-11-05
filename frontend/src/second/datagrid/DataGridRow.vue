@@ -22,7 +22,7 @@
 </template>
 
 <script lang="ts">
-import {defineComponent, PropType, toRefs, computed} from 'vue'
+import {defineComponent, PropType, toRefs, computed, onMounted} from 'vue'
 import RowHeaderCell from '/@/second/datagrid/RowHeaderCell.vue'
 import DataGridCell from '/@/second/datagrid/DataGridCell.vue'
 import {CellAddress} from './selection'
@@ -81,10 +81,26 @@ export default defineComponent({
   },
   setup(props) {
     const {grider, rowIndex} = toRefs(props)
+    // (grider.value && rowIndex.value) ?  : null
+    // const rowData = computed(() => {
+    const rowData = computed(() => {
+      if (grider.value && rowIndex.value) {
+        console.log(`11111111111111111111111111`, rowIndex.value)
+        return grider.value.getRowData(rowIndex.value)
+      }
+
+      return null
+    })
+
+    onMounted(() => {
+      setTimeout(() => {
+        console.log(`????`, rowData.value)
+      }, 5000)
+    })
 
     return {
       ...toRefs(props),
-      rowData: computed(() => (grider.value && rowIndex.value) ? grider.value.getRowData(rowIndex.value) : null),
+      rowData,
     }
   }
 })

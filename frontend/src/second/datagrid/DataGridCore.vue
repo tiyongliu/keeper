@@ -54,7 +54,6 @@
           :style="`width:${col.width}px; min-width:${col.width}px; max-width:${col.width}px`"
         ></td>
       </tr>
-
       </thead>
 
       <tbody>
@@ -225,8 +224,9 @@ export default defineComponent({
 
     const wheelRowCount = ref(5)
     const tabVisible = inject('tabVisible')
-    const containerWidth = ref(503)
-    const containerHeight = ref(908)
+
+    const containerWidth = computed(() => container.value ? container.value.clientWidth : 0)
+    const containerHeight = computed(() => container.value ? container.value.clientHeight : 0)
     const rowHeight = computed(() => 25) //todo  $: rowHeight = $dataGridRowHeight;
 
     const firstVisibleRowScrollIndex = ref(0)
@@ -445,6 +445,7 @@ export default defineComponent({
     }
 
     return {
+      container,
       ...toRefs(props),
       errorMessage,
       columnSizes,

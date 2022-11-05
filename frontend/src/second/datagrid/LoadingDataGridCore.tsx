@@ -57,7 +57,7 @@ export default defineComponent({
 
     const loadNextDataRef = createRef<boolean>(false)
     const loadedTimeRef = createRef<number | boolean | null>(null)
-
+    const loadedRowsBs= ref(loadedRows.value)
     const handleLoadRowCount = async () => {
       allRowCount.value = await loadRowCount.value!(Object.assign({}, props, attrs))
     }
@@ -89,14 +89,14 @@ export default defineComponent({
         if (allRowCount.value == null) await handleLoadRowCount()
       }
 
-      loadedRows.value = [...loadedRows.value, ...nextRows]
+      loadedRowsBs.value = [...loadedRows.value, ...nextRows]
       isLoadedAll.value = nextRows.length === 0
 
       if (loadNextDataRef.get()) {
         loadNextData()
       }
 
-      emit('loadedRows', loadedRows.value)
+      emit('loadedRows', loadedRowsBs.value)
     }
 
     function handleLoadNextData() {
@@ -110,7 +110,7 @@ export default defineComponent({
     function reload() {
       allRowCount.value = null
       isLoading.value = false
-      loadedRows.value = []
+      loadedRowsBs.value = []
       loadedTime.value = new Date().getTime()
       errorMessage.value = null
       loadNextDataRef.set(false)
