@@ -121,6 +121,20 @@
       @dispatchScroll="e => firstVisibleColumnScrollIndex = e"
       ref="domHorizontalScroll"
     />
+    <VerticalScrollBar
+      :minimum="0"
+      :maximum="grider ? grider.rowCount - visibleRowCountUpperBound + 2 : null"
+      :viewportRatio="grider ? visibleRowCountUpperBound / grider.rowCount : null"
+      @dispatchScroll="e => firstVisibleRowScrollIndex = e"
+      ref="domVerticalScroll"
+    />
+    <div v-if="selectedCellsInfo" class="row-count-label">{{selectedCellsInfo}}</div>
+    <div v-else-if="allRowCount != null && multipleGridsOnTab" class="row-count-label">
+      Rows: {allRowCount.toLocaleString()}
+    </div>
+
+    <LoadingInfo v-if="isLoading" wrapper message="Loading data" />
+
   </div>
 </template>
 
@@ -131,6 +145,7 @@ import ErrorInfo from '/@/second/elements/ErrorInfo.vue'
 import LoadingInfo from '/@/second/elements/LoadingInfo.vue'
 import CollapseButton from '/@/second/datagrid/CollapseButton.vue'
 import HorizontalScrollBar from '/@/second/datagrid/HorizontalScrollBar.vue'
+import VerticalScrollBar from '/@/second/datagrid/VerticalScrollBar.vue'
 import ColumnHeaderControl from '/@/second/datagrid/ColumnHeaderControl.vue'
 import DataFilterControl from '/@/second/datagrid/DataFilterControl.vue'
 import DataGridRow from '/@/second/datagrid/DataGridRow.vue'
@@ -190,6 +205,7 @@ export default defineComponent({
     LoadingInfo,
     DataFilterControl,
     HorizontalScrollBar,
+    VerticalScrollBar,
     CollapseButton,
     ColumnHeaderControl,
     DataGridRow,
@@ -272,7 +288,8 @@ export default defineComponent({
   setup(props) {
     const {errorMessage, grider, display, onLoadNextData, collapsedLeftColumnStore} = toRefs(props)
     const container = ref<Nullable<HTMLElement>>(null)
-    const domHorizontalScroll = ref<Nullable<HTMLElement>>(null)
+    const domHorizontalScroll = ref<Nullable<{scroll: (value: number) => void}>>(null)
+    const domVerticalScroll = ref<Nullable<{scroll: (value: number) => void}>>(null)
 
     const wheelRowCount = ref(5)
     const tabVisible = inject('tabVisible')
@@ -435,7 +452,56 @@ export default defineComponent({
     }
 
     function scrollHorizontal(deltaX, deltaY) {
+      let newFirstVisibleColumnScrollIndex = firstVisibleColumnScrollIndex.value
+      if (deltaX > 0 && deltaY === -0) {
+        newFirstVisibleColumnScrollIndex++;
+      } else if (deltaX < 0 && deltaY === -0) {
+        newFirstVisibleColumnScrollIndex--;
+      }
 
+      if (newFirstVisibleColumnScrollIndex > maxScrollColumn.value) {
+        newFirstVisibleColumnScrollIndex = maxScrollColumn.value
+      }
+      if (newFirstVisibleColumnScrollIndex < 0) {
+        newFirstVisibleColumnScrollIndex = 0
+      }
+      firstVisibleColumnScrollIndex.value = newFirstVisibleColumnScrollIndex
+      domHorizontalScroll.value!.scroll(newFirstVisibleColumnScrollIndex)
+    }
+    
+    function scrollIntoView(cell) {
+      const [row, col] = cell;
+
+      if (row != null) {
+        let newRow: number | null = null
+        const rowCount = grider.value!.rowCount
+        if (rowCount == 0) return
+
+        if (row < firstVisibleRowScrollIndex) newRow = row
+        else if (row + 1 >= firstVisibleRowScrollIndex.value + visibleRowCountLowerBound.value)
+          newRow = row - visibleRowCountLowerBound.value + 2
+
+        if (newRow! < 0) newRow = 0
+        if (newRow! >= rowCount) newRow = rowCount - 1
+
+        if (newRow != null) {
+          firstVisibleRowScrollIndex.value = newRow
+          domVerticalScroll.value!.scroll(newRow)
+        }
+      }
+
+      if (col != null) {
+        if (col >= columnSizes.value!.frozenCount) {
+          let newColumn = columnSizes.value!.scrollInView(
+            firstVisibleColumnScrollIndex.value,
+            col - columnSizes.value!.frozenCount,
+            gridScrollAreaWidth.value
+          )
+          firstVisibleColumnScrollIndex.value = newColumn;
+
+          domHorizontalScroll.value!.scroll(newColumn);
+        }
+      }
     }
 
     function handleGridMouseDown(event) {
@@ -499,8 +565,10 @@ export default defineComponent({
     return {
       container,
       domHorizontalScroll,
+      domVerticalScroll,
       ...toRefs(props),
       errorMessage,
+      selectedCellsInfo,
       columns,
       columnSizes,
       headerColWidth,
