@@ -48,7 +48,7 @@
 </template>
 
 <script lang="ts">
-import {defineComponent, nextTick, ref, toRef, watch} from 'vue'
+import {defineComponent, nextTick, ref, toRef, toRefs, watch} from 'vue'
 import FontIcon from '/@/second/icons/FontIcon.vue'
 import {computeSplitterSize} from '/@/second/elements/HorizontalSplitter.vue'
 
@@ -92,7 +92,7 @@ export default defineComponent({
 
     return {
       clientHeight,
-      ...props,
+      ...toRefs(props),
       collapsed1,
       collapsed2,
       size,

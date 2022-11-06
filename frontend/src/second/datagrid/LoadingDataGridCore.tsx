@@ -57,15 +57,16 @@ export default defineComponent({
 
     const loadNextDataRef = createRef<boolean>(false)
     const loadedTimeRef = createRef<number | boolean | null>(null)
-    const loadedRowsBs= ref(loadedRows.value)
+    const loadedRowsRw= ref(loadedRows.value)
     const handleLoadRowCount = async () => {
       allRowCount.value = await loadRowCount.value!(Object.assign({}, props, attrs))
     }
+    const isLoadingRw = ref(isLoading.value)
 
     async function loadNextData() {
-      if (isLoading.value) return
+      if (isLoadingRw.value) return
       loadedTimeRef.set(false)
-      isLoading.value = true
+      isLoadingRw.value = true
 
       const loadStart = new Date().getTime()
 
@@ -81,7 +82,7 @@ export default defineComponent({
         return
       }
 
-      isLoading.value = false
+      isLoadingRw.value = false
 
       if (nextRows.errorMessage) {
         errorMessage.value = nextRows.errorMessage
@@ -89,14 +90,14 @@ export default defineComponent({
         if (allRowCount.value == null) await handleLoadRowCount()
       }
 
-      loadedRowsBs.value = [...loadedRows.value, ...nextRows]
+      loadedRowsRw.value = [...loadedRows.value, ...nextRows]
       isLoadedAll.value = nextRows.length === 0
 
       if (loadNextDataRef.get()) {
         loadNextData()
       }
 
-      emit('loadedRows', loadedRowsBs.value)
+      emit('loadedRows', loadedRowsRw.value)
     }
 
     function handleLoadNextData() {
@@ -109,8 +110,8 @@ export default defineComponent({
 
     function reload() {
       allRowCount.value = null
-      isLoading.value = false
-      loadedRowsBs.value = []
+      isLoadingRw.value = false
+      loadedRowsRw.value = []
       loadedTime.value = new Date().getTime()
       errorMessage.value = null
       loadNextDataRef.set(false)
@@ -133,7 +134,7 @@ export default defineComponent({
         {...Object.assign({}, props, attrs)}
         onLoadNextData={handleLoadNextData}
         errorMessage={errorMessage.value}
-        isLoading={isLoading.value}
+        isLoading={isLoadingRw.value}
         isLoadedAll={isLoadedAll.value}
         loadedTime={loadedTime.value}
         grider={grider.value}

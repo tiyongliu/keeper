@@ -37,7 +37,6 @@ import {Component, computed, defineComponent, PropType, ref, toRaw, toRefs, unre
       },
       isExpandable: {
         type: Function as PropType<(IPinnedDatabasesItem) => any>,
-        default: undefined
       },
       expandIconFunc: {
         type: Function as PropType<(isExpanded: boolean) => string>,

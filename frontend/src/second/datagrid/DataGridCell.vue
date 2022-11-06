@@ -18,11 +18,12 @@
 </template>
 
 <script lang="ts">
-import {computed, defineComponent, PropType, toRefs, watch} from 'vue'
+import {computed, defineComponent, PropType, toRefs} from 'vue'
 import {get} from 'lodash-es'
 import ShowFormButton from '/@/second/formview/ShowFormButton.vue'
 import CellValue from '/@/second/datagrid/CellValue.vue'
 import {isJsonLikeLongString, safeJsonParse} from '/@/second/keeper-tools'
+
 export default defineComponent({
   name: "DataGridCell",
   components: {
@@ -121,13 +122,13 @@ export default defineComponent({
     }
 
     const style = computed(() => computeStyle(col.value))
-    const jsonParseValue = computed(() => isJsonLikeLongString(value.value) ? safeJsonParse(value.value) : null)
+    const jsonParsedValue = computed(() => isJsonLikeLongString(value.value) ? safeJsonParse(value.value) : null)
 
     return {
       ...toRefs(props),
       value,
       style,
-      jsonParseValue,
+      jsonParsedValue,
     }
   }
 })

@@ -103,7 +103,7 @@ export default defineComponent({
     ColumnManager
   },
   emits: ['runMacro'],
-  setup(props, {attrs, emit}) {
+  setup(props, {emit}) {
     const gridCoreComponent = toRaw(props.gridCoreComponent)
     const formViewComponent = toRaw(props.formViewComponent)
     const jsonViewComponent = toRaw(props.jsonViewComponent)

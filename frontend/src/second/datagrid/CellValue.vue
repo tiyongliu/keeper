@@ -76,7 +76,6 @@ export default defineComponent({
     },
     jsonParsedValue: {
       type: [Boolean, String, Number, Object, Array] as PropType<boolean | string | number | object | string[]>,
-      default: undefined
     }
   },
   setup(props) {
