@@ -6,7 +6,7 @@
          ? 'display:none'
          : collapsed2
          ? 'flex:1'
-         : `width:${size}px; min-width:${size}px; max-width:${size}px}`
+         : `width:${sizeRw}px; min-width:${sizeRw}px; max-width:${sizeRw}px}`
       : `flex:1`">
         <slot name="1"></slot>
       </div>
@@ -28,7 +28,7 @@
       <div v-if="collapsed1" class="collapse" style="left: 0px" @click="() => collapsed1 = false">
         <FontIcon icon="icon chevron-double-right" />
       </div>
-      <div v-else class="collapse" :style="`left: ${size - 16}px`" @click="() => collapsed1 = true">
+      <div v-else class="collapse" :style="`left: ${sizeRw - 16}px`" @click="() => collapsed1 = true">
         <FontIcon icon="icon chevron-double-left" />
       </div>
     </template>
@@ -37,7 +37,7 @@
       <div v-if="collapsed2" class="collapse" style="right: 0px"  @click="() => collapsed2 = false">
         <FontIcon icon="icon chevron-double-left" />
       </div>
-      <div v-else class="collapse" :style="`left: ${size}px`" @click="() => collapsed2 = true">
+      <div v-else class="collapse" :style="`left: ${sizeRw}px`" @click="() => collapsed2 = true">
         <FontIcon icon="icon chevron-double-left" />
       </div>
     </template>
@@ -89,26 +89,27 @@ export default defineComponent({
     }
   },
   setup(props) {
-    const collapsed1 = ref(false)
-    const collapsed2 = ref(false)
-
-    const clientWidth = ref<Nullable<HTMLElement>>(null)
     const initialValue = toRef(props, 'initialValue')
     const size = toRef(props, 'size')
+    const collapsed1 = ref(false)
+    const collapsed2 = ref(false)
+    const sizeRw = ref(size.value)
+
+    const clientWidth = ref<Nullable<HTMLElement>>(null)
 
     watch(() => [initialValue.value, clientWidth.value], async () => {
       await nextTick()
-      size.value = computeSplitterSize(initialValue.value, clientWidth.value)
+      sizeRw.value = computeSplitterSize(initialValue.value, clientWidth.value)
     })
 
     function updateSize(e: number) {
-      size.value += e
+      sizeRw.value += e
     }
 
     return {
       clientWidth,
       ...toRefs(omit(props, ['size'])),
-      size,
+      sizeRw,
       collapsed1,
       collapsed2,
       updateSize

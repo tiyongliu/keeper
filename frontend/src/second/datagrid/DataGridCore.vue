@@ -16,7 +16,7 @@
   </div>
 
   <div v-else-if="grider && grider.errors && grider.errors.length > 0">
-    <ErrorInfo v-for="(err, key) in grider.errors" :key="key" :message="err" isSmall />
+    <ErrorInfo v-for="(err, key) in grider.errors" :key="key" :message="err" isSmall/>
   </div>
 
   <div v-else class="container" ref="container" @wheel="handleGridWheel">
@@ -93,7 +93,8 @@
 
       <tbody>
       <DataGridRow
-        v-for="(rowIndex, i) in rowsIndexs"
+        v-for="(rowIndex, i) in
+        (grider ? range(firstVisibleRowScrollIndex, Math.min(firstVisibleRowScrollIndex + visibleRowCountUpperBound, grider.rowCount)) : [])"
         :key="i"
         :rowIndex="rowIndex"
         :grider="grider"
@@ -113,6 +114,13 @@
       />
       </tbody>
     </table>
+    <HorizontalScrollBar
+      :minimum="0"
+      :maximum="maxScrollColumn"
+      :viewportRatio="(gridScrollAreaWidth && columnSizes) ? gridScrollAreaWidth / columnSizes.getVisibleScrollSizeSum() : null"
+      @dispatchScroll="e => firstVisibleColumnScrollIndex = e"
+      ref="domHorizontalScroll"
+    />
   </div>
 </template>
 
@@ -122,6 +130,7 @@ import {compact, isEqual, isNaN, isNumber, max, range, sumBy, uniq} from 'lodash
 import ErrorInfo from '/@/second/elements/ErrorInfo.vue'
 import LoadingInfo from '/@/second/elements/LoadingInfo.vue'
 import CollapseButton from '/@/second/datagrid/CollapseButton.vue'
+import HorizontalScrollBar from '/@/second/datagrid/HorizontalScrollBar.vue'
 import ColumnHeaderControl from '/@/second/datagrid/ColumnHeaderControl.vue'
 import DataFilterControl from '/@/second/datagrid/DataFilterControl.vue'
 import DataGridRow from '/@/second/datagrid/DataGridRow.vue'
@@ -180,6 +189,7 @@ export default defineComponent({
     ErrorInfo,
     LoadingInfo,
     DataFilterControl,
+    HorizontalScrollBar,
     CollapseButton,
     ColumnHeaderControl,
     DataGridRow,
@@ -262,6 +272,7 @@ export default defineComponent({
   setup(props) {
     const {errorMessage, grider, display, onLoadNextData, collapsedLeftColumnStore} = toRefs(props)
     const container = ref<Nullable<HTMLElement>>(null)
+    const domHorizontalScroll = ref<Nullable<HTMLElement>>(null)
 
     const wheelRowCount = ref(5)
     const tabVisible = inject('tabVisible')
@@ -323,8 +334,8 @@ export default defineComponent({
     const headerColWidth = computed(() => 40)
 
     const gridScrollAreaHeight = computed(() => containerHeight.value - 2 * rowHeight.value)
-    const gridScrollAreaWidth = computed(() => 205)
-    // const gridScrollAreaWidth = computed(() => columnSizes.value ? containerWidth.value - columnSizes.value?.frozenSize - headerColWidth.value - 32 : 0)
+    const gridScrollAreaWidth = computed(() => columnSizes.value ? containerWidth.value - columnSizes.value?.frozenSize - headerColWidth.value - 32 : 0)
+
     const visibleRowCountUpperBound = computed(() => Math.ceil(gridScrollAreaHeight.value / Math.floor(Math.max(1, rowHeight.value))))
     const visibleRowCountLowerBound = computed(() => Math.floor(gridScrollAreaHeight.value / Math.ceil(Math.max(1, rowHeight.value))))
 
@@ -487,6 +498,7 @@ export default defineComponent({
 
     return {
       container,
+      domHorizontalScroll,
       ...toRefs(props),
       errorMessage,
       columns,
@@ -503,6 +515,8 @@ export default defineComponent({
       updateCollapsedLeftColumn,
       filterCellsForRow,
       filterCellForRow,
+      maxScrollColumn,
+      gridScrollAreaWidth,
       visibleRowCountUpperBound,
       visibleRowCountLowerBound,
       visibleRealColumns,
@@ -512,10 +526,11 @@ export default defineComponent({
       inplaceEditorState,
       dispatchInsplaceEditor,
       firstVisibleRowScrollIndex,
+      firstVisibleColumnScrollIndex,
       handleGridMouseDown,
       handleGridMouseMove,
       handleGridMouseUp,
-      rowsIndexs: range(firstVisibleRowScrollIndex.value, Math.min(firstVisibleRowScrollIndex.value + visibleRowCountUpperBound.value, grider.value!.rowCount))
+      range,
     }
   }
 })

@@ -64,7 +64,7 @@ export default defineComponent({
       type: Object as PropType<unknown>
     },
     icon: {
-      type: String as PropType<string | null>,
+      type: String as PropType<string>,
     },
     isBold: {
       type: Boolean as PropType<boolean>,
@@ -76,7 +76,6 @@ export default defineComponent({
     },
     statusIcon: {
       type: String as PropType<string>,
-      default: undefined
     },
     statusIconBefore: {
       type: String as PropType<string>,
@@ -85,8 +84,7 @@ export default defineComponent({
       type: String as PropType<string>,
     },
     extInfo: {
-      type: String as PropType<string | null>,
-      default: undefined
+      type: String as PropType<string>,
     },
     filter: {
       type: String as PropType<string>,
@@ -105,10 +103,10 @@ export default defineComponent({
 
     },
     onPin: {
-      type: Function as PropType<null | Function>
+      type: Function as PropType<Function>
     },
     onUnpin: {
-      type: Function as PropType<null | Function>
+      type: Function as PropType<Function>
     },
     showPinnedInsteadOfUnpin: {
       type: Boolean as PropType<boolean>,

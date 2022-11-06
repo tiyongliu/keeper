@@ -1,8 +1,14 @@
+//Windi CSS 是下一代工具优先的 CSS 框架
 import 'virtual:windi-base.css';
 import 'virtual:windi-components.css';
+
+//utilities 引入这个css库，默认有媒体查询@media样式，需要注释
+// import 'virtual:windi-utilities.css';
+
+//vben admin 添加的样式，我们不需要，所以注释掉。
 // import '/@/design/index.less';
+
 import '/@/design/keeper.less'
-import 'virtual:windi-utilities.css';
 // Register icon sprite
 import 'virtual:svg-icons-register';
 import App from './App.vue';

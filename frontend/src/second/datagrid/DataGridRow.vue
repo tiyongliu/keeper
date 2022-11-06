@@ -22,11 +22,13 @@
 </template>
 
 <script lang="ts">
-import {defineComponent, PropType, toRefs, computed, onMounted} from 'vue'
+import {isNumber} from 'lodash-es'
+import {computed, defineComponent, PropType, toRefs} from 'vue'
 import RowHeaderCell from '/@/second/datagrid/RowHeaderCell.vue'
 import DataGridCell from '/@/second/datagrid/DataGridCell.vue'
 import {CellAddress} from './selection'
 import Grider from "/@/second/datagrid/Grider"
+import {MacroSelectedCell} from "/@/second/keeper-datalib";
 
 export default defineComponent({
   name: "DataGridRow",
@@ -51,10 +53,10 @@ export default defineComponent({
       type: Boolean as PropType<boolean>
     },
     selectedCells: {
-      type: Function as PropType<() => CellAddress[] | null>
+      type: Array as PropType<MacroSelectedCell[]>
     },
     autofillMarkerCell: {
-      type: Function as PropType<() => CellAddress[] | null>
+      type: Array as PropType<CellAddress[]>
     },
     inplaceEditorState: {
       type: Object as PropType<{ [key in string]: unknown }>,
@@ -81,21 +83,12 @@ export default defineComponent({
   },
   setup(props) {
     const {grider, rowIndex} = toRefs(props)
-    // (grider.value && rowIndex.value) ?  : null
-    // const rowData = computed(() => {
+
     const rowData = computed(() => {
-      if (grider.value && rowIndex.value) {
-        console.log(`11111111111111111111111111`, rowIndex.value)
+      if (grider.value && isNumber(rowIndex.value)) {
         return grider.value.getRowData(rowIndex.value)
       }
-
       return null
-    })
-
-    onMounted(() => {
-      setTimeout(() => {
-        console.log(`????`, rowData.value)
-      }, 5000)
     })
 
     return {
