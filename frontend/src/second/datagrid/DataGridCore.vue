@@ -158,6 +158,7 @@ import {
   filterCellForRow,
   filterCellsForRow
 } from '/@/second/datagrid/gridutil'
+import {useStatusBarTabItem} from '/@/second/widgets/useStatusBarTabItem'
 import {GridDisplay} from "/@/second/keeper-datalib";
 import Grider from "/@/second/datagrid/Grider";
 import {SeriesSizes} from "/@/second/datagrid/SeriesSizes";
@@ -286,7 +287,9 @@ export default defineComponent({
     }
   },
   setup(props) {
-    const {errorMessage, grider, display, onLoadNextData, collapsedLeftColumnStore} = toRefs(props)
+    const {errorMessage, grider, display, onLoadNextData, collapsedLeftColumnStore, allRowCount} = toRefs(props)
+    //StatusBarTabItem hooks
+    useStatusBarTabItem(allRowCount)
     const container = ref<Nullable<HTMLElement>>(null)
     const domHorizontalScroll = ref<Nullable<{scroll: (value: number) => void}>>(null)
     const domVerticalScroll = ref<Nullable<{scroll: (value: number) => void}>>(null)
