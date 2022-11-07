@@ -5,7 +5,7 @@
   <template v-else-if="isDate(value)">{{value.toString()}}</template>
   <span class="value" v-else-if="value === true">true</span>
   <span class="value" v-else-if="value === false">false</span>
-  <span class="value" v-else-if="isNumber(value)">{{formatNumber(value)}}}</span>
+  <span class="value" v-else-if="isNumber(value)">{{formatNumber(value)}}</span>
   <template v-else-if="isString(value) && !jsonParsedValue">
     <span class="value" v-if="dateTimeRegex.test(value)">
       {{formatDateTime(value)}}

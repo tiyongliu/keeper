@@ -28,12 +28,12 @@
 </template>
 
 <script lang="ts">
-import {defineComponent, PropType, readonly} from 'vue'
+import {defineComponent, PropType, readonly, toRefs} from 'vue'
 import {isString} from 'lodash-es'
 import ColumnLabel from '/@/second/elements/ColumnLabel.vue'
 import FontIcon from '/@/second/icons/FontIcon.vue'
 import DropDownButton from '/@/second/buttons/DropDownButton'
-
+import {GroupFunc} from '/@/second/keeper-datalib'
 export default defineComponent({
   name: "ColumnHeaderControl",
   components: {
@@ -48,13 +48,34 @@ export default defineComponent({
       }>
     },
     grouping: {
-      type: String as PropType<string>
+      type: String as PropType<GroupFunc>
+    },
+    setSort: {
+      type: Function as PropType<(order: any) => void>
+    },
+    addToSort: {
+      type: Function as PropType<(order: any) => void>
     },
     order: {
-      type: [Object, String] as PropType<object | string>
+      type: String as PropType<Partial<'ASC' | 'DESC'>>
     },
     orderIndex: {
-      type: Number as PropType<number>
+      type: Number as PropType<number>,
+      default: -1
+    },
+    isSortDefined: {
+      type: Boolean as PropType<boolean>,
+      default: false
+    },
+    clearSort: {
+      type: Function as PropType<() => void>
+    },
+    setGrouping: {
+      type: Function as PropType<(groupFunc: any) => void>
+    },
+    allowDefineVirtualReferences: {
+      type: Boolean as PropType<boolean>,
+      default: false
     }
   },
   emits: ['resizeSplitter'],
@@ -70,7 +91,7 @@ export default defineComponent({
     }
 
     return {
-      ...props,
+      ...toRefs(props),
       column,
       isString,
       getMenu,
