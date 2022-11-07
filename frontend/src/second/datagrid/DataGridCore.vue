@@ -93,7 +93,7 @@
             :filter="display.getFilter(col.uniqueName)"
             :setFilter="value => display.setFilter(col.uniqueName, value)"
             showResizeSplitter
-            :resizeSplitter="(e) => display.resizeColumn(col.uniqueName, col.width, e.detail)"
+            @dispatchResizeSplitter="(e) => display.resizeColumn(col.uniqueName, col.width, e.detail)"
           />
         </td>
       </tr>
@@ -119,6 +119,7 @@
         :currentCellColumn="currentCell && currentCell[0] == rowIndex ? currentCell[1] : null"
         :dispatchInsplaceEditor="dispatchInsplaceEditor"
         :frameSelection="frameSelection"
+        @setFormViewTest="(e) => console.log(e, `eeeeeeee`)"
       />
       </tbody>
     </table>
@@ -136,12 +137,12 @@
       @dispatchScroll="e => firstVisibleRowScrollIndex = e"
       ref="domVerticalScroll"
     />
-    <div v-if="selectedCellsInfo" class="row-count-label">{{selectedCellsInfo}}</div>
+    <div v-if="selectedCellsInfo" class="row-count-label">{{ selectedCellsInfo }}</div>
     <div v-else-if="allRowCount != null && multipleGridsOnTab" class="row-count-label">
       Rows: {allRowCount.toLocaleString()}
     </div>
 
-    <LoadingInfo v-if="isLoading" wrapper message="Loading data" />
+    <LoadingInfo v-if="isLoading" wrapper message="Loading data"/>
 
   </div>
 </template>
@@ -295,12 +296,19 @@ export default defineComponent({
     }
   },
   setup(props) {
-    const {errorMessage, grider, display, onLoadNextData, collapsedLeftColumnStore, allRowCount} = toRefs(props)
+    const {
+      errorMessage,
+      grider,
+      display,
+      onLoadNextData,
+      collapsedLeftColumnStore,
+      allRowCount
+    } = toRefs(props)
     //StatusBarTabItem hooks
     useStatusBarTabItem(allRowCount)
     const container = ref<Nullable<HTMLElement>>(null)
-    const domHorizontalScroll = ref<Nullable<{scroll: (value: number) => void}>>(null)
-    const domVerticalScroll = ref<Nullable<{scroll: (value: number) => void}>>(null)
+    const domHorizontalScroll = ref<Nullable<{ scroll: (value: number) => void }>>(null)
+    const domVerticalScroll = ref<Nullable<{ scroll: (value: number) => void }>>(null)
 
     const wheelRowCount = ref(5)
     const tabVisible = inject('tabVisible')
@@ -336,15 +344,15 @@ export default defineComponent({
     }
 
     function getSelectedRowData() {
-      return compact(getSelectedRowIndexes().map(index => grider.value!.getRowData(index)));
+      return grider.value ? compact(getSelectedRowIndexes().map(index => grider.value!.getRowData(index))) : []
     }
 
     function getSelectedColumns() {
-      return compact(
+      return realColumnUniqueNames.value ? compact(
         getSelectedColumnIndexes().map((index: number) => ({
           columnName: realColumnUniqueNames.value[index],
         }))
-      );
+      ) : []
     }
 
     const autofillMarkerCell = computed(() => selectedCells.value && selectedCells.value.length > 0 && uniq(selectedCells.value.map(x => x[0])).length == 1
@@ -378,7 +386,7 @@ export default defineComponent({
 
     const selectedCellsInfo = computed(() => getSelectedCellsInfo(selectedCells.value, grider.value!, realColumnUniqueNames.value, getSelectedRowData()))
 
-    const realColumnUniqueNames = computed<any[]>(() => range(columnSizes.value!.realCount).map(
+    const realColumnUniqueNames = computed<any[]>(() => (columnSizes.value ? range(columnSizes.value.realCount) : []).map(
       realIndex => (columns.value[columnSizes.value!.realToModel(realIndex)] || {}).uniqueName
     ))
 
@@ -475,7 +483,7 @@ export default defineComponent({
       firstVisibleColumnScrollIndex.value = newFirstVisibleColumnScrollIndex
       domHorizontalScroll.value!.scroll(newFirstVisibleColumnScrollIndex)
     }
-    
+
     function scrollIntoView(cell) {
       const [row, col] = cell;
 

@@ -21,6 +21,13 @@
         <FontIcon icon="icon dots-vertical" />
       </InlineButton>
     </template>
+
+    <div
+      v-if="showResizeSplitter"
+      class="horizontal-split-handle resizeHandleControl"
+      v-splitterDrag="'clientX'"
+      :resizeSplitter="(e) => dispatchResizeSplitter(e)"
+    />
   </div>
 </template>
 
@@ -79,11 +86,20 @@ export default defineComponent({
     },
     customCommandTooltip: {
       type: String as PropType<string>
+    },
+    showResizeSplitter: {
+      type: Boolean as PropType<boolean>,
+      default: false
     }
   },
-  setup(props) {
+  emits: ['dispatchResizeSplitter'],
+  setup(props, {emit}) {
+    function dispatchResizeSplitter(e) {
+      emit('dispatchResizeSplitter', e)
+    }
     return {
       ...toRefs(props),
+      dispatchResizeSplitter
     }
   }
 })
