@@ -1,6 +1,9 @@
 <template>
   <tr :style="`height: ${rowHeight}px`">
-    <RowHeaderCell :rowIndex="rowIndex"/>
+<!--
+:showForm="setFormView ? () => setFormView(rowData, null) : null"
+-->
+    <RowHeaderCell :rowIndex="rowIndex" :showForm="handle"/>
     <template v-for="(col, index) in  visibleRealColumns" :key="index">
       <td class="editor"
           v-if="inplaceEditorState
@@ -61,6 +64,9 @@ export default defineComponent({
     inplaceEditorState: {
       type: Object as PropType<{ [key in string]: unknown }>,
     },
+    setFormView: {
+      type: Function as PropType<() => any>,
+    },
     dispatchInsplaceEditor: {
       type: Function as PropType<(action: any) => void>
     },
@@ -81,8 +87,10 @@ export default defineComponent({
       type: Array as PropType<string[]>
     }
   },
-  setup(props) {
+  emits: ['setFormViewTest'],
+  setup(props, context) {
     const {grider, rowIndex} = toRefs(props)
+    // const {onShowForm} = attrs
 
     const rowData = computed(() => {
       if (grider.value && isNumber(rowIndex.value)) {
@@ -91,9 +99,13 @@ export default defineComponent({
       return null
     })
 
+    function handle() {
+      console.log(`rowData`, context)
+    }
     return {
       ...toRefs(props),
       rowData,
+      handle
     }
   }
 })
