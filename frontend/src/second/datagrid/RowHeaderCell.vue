@@ -1,5 +1,5 @@
 <template>
-  <td :data-row="rowIndex" data-col="header" @mouseenter="() => (mouseIn = true)" @mouseleave="() => (mouseIn = false)">
+  <td :data-row="`${rowIndex}`" data-col="header" @mouseenter="() => (mouseIn = true)" @mouseleave="() => (mouseIn = false)">
     {{rowIndex + 1 || ''}}
     <ShowFormButton v-if="mouseIn && onShowForm" @click="onShowForm"/>
   </td>

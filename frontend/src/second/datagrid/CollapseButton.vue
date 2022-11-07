@@ -5,7 +5,7 @@
 </template>
 
 <script lang="ts">
-import {defineComponent, PropType} from 'vue'
+import {defineComponent, PropType, toRef} from 'vue'
 import FontIcon from '/@/second/icons/FontIcon.vue'
 
 export default defineComponent({
@@ -19,8 +19,9 @@ export default defineComponent({
     }
   },
   setup(props) {
+    const collapsed = toRef(props, 'collapsed')
     return {
-      ...props,
+      collapsed,
     }
   }
 })

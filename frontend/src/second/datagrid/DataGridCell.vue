@@ -11,8 +11,8 @@
       isFocusedColumn && 'isFocusedColumn'
     ]"
     :style="style"
-    :data-row="rowIndex"
-    :data-col="colIndex == null ? col.colIndex : colIndex">
+    :data-row="`${rowIndex}`"
+    :data-col="`${colIndex == null ? col.colIndex : colIndex}`">
     <CellValue :rowData="rowData" :value="value" :jsonParsedValue="jsonParsedValue"/>
   </td>
 </template>

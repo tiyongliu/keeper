@@ -41,14 +41,22 @@
           v-for="(col, index) in visibleRealColumns"
           class="header-cell"
           data-row="header"
-          :data-col="col.colIndex"
+          :data-col="`${col.colIndex}`"
           :key="index"
           :style="`width:${col.width}px; min-width:${col.width}px; max-width:${col.width}px`">
           <ColumnHeaderControl
             :column="col"
             :conid="conid"
             :database="database"
-            @resizeSplitter="e => updateResizeSplitter"
+            :setSort="display && display.sortable ? order => display.setSort(col.uniqueName, order) : null"
+            :addToSort="display && display.sortable ? order => display.addToSort(col.uniqueName, order) : null"
+            :order="display && display.sortable ? display.getSortOrder(col.uniqueName) : null"
+            :orderIndex="display && display.sortable ? display.getSortOrderIndex(col.uniqueName) : -1"
+            :isSortDefined="display && display.sortable ? display.isSortDefined() : false"
+            :clearSort="display && display.sortable ? () => display.clearSort() : null"
+            @resizeSplitter="e => {(display && col) && display.resizeColumn(col.uniqueName, col.width, e.detail)}"
+            :setGrouping="display.groupable ? groupFunc => display.setGrouping(col.uniqueName, groupFunc) : null"
+            :grouping="display ? display.getGrouping(col.uniqueName) : null"
             :allowDefineVirtualReferences="allowDefineVirtualReferences"
           />
         </td>
@@ -68,7 +76,7 @@
           v-for="(col, index) in visibleRealColumns"
           class="filter-cell"
           data-row="filter"
-          :data-col="col.colIndex"
+          :data-col="`${col.colIndex}`"
           :style="`width:${col.width}px; min-width:${col.width}px; max-width:${col.width}px`"
         >
           <DataFilterControl
@@ -410,10 +418,6 @@ export default defineComponent({
       collapsedLeftColumnStore.value = !unref(collapsedLeftColumnStore)
     }
 
-    function updateResizeSplitter() {
-
-    }
-
     // const columns = computed(() => display.value?.allColumns || [])
     // countColumnSizes()
 
@@ -591,7 +595,6 @@ export default defineComponent({
       visibleRowCountUpperBound,
       visibleRowCountLowerBound,
       visibleRealColumns,
-      updateResizeSplitter,
       containerWidth,
       containerHeight,
       inplaceEditorState,
