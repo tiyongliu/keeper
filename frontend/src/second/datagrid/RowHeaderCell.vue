@@ -1,6 +1,10 @@
 <template>
-  <td :data-row="`${rowIndex}`" data-col="header" @mouseenter="() => (mouseIn = true)" @mouseleave="() => (mouseIn = false)">
-    {{rowIndex + 1 || ''}}
+  <td
+    :data-row="`${rowIndex}`"
+    data-col="header"
+    @mouseenter="() => (mouseIn = true)"
+    @mouseleave="() => (mouseIn = false)">
+    {{ rowIndex + 1 || '' }}
     <ShowFormButton v-if="mouseIn && showForm" @click.stop.prevent="showForm"/>
   </td>
 </template>
@@ -8,6 +12,7 @@
 <script lang="ts">
 import {defineComponent, PropType, ref, toRefs} from 'vue'
 import ShowFormButton from '/@/second/formview/ShowFormButton.vue'
+
 export default defineComponent({
   name: "RowHeaderCell",
   components: {
@@ -22,13 +27,9 @@ export default defineComponent({
     }
   },
   setup(props) {
-    const mouseIn = ref(false)
-
-    function dispatchShowForm() {}
     return {
       ...toRefs(props),
-      mouseIn,
-      dispatchShowForm
+      mouseIn: ref(false),
     }
   }
 })

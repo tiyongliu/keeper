@@ -92,7 +92,7 @@ export default defineComponent({
       default: false
     }
   },
-  emits: ['dispatchResizeSplitter'],
+  emits: ['dispatchResizeSplitter', 'setFilter'],
   setup(props, {emit}) {
     function dispatchResizeSplitter(e) {
       emit('dispatchResizeSplitter', e)

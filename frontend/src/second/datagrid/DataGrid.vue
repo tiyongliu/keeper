@@ -67,14 +67,13 @@ import {
   computed,
   defineComponent,
   inject,
-  onMounted,
   PropType,
-  Ref,
-  unref,
   provide,
+  Ref,
   ref,
   toRaw,
   toRefs,
+  unref,
   watch
 } from 'vue'
 import {fromPairs, isNumber, mapKeys} from 'lodash-es'
@@ -205,12 +204,6 @@ export default defineComponent({
       emit('runMacro', () => (selectedMacro.value, extractMacroValuesForMacro(macroValues.value, selectedMacro.value), selectedCellsPublished.value()))
       selectedMacro.value = null
     }
-
-    onMounted(() => {
-      setTimeout(() => {
-        console.log(managerSize, `horizontalSplitter.value.size`)
-      }, 5000)
-    })
 
     function dispatchSize(size) {
       console.log(`bind:size={managerSize}`, size)

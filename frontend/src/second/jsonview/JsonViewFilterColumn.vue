@@ -6,12 +6,17 @@
         <FontIcon icon="icon close"/>
       </InlineButton>
     </div>
+    <DataFilterControl
+      :filterType="dynamicFilterType"
+      :filter="dynamicFilter"
+      @setFilter="handlerSetFilter"
+    />
   </div>
-
 </template>
 
 <script lang="ts">
-import {defineComponent, PropType, toRefs, unref} from 'vue'
+import {computed, defineComponent, PropType, toRefs, unref} from 'vue'
+import DataFilterControl from '/@/second/datagrid/DataFilterControl.vue'
 import ColumnLabel from '/@/second/elements/ColumnLabel.vue'
 import InlineButton from '/@/second/buttons/InlineButton.vue'
 import FontIcon from '/@/second/icons/FontIcon.vue'
@@ -21,6 +26,7 @@ import {GridDisplay} from '/@/second/keeper-datalib'
 export default defineComponent({
   name: 'JsonViewFilterColumn',
   components: {
+    DataFilterControl,
     ColumnLabel,
     InlineButton,
     FontIcon,
@@ -32,6 +38,9 @@ export default defineComponent({
     display: {
       type: Object as PropType<GridDisplay>
     },
+    filters: {
+      type: Object as PropType<{ [uniqueName: string]: string }>
+    },
     isDynamicStructure: {
       type: Boolean as PropType<boolean>,
       default: false
@@ -42,7 +51,9 @@ export default defineComponent({
     }
   },
   setup(props) {
-    const {uniqueName, display} = toRefs(props)
+    const {uniqueName, display, filters, isDynamicStructure, useEvalFilters} = toRefs(props)
+    const dynamicFilter = computed(() => (filters.value && uniqueName.value) ? filters.value[uniqueName.value] : null)
+    const dynamicFilterType = computed(() => computeFilterType(isDynamicStructure.value, display.value, uniqueName.value, useEvalFilters.value))
 
     function handler() {
       (display.value && uniqueName.value) && display.value.removeFilter(uniqueName.value)
@@ -58,11 +69,19 @@ export default defineComponent({
       return 'string'
     }
 
+    function handlerSetFilter(value: any) {
+      console.log(value, `setFilter`)
+      display.value && display.value.setFilter(uniqueName, unref(value))
+    }
+
     return {
       uniqueName,
       display,
+      dynamicFilter,
+      dynamicFilterType,
       handler,
-      computeFilterType
+      computeFilterType,
+      handlerSetFilter
     }
   }
 })

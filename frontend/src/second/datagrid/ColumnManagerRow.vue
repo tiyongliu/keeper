@@ -4,8 +4,8 @@
        <FontIcon/>
     </span>
     <FontIcon v-if="isJsonView" icon="img column"/>
-    <a-input v-else type="checkbox" :checked="column.isChecked"/>
-    <ColumnLabel {...column} showDataType :conid="conid" :database="database"/>
+    <a-input v-else type="checkbox" :checked="column && column.isChecked"/>
+    <ColumnLabel v-bind="{...column}" showDataType :conid="conid" :database="database"/>
   </div>
 </template>
 

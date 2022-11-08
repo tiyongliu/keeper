@@ -27,7 +27,7 @@ export default defineComponent({
   },
   setup(props) {
     const {managerSize, display, isDynamicStructure, useEvalFilters} = toRefs(props)
-    const filters = computed(() => display.value ? display.value?.config?.filters : null)
+    const filters = computed<{[uniqueName: string]: string} | null>(() => display.value ? display.value?.config?.filters : null)
     const allFilterNames = computed(() => keys(filters || {}))
 
     return () => (
@@ -37,6 +37,7 @@ export default defineComponent({
             key={index}
             uniqueName={uniqueName}
             display={display.value}
+            filters={filters.value!}
             isDynamicStructure={isDynamicStructure.value}
             useEvalFilters={useEvalFilters.value}/>)
         }
