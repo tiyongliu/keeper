@@ -35,7 +35,7 @@
           data-col="header"
           :style="`width:${headerColWidth}px; min-width:${headerColWidth}px; max-width:${headerColWidth}px`"
         >
-          <CollapseButton :collapsed="collapsedLeftColumnStore" @click="updateCollapsedLeftColumn"/>
+          <CollapseButton :collapsed="collapsedLeftColumnStoreRw" @click="updateCollapsedLeftColumn"/>
         </td>
         <td
           v-for="(col, index) in visibleRealColumns"
@@ -119,7 +119,7 @@
         :currentCellColumn="currentCell && currentCell[0] == rowIndex ? currentCell[1] : null"
         :dispatchInsplaceEditor="dispatchInsplaceEditor"
         :frameSelection="frameSelection"
-        @setFormViewTest="(e) => console.log(e, `eeeeeeee`)"
+        :setFormView="formViewAvailable && display && display?.baseTable?.primaryKey ? handleSetFormView : null"
       />
       </tbody>
     </table>
@@ -183,6 +183,7 @@ import {
 import {getFilterType} from '/@/second/keeper-filterparser'
 import createRef from '/@/second/utility/createRef'
 import {isCtrlOrCommandKey} from '/@/second/utility/common'
+import openReferenceForm, {openPrimaryKeyForm} from '/@/second/formview/openReferenceForm'
 import createReducer from '/@/second/utility/createReducer'
 
 function getSelectedCellsInfo(selectedCells, grider: Grider, realColumnUniqueNames, selectedRowData) {
@@ -297,6 +298,8 @@ export default defineComponent({
   },
   setup(props) {
     const {
+      conid,
+      database,
       errorMessage,
       grider,
       display,
@@ -309,7 +312,7 @@ export default defineComponent({
     const container = ref<Nullable<HTMLElement>>(null)
     const domHorizontalScroll = ref<Nullable<{ scroll: (value: number) => void }>>(null)
     const domVerticalScroll = ref<Nullable<{ scroll: (value: number) => void }>>(null)
-
+    const collapsedLeftColumnStoreRw = ref(collapsedLeftColumnStore.value)
     const wheelRowCount = ref(5)
     const tabVisible = inject('tabVisible')
 
@@ -423,7 +426,7 @@ export default defineComponent({
     }, {})
 
     function updateCollapsedLeftColumn() {
-      collapsedLeftColumnStore.value = !unref(collapsedLeftColumnStore)
+      collapsedLeftColumnStoreRw.value = !unref(collapsedLeftColumnStoreRw)
     }
 
     // const columns = computed(() => display.value?.allColumns || [])
@@ -519,6 +522,16 @@ export default defineComponent({
       }
     }
 
+    function handleSetFormView(rowData, column) {
+      console.log(rowData, column, `rowData, column_rowData, column`)
+
+      if (column) {
+        openReferenceForm(unref(rowData), column, conid.value, database.value);
+      } else {
+        openPrimaryKeyForm(unref(rowData), display.value?.baseTable, conid.value, database.value);
+      }
+    }
+
     function handleGridMouseDown(event) {
       if (event.target.closest('.buttonLike')) return
       if (event.target.closest('.resizeHandleControl')) return
@@ -587,7 +600,7 @@ export default defineComponent({
       columns,
       columnSizes,
       headerColWidth,
-      collapsedLeftColumnStore,
+      collapsedLeftColumnStoreRw,
       rowHeight,
       currentCell,
       autofillSelectedCells,
@@ -609,6 +622,7 @@ export default defineComponent({
       dispatchInsplaceEditor,
       firstVisibleRowScrollIndex,
       firstVisibleColumnScrollIndex,
+      handleSetFormView,
       handleGridMouseDown,
       handleGridMouseMove,
       handleGridMouseUp,

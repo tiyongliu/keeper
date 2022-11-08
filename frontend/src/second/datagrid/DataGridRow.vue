@@ -1,9 +1,7 @@
 <template>
   <tr :style="`height: ${rowHeight}px`">
-<!--
-:showForm="setFormView ? () => setFormView(rowData, null) : null"
--->
-    <RowHeaderCell :rowIndex="rowIndex" :showForm="handle"/>
+    <RowHeaderCell :rowIndex="rowIndex"
+                   :setFormView="setFormView ? () => setFormView(rowData, null) : null"/>
     <template v-for="(col, index) in  visibleRealColumns" :key="index">
       <td class="editor"
           v-if="inplaceEditorState
@@ -29,9 +27,9 @@ import {isNumber} from 'lodash-es'
 import {computed, defineComponent, PropType, toRefs} from 'vue'
 import RowHeaderCell from '/@/second/datagrid/RowHeaderCell.vue'
 import DataGridCell from '/@/second/datagrid/DataGridCell.vue'
+import Grider from '/@/second/datagrid/Grider'
+import {MacroSelectedCell} from '/@/second/keeper-datalib'
 import {CellAddress} from './selection'
-import Grider from "/@/second/datagrid/Grider"
-import {MacroSelectedCell} from "/@/second/keeper-datalib";
 
 export default defineComponent({
   name: "DataGridRow",
@@ -65,7 +63,7 @@ export default defineComponent({
       type: Object as PropType<{ [key in string]: unknown }>,
     },
     setFormView: {
-      type: Function as PropType<() => any>,
+      type: Function as PropType<Function>,
     },
     dispatchInsplaceEditor: {
       type: Function as PropType<(action: any) => void>
@@ -75,7 +73,7 @@ export default defineComponent({
       default: false
     },
     currentCellColumn: {
-      type: Number as PropType<number>,
+      type: [Number, String] as PropType<number | 'header' | 'filter'>,
     },
     conid: {
       type: String as PropType<string>
@@ -85,12 +83,10 @@ export default defineComponent({
     },
     focusedColumns: {
       type: Array as PropType<string[]>
-    }
+    },
   },
-  emits: ['setFormViewTest'],
-  setup(props, context) {
+  setup(props) {
     const {grider, rowIndex} = toRefs(props)
-    // const {onShowForm} = attrs
 
     const rowData = computed(() => {
       if (grider.value && isNumber(rowIndex.value)) {
@@ -99,13 +95,10 @@ export default defineComponent({
       return null
     })
 
-    function handle() {
-      console.log(`rowData`, context)
-    }
+
     return {
       ...toRefs(props),
       rowData,
-      handle
     }
   }
 })

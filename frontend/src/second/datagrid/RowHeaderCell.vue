@@ -1,7 +1,7 @@
 <template>
   <td :data-row="`${rowIndex}`" data-col="header" @mouseenter="() => (mouseIn = true)" @mouseleave="() => (mouseIn = false)">
     {{rowIndex + 1 || ''}}
-    <ShowFormButton v-if="mouseIn && showForm" @click.stop.prevent="showForm"/> 123
+    <ShowFormButton v-if="mouseIn && showForm" @click.stop.prevent="showForm"/>
   </td>
 </template>
 

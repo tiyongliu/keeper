@@ -56,7 +56,7 @@ export function groupTabs(tabs: any[]) {
   return res;
 }
 
-export default async function openNewTab(newTab, initialData = undefined, options: unknown = undefined) {
+export default async function openNewTab(newTab, initialData: any = undefined, options: unknown = undefined) {
   let existing: unknown = null;
 
   const {savedFile, savedFolder, savedFilePath} = newTab.props || {}
