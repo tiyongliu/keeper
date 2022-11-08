@@ -1,7 +1,8 @@
 <template>
   <tr :style="`height: ${rowHeight}px`">
-    <RowHeaderCell :rowIndex="rowIndex"
-                   :setFormView="setFormView ? () => setFormView(rowData, null) : null"/>
+    <RowHeaderCell
+      :rowIndex="rowIndex"
+      :showForm="setFormView ? () => setFormView(rowData, null) : null"/>
     <template v-for="(col, index) in  visibleRealColumns" :key="index">
       <td class="editor"
           v-if="inplaceEditorState
@@ -94,7 +95,6 @@ export default defineComponent({
       }
       return null
     })
-
 
     return {
       ...toRefs(props),

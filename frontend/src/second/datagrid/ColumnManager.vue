@@ -19,6 +19,7 @@ import CloseSearchButton from '/@/second/buttons/CloseSearchButton.vue'
 import InlineButton from '/@/second/buttons/InlineButton.vue'
 import ManagerInnerContainer from '/@/second/elements/ManagerInnerContainer.vue'
 import ColumnManagerRow from '/@/second/datagrid/ColumnManagerRow.vue'
+import {GridDisplay} from "/@/second/keeper-datalib";
 
 export default defineComponent({
   name: "ColumnManager",
@@ -33,6 +34,23 @@ export default defineComponent({
   props: {
     managerSize: {
       type: Number as PropType<number>,
+    },
+    display: {
+      type: Object as PropType<GridDisplay>
+    },
+    isJsonView: {
+      type: Boolean as PropType<boolean>,
+      default: false
+    },
+    isDynamicStructure: {
+      type: Boolean as PropType<boolean>,
+      default: false
+    },
+    conid: {
+      type: String as PropType<string>
+    },
+    database: {
+      type: String as PropType<string>
     }
   },
   setup(props) {
