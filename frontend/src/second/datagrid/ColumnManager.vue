@@ -37,14 +37,25 @@ export default defineComponent({
   },
   setup(props) {
     const filter = ref('')
+    const selectedColumns = ref<unknown[]>([])
+    const currentColumnUniqueName = ref()
 
     function showModal() {}
 
     const managerSize = toRef(props, 'managerSize')
+
+    function setSelectedColumns(value: unknown[]) {
+      selectedColumns.value = value
+      if (value.length > 0) {
+        currentColumnUniqueName.value = value[0]
+      }
+    }
+
     return {
       filter,
       managerSize,
-      showModal
+      showModal,
+      setSelectedColumns
     }
   }
 })
