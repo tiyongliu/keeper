@@ -1,7 +1,7 @@
 <template>
   <SearchBoxWrapper>
     <SearchInput placeholder="Search connection or database" v-model:searchValue="filter"/>
-    <CloseSearchButton :filter="filter" @close="filter = ''"/>
+    <CloseSearchButton :filter="filter" @filter="filter = ''"/>
     <InlineButton title="Add new connection" @click="openModal">
       <FontIcon icon="icon plus-thick"/>
     </InlineButton>
@@ -38,7 +38,7 @@ import {sortBy} from 'lodash-es'
 import SearchBoxWrapper from '/@/second/widgets/SearchBoxWrapper.vue'
 import WidgetsInnerContainer from '/@/second/widgets//WidgetsInnerContainer.vue'
 import SearchInput from '/@/second/elements/SearchInput.vue'
-import CloseSearchButton from '/@/second/buttons/CloseSearchButton.vue'
+import CloseSearchButton from '/@/second/buttons/CloseSearchButton'
 import InlineButton from '/@/second/buttons/InlineButton.vue'
 import AppObjectList from '/@/second/appobj/AppObjectList'
 import FontIcon from '/@/second/icons/FontIcon.vue'

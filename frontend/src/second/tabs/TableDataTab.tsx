@@ -1,10 +1,10 @@
-import {defineComponent, PropType, provide, ref, toRefs, unref, watch, onBeforeUnmount} from 'vue'
+import {defineComponent, onBeforeUnmount, PropType, provide, ref, toRefs, unref, watch} from 'vue'
+import {getLocalStorage, setLocalStorage} from '/@/second/utility/storageCache'
 import {createChangeSet, createGridCache} from '/@/second/keeper-datalib'
 import ToolStripContainer from '/@/second/buttons/ToolStripContainer.vue'
 import TableDataGrid from '/@/second/datagrid/TableDataGrid.vue'
-import useGridConfig from '/@/second/utility/useGridConfig'
 import createUndoReducer from '/@/second/utility/createUndoReducer'
-import {getLocalStorage, setLocalStorage} from '/@/second/utility/storageCache'
+import useGridConfig from '/@/second/utility/useGridConfig'
 
 export default defineComponent({
   name: 'TableDataTab',
@@ -36,24 +36,23 @@ export default defineComponent({
     //   useConnectionInfo({conid: unref(conid)}, connection)
     // })
 
-
     const [changeSetStore, dispatchChangeSet] = createUndoReducer(createChangeSet())
 
     const config = useGridConfig(tabid.value!)
     const cache = ref(createGridCache())
 
-    function configUpdate(target) {
-      config.value = target
+    function configUpdate(fn) {
+      if (fn) config.value = fn(config.value)
     }
 
-    function cacheUpdate(target) {
-      cache.value = target
+    function cacheUpdate(fn) {
+      if (fn) cache.value = fn(cache.value)
     }
 
     const collapsedLeftColumnStore = ref(getLocalStorage('dataGrid_collapsedLeftColumn', false))
     provide('collapsedLeftColumnStore', collapsedLeftColumnStore)
 
-    watch(() => collapsedLeftColumnStore.value, (_, newValue) =>{
+    watch(() => collapsedLeftColumnStore.value, (_, newValue) => {
       setLocalStorage('dataGrid_collapsedLeftColumn', unref(newValue))
     })
 
@@ -67,18 +66,20 @@ export default defineComponent({
     onBeforeUnmount(() => closeRefreshTimer())
 
     return () => (
-      <ToolStripContainer>
-        <TableDataGrid
-          {...Object.assign({}, props, attrs)}
-          config={config.value}
-          setConfig={configUpdate}
-          cache={unref(cache)}
-          setCache={cacheUpdate}
-          focusOnVisible
-          changeSetState={changeSetStore.value}
-          dispatchChangeSet={dispatchChangeSet}
-        />
-      </ToolStripContainer>
+      <>
+        <ToolStripContainer>
+          <TableDataGrid
+            {...Object.assign({}, props, attrs)}
+            config={config.value}
+            setConfig={configUpdate}
+            cache={config.value}
+            setCache={cacheUpdate}
+            focusOnVisible
+            changeSetState={changeSetStore.value}
+            dispatchChangeSet={dispatchChangeSet}
+          />
+        </ToolStripContainer>
+      </>
     )
   }
 })

@@ -9,7 +9,7 @@
         :formDisplay="formDisplay"
         showReferences
         showMacros
-        @runMacro="handleRunMacro"
+        :runMacro="handleRunMacro"
         :macroCondition="macro => macro.type == 'transformValue'"
         :multipleGridsOnTab="multipleGridsOnTab || !!reference"
         allowDefineVirtualReferences
@@ -166,7 +166,7 @@ export default defineComponent({
       extendedDbInfo.value = extendDatabaseInfoFromApps(dbinfo.value, apps.value)
     })
 
-    watch(() => [connection.value, serverVersion.value], () => {
+    watch(() => [connection.value, serverVersion.value, config.value, cache.value], () => {
       display.value = connection.value && serverVersion.value ? new TableGridDisplay(
         {schemaName: schemaName.value, pureName: pureName.value!},
         findEngineDriver(connection.value, <ExtensionsDirectory>extensions.value!),

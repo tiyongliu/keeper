@@ -35,7 +35,9 @@
           data-col="header"
           :style="`width:${headerColWidth}px; min-width:${headerColWidth}px; max-width:${headerColWidth}px`"
         >
-          <CollapseButton :collapsed="collapsedLeftColumnStoreRw" @click="updateCollapsedLeftColumn"/>
+          <CollapseButton
+            :collapsed="collapsedLeftColumnStore"
+            @click="updateCollapsedLeftColumn"/>
         </td>
         <td
           v-for="(col, index) in visibleRealColumns"
@@ -168,9 +170,10 @@ import {
   filterCellsForRow
 } from '/@/second/datagrid/gridutil'
 import {useStatusBarTabItem} from '/@/second/widgets/useStatusBarTabItem'
-import {GridDisplay} from "/@/second/keeper-datalib";
-import Grider from "/@/second/datagrid/Grider";
-import {SeriesSizes} from "/@/second/datagrid/SeriesSizes";
+// import {dataGridRowHeight} from './DataGridRowHeightMeter.vue'
+import {GridDisplay} from '/@/second/keeper-datalib'
+import Grider from '/@/second/datagrid/Grider'
+import {SeriesSizes} from '/@/second/datagrid/SeriesSizes'
 import {
   CellAddress,
   cellFromEvent,
@@ -258,7 +261,7 @@ export default defineComponent({
       type: String as PropType<string | null>,
     },
     collapsedLeftColumnStore: {
-      type: Boolean as PropType<boolean>,
+      type: Object as PropType<object>,
       default: true
     },
     allowDefineVirtualReferences: {
@@ -312,7 +315,6 @@ export default defineComponent({
     const container = ref<Nullable<HTMLElement>>(null)
     const domHorizontalScroll = ref<Nullable<{ scroll: (value: number) => void }>>(null)
     const domVerticalScroll = ref<Nullable<{ scroll: (value: number) => void }>>(null)
-    const collapsedLeftColumnStoreRw = ref(collapsedLeftColumnStore.value)
     const wheelRowCount = ref(5)
     const tabVisible = inject('tabVisible')
 
@@ -386,7 +388,6 @@ export default defineComponent({
     ) : [])
     // const visibleRealColumns = computed(() => _visibleRealColumns)
 
-
     const selectedCellsInfo = computed(() => getSelectedCellsInfo(selectedCells.value, grider.value!, realColumnUniqueNames.value, getSelectedRowData()))
 
     const realColumnUniqueNames = computed<any[]>(() => (columnSizes.value ? range(columnSizes.value.realCount) : []).map(
@@ -426,7 +427,7 @@ export default defineComponent({
     }, {})
 
     function updateCollapsedLeftColumn() {
-      collapsedLeftColumnStoreRw.value = !unref(collapsedLeftColumnStoreRw)
+      collapsedLeftColumnStore.value = !collapsedLeftColumnStore.value
     }
 
     // const columns = computed(() => display.value?.allColumns || [])
@@ -600,7 +601,6 @@ export default defineComponent({
       columns,
       columnSizes,
       headerColWidth,
-      collapsedLeftColumnStoreRw,
       rowHeight,
       currentCell,
       autofillSelectedCells,

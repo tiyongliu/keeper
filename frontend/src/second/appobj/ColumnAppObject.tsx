@@ -18,7 +18,7 @@ export default defineComponent({
         data={unref(data)}
         title={unref(data)!.columnName}
         extInfo={unref(extInfo)}
-        icon={getColumnIcon(unref(data), true)}
+        icon={getColumnIcon(unref(data), true)!}
       />
     )
   }
