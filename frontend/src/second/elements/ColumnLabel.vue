@@ -1,10 +1,12 @@
 <template>
   <span class="label" :class="notNull && 'notNull'">
-    <FontIcon v-if="icon" :icon="icon"/>
-    <template v-if="headerText || columnName">
-      <span v-if="extInfo" class="extinfo">{{ extInfo }}</span>
-    </template>
+   <FontIcon v-if="icon" :icon="icon"/>
+    {{headerText || columnName}}
+
+    <span v-if="extInfo" class="extinfo">{{ extInfo }}</span>
+
     <template v-if="showDataType">
+
       <span class="extinfo" v-if="foreignKey">
         <FontIcon icon="icon arrow-right"/>
          <Link v-if="conid && database" @click.stop="handler($event)">{{
@@ -12,13 +14,14 @@
            }}</Link>
         <template v-else>{{ foreignKey.refTableName }}</template>
       </span>
-      <span v-else-if="dataType" class="extinfo">{dataType.toLowerCase()}</span>
+
+      <span v-else-if="dataType" class="extinfo">{{dataType.toLowerCase()}}</span>
     </template>
   </span>
 </template>
 
 <script lang="ts">
-import {computed, defineComponent, PropType, toRefs, unref} from 'vue'
+import {computed, defineComponent, PropType, toRefs, unref,} from 'vue'
 import FontIcon from '/@/second/icons/FontIcon.vue'
 import Link from '/@/second/elements/Link.vue'
 import {openDatabaseObjectDetail} from '/@/second/appobj/DatabaseObjectAppObject'
@@ -26,11 +29,11 @@ import {openDatabaseObjectDetail} from '/@/second/appobj/DatabaseObjectAppObject
 export function getColumnIcon(column, forceIcon = false) {
   if (unref(column).autoIncrement) return 'img autoincrement';
   if (unref(column).foreignKey) return 'img foreign-key';
-  if (unref(forceIcon)) return 'img column';
+  if (forceIcon) return 'img column';
   return null;
 }
 
-export default defineComponent({
+export default defineComponent( {
   name: "ColumnLabel",
   components: {
     FontIcon,
@@ -75,6 +78,9 @@ export default defineComponent({
     database: {
       type: String as PropType<string>,
     },
+    iconOverride: {
+      type: String as PropType<string>,
+    }
   },
   setup(props, {attrs}) {
     const {
@@ -87,11 +93,11 @@ export default defineComponent({
       showDataType,
       foreignKey,
       conid,
-      database
+      database,
+      iconOverride
     } = toRefs(props)
 
-    // const icon = ref<Nullable<string>>(null)
-    const icon = computed(() => getColumnIcon(Object.assign({}, props, attrs), forceIcon.value))
+    const icon = computed(() => iconOverride.value || getColumnIcon(Object.assign({}, props, attrs), forceIcon.value))
 
     function handler(e: Event) {
       e.stopPropagation()

@@ -9,9 +9,8 @@
 </template>
 
 <script lang="ts">
-  import {defineComponent, ref, unref, watch, onBeforeUnmount, toRef} from 'vue';
+  import {defineComponent, ref, unref, watch, onBeforeUnmount, toRef} from 'vue'
   import {debounce} from 'lodash-es'
-  import {useDebounceFn} from '@vueuse/core'
   import keycodes from '/@/second/utility/keycodes'
 
   export default defineComponent({

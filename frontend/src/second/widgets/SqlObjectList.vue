@@ -26,7 +26,7 @@
 
   <SearchBoxWrapper v-else>
     <SearchInput placeholder="Search connection or database" v-model:searchValue="filter"/>
-    <CloseSearchButton :filter="filter" @close="filter = ''"/>
+    <CloseSearchButton :filter="filter" @filter="filter = ''"/>
     <DropDownButton icon="icon plus-thick"/>
     <InlineButton @click="handleRefreshDatabase"
                   title="Refresh database connection and object list">
@@ -61,7 +61,7 @@ import InlineButton from '/@/second/buttons/InlineButton.vue'
 import SearchBoxWrapper from '/@/second/elements/SearchBoxWrapper.vue'
 import LoadingInfo from '/@/second/elements/LoadingInfo.vue'
 import SearchInput from '/@/second/elements/SearchInput.vue'
-import CloseSearchButton from '/@/second/buttons/CloseSearchButton.vue'
+import CloseSearchButton from '/@/second/buttons/CloseSearchButton'
 import DropDownButton from '/@/second/buttons/DropDownButton'
 import runCommand from '/@/second/commands/runCommand'
 import WidgetsInnerContainer from './WidgetsInnerContainer.vue'

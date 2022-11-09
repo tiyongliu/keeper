@@ -1,6 +1,7 @@
 <template>
   <HorizontalSplitter
     :initialValue="getInitialManagerSize()"
+    :size="managerSize"
     @dispatchSize="dispatchSize"
     :hideFirst="collapsedLeftColumnStore">
     <template #1>
@@ -12,7 +13,7 @@
             height="45%"
             :show="columnsShow">
             <ColumnManager
-              v-bind="Object.assign({}, $props, $attrs)"
+              v-bind="pick(Object.assign({}, $props, $attrs), ['managerSize', 'display', 'isJsonView', 'isDynamicStructure', 'conid', 'database'])"
               :managerSize="managerSize"
               :isJsonView="isJsonView"
               :isDynamicStructure="isDynamicStructure"
@@ -30,8 +31,21 @@
               :isDynamicStructure="isDynamicStructure"
               :useEvalFilters="useEvalFilters"/>
           </WidgetColumnBarItem>
-        </WidgetColumnBar>
 
+          <WidgetColumnBarItem
+            title="Filters"
+            name="tableFilters"
+            height="15%"
+            :skip="!(display && display?.filterable) || isDynamicStructure || (display && display.filterCount == 0) || isFormView"
+            :collapsed="isDetailView"
+          >
+            <JsonViewFilters
+              v-bind="Object.assign({}, $props, $attrs)"
+              :managerSize="managerSize"
+              :isDynamicStructure="isDynamicStructure"
+              :useEvalFilters="useEvalFilters"/>
+          </WidgetColumnBarItem>
+        </WidgetColumnBar>
       </div>
     </template>
     <template #2>
@@ -49,8 +63,11 @@
             v-else
             :is="gridCoreComponent"
             v-bind="Object.assign({}, $props, $attrs)"
+            :collapsedLeftColumnStore="collapsedLeftColumnStore"
+            :formViewAvailable="!!formViewComponent && !!formDisplay"
+            :macroValues="extractMacroValuesForMacro(macroValues, selectedMacro)"
             :macroPreview="selectedMacro"
-            :formViewAvailable="!!formViewComponent && !!formDisplay"/>
+          />
         </template>
 
         <template #2>
@@ -76,7 +93,7 @@ import {
   unref,
   watch
 } from 'vue'
-import {fromPairs, isNumber, mapKeys} from 'lodash-es'
+import {fromPairs, isNumber, mapKeys, pick} from 'lodash-es'
 import HorizontalSplitter from '/@/second/elements/HorizontalSplitter.vue'
 import WidgetColumnBar from '/@/second/widgets/WidgetColumnBar.vue'
 import WidgetColumnBarItem from '/@/second/widgets/WidgetColumnBarItem.vue'
@@ -85,12 +102,20 @@ import MacroDetail from '/@/second/freetable/MacroDetail.vue'
 import ColumnManager from '/@/second/datagrid/ColumnManager.vue'
 import JsonViewFilters from '/@/second/jsonview/JsonViewFilters'
 import {getLocalStorage, setLocalStorage} from '/@/second/utility/storageCache'
-import {GridConfig, GridDisplay, TableFormViewDisplay,} from '/@/second/keeper-datalib'
-import {Nullable} from "/@/utils/types";
+import {
+  GridConfig,
+  GridDisplay,
+  MacroDefinition,
+  MacroSelectedCell,
+  TableFormViewDisplay
+} from '/@/second/keeper-datalib'
+import {Nullable} from '/@/utils/types'
 
-function extractMacroValuesForMacro(macroValues, macro) {
+function extractMacroValuesForMacro(vObject, mObject) {
   // return {};
-  if (!macro) return {};
+  const macroValues = unref(vObject)
+  const macro = unref(mObject)
+  if (!macro) return {}
   return {
     ...fromPairs((macro.args || []).filter(x => x.default != null).map(x => [x.name, x.default])),
     ...mapKeys(macroValues, (_, k) => k.replace(/^.*#/, '')),
@@ -111,6 +136,9 @@ export default defineComponent({
     },
     config: {
       type: Object as PropType<GridConfig>,
+    },
+    setConfig: {
+      type: Function as PropType<(target: any) => void>
     },
     display: {
       type: Object as PropType<GridDisplay>
@@ -149,7 +177,9 @@ export default defineComponent({
       type: Boolean as PropType<boolean>,
       default: false
     },
-
+    runMacro: {
+      type: Function as PropType<(macro: MacroDefinition, params: {}, cells: MacroSelectedCell[]) => void>
+    }
   },
   components: {
     HorizontalSplitter,
@@ -160,15 +190,16 @@ export default defineComponent({
     ColumnManager,
     JsonViewFilters
   },
-  emits: ['runMacro'],
-  setup(props, {emit}) {
+  setup(props) {
     const {
       config,
       formDisplay,
       display,
       freeTableColumn,
       useEvalFilters,
-      isDynamicStructure
+      isDynamicStructure,
+      runMacro,
+      setConfig,
     } = toRefs(props)
 
     const domColumnManager = ref<Nullable<{ setSelectedColumns: (value: unknown[]) => void }>>(null)
@@ -178,7 +209,7 @@ export default defineComponent({
 
     const managerSize = ref(0)
 
-    const selectedMacro = ref(null)
+    const selectedMacro = ref<Nullable<MacroDefinition>>(null)
     provide('selectedMacro', selectedMacro)
     const macroValues = ref({})
     provide('macroValues', macroValues)
@@ -201,16 +232,41 @@ export default defineComponent({
     const selectedCellsPublished = ref(() => [])
 
     const handleExecuteMacro = () => {
-      emit('runMacro', () => (selectedMacro.value, extractMacroValuesForMacro(macroValues.value, selectedMacro.value), selectedCellsPublished.value()))
+      runMacro.value && runMacro.value(selectedMacro.value!, extractMacroValuesForMacro(macroValues.value, selectedMacro.value), selectedCellsPublished.value())
       selectedMacro.value = null
     }
 
+    function switchViewEnabled(view) {
+      if (view == 'form') return !!formViewComponent && !!formDisplay.value && !isFormView.value && (display.value && display.value?.baseTable?.primaryKey);
+      if (view == 'table') return !!(isFormView || isJsonView);
+      if (view == 'json') return !!jsonViewComponent && !isJsonView;
+    }
+
+    function switchToView(view) {
+      if (view == 'form') {
+        display.value && display.value.switchToFormView(selectedCellsPublished.value()[0]?.rowData)
+      }
+      if (view == 'table') {
+        setConfig.value && setConfig.value(cfg => ({
+          ...cfg,
+          isFormView: false,
+          isJsonView: false,
+          formViewKey: null,
+        }));
+      }
+      if (view == 'json') {
+        display.value && display.value.switchToJsonView();
+      }
+    }
+
     function dispatchSize(size) {
-      console.log(`bind:size={managerSize}`, size)
+      console.log(`bind:size={managerSize}`, size.value)
       managerSize.value = size
     }
 
-    watch(managerSize, () => setLocalStorage('dataGridManagerWidth', managerSize.value))
+    watch(managerSize, () => {
+      if (managerSize.value) setLocalStorage('dataGridManagerWidth', managerSize.value)
+    })
 
 
     return {
@@ -222,22 +278,30 @@ export default defineComponent({
       getInitialManagerSize,
       dispatchSize,
       collapsedLeftColumnStore,
+      extractMacroValuesForMacro,
       handleExecuteMacro,
+      unref,
       columnsShow,
       jsonFiltersSkip,
       freeTableColumn,
       display,
+      macroValues,
       selectedMacro,
       formDisplay,
       isFormView,
       isJsonView,
       isDynamicStructure,
       useEvalFilters,
+      pick
     }
   }
 })
 </script>
 
 <style scoped>
-
+.left {
+  display: flex;
+  flex: 1;
+  background-color: var(--theme-bg-0);
+}
 </style>

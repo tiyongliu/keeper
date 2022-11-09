@@ -10,6 +10,7 @@ import (
 	"keeper/app/plugins/pluginMysql"
 	staticSql "keeper/app/plugins/pluginMysql/backend/sql"
 	"keeper/app/utility"
+	"reflect"
 	"strconv"
 	"strings"
 )
@@ -261,17 +262,18 @@ func getColumnInfo(filter []*modules.TableColumn) []*modules.TransformColumnInfo
 			fullDataType = fmt.Sprintf("%s(%d,%d)", col.DataType, *col.NumericPrecision, *col.NumericScale)
 		}
 
-		var autoIncrement bool
-		if col.Extra != nil {
-			s, ok := col.Extra.(string)
-			if s != "" && ok {
-				autoIncrement = strings.ToLower(s) == "auto_increment"
+		var extra string
+		utility.WithRecover(func() {
+			if col.Extra != nil {
+				extra = fmt.Sprintf("%s", col.Extra)
 			}
-		}
+		}, func(err error) {
+			logger.Errorf("col.Extra expected string, got %s, conversion filed %v", reflect.ValueOf(col.Extra).Kind().String(), err)
+		})
 
 		return &modules.TransformColumnInfo{
 			NotNull:       col.IsNullable == "" || strings.ToLower(col.IsNullable) == "no",
-			AutoIncrement: autoIncrement,
+			AutoIncrement: !!(extra != "" && strings.Contains(strings.ToLower(extra), "auto_increment")),
 			ColumnName:    col.ColumnName,
 			ColumnComment: col.ColumnComment,
 			DataType:      fullDataType,

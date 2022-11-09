@@ -92,7 +92,6 @@
           'icon web': 'mdi mdi-web',
           'icon home': 'mdi mdi-home',
           'icon query-design': 'mdi mdi-vector-polyline-edit',
-          'icon form': 'mdi mdi-form-select',
           'icon history': 'mdi mdi-history',
           'icon structure': 'mdi mdi-tools',
           'icon square': 'mdi mdi-square',

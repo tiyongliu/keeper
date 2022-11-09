@@ -19,26 +19,28 @@
         v-splitterDrag="'clientX'"
         :resizeSplitter="(e) => updateSize(e.detail)">
       </div>
-      <div :class="collapsed1 ? 'child1' : 'child2'" :style="collapsed2 ? 'display:none' : collapsed1 ? 'flex:1' : 'child2'">
+      <div :class="collapsed1 ? 'child1' : 'child2'"
+           :style="collapsed2 ? 'display:none' : collapsed1 ? 'flex:1' : 'child2'">
         <slot name="2"></slot>
       </div>
     </template>
 
     <template v-if="allowCollapseChild1 && !collapsed2 && isSplitter">
       <div v-if="collapsed1" class="collapse" style="left: 0px" @click="() => collapsed1 = false">
-        <FontIcon icon="icon chevron-double-right" />
+        <FontIcon icon="icon chevron-double-right"/>
       </div>
-      <div v-else class="collapse" :style="`left: ${size - 16}px`" @click="() => collapsed1 = true">
-        <FontIcon icon="icon chevron-double-left" />
+      <div v-else class="collapse" :style="`left: ${sizeRw - 16}px`"
+           @click="() => collapsed1 = true">
+        <FontIcon icon="icon chevron-double-left"/>
       </div>
     </template>
 
     <template v-if="allowCollapseChild2 && !collapsed1 && isSplitter">
-      <div v-if="collapsed2" class="collapse" style="right: 0px"  @click="() => collapsed2 = false">
-        <FontIcon icon="icon chevron-double-left" />
+      <div v-if="collapsed2" class="collapse" style="right: 0px" @click="() => collapsed2 = false">
+        <FontIcon icon="icon chevron-double-left"/>
       </div>
-      <div v-else class="collapse" :style="`left: ${size}px`" @click="() => collapsed2 = true">
-        <FontIcon icon="icon chevron-double-left" />
+      <div v-else class="collapse" :style="`left: ${sizeRw}px`" @click="() => collapsed2 = true">
+        <FontIcon icon="icon chevron-double-left"/>
       </div>
     </template>
   </div>
@@ -46,7 +48,7 @@
 
 <script lang="ts">
 import {defineComponent, nextTick, PropType, ref, toRef, toRefs, watch} from 'vue'
-import {isString, omit} from 'lodash-es'
+import {isString} from 'lodash-es'
 import FontIcon from '/@/second/icons/FontIcon.vue'
 
 export function computeSplitterSize(initialValue, clientSize) {
@@ -72,7 +74,7 @@ export default defineComponent({
       type: String as PropType<string>,
     },
     hideFirst: {
-      type: Boolean as PropType<boolean>,
+      type: Object as PropType<object>,
       default: false
     },
     allowCollapseChild1: {
@@ -82,31 +84,37 @@ export default defineComponent({
     allowCollapseChild2: {
       type: Boolean as PropType<boolean>,
       default: false
+    },
+    size: {
+      type: Number as PropType<number>,
+      default: 0
     }
   },
   emits: ['dispatchSize'],
-  setup(props,{emit}) {
-    const size = ref(0)
+  setup(props, {emit}) {
+    const size = toRef(props, 'size')
     const initialValue = toRef(props, 'initialValue')
     const collapsed1 = ref(false)
     const collapsed2 = ref(false)
+    const sizeRw = ref(size.value)
 
     const clientWidth = ref<Nullable<HTMLElement>>(null)
 
     watch(() => [initialValue.value, clientWidth.value], async () => {
       await nextTick()
-      size.value = computeSplitterSize(initialValue.value, clientWidth.value)
-      emit('dispatchSize', size.value)
-    })
+      sizeRw.value = computeSplitterSize(initialValue.value, clientWidth.value)
+      emit('dispatchSize', sizeRw.value)
+    }, {immediate: true})
 
     function updateSize(e: number) {
-      size.value += e
+      sizeRw.value += e
+      emit('dispatchSize', sizeRw.value)
     }
 
     return {
       clientWidth,
-      ...toRefs(omit(props, ['size'])),
-      size,
+      ...toRefs(props),
+      sizeRw,
       collapsed1,
       collapsed2,
       updateSize
