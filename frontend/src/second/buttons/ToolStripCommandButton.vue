@@ -5,18 +5,18 @@
 </template>
 
 <script lang="ts">
-import {Component, computed, defineComponent, PropType, toRef} from 'vue'
+import {Component, computed, defineComponent, PropType, toRef, toRefs} from 'vue'
 import {storeToRefs} from 'pinia'
 import {useBootstrapStore} from '/@/store/modules/bootstrap'
 import {formatKeyText} from '/@/second/utility/common'
 import ToolStripButton from './ToolStripButton.vue'
 
 function getCommandTitle(command) {
-  let res = command.text;
+  let res = command.text
   if (command.keyText || command.keyTextFromGroup) {
-    res += ` (${formatKeyText(command.keyText || command.keyTextFromGroup)})`;
+    res += ` (${formatKeyText(command.keyText || command.keyTextFromGroup)})`
   }
-  return res;
+  return res
 }
 
 export default defineComponent({
@@ -48,10 +48,10 @@ export default defineComponent({
     }>(() => Object.values(getCommandsCustomized.value).find((x: any) => x.id == command.value) as any)
 
     return {
-      ...props,
+      ...toRefs(props),
       cmd,
       getCommandsCustomized,
-      title: getCommandTitle(cmd.value)
+      title: computed(() => getCommandTitle(cmd.value))
     }
   }
 })

@@ -1,4 +1,4 @@
-import {defineComponent, ref, unref, watch,} from 'vue'
+import {defineComponent, ref, unref, watch, computed} from 'vue'
 import {storeToRefs} from "pinia"
 import {difference, keys, map, pickBy} from 'lodash-es'
 import {useLocaleStore} from '/@/store/modules/locale'
@@ -11,12 +11,8 @@ export default defineComponent({
   setup() {
     const localeStore = useLocaleStore()
     const {openedTabs} = storeToRefs(localeStore)
-    const selectedTab = ref()
     const mountedTabs = ref({})
-
-    watch(() => openedTabs.value, () => {
-      selectedTab.value = (openedTabs.value as TabDefinition[]).find(x => x.selected && x.closedTime == null)
-    })
+    const selectedTab = computed(() => (openedTabs.value as TabDefinition[]).find(x => x.selected && x.closedTime == null))
 
     watch(() => [mountedTabs.value, selectedTab.value], () => {
       if (difference(

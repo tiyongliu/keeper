@@ -16,9 +16,9 @@ interface IVariableBasic {
   visibleCommandPalette: null | unknown
   commandsCustomized: object
   loadingPluginStore: { loaded: boolean, loadingPackageName: string | null }
-
   connections: []
   databases: []
+  selectedCellsCallback: Nullable<() => any>
 }
 
 export interface TabDefinition {
@@ -56,9 +56,9 @@ export const useBootstrapStore = defineStore({
       loaded: true,
       loadingPackageName: null
     },
-
     connections: [],
-    databases: []
+    databases: [],
+    selectedCellsCallback: null
   }),
   getters: {
     getOpenedConnections(): string[] {
@@ -101,7 +101,6 @@ export const useBootstrapStore = defineStore({
     },
     subscribeCommands(value: object) {
       this.commands = value
-
       this.commandsCustomized = derived(this.commands, this.commandsSettings)
     },
     subscribeCommandsSettings(value: object) {
@@ -114,6 +113,9 @@ export const useBootstrapStore = defineStore({
     subscribeConnections(payload): void {
       this.connections = payload
     },
+    subscribeSelectedCellsCallback(value: () => any) {
+      this.selectedCellsCallback = value
+    }
   }
 });
 

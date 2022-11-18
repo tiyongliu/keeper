@@ -18,7 +18,24 @@
         :col="col"
         :conid="conid"
         :database="database"
-      />
+        :allowHintField="hintFieldsAllowed?.includes(col.uniqueName)"
+        :isSelected="frameSelection ? false : cellIsSelected(rowIndex, col.colIndex, selectedCells)"
+        :isCurrentCell="col.colIndex == currentCellColumn"
+        :isFrameSelected="frameSelection ? cellIsSelected(rowIndex, col.colIndex, selectedCells) : false"
+        :isAutofillSelected="cellIsSelected(rowIndex, col.colIndex, autofillSelectedCells)"
+        :isFocusedColumn="focusedColumns?.includes(col.uniqueName)"
+        :isModifiedCell="rowStatus.modifiedFields && rowStatus.modifiedFields.has(col.uniqueName)"
+        :isModifiedRow="rowStatus.status == 'updated'"
+        :isInserted="rowStatus.status == 'inserted' ||
+          (rowStatus.insertedFields && rowStatus.insertedFields.has(col.uniqueName))"
+        :isDeleted="rowStatus.status == 'deleted' ||
+          (rowStatus.deletedFields && rowStatus.deletedFields.has(col.uniqueName))"
+        :setFormView="setFormView"
+        :isDynamicStructure="isDynamicStructure"
+        :isAutoFillMarker="autofillMarkerCell &&
+          autofillMarkerCell[1] == col.colIndex &&
+          autofillMarkerCell[0] == rowIndex &&
+          grider.editable"/>
     </template>
   </tr>
 </template>
@@ -31,7 +48,7 @@ import DataGridCell from '/@/second/datagrid/DataGridCell.vue'
 import Grider from '/@/second/datagrid/Grider'
 import {MacroSelectedCell} from '/@/second/keeper-datalib'
 import {CellAddress} from './selection'
-
+import {cellIsSelected} from './gridutil'
 export default defineComponent({
   name: "DataGridRow",
   components: {
@@ -56,6 +73,9 @@ export default defineComponent({
     },
     selectedCells: {
       type: Array as PropType<MacroSelectedCell[]>
+    },
+    autofillSelectedCells: {
+      type: Array as PropType<CellAddress[]>
     },
     autofillMarkerCell: {
       type: Array as PropType<CellAddress[]>
@@ -87,7 +107,7 @@ export default defineComponent({
     },
   },
   setup(props) {
-    const {grider, rowIndex} = toRefs(props)
+    const {grider, rowIndex, visibleRealColumns} = toRefs(props)
 
     const rowData = computed(() => {
       if (grider.value && isNumber(rowIndex.value)) {
@@ -96,9 +116,27 @@ export default defineComponent({
       return null
     })
 
+    const rowStatus = computed(() => {
+      if (grider.value && isNumber(rowIndex.value)) {
+        return grider.value.getRowStatus(rowIndex.value)
+      }
+      return null
+    })
+
+    const hintFieldsAllowed = computed(() => {
+      visibleRealColumns.value ? visibleRealColumns.value?.filter(col => {
+        if (!col.hintColumnNames) return false
+        if (rowStatus.value && rowStatus.value.modifiedFields && rowStatus.value.modifiedFields.has(col.uniqueName)) return false
+        return true;
+      }).map(col => col.uniqueName) : []
+    })
+
     return {
       ...toRefs(props),
       rowData,
+      rowStatus,
+      hintFieldsAllowed,
+      cellIsSelected
     }
   }
 })

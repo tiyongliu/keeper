@@ -1,5 +1,5 @@
 import {defineComponent} from 'vue'
-import LoadingDataGridCore from './LoadingDataGridCore'
+import LoadingDataGridCore from './LoadingDataGridCore.vue'
 import eb_system_config from "/@/second/tabs/eb_system_config.json";
 export default defineComponent({
   name: 'CollectionDataGridCore',

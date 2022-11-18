@@ -2,7 +2,7 @@
   <SearchBoxWrapper>
     <SearchInput placeholder="Search connection or database" v-model:searchValue="filter"/>
     <CloseSearchButton :filter="filter" @filter="filter = ''"/>
-    <InlineButton @click="showModal">Add</InlineButton>
+    <InlineButton v-if="isDynamicStructure && !isJsonView" @click="showModal">Add</InlineButton>
     <InlineButton @click="() => hideAllColumns()">Hide</InlineButton>
     <InlineButton @click="() => showAllColumns()">Show</InlineButton>
   </SearchBoxWrapper>

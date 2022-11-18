@@ -1,5 +1,18 @@
 <template>
   <div class="flex">
+    <a-input
+      class="dataFilter-input"
+      ref="domInput"
+      size="small"
+      autocomplete="off"
+      :readOnly="isReadOnly"
+      v-model:value="value"
+      :class="[isError && 'isError', isOk && 'isOk']"
+      @keydown="handleKeyDown"
+      @blur="applyFilter"
+      @paste="handlePaste"
+      placeholder="Filter"
+    />
     <InlineButton v-if="customCommandIcon" :title="customCommandTooltip">
       <FontIcon :icon="customCommandIcon"/>
     </InlineButton>
@@ -21,25 +34,27 @@
         <FontIcon icon="icon dots-vertical" />
       </InlineButton>
     </template>
-
     <div
       v-if="showResizeSplitter"
       class="horizontal-split-handle resizeHandleControl"
       v-splitterDrag="'clientX'"
-      :resizeSplitter="(e) => dispatchResizeSplitter(e)"
-    />
+      :resizeSplitter="(e) => dispatchResizeSplitter(e)"/>
   </div>
 </template>
 
 <script lang="ts">
-import {defineComponent, PropType, toRefs} from 'vue'
+import {defineComponent, PropType, ref, toRef, toRefs, watch} from 'vue'
+import {Input} from 'ant-design-vue'
 import InlineButton from '/@/second/buttons/InlineButton.vue'
 import FontIcon from '/@/second/icons/FontIcon.vue'
 import {EngineDriver} from '/@/second/keeper-types'
 import {FilterType} from '/@/second/keeper-filterparser'
+import {parseFilter, createMultiLineFilter} from '/@/second/keeper-filterparser'
+import keycodes from '/@/second/utility/keycodes'
 export default defineComponent({
   name: 'DataFilterControl',
   components: {
+    [Input.name]: Input,
     InlineButton,
     FontIcon,
   },
@@ -49,7 +64,10 @@ export default defineComponent({
       default: false
     },
     filterType: {
-      type: [Boolean, String] as PropType<boolean | FilterType>,
+      type: String as PropType<FilterType>,
+    },
+    filter: {
+      type: String as PropType<FilterType>,
     },
     setFilter: {
       type: Function as PropType<(value: any) => void>
@@ -90,33 +108,106 @@ export default defineComponent({
     showResizeSplitter: {
       type: Boolean as PropType<boolean>,
       default: false
+    },
+    FocusGrid: {
+      type: Function as PropType<() => void>
     }
   },
-  emits: ['dispatchResizeSplitter', 'setFilter'],
+  emits: ['dispatchResizeSplitter'],
   setup(props, {emit}) {
+    const filterType = toRef(props, 'filterType')
+    const isReadOnly = toRef(props, 'isReadOnly')
+    const setFilter = toRef(props, 'setFilter')
+    const filter = toRef(props, 'filter')
+    const FocusGrid = toRef(props, 'FocusGrid')
+
+    const domInput = ref<Nullable<HTMLElement>>(null)
+    const value = ref<Nullable<string>>(null)
+    const isOk = ref<boolean>(false)
+    const isError = ref<boolean>(false)
+
     function dispatchResizeSplitter(e) {
       emit('dispatchResizeSplitter', e)
     }
+
+    const handleKeyDown = ev => {
+      if (isReadOnly.value) return
+      if (ev.keyCode == keycodes.enter) {
+        applyFilter()
+      }
+      if (ev.keyCode == keycodes.escape) {
+        setFilter.value!('')
+      }
+      if (ev.keyCode == keycodes.downArrow) {
+        if (FocusGrid.value) FocusGrid.value()
+        // ev.stopPropagation();
+        ev.preventDefault();
+      }
+      // if (ev.keyCode == KeyCodes.DownArrow || ev.keyCode == KeyCodes.UpArrow) {
+      //     if (this.props.onControlKey) this.props.onControlKey(ev.keyCode);
+      // }
+    }
+
+    function handlePaste(event) {
+      var pastedText: string | undefined = undefined
+      // @ts-ignore
+      if (window.clipboardData && window.clipboardData.getData) {
+        // IE
+        // @ts-ignore
+        pastedText = window.clipboardData.getData('Text')
+      } else if (event.clipboardData && event.clipboardData.getData) {
+        pastedText = event.clipboardData.getData('text/plain');
+      }
+      if (pastedText && pastedText.includes('\n')) {
+        event.preventDefault();
+        setFilter.value!(createMultiLineFilter('is', pastedText));
+      }
+    }
+
+    watch(() => value.value, () => {
+      try {
+        isOk.value = false
+        isError.value = false
+        if (value.value) {
+          parseFilter(value.value, filterType.value!)
+        }
+      } catch (e) {
+        // console.error(err)
+        isError.value = true
+      }
+    })
+
+    function applyFilter() {
+      if ((filter.value || '') == (value.value || '')) return
+      setFilter.value!(value.value)
+    }
     return {
+      domInput,
+      value,
+      isOk,
+      isError,
       ...toRefs(props),
-      dispatchResizeSplitter
+      dispatchResizeSplitter,
+      handleKeyDown,
+      applyFilter,
+      handlePaste,
     }
   }
 })
 </script>
 
 <style scoped>
-input {
+.dataFilter-input {
   flex: 1;
   min-width: 10px;
   width: 1px;
 }
 
-input.isError {
+.dataFilter-input.isError {
   background-color: var(--theme-bg-red);
 }
 
-input.isOk {
+.dataFilter-input.isOk {
   background-color: var(--theme-bg-green);
 }
 </style>
