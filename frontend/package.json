@@ -78,6 +78,7 @@
     "@commitlint/cli": "^16.2.3",
     "@commitlint/config-conventional": "^16.2.1",
     "@iconify/json": "^2.1.30",
+    "@mdi/font": "^7.0.96",
     "@purge-icons/generated": "^0.8.1",
     "@types/codemirror": "^5.60.5",
     "@types/crypto-js": "^4.1.1",
@@ -89,6 +90,7 @@
     "@types/mockjs": "^1.0.6",
     "@types/node": "^17.0.25",
     "@types/nprogress": "^0.2.0",
+    "@types/parsimmon": "^1.10.1",
     "@types/qrcode": "^1.4.2",
     "@types/qs": "^6.9.7",
     "@types/showdown": "^1.9.4",
@@ -116,6 +118,7 @@
     "less": "^4.1.2",
     "lint-staged": "12.3.7",
     "npm-run-all": "^4.1.5",
+    "parsimmon": "^1.13.0",
     "picocolors": "^1.0.0",
     "postcss": "^8.4.12",
     "postcss-html": "^1.4.1",
@@ -124,6 +127,7 @@
     "rimraf": "^3.0.2",
     "rollup": "^2.70.2",
     "rollup-plugin-visualizer": "^5.6.0",
+    "sax": "^1.2.4",
     "stylelint": "^14.7.1",
     "stylelint-config-prettier": "^9.0.3",
     "stylelint-config-recommended": "^7.0.0",
@@ -146,9 +150,7 @@
     "vite-plugin-vue-setup-extend": "^0.4.0",
     "vite-plugin-windicss": "^1.8.4",
     "vue-eslint-parser": "^8.3.0",
-    "vue-tsc": "^0.33.9",
-    "@types/parsimmon": "^1.10.1",
-    "parsimmon": "^1.13.0"
+    "vue-tsc": "^0.33.9"
   },
   "resolutions": {
     "bin-wrapper": "npm:bin-wrapper-china",

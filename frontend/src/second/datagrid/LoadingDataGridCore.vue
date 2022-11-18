@@ -1,3 +1,19 @@
+<template>
+  <DataGridCore
+    v-bind="Object.assign({}, $props, $attrs)"
+    ref="domGrid"
+    @selectedCellsPublished="selectedCellsPublished"
+    :onLoadNextData="handleLoadNextData"
+    :errorMessage="errorMessage"
+    :isLoading="isLoadingRw"
+    :isLoadedAll="isLoadedAll"
+    :loadedTime="loadedTime"
+    :grider="grider"
+    :display="display"
+  />
+</template>
+
+<script lang="ts">
 import {defineComponent, PropType, ref, toRefs, watch} from 'vue'
 import {getIntSettingsValue} from '/@/second/settings/settingsTools'
 import createRef from '/@/second/utility/createRef'
@@ -36,7 +52,8 @@ export default defineComponent({
       type: Number as PropType<number>,
     }
   },
-  emits: ['loadedRows'],
+  components: {DataGridCore},
+  emits: ['loadedRows', 'selectedCellsPublished'],
   setup(props, {attrs, emit}) {
     const isLoadedAll = ref<boolean>(false)
     const allRowCount = ref<number | null>(null)
@@ -55,9 +72,10 @@ export default defineComponent({
       masterLoadedTime
     } = toRefs(props)
 
+    const domGrid = ref<Nullable<HTMLElement>>(null)
     const loadNextDataRef = createRef<boolean>(false)
     const loadedTimeRef = createRef<number | boolean | null>(null)
-    const loadedRowsRw= ref(loadedRows.value)
+    const loadedRowsRw = ref(loadedRows.value)
     const handleLoadRowCount = async () => {
       allRowCount.value = await loadRowCount.value!(Object.assign({}, props, attrs))
     }
@@ -108,6 +126,10 @@ export default defineComponent({
       }
     }
 
+    function selectedCellsPublished(data) {
+      emit('selectedCellsPublished', data)
+    }
+
     function reload() {
       allRowCount.value = null
       isLoadingRw.value = false
@@ -129,19 +151,18 @@ export default defineComponent({
       }
     })
 
-    return () => (
-      <DataGridCore
-        {...Object.assign({}, props, attrs)}
-        onLoadNextData={handleLoadNextData}
-        errorMessage={errorMessage.value}
-        isLoading={isLoadingRw.value}
-        isLoadedAll={isLoadedAll.value}
-        loadedTime={loadedTime.value}
-        grider={grider.value}
-        display={display.value}
-      />
-    )
+    return {
+      domGrid,
+      handleLoadNextData,
+      selectedCellsPublished,
+      errorMessage,
+      isLoadingRw,
+      isLoadedAll,
+      loadedTime,
+      grider,
+      display
+    }
   }
 })
-
+</script>
 

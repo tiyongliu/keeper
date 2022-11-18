@@ -1,5 +1,5 @@
 import {Component, defineComponent, PropType, ref, toRefs, unref, watch} from 'vue'
-import LoadingDataGridCore from '/@/second/datagrid/LoadingDataGridCore'
+import LoadingDataGridCore from '/@/second/datagrid/LoadingDataGridCore.vue'
 // import eb_system_config from '/@/second/tabs/eb_system_config.json'
 // import credential_count from '/@/second/tabs/credential_count.json'
 import {GridConfig, GridDisplay, MacroDefinition} from "/@/second/keeper-datalib";
@@ -57,10 +57,6 @@ export default defineComponent({
     macroPreview: {
       type: [String, Object] as PropType<string | Component | MacroDefinition>,
     },
-    selectedCellsPublished: {
-      type: Function as PropType<() => any[]>,
-      default: () => []
-    },
     macroValues: {
       type: Object as PropType<any>
     },
@@ -71,7 +67,8 @@ export default defineComponent({
       type: Function as PropType<(action: any) => void>
     },
   },
-  setup(props, {attrs}) {
+  emits: ['selectedCellsPublished'],
+  setup(props, {attrs, emit}) {
     const grider = ref()
     const loadedRows = ref([])
     const {
@@ -80,8 +77,9 @@ export default defineComponent({
       dispatchChangeSet,
       display,
       macroValues,
-      selectedCellsPublished
     } = toRefs(props)
+
+    const selectedCellsPublished = ref<() => any[]>(() => [])
 
     function dataPageAvailable(props) {
       const { display } = props;
@@ -89,7 +87,7 @@ export default defineComponent({
       return !!select;
     }
 
-    watch(() => [macroPreview.value, ...loadedRows.value], () => {
+    watch(() => [macroPreview.value, ...loadedRows.value, selectedCellsPublished.value], () => {
       if (macroPreview.value) {
         grider.value = new ChangeSetGrider(loadedRows.value, changeSetState.value, dispatchChangeSet.value, display.value!, macroPreview.value! as MacroDefinition, macroValues.value, selectedCellsPublished.value())
       }
@@ -103,6 +101,11 @@ export default defineComponent({
       loadedRows.value = rows
     }
 
+    function handleSelectedCellsPublished(data) {
+      selectedCellsPublished.value = data
+      emit('selectedCellsPublished', data)
+    }
+
     return () => (
       <LoadingDataGridCore
         {...Object.assign({}, props, attrs)}
@@ -110,6 +113,7 @@ export default defineComponent({
         dataPageAvailable={dataPageAvailable}
         loadRowCount={loadRowCount}
         onLoadedRows={handlerRows}
+        onSelectedCellsPublished={handleSelectedCellsPublished}
         frameSelection={!!macroPreview.value}
         grider={grider.value}
         display={display.value}

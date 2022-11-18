@@ -67,6 +67,7 @@
             :formViewAvailable="!!formViewComponent && !!formDisplay"
             :macroValues="extractMacroValuesForMacro(macroValues, selectedMacro)"
             :macroPreview="selectedMacro"
+            :changeSelectedColumns="handleChangeSelectedColumns"
           />
         </template>
 
@@ -264,10 +265,13 @@ export default defineComponent({
       managerSize.value = size
     }
 
+    function handleChangeSelectedColumns(cols) {
+      domColumnManager.value && domColumnManager.value.setSelectedColumns(cols)
+    }
+
     watch(managerSize, () => {
       if (managerSize.value) setLocalStorage('dataGridManagerWidth', managerSize.value)
     })
-
 
     return {
       domColumnManager,
@@ -277,6 +281,7 @@ export default defineComponent({
       managerSize,
       getInitialManagerSize,
       dispatchSize,
+      handleChangeSelectedColumns,
       collapsedLeftColumnStore,
       extractMacroValuesForMacro,
       handleExecuteMacro,

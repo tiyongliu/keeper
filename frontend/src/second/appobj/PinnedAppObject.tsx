@@ -1,4 +1,4 @@
-import {defineComponent, PropType} from 'vue'
+import {defineComponent, PropType, toRefs} from 'vue'
 import DatabaseAppObject from './DatabaseAppObject'
 import DatabaseObjectAppObject from './DatabaseObjectAppObject'
 import {IPinnedDatabasesItem} from "/@/second/typings/types/standard.d";
@@ -14,8 +14,8 @@ export default defineComponent({
   },
   setup(props, {attrs}) {
     const restProps = omit(attrs, ['onClick', 'expandIcon', 'onExpand'])
-    const omitProps = Object.assign({}, props, restProps) as any
-    
+    const omitProps = Object.assign({}, toRefs(props), restProps) as any
+
     // 使用下面这种，会解决控制板警告，但是取消表收藏会有bug，抽空需要学习vue源码
     // const $props = shallowReadonly({
     //   ...props, ...restProps

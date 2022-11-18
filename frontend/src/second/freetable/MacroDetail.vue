@@ -6,7 +6,7 @@
 </template>
 
 <script lang="ts">
-import {defineComponent} from 'vue'
+import {defineComponent, toRefs} from 'vue'
 import MacroHeader from './MacroHeader.vue'
 import TabControl from '/@/second/elements/TabControl.vue'
 export default defineComponent({
@@ -22,7 +22,7 @@ export default defineComponent({
   },
   setup(props) {
     return {
-      ...props,
+      ...toRefs(props),
       tabs: []
     }
   }

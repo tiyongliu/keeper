@@ -1,10 +1,11 @@
 <template>
-  <div class="row"
-       @click="handleClick"
-       @mousedown="handleMousedown"
-       @mousemove="handleMousemove"
-       @mouseup="handleMouseup"
-       :class="isSelected && 'isSelected'">
+  <div
+    class="row"
+    @click="handleClick"
+    @mousedown="handleMousedown"
+    @mousemove="handleMousemove"
+    @mouseup="handleMouseup"
+    :class="isSelected && 'isSelected'">
     <span class="expandColumnIcon"
           :style="column && column.uniquePath && `margin-right: ${5 + (column.uniquePath.length - 1) * 10}px`">
              <FontIcon
@@ -12,11 +13,6 @@
                @click="handleDisplay"/>
     </span>
     <FontIcon v-if="isJsonView" icon="img column"/>
-    <!--    <input
-          @click="(e) => {e.stopPropagation()}"
-          @mousedown="(e) => {e.preventDefault();e.stopPropagation()}"
-          @change="handlerChange"
-          v-else type="checkbox" :checked="isChecked"/>-->
     <span
       v-else
       style="margin: 0 3px"
@@ -90,22 +86,19 @@ export default defineComponent({
 
     function handleClick(e: Event) {
       if ((e.target as HTMLElement).closest('.expandColumnIcon')) return
-      if (unref(isJsonView)) {
-        display.value!.showFilter(column.value!.uniqueName)
-      } else {
-        display.value!.focusColumns([column.value!.uniqueName]);
-      }
+      if (unref(isJsonView)) display.value!.showFilter(unref(column)?.uniqueName)
+      else display.value!.focusColumns([unref(column)!.uniqueName])
       emit('dispatchClick')
     }
 
     function handlerChange() {
       const newValue = !unref(column)?.isChecked
-      display.value!.setColumnVisibility(column.value!.uniquePath, newValue)
+      display.value!.setColumnVisibility(unref(column)!.uniquePath, newValue)
       emit('setVisibility', newValue)
     }
 
     function handleDisplay() {
-      display.value && display.value.toggleExpandedColumn(column.value!.uniqueName)
+      display.value && display.value.toggleExpandedColumn(unref(column)!.uniqueName)
     }
 
     function handleMousedown(e) {
@@ -154,13 +147,4 @@ export default defineComponent({
 .row.isSelected {
   background: var(--theme-bg-selected);
 }
-
-/*input[type="checkbox"] {
-  cursor: default;
-  appearance: auto;
-  box-sizing: border-box;
-  margin: 3px 3px 3px 4px;
-  padding: initial;
-  vertical-align: middle;
-}*/
 </style>

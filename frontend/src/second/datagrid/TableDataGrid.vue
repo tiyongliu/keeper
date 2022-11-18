@@ -67,9 +67,9 @@ import {
 import {getBoolSettingsValue} from '/@/second/settings/settingsTools'
 import {getDictionaryDescription} from '/@/second/utility/dictionaryDescriptionTools'
 import {
-  createGridCache,
+  createGridCache, FormViewDisplay,
   GridCache,
-  GridConfig,
+  GridConfig, GridDisplay,
   runMacroOnChangeSet,
   TableFormViewDisplay,
   TableGridDisplay
@@ -153,8 +153,6 @@ export default defineComponent({
     let apps = ref([])
     let extendedDbInfo = ref()
     let connections = ref()
-    const display = ref()
-    const formDisplay = ref()
 
     watch(() => [conid.value, database.value], () => {
       useConnectionInfo({conid: unref(conid)}, connection)
@@ -166,37 +164,31 @@ export default defineComponent({
       extendedDbInfo.value = extendDatabaseInfoFromApps(dbinfo.value, apps.value)
     })
 
-    watch(() => [connection.value, serverVersion.value, config.value, cache.value], () => {
-      display.value = connection.value && serverVersion.value ? new TableGridDisplay(
-        {schemaName: schemaName.value, pureName: pureName.value!},
-        findEngineDriver(connection.value, <ExtensionsDirectory>extensions.value!),
-        config.value!,
-        setConfig.value as (changeFunc: (config: GridConfig) => GridConfig) => void,
-        cache.value!,
-        setCache.value as (changeFunc: (cache: GridCache) => GridCache) => void,
-        extendedDbInfo.value,
-        {showHintColumns: getBoolSettingsValue('dataGrid.showHintColumns', true)},
-        serverVersion.value,
-        table => getDictionaryDescription(table, conid.value!, database.value!, apps.value, connections.value) as any
-      ) : null
+    const display = computed(() => connection.value && serverVersion.value ? new TableGridDisplay(
+      {schemaName: schemaName.value, pureName: pureName.value!},
+      findEngineDriver(connection.value, <ExtensionsDirectory>extensions.value!),
+      config.value!,
+      setConfig.value as (changeFunc: (config: GridConfig) => GridConfig) => void,
+      cache.value!,
+      setCache.value as (changeFunc: (cache: GridCache) => GridCache) => void,
+      extendedDbInfo.value,
+      {showHintColumns: getBoolSettingsValue('dataGrid.showHintColumns', true)},
+      serverVersion.value,
+      table => getDictionaryDescription(table, conid.value!, database.value!, apps.value, connections.value) as any
+    ) as GridDisplay : null)
 
-      if (connection.value && serverVersion.value) {
-        formDisplay.value = new TableFormViewDisplay(
-          {schemaName: schemaName.value, pureName: pureName.value!},
-          findEngineDriver(connection.value, <ExtensionsDirectory>extensions.value!),
-          config.value!,
-          setConfig.value as (changeFunc: (config: GridConfig) => GridConfig) => void,
-          cache.value!,
-          setCache.value as (changeFunc: (cache: GridCache) => GridCache) => void,
-          extendedDbInfo.value,
-          {showHintColumns: getBoolSettingsValue('dataGrid.showHintColumns', true)},
-          serverVersion.value,
-          table => getDictionaryDescription(table, conid.value!, database.value!, apps.value, connections.value) as any
-        )
-      } else {
-        formDisplay.value = null
-      }
-    })
+    const formDisplay = computed(() => connection.value && serverVersion.value ? new TableFormViewDisplay(
+      {schemaName: schemaName.value, pureName: pureName.value!},
+      findEngineDriver(connection.value, <ExtensionsDirectory>extensions.value!),
+      config.value!,
+      setConfig.value as (changeFunc: (config: GridConfig) => GridConfig) => void,
+      cache.value!,
+      setCache.value as (changeFunc: (cache: GridCache) => GridCache) => void,
+      extendedDbInfo.value,
+      {showHintColumns: getBoolSettingsValue('dataGrid.showHintColumns', true)},
+      serverVersion.value,
+      table => getDictionaryDescription(table, conid.value!, database.value!, apps.value, connections.value) as any
+    ) as FormViewDisplay : null)
 
     onMounted(() => useConnectionList(connections))
     onBeforeUnmount(() => connections.value = null)
@@ -248,12 +240,12 @@ export default defineComponent({
     }
 
     const handleCloseReference = () => {
-      display.value.clearGrouping();
+      display.value && display.value.clearGrouping()
       setChildConfig(null, null)
     }
 
     function handleRunMacro(macro, params, cells) {
-      const newChangeSet = runMacroOnChangeSet(macro, params, cells, unref(changeSetState)!.value, display.value)
+      const newChangeSet = runMacroOnChangeSet(macro, params, cells, unref(changeSetState)?.value, unref(display)!)
       if (newChangeSet) {
         dispatchChangeSet.value!({type: 'set', value: newChangeSet});
       }

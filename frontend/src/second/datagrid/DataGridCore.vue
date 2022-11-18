@@ -10,8 +10,9 @@
   <div v-else-if="isDynamicStructure && isLoadedAll && grider && grider?.rowCount == 0">
     <ErrorInfo
       alignTop
-      :message="grider.editable ? 'No rows loaded, check filter or add new documents. You could copy documents from ohter collections/tables with Copy advanved/Copy as JSON command.'
-        : 'No rows loaded'"
+      :message="grider.editable
+      ? 'No rows loaded, check filter or add new documents. You could copy documents from ohter collections/tables with Copy advanved/Copy as JSON command.'
+      : 'No rows loaded'"
     />
   </div>
 
@@ -20,31 +21,30 @@
   </div>
 
   <div v-else class="container" ref="container" @wheel="handleGridWheel">
-    <input/>
+    <!--  todo 现在还不清楚具体使用场景，暂时注释，如果我们点页面Hide按钮，把列表的所有column隐藏了，就会显示出来  -->
+    <input ref="domFocusField" v-if="false"/>
     <table
       class="table"
       @mousedown="handleGridMouseDown"
       @mousemove="handleGridMouseMove"
-      @mouseup="handleGridMouseUp"
-    >
+      @mouseup="handleGridMouseUp">
       <thead>
       <tr>
         <td
           class="header-cell"
           data-row="header"
           data-col="header"
-          :style="`width:${headerColWidth}px; min-width:${headerColWidth}px; max-width:${headerColWidth}px`"
-        >
+          :style="`width:${headerColWidth}px; min-width:${headerColWidth}px; max-width:${headerColWidth}px`">
           <CollapseButton
             :collapsed="collapsedLeftColumnStore"
             @click="updateCollapsedLeftColumn"/>
         </td>
         <td
           v-for="(col, index) in visibleRealColumns"
+          :key="index"
           class="header-cell"
           data-row="header"
           :data-col="`${col.colIndex}`"
-          :key="index"
           :style="`width:${col.width}px; min-width:${col.width}px; max-width:${col.width}px`">
           <ColumnHeaderControl
             :column="col"
@@ -58,7 +58,7 @@
             :clearSort="display && display.sortable ? () => display.clearSort() : null"
             @resizeSplitter="e => {(display && col) && display.resizeColumn(col.uniqueName, col.width, e.detail)}"
             :setGrouping="display.groupable ? groupFunc => display.setGrouping(col.uniqueName, groupFunc) : null"
-            :grouping="display ? display.getGrouping(col.uniqueName) : null"
+            :grouping="display.getGrouping(col.uniqueName)"
             :allowDefineVirtualReferences="allowDefineVirtualReferences"
           />
         </td>
@@ -76,11 +76,11 @@
 
         <td
           v-for="(col, index) in visibleRealColumns"
+          :key="index"
           class="filter-cell"
           data-row="filter"
           :data-col="`${col.colIndex}`"
-          :style="`width:${col.width}px; min-width:${col.width}px; max-width:${col.width}px`"
-        >
+          :style="`width:${col.width}px; min-width:${col.width}px; max-width:${col.width}px`">
           <DataFilterControl
             :foreignKey="col.foreignKey"
             :columnName="col.uniquePath.length == 1 ? col.uniquePath[0] : null"
@@ -92,7 +92,7 @@
             :jslid="jslid"
             :driver="display?.driver"
             :filterType="useEvalFilters ? 'eval' : col.filterType || getFilterType(col.dataType)"
-            :filter="display.getFilter(col.uniqueName)"
+            :filter="display ? display.getFilter(col.uniqueName) : null"
             :setFilter="value => display.setFilter(col.uniqueName, value)"
             showResizeSplitter
             @dispatchResizeSplitter="(e) => display.resizeColumn(col.uniqueName, col.width, e.detail)"
@@ -116,7 +116,7 @@
         :isDynamicStructure="isDynamicStructure"
         :selectedCells="filterCellsForRow(selectedCells, rowIndex)"
         :autofillMarkerCell="filterCellForRow(autofillMarkerCell, rowIndex)"
-        :focusedColumns="display ? display.focusedColumns : null"
+        :focusedColumns="display.focusedColumns"
         :inplaceEditorState="inplaceEditorState"
         :currentCellColumn="currentCell && currentCell[0] == rowIndex ? currentCell[1] : null"
         :dispatchInsplaceEditor="dispatchInsplaceEditor"
@@ -143,15 +143,24 @@
     <div v-else-if="allRowCount != null && multipleGridsOnTab" class="row-count-label">
       Rows: {allRowCount.toLocaleString()}
     </div>
-
     <LoadingInfo v-if="isLoading" wrapper message="Loading data"/>
-
   </div>
 </template>
 
 <script lang="ts">
-import {computed, defineComponent, inject, nextTick, PropType, ref, toRefs, unref, watch} from 'vue'
-import {compact, isEqual, isNaN, isNumber, max, range, sumBy, uniq} from 'lodash-es'
+import {
+  computed,
+  defineComponent,
+  inject,
+  nextTick,
+  PropType,
+  ref,
+  Ref,
+  toRefs,
+  unref,
+  watch
+} from 'vue'
+import {compact, flatten, isEqual, isNaN, isNumber, max, range, sumBy, uniq} from 'lodash-es'
 import ErrorInfo from '/@/second/elements/ErrorInfo.vue'
 import LoadingInfo from '/@/second/elements/LoadingInfo.vue'
 import CollapseButton from '/@/second/datagrid/CollapseButton.vue'
@@ -188,6 +197,8 @@ import createRef from '/@/second/utility/createRef'
 import {isCtrlOrCommandKey} from '/@/second/utility/common'
 import openReferenceForm, {openPrimaryKeyForm} from '/@/second/formview/openReferenceForm'
 import createReducer from '/@/second/utility/createReducer'
+import stableStringify from 'json-stable-stringify'
+import {useBootstrapStore} from '/@/store/modules/bootstrap'
 
 function getSelectedCellsInfo(selectedCells, grider: Grider, realColumnUniqueNames, selectedRowData) {
   if (selectedCells.length > 1 && selectedCells.every(x => isNumber(x[0]) && isNumber(x[1]))) {
@@ -249,6 +260,9 @@ export default defineComponent({
     allRowCount: {
       type: Number as PropType<number>,
     },
+    changeSelectedColumns: {
+      type: Function as PropType<(cols: any[]) => void>,
+    },
     focusOnVisible: {
       type: Boolean as PropType<boolean>,
       default: false
@@ -261,7 +275,7 @@ export default defineComponent({
       type: String as PropType<string | null>,
     },
     collapsedLeftColumnStore: {
-      type: Object as PropType<object>,
+      type: Object as PropType<Ref<boolean>>,
       default: true
     },
     allowDefineVirtualReferences: {
@@ -299,7 +313,8 @@ export default defineComponent({
       type: [String, Number] as PropType<string | number>
     }
   },
-  setup(props) {
+  emits: ['selectedCellsPublished'],
+  setup(props, {emit}) {
     const {
       conid,
       database,
@@ -308,11 +323,14 @@ export default defineComponent({
       display,
       onLoadNextData,
       collapsedLeftColumnStore,
-      allRowCount
+      allRowCount,
+      changeSelectedColumns,
     } = toRefs(props)
+    const bootstrap = useBootstrapStore()
     //StatusBarTabItem hooks
     useStatusBarTabItem(allRowCount)
     const container = ref<Nullable<HTMLElement>>(null)
+    const domFocusField = ref<Nullable<HTMLElement>>(null)
     const domHorizontalScroll = ref<Nullable<{ scroll: (value: number) => void }>>(null)
     const domVerticalScroll = ref<Nullable<{ scroll: (value: number) => void }>>(null)
     const wheelRowCount = ref(5)
@@ -333,10 +351,9 @@ export default defineComponent({
     const autofillDragStartCell = ref<CellAddress | null>(nullCell)
     const autofillSelectedCells = ref<CellAddress[]>(emptyCellArray)
     const domFilterControlsRef = createRef<object>({})
+    const lastPublishledSelectedCellsRef = createRef<string>('')
     const tabid = inject('tabid')
 
-
-    // const columns = computed(() => _columns)
 
     function getSelectedRowIndexes() {
       if (selectedCells.value.find(x => x[0] == 'header')) return range(0, grider.value!.rowCount);
@@ -407,7 +424,6 @@ export default defineComponent({
             selectAll: action.selectAll,
           }
         case 'close':
-
           if (action.mode == 'enter' || action.mode == 'tab' || action.mode == 'shiftTab') {
             setTimeout(() => {
               if (isRegularCell(currentCell.value)) {
@@ -439,6 +455,56 @@ export default defineComponent({
         onLoadNextData.value()
       }
     })
+
+    watch(() => selectedCells.value, () => {
+      const stringified = stableStringify(selectedCells)
+      if (lastPublishledSelectedCellsRef.get() != stringified) {
+        lastPublishledSelectedCellsRef.set(stringified)
+        const cellsValue = () => getCellsPublished(selectedCells.value)
+        emit('selectedCellsPublished', cellsValue)
+        bootstrap.subscribeSelectedCellsCallback(cellsValue)
+        if (changeSelectedColumns.value) changeSelectedColumns.value(getSelectedColumns().map(x => x.columnName))
+      }
+    })
+
+
+    function cellsToRegularCells(cells) {
+      cells = flatten(
+        cells.map(cell => {
+          if (cell[1] == 'header') {
+            return range(0, columnSizes.value!.count).map(col => [cell[0], col]);
+          }
+          return [cell]
+        })
+      );
+      cells = flatten(
+        cells.map(cell => {
+          if (cell[0] == 'header') {
+            return range(0, grider.value!.rowCount).map(row => [row, cell[1]]);
+          }
+          return [cell]
+        })
+      );
+      return cells.filter(isRegularCell);
+    }
+
+    function getCellsPublished(cells) {
+      const regular = cellsToRegularCells(cells);
+      return regular
+        .map(cell => {
+          const row = cell[0];
+          const rowData = grider.value!.getRowData(row);
+          const column = realColumnUniqueNames[cell[1]];
+          return {
+            row,
+            rowData,
+            column,
+            value: rowData && rowData[column],
+            engine: display.value?.driver,
+          };
+        })
+        .filter(x => x.column)
+    }
 
 
     function showMultilineCellEditorConditional(cell) {
@@ -534,28 +600,27 @@ export default defineComponent({
     }
 
     function handleGridMouseDown(event) {
-      if (event.target.closest('.buttonLike')) return
-      if (event.target.closest('.resizeHandleControl')) return
-      if (event.target.closest('.collapseButtonMarker')) return
-      if (event.target.closest('.showFormButtonMarker')) return
-      if (event.target.closest('input')) return
-
+      if (event.target.closest('.buttonLike')) return;
+      if (event.target.closest('.resizeHandleControl')) return;
+      if (event.target.closest('.collapseButtonMarker')) return;
+      if (event.target.closest('.showFormButtonMarker')) return;
+      if (event.target.closest('input')) return;
       shiftDragStartCell.value = null
-      event.preventDefault()
-
-      const cell = cellFromEvent(event)
+      // event.target.closest('table').focus();
+      event.preventDefault();
+      if (domFocusField.value) domFocusField.value.focus();
+      const cell = cellFromEvent(event);
       if (event.button == 2) {
-        if (cell && !cellIsSelected(cell[0], cell[1], selectedCells.value)) {
-          selectedCells.value = [cell]
+        if (cell && !cellIsSelected(cell[0], cell[1], selectedCells)) {
+          selectedCells.value = [cell];
         }
-        return
+        return;
       }
-
-      const autofill = event.target.closest('div.autofillHandleMarker')
+      const autofill = event.target.closest('div.autofillHandleMarker');
       if (autofill) {
         autofillDragStartCell.value = cell;
       } else {
-        const oldCurrentCell = currentCell.value;
+        const oldCurrentCell = currentCell;
         currentCell.value = cell;
 
         if (isCtrlOrCommandKey(event)) {
@@ -567,7 +632,7 @@ export default defineComponent({
             }
           }
         } else if (event.shiftKey) {
-          selectedCells.value = getCellRange(oldCurrentCell, cell);
+          selectedCells.value = getCellRange(oldCurrentCell.value, cell);
         } else {
           selectedCells.value = getCellRange(cell, cell);
           dragStartCell.value = cell;
@@ -581,6 +646,7 @@ export default defineComponent({
           }
         }
       }
+      if (display.value && display.value.focusedColumns) display.value.focusColumns(null)
     }
 
     function handleGridMouseMove() {
@@ -593,6 +659,7 @@ export default defineComponent({
 
     return {
       container,
+      domFocusField,
       domHorizontalScroll,
       domVerticalScroll,
       ...toRefs(props),

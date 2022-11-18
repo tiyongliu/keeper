@@ -43,6 +43,10 @@ export default defineComponent({
     colIndex: {
       type: Number as PropType<number>,
     },
+    allowHintField: {
+      type: Boolean as PropType<boolean>,
+      default: false
+    },
     maxWidth: {
       type: Number as PropType<number>,
     },
@@ -86,7 +90,9 @@ export default defineComponent({
       type: Boolean as PropType<boolean>,
       default: false
     },
-    //onSetFormView
+    setFormView: {
+      type: Function as PropType<Function>,
+    },
     isDynamicStructure: {
       type: Boolean as PropType<boolean>,
       default: false
