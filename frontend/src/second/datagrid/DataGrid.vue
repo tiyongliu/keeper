@@ -36,7 +36,7 @@
             title="Filters"
             name="tableFilters"
             height="15%"
-            :skip="!(display && display?.filterable) || isDynamicStructure || (display && display.filterCount == 0) || isFormView"
+            :skip="!display?.filterable || isDynamicStructure || display.filterCount == 0 || isFormView"
             :collapsed="isDetailView"
           >
             <JsonViewFilters

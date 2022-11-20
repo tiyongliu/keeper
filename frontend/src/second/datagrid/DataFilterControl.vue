@@ -67,7 +67,7 @@ export default defineComponent({
       type: String as PropType<FilterType>,
     },
     filter: {
-      type: String as PropType<FilterType>,
+      type: String as PropType<string>,
     },
     setFilter: {
       type: Function as PropType<(value: any) => void>
@@ -113,7 +113,7 @@ export default defineComponent({
       type: Function as PropType<() => void>
     }
   },
-  emits: ['dispatchResizeSplitter'],
+  emits: ['dispatchResizeSplitter', 'update:filter'],
   setup(props, {emit}) {
     const filterType = toRef(props, 'filterType')
     const isReadOnly = toRef(props, 'isReadOnly')
@@ -164,23 +164,29 @@ export default defineComponent({
       }
     }
 
+    watch(() => filter.value, () => {
+      value.value = <string>filter.value
+    }, {immediate: true})
+
     watch(() => value.value, () => {
       try {
         isOk.value = false
         isError.value = false
         if (value.value) {
           parseFilter(value.value, filterType.value!)
+          isOk.value = true
         }
       } catch (e) {
         // console.error(err)
         isError.value = true
       }
-    })
+    }, {immediate: true})
 
     function applyFilter() {
       if ((filter.value || '') == (value.value || '')) return
       setFilter.value!(value.value)
     }
+
     return {
       domInput,
       value,
