@@ -69,8 +69,6 @@ export default defineComponent({
   },
   emits: ['selectedCellsPublished'],
   setup(props, {attrs, emit}) {
-    const grider = ref()
-    const loadedRows = ref([])
     const {
       macroPreview,
       changeSetState,
@@ -79,6 +77,8 @@ export default defineComponent({
       macroValues,
     } = toRefs(props)
 
+    const grider = ref()
+    const loadedRows = ref([])
     const selectedCellsPublished = ref<() => any[]>(() => [])
 
     function dataPageAvailable(props) {

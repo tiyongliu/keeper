@@ -326,34 +326,79 @@ export default defineComponent({
       allRowCount,
       changeSelectedColumns,
     } = toRefs(props)
+
     const bootstrap = useBootstrapStore()
+
     //StatusBarTabItem hooks
     useStatusBarTabItem(allRowCount)
+
     const container = ref<Nullable<HTMLElement>>(null)
     const domFocusField = ref<Nullable<HTMLElement>>(null)
     const domHorizontalScroll = ref<Nullable<{ scroll: (value: number) => void }>>(null)
     const domVerticalScroll = ref<Nullable<{ scroll: (value: number) => void }>>(null)
     const wheelRowCount = ref(5)
-    const tabVisible = inject('tabVisible')
-
-    const containerWidth = computed(() => container.value ? container.value.clientWidth : 0)
-    const containerHeight = computed(() => container.value ? container.value.clientHeight : 0)
-    const rowHeight = computed(() => 25) //todo  $: rowHeight = $dataGridRowHeight;
-
     const firstVisibleRowScrollIndex = ref(0)
     const firstVisibleColumnScrollIndex = ref(0)
-
-
     const currentCell = ref<CellAddress>(topLeftCell)
     const selectedCells = ref<CellAddress[]>([topLeftCell])
     const dragStartCell = ref<CellAddress | null>(nullCell)
     const shiftDragStartCell = ref<CellAddress | null>(nullCell)
     const autofillDragStartCell = ref<CellAddress | null>(nullCell)
     const autofillSelectedCells = ref<CellAddress[]>(emptyCellArray)
+    const columnSizes = ref<SeriesSizes>()
+
     const domFilterControlsRef = createRef<object>({})
     const lastPublishledSelectedCellsRef = createRef<string>('')
+
+    const columns = computed(() => display.value?.allColumns || [])
+    const containerWidth = computed(() => container.value ? container.value.clientWidth : 0)
+    const containerHeight = computed(() => container.value ? container.value.clientHeight : 0)
+    const rowHeight = computed(() => 25) //todo  $: rowHeight = $dataGridRowHeight;
+    const autofillMarkerCell = computed(() => selectedCells.value && selectedCells.value.length > 0 && uniq(selectedCells.value.map(x => x[0])).length == 1
+      ? [max(selectedCells.value.map(x => x[0])), max(selectedCells.value.map(x => x[1]))]
+      : null)
+    const headerColWidth = computed(() => 40)
+    const gridScrollAreaHeight = computed(() => containerHeight.value - 2 * rowHeight.value)
+    const gridScrollAreaWidth = computed(() => columnSizes.value ? containerWidth.value - columnSizes.value?.frozenSize - headerColWidth.value - 32 : 0)
+    const visibleRowCountUpperBound = computed(() => Math.ceil(gridScrollAreaHeight.value / Math.floor(Math.max(1, rowHeight.value))))
+    const visibleRowCountLowerBound = computed(() => Math.floor(gridScrollAreaHeight.value / Math.ceil(Math.max(1, rowHeight.value))))
+    const visibleRealColumns = computed(() => columnSizes.value ? countVisibleRealColumns(
+      columnSizes.value,
+      firstVisibleColumnScrollIndex.value,
+      gridScrollAreaWidth.value,
+      columns.value,
+    ) : [])
+    const selectedCellsInfo = computed(() => getSelectedCellsInfo(selectedCells.value, grider.value!, realColumnUniqueNames.value, getSelectedRowData()))
+    const realColumnUniqueNames = computed<any[]>(() => (columnSizes.value ? range(columnSizes.value.realCount) : []).map(
+      realIndex => (columns.value[columnSizes.value!.realToModel(realIndex)] || {}).uniqueName
+    ))
+    const maxScrollColumn = computed(() => (columns.value && columnSizes.value) ?
+      columnSizes.value?.scrollInView(0, columns.value.length - 1 - columnSizes.value.frozenCount, gridScrollAreaWidth.value) : 0)
+
+    const tabVisible = inject('tabVisible')
     const tabid = inject('tabid')
 
+    watch(() => [grider.value, columns.value, containerWidth.value, display.value], async () => {
+      await nextTick()
+      columnSizes.value = countColumnSizes(grider.value!, columns.value, containerWidth.value, display.value!)
+    })
+
+    watch(() => [onLoadNextData.value, display.value], () => {
+      if (onLoadNextData.value && display.value) {
+        onLoadNextData.value()
+      }
+    })
+
+    watch(() => selectedCells.value, () => {
+      const stringified = stableStringify(selectedCells)
+      if (lastPublishledSelectedCellsRef.get() != stringified) {
+        lastPublishledSelectedCellsRef.set(stringified)
+        const cellsValue = () => getCellsPublished(selectedCells.value)
+        emit('selectedCellsPublished', cellsValue)
+        bootstrap.subscribeSelectedCellsCallback(cellsValue)
+        if (changeSelectedColumns.value) changeSelectedColumns.value(getSelectedColumns().map(x => x.columnName))
+      }
+    })
 
     function getSelectedRowIndexes() {
       if (selectedCells.value.find(x => x[0] == 'header')) return range(0, grider.value!.rowCount);
@@ -376,43 +421,6 @@ export default defineComponent({
         }))
       ) : []
     }
-
-    const autofillMarkerCell = computed(() => selectedCells.value && selectedCells.value.length > 0 && uniq(selectedCells.value.map(x => x[0])).length == 1
-      ? [max(selectedCells.value.map(x => x[0])), max(selectedCells.value.map(x => x[1]))]
-      : null)
-
-    const columns = computed(() => display.value?.allColumns || [])
-
-    const columnSizes = ref<SeriesSizes>()
-    watch(() => [grider.value, columns.value, containerWidth.value, display.value], async () => {
-      await nextTick()
-      columnSizes.value = countColumnSizes(grider.value!, columns.value, containerWidth.value, display.value!)
-    })
-    // const columnSizes = computed(() => _columnSizes)
-    const headerColWidth = computed(() => 40)
-
-    const gridScrollAreaHeight = computed(() => containerHeight.value - 2 * rowHeight.value)
-    const gridScrollAreaWidth = computed(() => columnSizes.value ? containerWidth.value - columnSizes.value?.frozenSize - headerColWidth.value - 32 : 0)
-
-    const visibleRowCountUpperBound = computed(() => Math.ceil(gridScrollAreaHeight.value / Math.floor(Math.max(1, rowHeight.value))))
-    const visibleRowCountLowerBound = computed(() => Math.floor(gridScrollAreaHeight.value / Math.ceil(Math.max(1, rowHeight.value))))
-
-    const visibleRealColumns = computed(() => columnSizes.value ? countVisibleRealColumns(
-      columnSizes.value,
-      firstVisibleColumnScrollIndex.value,
-      gridScrollAreaWidth.value,
-      columns.value,
-    ) : [])
-    // const visibleRealColumns = computed(() => _visibleRealColumns)
-
-    const selectedCellsInfo = computed(() => getSelectedCellsInfo(selectedCells.value, grider.value!, realColumnUniqueNames.value, getSelectedRowData()))
-
-    const realColumnUniqueNames = computed<any[]>(() => (columnSizes.value ? range(columnSizes.value.realCount) : []).map(
-      realIndex => (columns.value[columnSizes.value!.realToModel(realIndex)] || {}).uniqueName
-    ))
-
-    const maxScrollColumn = computed(() => (columns.value && columnSizes.value) ?
-      columnSizes.value?.scrollInView(0, columns.value.length - 1 - columnSizes.value.frozenCount, gridScrollAreaWidth.value) : 0)
 
     const [inplaceEditorState, dispatchInsplaceEditor] = createReducer((_, action) => {
       switch (action.type) {
@@ -456,28 +464,6 @@ export default defineComponent({
     function updateCollapsedLeftColumn() {
       collapsedLeftColumnStore.value = !collapsedLeftColumnStore.value
     }
-
-    // const columns = computed(() => display.value?.allColumns || [])
-    // countColumnSizes()
-
-
-    watch(() => [onLoadNextData.value, display.value], () => {
-      if (onLoadNextData.value && display.value) {
-        onLoadNextData.value()
-      }
-    })
-
-    watch(() => selectedCells.value, () => {
-      const stringified = stableStringify(selectedCells)
-      if (lastPublishledSelectedCellsRef.get() != stringified) {
-        lastPublishledSelectedCellsRef.set(stringified)
-        const cellsValue = () => getCellsPublished(selectedCells.value)
-        emit('selectedCellsPublished', cellsValue)
-        bootstrap.subscribeSelectedCellsCallback(cellsValue)
-        if (changeSelectedColumns.value) changeSelectedColumns.value(getSelectedColumns().map(x => x.columnName))
-      }
-    })
-
 
     function cellsToRegularCells(cells) {
       cells = flatten(
@@ -640,7 +626,6 @@ export default defineComponent({
 
     function handleSetFormView(rowData, column) {
       console.log(rowData, column, `rowData, column_rowData, column`)
-
       if (column) {
         openReferenceForm(unref(rowData), column, conid.value, database.value);
       } else {
