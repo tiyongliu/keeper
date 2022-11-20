@@ -55,12 +55,6 @@ export default defineComponent({
   components: {DataGridCore},
   emits: ['loadedRows', 'selectedCellsPublished'],
   setup(props, {attrs, emit}) {
-    const isLoadedAll = ref<boolean>(false)
-    const allRowCount = ref<number | null>(null)
-    const errorMessage = ref<string | null>(null)
-
-    const loadedTime = ref(new Date().getTime())
-
     const {
       isLoading,
       loadDataPage,
@@ -72,14 +66,19 @@ export default defineComponent({
       masterLoadedTime
     } = toRefs(props)
 
+    const isLoadedAll = ref<boolean>(false)
+    const allRowCount = ref<number | null>(null)
+    const errorMessage = ref<string | null>(null)
+    const loadedTime = ref(new Date().getTime())
     const domGrid = ref<Nullable<HTMLElement>>(null)
     const loadNextDataRef = createRef<boolean>(false)
     const loadedTimeRef = createRef<number | boolean | null>(null)
     const loadedRowsRw = ref(loadedRows.value)
+    const isLoadingRw = ref(isLoading.value)
+
     const handleLoadRowCount = async () => {
       allRowCount.value = await loadRowCount.value!(Object.assign({}, props, attrs))
     }
-    const isLoadingRw = ref(isLoading.value)
 
     async function loadNextData() {
       if (isLoadingRw.value) return
