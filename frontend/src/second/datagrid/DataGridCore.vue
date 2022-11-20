@@ -160,7 +160,7 @@ import {
   unref,
   watch
 } from 'vue'
-import {compact, flatten, isEqual, isNaN, isNumber, max, range, sumBy, uniq} from 'lodash-es'
+import {compact, flatten, isEqual, isNaN, isNumber, max, range, sumBy, uniq, min, pick} from 'lodash-es'
 import ErrorInfo from '/@/second/elements/ErrorInfo.vue'
 import LoadingInfo from '/@/second/elements/LoadingInfo.vue'
 import CollapseButton from '/@/second/datagrid/CollapseButton.vue'
@@ -417,22 +417,26 @@ export default defineComponent({
     const [inplaceEditorState, dispatchInsplaceEditor] = createReducer((_, action) => {
       switch (action.type) {
         case 'show':
-          if (grider.value && !grider.value.editable) return {}
+          if (!grider.value || !grider.value.editable) return {}
           return {
             cell: action.cell,
             text: action.text,
             selectAll: action.selectAll,
           }
         case 'close':
+          if (domFocusField.value) domFocusField.value.focus();
           if (action.mode == 'enter' || action.mode == 'tab' || action.mode == 'shiftTab') {
             setTimeout(() => {
               if (isRegularCell(currentCell.value)) {
                 switch (action.mode) {
                   case 'enter':
+                    moveCurrentCell(currentCell[0] + 1, currentCell[1]);
                     break
                   case 'tab':
+                    moveCurrentCellWithTabKey(false)
                     break
                   case 'shiftTab':
+                    moveCurrentCellWithTabKey(true)
                     break
                 }
               }
@@ -441,6 +445,13 @@ export default defineComponent({
       }
       return {}
     }, {})
+
+    function focusFilterEditor(columnRealIndex) {
+      let modelIndex = columnSizes.value!.realToModel(columnRealIndex);
+      const domFilter = domFilterControlsRef.get()[columns[modelIndex].uniqueName];
+      if (domFilter) domFilter.focus()
+      return ['filter', columnRealIndex]
+    }
 
     function updateCollapsedLeftColumn() {
       collapsedLeftColumnStore.value = !collapsedLeftColumnStore.value
@@ -554,6 +565,44 @@ export default defineComponent({
       domHorizontalScroll.value!.scroll(newFirstVisibleColumnScrollIndex)
     }
 
+    function setCellValue(cell, value) {
+      grider.value && grider.value.setCellValue(cell[0], realColumnUniqueNames.value[cell[1]], value);
+    }
+
+    function moveCurrentCell(row, col, event: Nullable<Event> = null) {
+      const rowCount = grider.value!.rowCount;
+
+      if (row < 0) row = 0;
+      if (row >= rowCount) row = rowCount - 1;
+      if (col < 0) col = 0;
+      if (col >= columnSizes.value!.realCount) col = columnSizes.value!.realCount - 1;
+      currentCell.value = [row, col];
+      selectedCells.value = [[row, col]];
+      scrollIntoView([row, col]);
+
+
+      if (event) event.preventDefault();
+      return [row, col];
+    }
+
+    function moveCurrentCellWithTabKey(isShift) {
+      if (!isRegularCell(currentCell.value)) return null
+
+      if (isShift) {
+        if (currentCell[1] > 0) {
+          return moveCurrentCell(currentCell[0], currentCell[1] - 1, event);
+        } else {
+          return moveCurrentCell(currentCell[0] - 1, columnSizes.value!.realCount - 1, event);
+        }
+      } else {
+        if (currentCell[1] < columnSizes.value!.realCount - 1) {
+          return moveCurrentCell(currentCell[0], currentCell[1] + 1, event);
+        } else {
+          return moveCurrentCell(currentCell[0] + 1, 0, event);
+        }
+      }
+    }
+
     function scrollIntoView(cell) {
       const [row, col] = cell;
 
@@ -620,7 +669,7 @@ export default defineComponent({
       if (autofill) {
         autofillDragStartCell.value = cell;
       } else {
-        const oldCurrentCell = currentCell;
+        const oldCurrentCell = currentCell.value
         currentCell.value = cell;
 
         if (isCtrlOrCommandKey(event)) {
@@ -632,7 +681,7 @@ export default defineComponent({
             }
           }
         } else if (event.shiftKey) {
-          selectedCells.value = getCellRange(oldCurrentCell.value, cell);
+          selectedCells.value = getCellRange(oldCurrentCell, cell);
         } else {
           selectedCells.value = getCellRange(cell, cell);
           dragStartCell.value = cell;
@@ -649,12 +698,43 @@ export default defineComponent({
       if (display.value && display.value.focusedColumns) display.value.focusColumns(null)
     }
 
-    function handleGridMouseMove() {
-
+    function handleGridMouseMove(event) {
+      if (autofillDragStartCell.value) {
+        const cell = cellFromEvent(event)
+        if (isRegularCell(cell) && (cell[0] == autofillDragStartCell.value[0] || cell[1] == autofillDragStartCell.value[1])) {
+          const autoFillStart = [selectedCells.value[0][0], min(selectedCells.value.map(x => x[1]))];
+          // @ts-ignore
+          autofillSelectedCells.value = getCellRange(autoFillStart, cell);
+        }
+      } else if (dragStartCell.value) {
+        const cell = cellFromEvent(event);
+        currentCell.value = cell;
+        selectedCells.value = getCellRange(dragStartCell.value!, cell);
+      }
     }
 
-    function handleGridMouseUp() {
+    function handleGridMouseUp(event) {
+      if (dragStartCell.value) {
+        const cell = cellFromEvent(event);
+        currentCell.value = cell;
+        selectedCells.value = getCellRange(dragStartCell.value!, cell);
+        dragStartCell.value = null;
+      }
+      if (autofillDragStartCell.value) {
+        const currentRowNumber = currentCell.value[0];
+        if (isNumber(currentRowNumber)) {
+          const rowIndexes = uniq((autofillSelectedCells.value || []).map(x => x[0])).filter(x => x != currentRowNumber);
+          const colNames = selectedCells.value.map(cell => realColumnUniqueNames.value[cell[1]!]);
+          const changeObject = pick(grider.value?.getRowData(currentRowNumber), colNames);
+          grider.value?.beginUpdate();
+          for (const index of rowIndexes) grider.value?.updateRow(index, changeObject);
+          grider.value?.endUpdate();
+        }
 
+        autofillDragStartCell.value = null;
+        autofillSelectedCells.value = [];
+        selectedCells.value = autofillSelectedCells.value;
+      }
     }
 
     return {
