@@ -9,7 +9,7 @@
     <DataFilterControl
       :filterType="dynamicFilterType"
       :filter="dynamicFilter"
-      @setFilter="handlerSetFilter"
+      :setFilter="handlerSetFilter"
     />
   </div>
 </template>
@@ -70,8 +70,7 @@ export default defineComponent({
     }
 
     function handlerSetFilter(value: any) {
-      console.log(value, `setFilter`)
-      display.value && display.value.setFilter(uniqueName, unref(value))
+      display.value && display.value.setFilter(uniqueName.value, unref(value))
     }
 
     return {

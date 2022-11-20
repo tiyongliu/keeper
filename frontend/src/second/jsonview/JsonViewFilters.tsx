@@ -27,8 +27,8 @@ export default defineComponent({
   },
   setup(props) {
     const {managerSize, display, isDynamicStructure, useEvalFilters} = toRefs(props)
-    const filters = computed<{[uniqueName: string]: string} | null>(() => display.value ? display.value?.config?.filters : null)
-    const allFilterNames = computed(() => keys(filters || {}))
+    const filters = computed<{ [uniqueName: string]: string } | null>(() => display.value ? display.value?.config?.filters : null)
+    const allFilterNames = computed(() => keys(filters.value || {}))
 
     return () => (
       <ManagerInnerContainer width={managerSize.value}>
