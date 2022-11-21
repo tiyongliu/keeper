@@ -83,7 +83,6 @@ export const useLocaleStore = defineStore({
       });
     },
     subscribeSelectedWidget(name: string | null) {
-      console.log(`selectedWidget*-selectedWidget`, this.selectedWidget)
       this.selectedWidget = name
       setWithStorageVariableCache('selectedWidget', name)
     },

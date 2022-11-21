@@ -160,7 +160,19 @@ import {
   unref,
   watch
 } from 'vue'
-import {compact, flatten, isEqual, isNaN, isNumber, max, range, sumBy, uniq, min, pick} from 'lodash-es'
+import {
+  compact,
+  flatten,
+  isEqual,
+  isNaN,
+  isNumber,
+  max,
+  min,
+  pick,
+  range,
+  sumBy,
+  uniq
+} from 'lodash-es'
 import ErrorInfo from '/@/second/elements/ErrorInfo.vue'
 import LoadingInfo from '/@/second/elements/LoadingInfo.vue'
 import CollapseButton from '/@/second/datagrid/CollapseButton.vue'
@@ -386,6 +398,12 @@ export default defineComponent({
     watch(() => [onLoadNextData.value, display.value], () => {
       if (onLoadNextData.value && display.value) {
         onLoadNextData.value()
+      }
+    })
+
+    watch(() => [firstVisibleRowScrollIndex.value, visibleRowCountUpperBound.value], () => {
+      if (onLoadNextData.value && grider.value && firstVisibleRowScrollIndex.value + visibleRowCountUpperBound.value >= grider.value!.rowCount && rowHeight.value > 0) {
+        // onLoadNextData.value()
       }
     })
 
