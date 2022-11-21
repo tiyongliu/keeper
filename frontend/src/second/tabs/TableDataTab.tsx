@@ -72,7 +72,7 @@ export default defineComponent({
             {...Object.assign({}, props, attrs)}
             config={config.value}
             setConfig={configUpdate}
-            cache={config.value}
+            cache={cache.value}
             setCache={cacheUpdate}
             focusOnVisible
             changeSetState={changeSetStore.value}

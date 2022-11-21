@@ -67,9 +67,11 @@ import {
 import {getBoolSettingsValue} from '/@/second/settings/settingsTools'
 import {getDictionaryDescription} from '/@/second/utility/dictionaryDescriptionTools'
 import {
-  createGridCache, FormViewDisplay,
+  createGridCache,
+  FormViewDisplay,
   GridCache,
-  GridConfig, GridDisplay,
+  GridConfig,
+  GridDisplay,
   runMacroOnChangeSet,
   TableFormViewDisplay,
   TableGridDisplay

@@ -1,3 +1,4 @@
+```vue
 <template>
   <DataGridCore
     v-bind="Object.assign({}, $props, $attrs)"
@@ -164,4 +165,4 @@ export default defineComponent({
   }
 })
 </script>
-
+```

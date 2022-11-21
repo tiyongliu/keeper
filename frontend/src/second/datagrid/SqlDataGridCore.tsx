@@ -1,5 +1,5 @@
 import {Component, defineComponent, PropType, ref, toRefs, unref, watch} from 'vue'
-import LoadingDataGridCore from '/@/second/datagrid/LoadingDataGridCore.vue'
+import LoadingDataGridCore from '/@/second/datagrid/LoadingDataGridCore'
 // import eb_system_config from '/@/second/tabs/eb_system_config.json'
 // import credential_count from '/@/second/tabs/credential_count.json'
 import {GridConfig, GridDisplay, MacroDefinition} from "/@/second/keeper-datalib";
@@ -54,17 +54,17 @@ export default defineComponent({
     config: {
       type: Object as PropType<GridConfig>,
     },
-    macroPreview: {
-      type: [String, Object] as PropType<string | Component | MacroDefinition>,
-    },
-    macroValues: {
-      type: Object as PropType<any>
-    },
     changeSetState: {
       type: Object as PropType<any>
     },
     dispatchChangeSet: {
       type: Function as PropType<(action: any) => void>
+    },
+    macroPreview: {
+      type: [String, Object] as PropType<string | Component | MacroDefinition>,
+    },
+    macroValues: {
+      type: Object as PropType<any>
     },
   },
   emits: ['selectedCellsPublished'],
@@ -97,10 +97,6 @@ export default defineComponent({
       }
     })
 
-    function handlerRows(rows: []) {
-      loadedRows.value = rows
-    }
-
     function handleSelectedCellsPublished(data) {
       selectedCellsPublished.value = data
       emit('selectedCellsPublished', data)
@@ -112,7 +108,7 @@ export default defineComponent({
         loadDataPage={loadDataPage}
         dataPageAvailable={dataPageAvailable}
         loadRowCount={loadRowCount}
-        onLoadedRows={handlerRows}
+        onLoadedRows={rows => loadedRows.value = rows}
         onSelectedCellsPublished={handleSelectedCellsPublished}
         frameSelection={!!macroPreview.value}
         grider={grider.value}
