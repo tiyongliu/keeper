@@ -165,7 +165,7 @@ export default defineComponent({
       ])
     })
 
-    const driver = computed(() => findEngineDriver(connection.value, extensions.value!))
+    const driver = computed(() => extensions.value ? findEngineDriver(connection.value, extensions.value) : null)
 
     onBeforeUnmount(() => {
       objects.value = null

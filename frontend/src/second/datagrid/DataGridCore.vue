@@ -153,12 +153,14 @@ import {
   defineComponent,
   inject,
   nextTick,
+  onMounted,
   PropType,
   ref,
   Ref,
   toRefs,
   unref,
-  watch
+  watch,
+  watchEffect
 } from 'vue'
 import {
   compact,
@@ -211,6 +213,7 @@ import openReferenceForm, {openPrimaryKeyForm} from '/@/second/formview/openRefe
 import createReducer from '/@/second/utility/createReducer'
 import stableStringify from 'json-stable-stringify'
 import {useBootstrapStore} from '/@/store/modules/bootstrap'
+import keycodes from '/@/second/utility/keycodes'
 
 function getSelectedCellsInfo(selectedCells, grider: Grider, realColumnUniqueNames, selectedRowData) {
   if (selectedCells.length > 1 && selectedCells.every(x => isNumber(x[0]) && isNumber(x[1]))) {
@@ -337,6 +340,7 @@ export default defineComponent({
       collapsedLeftColumnStore,
       allRowCount,
       changeSelectedColumns,
+      focusOnVisible,
     } = toRefs(props)
 
     const bootstrap = useBootstrapStore()
@@ -353,18 +357,19 @@ export default defineComponent({
     const firstVisibleColumnScrollIndex = ref(0)
     const currentCell = ref<CellAddress>(topLeftCell)
     const selectedCells = ref<CellAddress[]>([topLeftCell])
-    const dragStartCell = ref<CellAddress | null>(nullCell)
-    const shiftDragStartCell = ref<CellAddress | null>(nullCell)
-    const autofillDragStartCell = ref<CellAddress | null>(nullCell)
+    const dragStartCell = ref<Nullable<CellAddress>>(nullCell)
+    const shiftDragStartCell = ref<Nullable<CellAddress>>(nullCell)
+    const autofillDragStartCell = ref<Nullable<CellAddress>>(nullCell)
     const autofillSelectedCells = ref<CellAddress[]>(emptyCellArray)
     const columnSizes = ref<SeriesSizes>()
 
     const domFilterControlsRef = createRef<object>({})
     const lastPublishledSelectedCellsRef = createRef<string>('')
 
+    const containerWidth = ref(container.value ? container.value.clientWidth : 0)
+    const containerHeight = ref(container.value ? container.value.clientWidth : 0)
+
     const columns = computed(() => display.value?.allColumns || [])
-    const containerWidth = computed(() => container.value ? container.value.clientWidth : 0)
-    const containerHeight = computed(() => container.value ? container.value.clientHeight : 0)
     const rowHeight = computed(() => 25) //todo  $: rowHeight = $dataGridRowHeight;
     const autofillMarkerCell = computed(() => selectedCells.value && selectedCells.value.length > 0 && uniq(selectedCells.value.map(x => x[0])).length == 1
       ? [max(selectedCells.value.map(x => x[0])), max(selectedCells.value.map(x => x[1]))]
@@ -387,15 +392,36 @@ export default defineComponent({
     const maxScrollColumn = computed(() => (columns.value && columnSizes.value) ?
       columnSizes.value?.scrollInView(0, columns.value.length - 1 - columnSizes.value.frozenCount, gridScrollAreaWidth.value) : 0)
 
-    const tabVisible = inject('tabVisible')
-    const tabid = inject('tabid')
+    const tabVisible = inject<Ref<Nullable<boolean>>>('tabVisible')
+    // const tabid = inject('tabid')
 
-    watch(() => [grider.value, columns.value, containerWidth.value, display.value], async () => {
+
+    function updateRefsStyle() {
+      if (container.value && container.value!.clientWidth) containerWidth.value = container.value!.clientWidth
+      if (container.value && container.value!.clientHeight) containerHeight.value = container.value!.clientHeight
+    }
+
+    watch(() => [collapsedLeftColumnStore.value], async () => {
       await nextTick()
+      void updateRefsStyle()
+    })
+
+
+    onMounted(() => {})
+
+    watchEffect(() => {
+      if (unref(tabVisible) && domFocusField.value && focusOnVisible.value) {
+        domFocusField.value && domFocusField.value.focus()
+      }
+    })
+
+    watch(() => [grider.value, columns.value, containerWidth.value, display.value], () => {
       columnSizes.value = countColumnSizes(grider.value!, columns.value, containerWidth.value, display.value!)
     })
 
-    watch(() => [onLoadNextData.value, display.value], () => {
+    watch(() => [onLoadNextData.value, display.value], async () => {
+      await nextTick()
+      void updateRefsStyle()
       if (onLoadNextData.value && display.value) {
         onLoadNextData.value()
       }
@@ -472,6 +498,110 @@ export default defineComponent({
       return {}
     }, {})
 
+    function handleGridKeyDown(event) {
+      if (inplaceEditorState.value) return
+      if (
+        !event.ctrlKey &&
+        !event.altKey &&
+        !event.metaKey &&
+        ((event.keyCode >= keycodes.a && event.keyCode <= keycodes.z) ||
+          (event.keyCode >= keycodes.n0 && event.keyCode <= keycodes.n9) ||
+          (event.keyCode >= keycodes.numPad0 && event.keyCode <= keycodes.numPad9) ||
+          event.keyCode == keycodes.dash)
+      ) {
+        // @ts-ignore
+        event.preventDefault();
+        dispatchInsplaceEditor({ type: 'show', text: event.key, cell: currentCell });
+      }
+
+      if (event.keyCode == keycodes.f2 || event.keyCode == keycodes.enter) {
+        // @ts-ignore
+        if (!showMultilineCellEditorConditional(currentCell)) {
+          dispatchInsplaceEditor({ type: 'show', cell: currentCell, selectAll: true });
+        }
+      }
+
+      if (event.shiftKey) {
+        if (!isRegularCell(shiftDragStartCell.value!)) {
+          shiftDragStartCell.value = currentCell.value;
+        }
+      } else {
+        shiftDragStartCell.value = nullCell;
+      }
+
+      handleCursorMove(event);
+
+      if (
+        event.shiftKey &&
+        event.keyCode != keycodes.shift &&
+        event.keyCode != keycodes.tab &&
+        event.keyCode != keycodes.ctrl &&
+        event.keyCode != keycodes.leftWindowKey &&
+        event.keyCode != keycodes.rightWindowKey &&
+        !(
+          (event.keyCode >= keycodes.a && event.keyCode <= keycodes.z) ||
+          (event.keyCode >= keycodes.n0 && event.keyCode <= keycodes.n9) ||
+          (event.keyCode >= keycodes.numPad0 && event.keyCode <= keycodes.numPad9) ||
+          event.keyCode == keycodes.dash
+        )
+      ) {
+        selectedCells.value = getCellRange(shiftDragStartCell.value || currentCell.value, currentCell.value);
+      }
+    }
+
+    function handleCursorMove(event) {
+      if (!isRegularCell(currentCell.value)) return null;
+      let rowCount = grider.value!.rowCount;
+      if (isCtrlOrCommandKey(event)) {
+        switch (event.keyCode) {
+          case keycodes.upArrow:
+          case keycodes.pageUp:
+            return moveCurrentCell(0, currentCell.value[1], event);
+          case keycodes.downArrow:
+          case keycodes.pageDown:
+            return moveCurrentCell(rowCount - 1, currentCell.value[1], event);
+          case keycodes.leftArrow:
+            return moveCurrentCell(currentCell.value[0], 0, event);
+          case keycodes.rightArrow:
+            return moveCurrentCell(currentCell.value[0], columnSizes.value!.realCount - 1, event);
+          case keycodes.home:
+            return moveCurrentCell(0, 0, event);
+          case keycodes.end:
+            return moveCurrentCell(rowCount - 1, columnSizes.value!.realCount - 1, event);
+          case keycodes.a:
+            selectedCells.value = [['header', 'header']];
+            event.preventDefault();
+            return ['header', 'header'];
+        }
+      } else {
+        switch (event.keyCode) {
+          case keycodes.upArrow:
+            if (currentCell.value[0] == 0) return focusFilterEditor(currentCell.value[1]);
+            return moveCurrentCell(currentCell.value[0] - 1, currentCell.value[1], event);
+          case keycodes.downArrow:
+            return moveCurrentCell(currentCell.value[0] + 1, currentCell.value[1], event);
+          case keycodes.enter:
+            if (!grider.value?.editable) return moveCurrentCell(currentCell.value[0] + 1, currentCell.value[1], event);
+            break;
+          case keycodes.leftArrow:
+            return moveCurrentCell(currentCell.value[0], currentCell.value[1] - 1, event);
+          case keycodes.rightArrow:
+            return moveCurrentCell(currentCell.value[0], currentCell.value[1] + 1, event);
+          case keycodes.home:
+            return moveCurrentCell(currentCell.value[0], 0, event);
+          case keycodes.end:
+            return moveCurrentCell(currentCell.value[0], columnSizes.value!.realCount - 1, event);
+          case keycodes.pageUp:
+            return moveCurrentCell(currentCell.value[0] - visibleRowCountLowerBound.value, currentCell.value[1], event);
+          case keycodes.pageDown:
+            return moveCurrentCell(currentCell.value[0] + visibleRowCountLowerBound.value, currentCell.value[1], event);
+          case keycodes.tab: {
+            return moveCurrentCellWithTabKey(event.shiftKey);
+          }
+        }
+      }
+    }
+
     function focusFilterEditor(columnRealIndex) {
       let modelIndex = columnSizes.value!.realToModel(columnRealIndex);
       const domFilter = domFilterControlsRef.get()[columns[modelIndex].uniqueName];
@@ -480,6 +610,7 @@ export default defineComponent({
     }
 
     function updateCollapsedLeftColumn() {
+      void updateRefsStyle()
       collapsedLeftColumnStore.value = !collapsedLeftColumnStore.value
     }
 
@@ -527,6 +658,7 @@ export default defineComponent({
       const rowData = grider.value!.getRowData(cell[0])
       if (!rowData) return null
       const cellData = rowData[realColumnUniqueNames.value[cell[1]]]
+      console.log(cellData.value, `realColumnUniqueNames`)
       //todo
       /*if (shouldOpenMultilineDialog(cellData)) {
         showModal(EditCellDataModal, {
@@ -548,7 +680,23 @@ export default defineComponent({
     }
 
     function scrollVertical(deltaX, deltaY) {
+      let newFirstVisibleRowScrollIndex = firstVisibleRowScrollIndex.value
+      if (deltaY > 0 && deltaX === -0) {
+        newFirstVisibleRowScrollIndex += wheelRowCount.value
+      } else if (deltaY < 0 && deltaX === -0) {
+        newFirstVisibleRowScrollIndex -= wheelRowCount.value
+      }
 
+      let rowCount = grider.value!.rowCount
+      if (newFirstVisibleRowScrollIndex + visibleRowCountLowerBound.value > rowCount) {
+        newFirstVisibleRowScrollIndex = rowCount - visibleRowCountLowerBound.value + 1;
+      }
+      if (newFirstVisibleRowScrollIndex < 0) {
+        newFirstVisibleRowScrollIndex = 0;
+      }
+
+      firstVisibleRowScrollIndex.value = newFirstVisibleRowScrollIndex;
+      domVerticalScroll.value && domVerticalScroll.value.scroll(newFirstVisibleRowScrollIndex);
     }
 
     function scrollHorizontal(deltaX, deltaY) {
@@ -636,7 +784,6 @@ export default defineComponent({
             gridScrollAreaWidth.value
           )
           firstVisibleColumnScrollIndex.value = newColumn;
-
           domHorizontalScroll.value!.scroll(newColumn);
         }
       }
@@ -772,6 +919,7 @@ export default defineComponent({
       dispatchInsplaceEditor,
       firstVisibleRowScrollIndex,
       firstVisibleColumnScrollIndex,
+      handleGridKeyDown,
       handleSetFormView,
       handleGridMouseDown,
       handleGridMouseMove,

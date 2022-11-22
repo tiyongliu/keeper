@@ -1,4 +1,4 @@
-import {defineComponent, PropType, ref, toRefs, watch, watchEffect} from 'vue'
+import {defineComponent, PropType, ref, toRefs, watchEffect} from 'vue'
 import {getIntSettingsValue} from '/@/second/settings/settingsTools'
 import createRef from '/@/second/utility/createRef'
 import DataGridCore from './DataGridCore.vue'
@@ -50,8 +50,8 @@ export default defineComponent({
     } = toRefs(props)
 
     const isLoadedAll = ref<boolean>(false)
-    const allRowCount = ref<number | null>(null)
-    const errorMessage = ref<string | null>(null)
+    const allRowCount = ref<Nullable<number>>(null)
+    const errorMessage = ref<Nullable<string>>(null)
     const loadedTime = ref(new Date().getTime())
     const domGrid = ref<Nullable<HTMLElement>>(null)
     const loadNextDataRef = createRef<boolean>(false)
@@ -125,9 +125,7 @@ export default defineComponent({
       if ((display.value! && display.value?.cache?.refreshTime) > loadedTime.value) {
         reload()
       }
-    })
 
-    watch(() => [masterLoadedTime.value, loadedTime.value, display.value], () => {
       if (masterLoadedTime.value && masterLoadedTime.value > loadedTime.value && display.value) {
         display.value.reload()
       }

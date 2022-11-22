@@ -1,4 +1,4 @@
-import {defineComponent, ref, unref, watch, computed} from 'vue'
+import {defineComponent, ref, unref, computed, watchEffect} from 'vue'
 import {storeToRefs} from "pinia"
 import {difference, keys, map, pickBy} from 'lodash-es'
 import {useLocaleStore} from '/@/store/modules/locale'
@@ -14,7 +14,7 @@ export default defineComponent({
     const mountedTabs = ref({})
     const selectedTab = computed(() => (openedTabs.value as TabDefinition[]).find(x => x.selected && x.closedTime == null))
 
-    watch(() => [mountedTabs.value, selectedTab.value], () => {
+    watchEffect(() => {
       if (difference(
         keys(mountedTabs.value),
         map(
@@ -25,9 +25,7 @@ export default defineComponent({
       ) {
         mountedTabs.value = pickBy(mountedTabs.value, (_, k) => (openedTabs.value as TabDefinition[]).find(x => x.tabid == k && x.closedTime == null))
       }
-    })
 
-    watch(() => selectedTab.value, () => {
       if (selectedTab.value) {
         const {tabid} = unref(selectedTab)!
         if (tabid && !mountedTabs.value[tabid]) {

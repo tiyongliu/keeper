@@ -136,11 +136,11 @@ export function countVisibleRealColumns(columnSizes, firstVisibleColumnScrollInd
   return realColumns;
 }
 
-export function filterCellForRow(cell, row: number): CellAddress | null {
+export function filterCellForRow(cell, row: number): Nullable<CellAddress> {
   return cell && (cell[0] == row || isString(cell[0])) ? cell : null;
 }
 
-export function filterCellsForRow(cells, row: number): CellAddress[] | null {
+export function filterCellsForRow(cells, row: number): Nullable<CellAddress[]> {
   const res = (cells || []).filter(x => x[0] == row || isString(x[0]));
   return res.length > 0 ? res : null;
 }

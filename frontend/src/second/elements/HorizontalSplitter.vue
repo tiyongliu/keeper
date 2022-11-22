@@ -90,7 +90,7 @@ export default defineComponent({
       default: 0
     }
   },
-  emits: ['dispatchSize'],
+  emits: ['update:size'],
   setup(props, {emit}) {
     const size = toRef(props, 'size')
     const initialValue = toRef(props, 'initialValue')
@@ -98,21 +98,23 @@ export default defineComponent({
     const collapsed2 = ref(false)
     const sizeRw = ref(size.value)
 
-    const clientWidth = ref<Nullable<HTMLElement>>(null)
+    const container = ref<Nullable<HTMLElement>>(null)
 
-    watch(() => [initialValue.value, clientWidth.value], async () => {
-      await nextTick()
-      sizeRw.value = computeSplitterSize(initialValue.value, clientWidth.value)
-      emit('dispatchSize', sizeRw.value)
-    }, {immediate: true})
+    watch(() => [initialValue.value, container.value], async () => {
+      if (container.value) {
+        await nextTick()
+        sizeRw.value = computeSplitterSize(initialValue.value, container.value.clientWidth)
+        emit('update:size', sizeRw.value)
+      }
+    })
 
     function updateSize(e: number) {
       sizeRw.value += e
-      emit('dispatchSize', sizeRw.value)
+      emit('update:size', sizeRw.value)
     }
 
     return {
-      clientWidth,
+      container,
       ...toRefs(props),
       sizeRw,
       collapsed1,

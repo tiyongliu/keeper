@@ -53,7 +53,7 @@ export function revertChangeSetRowChanges(changeSet: ChangeSet, definition: Chan
 export function findExistingChangeSetItem(
   changeSet: ChangeSet,
   definition: ChangeSetRowDefinition
-): [keyof ChangeSet, ChangeSetItem | null] {
+): [keyof ChangeSet, Nullable<ChangeSetItem>] {
   if (!changeSet || !definition) return ['updates', null];
   if (definition.insertedRowIndex != null) {
     return [

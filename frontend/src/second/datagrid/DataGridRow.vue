@@ -9,7 +9,15 @@
           && inplaceEditorState.cell &&
           rowIndex == inplaceEditorState.cell[0] &&
           col.colIndex == inplaceEditorState.cell[1]">
-        column deitor 输入
+        <InplaceEditor
+          :width="col.width"
+          :inplaceEditorState="inplaceEditorState"
+          :dispatchInsplaceEditor="dispatchInsplaceEditor"
+          :cellValue="rowData[col.uniqueName]"
+          @setValue="value => grider.setCellValue(rowIndex, col.uniqueName, value)"/>
+        <!--        <FormOutlined />
+                <CheckOutlined/>
+                <CloseOutlined/>-->
       </td>
       <DataGridCell
         v-else
@@ -46,14 +54,23 @@ import {computed, defineComponent, PropType, toRefs} from 'vue'
 import RowHeaderCell from '/@/second/datagrid/RowHeaderCell.vue'
 import DataGridCell from '/@/second/datagrid/DataGridCell.vue'
 import Grider from '/@/second/datagrid/Grider'
+import InplaceEditor from './InplaceEditor.vue'
 import {MacroSelectedCell} from '/@/second/keeper-datalib'
 import {CellAddress} from './selection'
 import {cellIsSelected} from './gridutil'
+
+import {Spin} from 'ant-design-vue'
+import {CheckOutlined, CloseOutlined, FormOutlined} from '@ant-design/icons-vue';
+
 export default defineComponent({
   name: "DataGridRow",
   components: {
+    InplaceEditor,
+    Spin,
     RowHeaderCell,
-    DataGridCell
+    DataGridCell,
+
+    FormOutlined, CloseOutlined, CheckOutlined,
   },
   props: {
     rowHeight: {

@@ -166,7 +166,7 @@ export default defineComponent({
       extendedDbInfo.value = extendDatabaseInfoFromApps(dbinfo.value, apps.value)
     })
 
-    const display = computed(() => connection.value && serverVersion.value ? new TableGridDisplay(
+    const display = computed(() => (connection.value && extensions.value && serverVersion.value) ? new TableGridDisplay(
       {schemaName: schemaName.value, pureName: pureName.value!},
       findEngineDriver(connection.value, <ExtensionsDirectory>extensions.value!),
       config.value!,
@@ -179,7 +179,7 @@ export default defineComponent({
       table => getDictionaryDescription(table, conid.value!, database.value!, apps.value, connections.value) as any
     ) as GridDisplay : null)
 
-    const formDisplay = computed(() => connection.value && serverVersion.value ? new TableFormViewDisplay(
+    const formDisplay = computed(() => (connection.value && extensions.value && serverVersion.value) ? new TableFormViewDisplay(
       {schemaName: schemaName.value, pureName: pureName.value!},
       findEngineDriver(connection.value, <ExtensionsDirectory>extensions.value!),
       config.value!,

@@ -5,7 +5,8 @@
 </template>
 
 <script lang="ts">
-import {computed, defineComponent, PropType, ref, toRefs, nextTick} from 'vue'
+import {computed, defineComponent, nextTick, PropType, ref, toRefs, watch} from 'vue'
+
 export default defineComponent({
   name: 'VerticalScrollBar',
   props: {
@@ -24,25 +25,27 @@ export default defineComponent({
   setup(props, {emit}) {
     const {viewportRatio, minimum, maximum} = toRefs(props)
     const node = ref<Nullable<HTMLElement>>(null)
-    const height = computed(() => node.value ? node.value.clientWidth : 0)
+    const height = ref(0)
     const contentSize = computed(() => Math.round(height.value / viewportRatio.value))
 
+    watch(() => [viewportRatio.value, minimum.value, maximum.value], async () => {
+      await nextTick()
+      height.value = node.value ? node.value.clientWidth : 0
+    })
+
     function handleScroll() {
-      nextTick().then(() => {
-        const position = node.value ? node.value.scrollTop : 0
-        const ratio = position / (contentSize.value - height.value);
-        if (ratio < 0) return 0
-        const res = ratio * (maximum.value! - minimum.value! + 1) + minimum.value!
-        emit('dispatchScroll', Math.floor(res + 0.3))
-      })
+      height.value = node.value ? node.value.clientWidth : 0
+      const position = node.value ? node.value.scrollTop : 0
+      const ratio = position / (contentSize.value - height.value);
+      if (ratio < 0) return 0
+      const res = ratio * (maximum.value! - minimum.value! + 1) + minimum.value!
+      emit('dispatchScroll', Math.floor(res + 0.3))
     }
 
     function scroll(value) {
-      nextTick().then(() => {
-        const position01 = (value - minimum.value!) / (maximum.value! - minimum.value! + 1);
-        const position = position01 * (contentSize.value - height.value);
-        if (node.value) node.value.scrollTop = Math.floor(position)
-      })
+      const position01 = (value - minimum.value!) / (maximum.value! - minimum.value! + 1);
+      const position = position01 * (contentSize.value - height.value);
+      if (node.value) node.value.scrollTop = Math.floor(position)
     }
 
     return {

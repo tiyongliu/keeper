@@ -5,7 +5,7 @@ export type RegularCellAddress = [number, number]
 
 export const topLeftCell: CellAddress = [0, 0]
 export const undefinedCell: CellAddress = [undefined, undefined]
-export const nullCell: CellAddress | null = null
+export const nullCell: Nullable<CellAddress> = null
 export const emptyCellArray: CellAddress[] = [];
 
 export function isRegularCell(cell: CellAddress): cell is RegularCellAddress {

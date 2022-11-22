@@ -10,7 +10,8 @@
     <input
       type="text"
       class="focus-field" ref="domFocusField"
-      @keydown="handleKeyDown"/>
+      @keydown="handleKeyDown"
+      @copy="copyToClipboard"/>
     <ColumnManagerRow
       v-for="(column, index) in items"
       :key="index"
@@ -37,10 +38,10 @@ import CloseSearchButton from '/@/second/buttons/CloseSearchButton'
 import InlineButton from '/@/second/buttons/InlineButton.vue'
 import ManagerInnerContainer from '/@/second/elements/ManagerInnerContainer.vue'
 import ColumnManagerRow from '/@/second/datagrid/ColumnManagerRow.vue'
+import keycodes from '/@/second/utility/keycodes'
 import {GridDisplay} from '/@/second/keeper-datalib'
 import {filterName} from '/@/second/keeper-tools'
-import keycodes from '/@/second/utility/keycodes';
-import {Input} from 'ant-design-vue'
+import {copyTextToClipboard} from '/@/second/utility/clipboard'
 
 export default defineComponent({
   name: "ColumnManager",
@@ -51,7 +52,6 @@ export default defineComponent({
     InlineButton,
     ManagerInnerContainer,
     ColumnManagerRow,
-    [Input.name]: Input,
   },
   props: {
     managerSize: {
@@ -164,6 +164,10 @@ export default defineComponent({
       }
     }
 
+    function copyToClipboard() {
+      copyTextToClipboard(selectedColumns.value.join('\r\n'))
+    }
+
     function handleClick(column) {
       if (domFocusField.value) domFocusField.value.focus()
       selectedColumns.value = [column.uniqueName]
@@ -230,6 +234,7 @@ export default defineComponent({
       managerSize,
       selectedColumns,
       currentColumnUniqueName,
+      copyToClipboard,
       showModal,
       setSelectedColumns,
       handleKeyDown,

@@ -53,7 +53,7 @@ export function runMacroOnChangeSet(
   selectedCells: MacroSelectedCell[],
   changeSet: ChangeSet,
   display: GridDisplay
-): ChangeSet | null {
+): Nullable<ChangeSet> {
   const errors = [];
   const compiledMacroFunc = compileMacroFunction(macro, errors);
   if (!compiledMacroFunc) return null;

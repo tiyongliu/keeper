@@ -84,7 +84,7 @@ export default defineComponent({
       type: String as PropType<string>,
     },
     extInfo: {
-      type: String as PropType<string>,
+      type: String as PropType<Nullable<string>>,
     },
     filter: {
       type: String as PropType<string>,
@@ -103,10 +103,10 @@ export default defineComponent({
 
     },
     onPin: {
-      type: Function as PropType<Function>
+      type: Function as PropType<Nullable<Function>>
     },
     onUnpin: {
-      type: Function as PropType<Function>
+      type: Function as PropType<Nullable<Function>>
     },
     showPinnedInsteadOfUnpin: {
       type: Boolean as PropType<boolean>,

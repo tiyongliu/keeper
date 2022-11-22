@@ -3,6 +3,13 @@ import {useInstalledPlugins} from '/@/api/bridge'
 import {useBootstrapStore} from "/@/store/modules/bootstrap"
 import {onBeforeUnmount, onMounted, ref, watch} from 'vue'
 import {ExtensionsDirectory} from "/@/second/typings/types/extensions";
+import mysql from './keeper-plugin-mysql'
+import mongo from './keeper-plugin-mongo'
+
+const plugins = {
+  mysql,
+  mongo
+}
 
 export default function initPluginsProvider() {
   const installedPlugins = ref()
@@ -57,13 +64,14 @@ async function loadPlugins(pluginsDict, installedPlugins, dataBase) {
 
 
       //todo v0.0.2 从接口获取改为静态文件
-
       // const resp = await pluginsScriptApi({
       //   packageName: installed.name,
       // })
 
-      const defaultFrontend = await import(`./keeper-plugin-${installed.name}`)
-      newPlugins[installed.name] = defaultFrontend.default ?? {}
+      //这种方法开发环境可以，编译后无法访问。
+      // const defaultFrontend = await import(`./keeper-plugin-${installed.name}`)
+      const defaultFrontend = await plugins[installed.name]
+      newPlugins[installed.name] = defaultFrontend ?? {}
     }
   }
 

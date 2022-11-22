@@ -1,4 +1,4 @@
-import {Component, defineComponent, PropType, ref, toRefs, unref, watch} from 'vue'
+import {Component, defineComponent, PropType, ref, toRefs, unref, watch, watchEffect} from 'vue'
 import LoadingDataGridCore from '/@/second/datagrid/LoadingDataGridCore'
 // import eb_system_config from '/@/second/tabs/eb_system_config.json'
 // import credential_count from '/@/second/tabs/credential_count.json'
@@ -95,6 +95,20 @@ export default defineComponent({
       if (!macroPreview.value) {
         grider.value = new ChangeSetGrider(loadedRows.value, changeSetState.value, dispatchChangeSet.value, display.value!)
       }
+
+    })
+
+    watchEffect(() => {
+      // if (macroPreview.value) {
+      //   grider.value = new ChangeSetGrider(loadedRows.value, changeSetState.value, dispatchChangeSet.value, display.value!, macroPreview.value! as MacroDefinition, macroValues.value, selectedCellsPublished.value())
+      //   console.log(`1111`, grider)
+      // }
+      //
+      // if (!macroPreview.value) {
+      //   grider.value = new ChangeSetGrider(loadedRows.value, changeSetState.value, dispatchChangeSet.value, display.value!)
+      //   console.log(`2222`, grider)
+      // }
+
     })
 
     function handleSelectedCellsPublished(data) {

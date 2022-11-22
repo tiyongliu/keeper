@@ -41,7 +41,7 @@ export class TableGridDisplay extends GridDisplay {
     dbinfo: DatabaseInfo,
     public displayOptions: any,
     serverVersion,
-    public getDictionaryDescription: DictionaryDescriptionFunc | null = null,
+    public getDictionaryDescription: Nullable<DictionaryDescriptionFunc> = null,
     isReadOnly = false
   ) {
     super(config, setConfig, cache, setCache, driver, dbinfo, serverVersion);

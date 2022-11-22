@@ -1,8 +1,7 @@
 <template>
   <HorizontalSplitter
     :initialValue="getInitialManagerSize()"
-    :size="managerSize"
-    @dispatchSize="dispatchSize"
+    v-model:size="managerSize"
     :hideFirst="collapsedLeftColumnStore">
     <template #1>
       <div class="left">
@@ -260,11 +259,6 @@ export default defineComponent({
       }
     }
 
-    function dispatchSize(size) {
-      console.log(`bind:size={managerSize}`, size.value)
-      managerSize.value = size
-    }
-
     function handleChangeSelectedColumns(cols) {
       domColumnManager.value && domColumnManager.value.setSelectedColumns(cols)
     }
@@ -280,7 +274,6 @@ export default defineComponent({
       jsonViewComponent,
       managerSize,
       getInitialManagerSize,
-      dispatchSize,
       handleChangeSelectedColumns,
       collapsedLeftColumnStore,
       extractMacroValuesForMacro,
