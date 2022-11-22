@@ -17,7 +17,7 @@ export class FormViewDisplay {
     public cache: GridCache,
     protected setCache: ChangeCacheFunc,
     public driver?: EngineDriver,
-    public dbinfo: DatabaseInfo | null = null,
+    public dbinfo: Nullable<DatabaseInfo> = null,
     public serverVersion = null
   ) {
     this.dialect = (driver?.dialectByVersion && driver?.dialectByVersion(serverVersion)) || driver?.dialect;

@@ -17,7 +17,7 @@ export function getDictionaryDescription(
   apps: ApplicationDefinition[],
   connections,
   skipCheckSaved = false
-): DictionaryDescription | null {
+): Nullable<DictionaryDescription> {
   const conn = connections?.find(x => x._id == conid);
 
   if (!conn) {

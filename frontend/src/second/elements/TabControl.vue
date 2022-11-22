@@ -19,7 +19,7 @@
         :key="index"
         :class="[isInline && 'isInline', index == value && 'tabVisible']"
         :style="`max-width: ${containerMaxWidth}`">
-        <component :is="tab.component" {...tab.props} :tabControlHiddenTab="index != value"/>
+        <component :is="tab.component" v-bing="{...tab.props}" :tabControlHiddenTab="index != value"/>
       </div>
     </div>
   </div>

@@ -34,6 +34,7 @@
         <FontIcon icon="icon dots-vertical" />
       </InlineButton>
     </template>
+    <DropDownButton icon="icon filter" narrow />
     <div
       v-if="showResizeSplitter"
       class="horizontal-split-handle resizeHandleControl"
@@ -51,12 +52,14 @@ import {EngineDriver} from '/@/second/keeper-types'
 import {FilterType} from '/@/second/keeper-filterparser'
 import {parseFilter, createMultiLineFilter} from '/@/second/keeper-filterparser'
 import keycodes from '/@/second/utility/keycodes'
+import DropDownButton from '/@/second/buttons/DropDownButton'
 export default defineComponent({
   name: 'DataFilterControl',
   components: {
     [Input.name]: Input,
     InlineButton,
     FontIcon,
+    DropDownButton,
   },
   props: {
     isReadOnly: {

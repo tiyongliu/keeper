@@ -21,7 +21,7 @@ export class TableFormViewDisplay extends FormViewDisplay {
     dbinfo: DatabaseInfo,
     displayOptions,
     serverVersion,
-    getDictionaryDescription: DictionaryDescriptionFunc | null = null,
+    getDictionaryDescription: Nullable<DictionaryDescriptionFunc> = null,
     isReadOnly = false
   ) {
     super(config, setConfig, cache, setCache, driver, dbinfo, serverVersion);
@@ -60,7 +60,7 @@ export class TableFormViewDisplay extends FormViewDisplay {
     }
   }
 
-  getPrimaryKeyEqualCondition(row = null): Condition | null {
+  getPrimaryKeyEqualCondition(row = null): Nullable<Condition> {
     // @ts-ignore
     if (!row) row = this.config.formViewKeyRequested || this.config.formViewKey;
     if (!row) return null;
@@ -87,9 +87,9 @@ export class TableFormViewDisplay extends FormViewDisplay {
     };
   }
 
-  getPrimaryKeyOperatorCondition(operator): Condition | null {
+  getPrimaryKeyOperatorCondition(operator): Nullable<Condition> {
     if (!this.config.formViewKey) return null;
-    const conditions = [];
+    const conditions: any[] = [];
     // @ts-ignore
     const {primaryKey} = this.gridDisplay.baseTable;
     if (!primaryKey) return null;
@@ -240,7 +240,7 @@ export class TableFormViewDisplay extends FormViewDisplay {
     return select;
   }
 
-  getChangeSetRow(row): ChangeSetRowDefinition | null {
+  getChangeSetRow(row): Nullable<ChangeSetRowDefinition> {
     if (!this.baseTable) return null;
     return <ChangeSetRowDefinition>{
       pureName: this.baseTable.pureName,
@@ -249,7 +249,7 @@ export class TableFormViewDisplay extends FormViewDisplay {
     };
   }
 
-  getChangeSetField(row, uniqueName): ChangeSetFieldDefinition | null {
+  getChangeSetField(row, uniqueName): Nullable<ChangeSetFieldDefinition> {
     const col = this.columns.find(x => x.uniqueName == uniqueName);
     if (!col) return null;
     if (!this.baseTable) return null;

@@ -77,7 +77,7 @@ export default defineComponent({
       useConnectionInfo({conid: unref(conid)}, connection)
     })
 
-    const driver = computed(() => findEngineDriver(connection.value, extensions.value!))
+    const driver = computed(() => extensions.value ? findEngineDriver(connection.value, extensions.value) : null)
 
     return {
       hidden: toRef(props, 'hidden'),

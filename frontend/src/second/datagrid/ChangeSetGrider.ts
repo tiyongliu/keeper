@@ -39,7 +39,7 @@ export default class ChangeSetGrider extends Grider {
   private rowDataCache;
   private rowStatusCache;
   private rowDefinitionsCache;
-  private batchChangeSet: ChangeSet | null;
+  private batchChangeSet: Nullable<ChangeSet>;
   private _errors = null;
   private compiledMacroFunc;
 
@@ -48,7 +48,7 @@ export default class ChangeSetGrider extends Grider {
     public changeSetState,
     public dispatchChangeSet,
     public display: GridDisplay,
-    public macro: MacroDefinition | null = null,
+    public macro: Nullable<MacroDefinition> = null,
     public macroArgs: {} = {},
     public selectedCells: MacroSelectedCell[] = []
   ) {
