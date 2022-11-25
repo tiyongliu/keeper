@@ -1,20 +1,20 @@
-import {ChangeSet,} from '/@/second/keeper-datalib/ChangeSet'
+import {ChangeSet} from '/@/second/keeper-datalib/ChangeSet'
 import {
-  GridDisplay,
-  findExistingChangeSetItem,
-  compileMacroFunction,
-  getChangeSetInsertedRows,
-  runMacroOnValue,
-  setChangeSetValue,
-  setChangeSetRowData,
-  deleteChangeSetRows,
-  changeSetInsertNewRow,
-  changeSetInsertDocuments,
-  revertChangeSetRowChanges,
-  createChangeSet,
   changeSetContainsChanges,
+  changeSetInsertDocuments,
+  changeSetInsertNewRow,
+  compileMacroFunction,
+  createChangeSet,
+  deleteChangeSetRows,
+  findExistingChangeSetItem,
+  getChangeSetInsertedRows,
+  GridDisplay,
   MacroDefinition,
-  MacroSelectedCell
+  MacroSelectedCell,
+  revertChangeSetRowChanges,
+  runMacroOnValue,
+  setChangeSetRowData,
+  setChangeSetValue
 } from '/@/second/keeper-datalib'
 
 import Grider, {GriderRowStatus} from './Grider'
@@ -84,7 +84,7 @@ export default class ChangeSetGrider extends Grider {
     const row = this.getRowSource(index);
     const insertedRowIndex = this.getInsertedRowIndex(index);
     const rowDefinition = this.display?.getChangeSetRow(row, insertedRowIndex);
-    const [matchedField, matchedChangeSetItem] = findExistingChangeSetItem(this.changeSet, rowDefinition);
+    const [matchedField, matchedChangeSetItem] = findExistingChangeSetItem(this.changeSet, rowDefinition!);
     const rowUpdated = matchedChangeSetItem
       ? getRowFromItem(row, matchedChangeSetItem)
       : this.compiledMacroFunc
@@ -155,13 +155,13 @@ export default class ChangeSetGrider extends Grider {
   setCellValue(index: number, uniqueName: string, value: any) {
     const row = this.getRowSource(index);
     const definition = this.display.getChangeSetField(row, uniqueName, this.getInsertedRowIndex(index));
-    this.applyModification(chs => setChangeSetValue(chs, definition, value));
+    this.applyModification(chs => setChangeSetValue(chs, definition!, value));
   }
 
   setRowData(index: number, document: any) {
     const row = this.getRowSource(index);
     const definition = this.display.getChangeSetRow(row, this.getInsertedRowIndex(index));
-    this.applyModification(chs => setChangeSetRowData(chs, definition, document));
+    this.applyModification(chs => setChangeSetRowData(chs, definition!, document));
   }
 
   deleteRow(index: number) {
@@ -205,7 +205,7 @@ export default class ChangeSetGrider extends Grider {
   }
 
   revertAllChanges() {
-    this.applyModification(chs => createChangeSet());
+    this.applyModification(_ => createChangeSet());
   }
 
   undo() {
