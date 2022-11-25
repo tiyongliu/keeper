@@ -34,6 +34,7 @@ export interface IPinnedDatabasesItem {
   extInfo?: string | Ref<string> | undefined;
   connection: IConnections
   name: string
+  objectTypeField?: string
 }
 
 type IIsExpandable = (data: { _id: string, singleDatabase: boolean }) => boolean

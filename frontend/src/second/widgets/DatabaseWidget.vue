@@ -9,7 +9,7 @@
       name="pinned"
       height="15%"
       storageName="pinnedItemsWidget"
-      :skip="!pinnedDatabases?.length &&
+      :skip="(currentDatabase && !pinnedDatabases.length) &&
         !pinnedTables.some(x => x.conid == currentDatabase.connection._id && x.database == currentDatabase?.name)"
     >
       <PinnedObjectsList/>
@@ -79,6 +79,7 @@ export default defineComponent({
 
     const driver = computed(() => extensions.value ? findEngineDriver(connection.value, extensions.value) : null)
 
+    console.log(pinnedDatabases.value, `dddddd`)
     return {
       hidden: toRef(props, 'hidden'),
       pinnedDatabases,
