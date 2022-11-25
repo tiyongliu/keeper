@@ -10,8 +10,7 @@
       height="15%"
       storageName="pinnedItemsWidget"
       :skip="(currentDatabase && !pinnedDatabases.length) &&
-        !pinnedTables.some(x => x.conid == currentDatabase.connection._id && x.database == currentDatabase?.name)"
-    >
+      !pinnedTables.some(x => x.conid == currentDatabase.connection._id && x.database == currentDatabase?.name)">
       <PinnedObjectsList/>
     </WidgetColumnBarItem>
     <!--数据库 table 列表-->
