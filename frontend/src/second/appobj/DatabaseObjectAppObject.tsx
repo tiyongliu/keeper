@@ -405,7 +405,7 @@ export default defineComponent({
     const {pinnedTables} = storeToRefs(localeStore)
     const {data, passProps} = toRefs(props)
 
-    const isPinned = computed(() => !!pinnedTables.value.find(x => testEqual(data.value, x)))
+    const isPinned = computed(() => !!pinnedTables.value.find(x => testEqual(unref(data), unref(x))))
 
     function handleClick(forceNewTab = false) {
       handleDatabaseObjectClick(data.value, forceNewTab)

@@ -13,16 +13,21 @@ export default defineComponent({
     },
   },
   setup(props, {attrs}) {
+    const {data} = toRefs(props)
     const restProps = omit(attrs, ['onClick', 'expandIcon', 'onExpand'])
-    const omitProps = Object.assign({}, toRefs(props), restProps) as any
+    const $props = Object.assign({}, props, restProps) as any
 
     // 使用下面这种，会解决控制板警告，但是取消表收藏会有bug，抽空需要学习vue源码
     // const $props = shallowReadonly({
     //   ...props, ...restProps
     // }) as any
 
-    return () => omitProps.data.objectTypeField ?
-      <DatabaseObjectAppObject {...omitProps}/> :
-      <DatabaseAppObject {...omitProps} />
+    return () => data.value && (
+      <>
+        {data.value?.objectTypeField
+          ? <DatabaseObjectAppObject {...$props}/>
+          : <DatabaseAppObject {...$props} />}
+      </>
+    )
   }
 })

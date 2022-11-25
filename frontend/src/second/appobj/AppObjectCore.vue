@@ -31,9 +31,9 @@
       {{extInfo}}
     </span>
     <template v-if="onPin">
-    <span class="pin" @click.stop.prevent="onPin">
-      <FontIcon icon="mdi mdi-pin"/>
-    </span>
+      <span class="pin" @click.stop.prevent="onPin">
+        <FontIcon icon="mdi mdi-pin"/>
+      </span>
     </template>
     <template v-if="onUnpin">
       <span class="pin-active" v-if="showPinnedInsteadOfUnpin">
@@ -57,6 +57,7 @@ import FontIcon from '/@/second/icons/FontIcon.vue'
 //todo
 import {useContextMenu} from '/@/hooks/web/useContextMenu'
 import {handleContextMenu} from '/@/second/utility/contextMenu'
+
 export default defineComponent({
   name: "AppObjectCore",
   props: {
