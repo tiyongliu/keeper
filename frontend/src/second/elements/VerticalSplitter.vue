@@ -51,6 +51,7 @@
 import {defineComponent, nextTick, ref, toRef, toRefs, watch} from 'vue'
 import FontIcon from '/@/second/icons/FontIcon.vue'
 import {computeSplitterSize} from '/@/second/elements/HorizontalSplitter.vue'
+import bus from "/@/second/utility/bus";
 
 export default defineComponent({
   name: "VerticalSplitter",
@@ -81,10 +82,15 @@ export default defineComponent({
     const initialValue = toRef(props, 'initialValue')
     const size = ref(0)
 
-    watch(() => [initialValue.value, clientHeight.value], async () => {
-      await nextTick()
-      size.value = computeSplitterSize(initialValue.value, clientHeight.value)
-    })
+    bus.emitter.on(bus.resize, updateWidgetStyle)
+
+    watch(() => [initialValue.value, clientHeight.value], updateWidgetStyle)
+
+    function updateWidgetStyle() {
+      nextTick(() => {
+        size.value = computeSplitterSize(initialValue.value, clientHeight.value)
+      })
+    }
 
     function updateSize(e: number) {
       size.value += e
