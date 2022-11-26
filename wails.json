@@ -12,7 +12,7 @@
   "info": {
     "companyName": "Individual Developer tiyong",
     "productName": "keeper",
-    "productVersion": "0.0.1-rc.1",
+    "productVersion": "0.0.2.1",
     "comments": "multiple database visualization development tools"
   },
   "obfuscated": true

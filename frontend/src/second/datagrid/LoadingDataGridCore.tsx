@@ -94,7 +94,7 @@ export default defineComponent({
       isLoadedAll.value = nextRows.length === 0
 
       if (loadNextDataRef.get()) {
-        loadNextData()
+        void loadNextData()
       }
 
       emit('loadedRows', loadedRowsRw.value)
