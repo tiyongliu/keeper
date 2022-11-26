@@ -153,7 +153,6 @@ import {
   defineComponent,
   inject,
   nextTick,
-  onMounted,
   PropType,
   ref,
   Ref,
@@ -396,6 +395,8 @@ export default defineComponent({
     const tabVisible = inject<Ref<Nullable<boolean>>>('tabVisible')
     // const tabid = inject('tabid')
 
+    bus.emitter.on(bus.resize, updateWidgetStyle)
+
     function updateWidgetStyle() {
       nextTick(() => {
         if (container.value && container.value!.clientWidth) containerWidth.value = container.value!.clientWidth
@@ -405,30 +406,17 @@ export default defineComponent({
 
     watch(() => [collapsedLeftColumnStore.value], updateWidgetStyle)
 
-    bus.emitter.on(bus.resize, updateWidgetStyle)
-
-    onMounted(() => {})
-
-    watchEffect(() => {
-      if (unref(tabVisible) && domFocusField.value && focusOnVisible.value) {
-        domFocusField.value && domFocusField.value.focus()
-      }
-    })
-
     watch(() => [grider.value, columns.value, containerWidth.value, display.value], () => {
       columnSizes.value = countColumnSizes(grider.value!, columns.value, containerWidth.value, display.value!)
     })
 
-    watch(() => [onLoadNextData.value, display.value], async () => {
-      await updateWidgetStyle()
-      if (onLoadNextData.value && display.value) {
-        onLoadNextData.value()
-      }
+    watch(() => [onLoadNextData.value, display.value], () => {
+      updateWidgetStyle()
     })
 
-    watch(() => [firstVisibleRowScrollIndex.value, visibleRowCountUpperBound.value], () => {
+    watch(() => [firstVisibleRowScrollIndex.value, visibleRowCountUpperBound.value], async () => {
       if (onLoadNextData.value && grider.value && firstVisibleRowScrollIndex.value + visibleRowCountUpperBound.value >= grider.value!.rowCount && rowHeight.value > 0) {
-        // onLoadNextData.value()
+        onLoadNextData.value()
       }
     })
 
@@ -440,6 +428,12 @@ export default defineComponent({
         emit('selectedCellsPublished', cellsValue)
         bootstrap.subscribeSelectedCellsCallback(cellsValue)
         if (changeSelectedColumns.value) changeSelectedColumns.value(getSelectedColumns().map(x => x.columnName))
+      }
+    })
+
+    watchEffect(() => {
+      if (unref(tabVisible) && domFocusField.value && focusOnVisible.value) {
+        domFocusField.value && domFocusField.value.focus()
       }
     })
 
@@ -510,13 +504,13 @@ export default defineComponent({
       ) {
         // @ts-ignore
         event.preventDefault();
-        dispatchInsplaceEditor({ type: 'show', text: event.key, cell: currentCell });
+        dispatchInsplaceEditor({type: 'show', text: event.key, cell: currentCell});
       }
 
       if (event.keyCode == keycodes.f2 || event.keyCode == keycodes.enter) {
         // @ts-ignore
         if (!showMultilineCellEditorConditional(currentCell)) {
-          dispatchInsplaceEditor({ type: 'show', cell: currentCell, selectAll: true });
+          dispatchInsplaceEditor({type: 'show', cell: currentCell, selectAll: true});
         }
       }
 
