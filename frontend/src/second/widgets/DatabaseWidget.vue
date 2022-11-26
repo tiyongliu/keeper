@@ -78,7 +78,6 @@ export default defineComponent({
 
     const driver = computed(() => extensions.value ? findEngineDriver(connection.value, extensions.value) : null)
 
-    console.log(pinnedDatabases.value, `dddddd`)
     return {
       hidden: toRef(props, 'hidden'),
       pinnedDatabases,

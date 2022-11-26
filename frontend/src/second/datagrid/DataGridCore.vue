@@ -214,6 +214,7 @@ import createReducer from '/@/second/utility/createReducer'
 import stableStringify from 'json-stable-stringify'
 import {useBootstrapStore} from '/@/store/modules/bootstrap'
 import keycodes from '/@/second/utility/keycodes'
+import bus from '/@/second/utility/bus'
 
 function getSelectedCellsInfo(selectedCells, grider: Grider, realColumnUniqueNames, selectedRowData) {
   if (selectedCells.length > 1 && selectedCells.every(x => isNumber(x[0]) && isNumber(x[1]))) {
@@ -395,17 +396,16 @@ export default defineComponent({
     const tabVisible = inject<Ref<Nullable<boolean>>>('tabVisible')
     // const tabid = inject('tabid')
 
-
-    function updateRefsStyle() {
-      if (container.value && container.value!.clientWidth) containerWidth.value = container.value!.clientWidth
-      if (container.value && container.value!.clientHeight) containerHeight.value = container.value!.clientHeight
+    function updateWidgetStyle() {
+      nextTick(() => {
+        if (container.value && container.value!.clientWidth) containerWidth.value = container.value!.clientWidth
+        if (container.value && container.value!.clientHeight) containerHeight.value = container.value!.clientHeight
+      })
     }
 
-    watch(() => [collapsedLeftColumnStore.value], async () => {
-      await nextTick()
-      void updateRefsStyle()
-    })
+    watch(() => [collapsedLeftColumnStore.value], updateWidgetStyle)
 
+    bus.emitter.on(bus.resize, updateWidgetStyle)
 
     onMounted(() => {})
 
@@ -420,8 +420,7 @@ export default defineComponent({
     })
 
     watch(() => [onLoadNextData.value, display.value], async () => {
-      await nextTick()
-      void updateRefsStyle()
+      await updateWidgetStyle()
       if (onLoadNextData.value && display.value) {
         onLoadNextData.value()
       }
@@ -610,7 +609,7 @@ export default defineComponent({
     }
 
     function updateCollapsedLeftColumn() {
-      void updateRefsStyle()
+      void updateWidgetStyle()
       collapsedLeftColumnStore.value = !collapsedLeftColumnStore.value
     }
 

@@ -50,6 +50,7 @@
 import {defineComponent, nextTick, PropType, ref, toRef, toRefs, watch} from 'vue'
 import {isString} from 'lodash-es'
 import FontIcon from '/@/second/icons/FontIcon.vue'
+import bus from '/@/second/utility/bus'
 
 export function computeSplitterSize(initialValue, clientSize) {
   if (isString(initialValue) && initialValue.startsWith('~') && initialValue.endsWith('px'))
@@ -100,13 +101,18 @@ export default defineComponent({
 
     const container = ref<Nullable<HTMLElement>>(null)
 
-    watch(() => [initialValue.value, container.value], async () => {
+    bus.emitter.on(bus.resize, updateWidgetStyle)
+
+    watch(() => [initialValue.value, container.value],  updateWidgetStyle)
+
+    function updateWidgetStyle() {
       if (container.value) {
-        await nextTick()
-        sizeRw.value = computeSplitterSize(initialValue.value, container.value.clientWidth)
-        emit('update:size', sizeRw.value)
+        nextTick(() => {
+          sizeRw.value = computeSplitterSize(initialValue.value, container.value!.clientWidth)
+          emit('update:size', sizeRw.value)
+        })
       }
-    })
+    }
 
     function updateSize(e: number) {
       sizeRw.value += e

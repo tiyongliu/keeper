@@ -226,7 +226,7 @@ export default defineComponent({
     }
 
     const isFormView = computed(() => !!(formDisplay.value && formDisplay.value.config && formDisplay.value.config.isFormView))
-    const isJsonView = computed(() => !!(config.value && config.value?.isJsonView))
+    const isJsonView = computed(() => !!(config.value && config.value['isJsonView']))
     const columnsShow = computed(() => !freeTableColumn.value || isDynamicStructure.value && isFormView.value)
     const jsonFiltersSkip = computed(() => !isDynamicStructure.value || !(display.value && display.value?.filterable))
     const selectedCellsPublished = ref(() => [])
@@ -244,7 +244,7 @@ export default defineComponent({
 
     function switchToView(view) {
       if (view == 'form') {
-        display.value && display.value.switchToFormView(selectedCellsPublished.value()[0]?.rowData)
+        display.value && display.value.switchToFormView(selectedCellsPublished.value()[0]['rowData'])
       }
       if (view == 'table') {
         setConfig.value && setConfig.value(cfg => ({

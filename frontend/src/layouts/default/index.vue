@@ -34,7 +34,7 @@
 </template>
 
 <script lang="ts">
-import {defineComponent, watch} from 'vue'
+import {defineComponent, watch, ref, onMounted} from 'vue'
 import {storeToRefs} from "pinia"
 import {useLocaleStore} from '/@/store/modules/locale'
 import WidgetContainer from '/@/second/widgets/WidgetContainer.vue'
@@ -44,7 +44,8 @@ import StatusBar from '/@/second/widgets/StatusBar.vue'
 import {WarningOutlined} from '@ant-design/icons-vue'
 import WidgetIconPanel from '/@/second/widgets/WidgetIconPanel.vue'
 import CurrentDropDownMenu from '/@/second/modals/CurrentDropDownMenu'
-
+import {debounce} from "lodash-es"
+import bus from '/@/second/utility/bus'
 export default defineComponent({
   name: 'DefaultLayout',
   components: {
@@ -57,8 +58,16 @@ export default defineComponent({
     TabRegister,
   },
   setup() {
+    const excludeFirst = ref(false)
     const localeStore = useLocaleStore()
     const {selectedWidget, leftPanelWidth, visibleTitleBar} = storeToRefs(localeStore)
+    window.addEventListener('resize', debounce(() => {
+      if (excludeFirst.value) {
+        bus.emitter.emit(bus.resize)
+      }
+    }, 300))
+
+    onMounted(() => excludeFirst.value = true)
 
     watch(() => selectedWidget.value, () => {
       localeStore.subscribeCssVariable(selectedWidget.value, x => (x ? 1 : 0), '--dim-visible-left-panel')
