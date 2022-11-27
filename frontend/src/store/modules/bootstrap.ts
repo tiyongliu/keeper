@@ -1,7 +1,7 @@
 import {Component, PropType} from 'vue'
 import {defineStore} from "pinia"
 import {store} from "/@/store"
-import {mapValues} from 'lodash-es'
+import {mapValues, uniq} from 'lodash-es'
 import invalidateCommands from '/@/second/commands/invalidateCommands'
 import {IPinnedDatabasesItem} from '/@/second/typings/types/standard.d'
 import {ExtensionsDirectory} from '/@/second/typings/types/extensions.d'
@@ -19,6 +19,8 @@ interface IVariableBasic {
   connections: []
   databases: []
   selectedCellsCallback: Nullable<() => any>
+  openedSingleDatabaseConnections: string[]
+  expandedConnections: string[]
 }
 
 export interface TabDefinition {
@@ -46,6 +48,8 @@ export const useBootstrapStore = defineStore({
   state: (): IVariableBasic => ({
     currentDatabase: null,
     openedConnections: [],
+    openedSingleDatabaseConnections: [],
+    expandedConnections: [],
     extensions: null,
     currentDropDownMenu: null,
     commands: {},
@@ -82,8 +86,21 @@ export const useBootstrapStore = defineStore({
     subscribeOpenedConnections(value: string[]) {
       this.openedConnections = value
     },
+    removeCurrentDatabase(deleteId) {
+      if (this.currentDatabase && this.currentDatabase.connection._id == deleteId) {
+        this.subscribeCurrentDatabase(null)
+      }
+    },
     subscribeCurrentDatabase(value: null | IPinnedDatabasesItem) {
       this.currentDatabase = value
+      if (value?.connection?._id) {
+        if (value?.connection?.singleDatabase) {
+          this.openedSingleDatabaseConnections = uniq([...this.openedSingleDatabaseConnections, value?.connection?._id])
+        } else {
+          this.openedConnections = uniq([...this.openedConnections, value?.connection?._id])
+          this.expandedConnections = uniq([...this.expandedConnections, value?.connection?._id])
+        }
+      }
     },
     subscribeExtensions(value: ExtensionsDirectory) {
       this.extensions = value
