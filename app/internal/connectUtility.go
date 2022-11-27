@@ -15,20 +15,21 @@ import (
 var storedConnection sync.Map
 
 func CreateEngineDriver(connection map[string]interface{}) (driver standard.SqlStandard, err error) {
-	switch connection["engine"].(string) {
-	case standard.MYSQLALIAS:
-		driver, err = newMysqlDriver(connection)
-		if err != nil {
-			return nil, err
+	logger.Infof("%s", utility.ToJsonStr(connection))
+	utility.WithRecover(func() {
+		switch connection["engine"].(string) {
+		case standard.MYSQLALIAS:
+			driver, err = newMysqlDriver(connection)
+		case standard.MONGOALIAS:
+			driver, err = newMongoDriver(connection)
+		default:
+			err = errors.New("invalid connection")
 		}
-	case standard.MONGOALIAS:
-		driver, err = newMongoDriver(connection)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	return driver, nil
+	}, func(e error) {
+		logger.Errorf("err: %v", e)
+		err = e
+	})
+	return driver, err
 }
 
 func newMysqlDriver(connection map[string]interface{}) (standard.SqlStandard, error) {
