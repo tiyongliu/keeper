@@ -28,8 +28,9 @@
     <SearchInput placeholder="Search connection or database" v-model:searchValue="filter"/>
     <CloseSearchButton :filter="filter" @filter="filter = ''"/>
     <DropDownButton icon="icon plus-thick"/>
-    <InlineButton @click="handleRefreshDatabase"
-                  title="Refresh database connection and object list">
+    <InlineButton
+      @click="handleRefreshDatabase"
+      title="Refresh database connection and object list">
       <FontIcon icon="icon refresh"/>
     </InlineButton>
   </SearchBoxWrapper>
