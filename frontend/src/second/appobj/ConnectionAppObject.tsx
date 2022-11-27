@@ -1,5 +1,4 @@
 import {
-  computed,
   createVNode,
   defineComponent,
   onBeforeUnmount,
@@ -65,7 +64,7 @@ export default defineComponent({
     const engineStatusIconRef = ref()
     const engineStatusTitleRef = ref()
     const bootstrap = useBootstrapStore()
-    const {extensions, openedConnections} = storeToRefs(bootstrap)
+    const {extensions, openedConnections, currentDatabase} = storeToRefs(bootstrap)
     let timerId: ReturnType<typeof setTimeout> | null
 
     const handleConnect = () => {
@@ -131,8 +130,6 @@ export default defineComponent({
       timerId && clearTimeout(timerId)
     })
 
-    const currentDatabase = computed(() => bootstrap.$state.currentDatabase)
-
     const handleDelete = async () => {
       const r = Modal.confirm({
         title: 'Confirm',
@@ -143,6 +140,7 @@ export default defineComponent({
         onOk: async () => {
           try {
             await connectionDeleteApi({_id: data.value?._id})
+            await bootstrap.removeCurrentDatabase(data.value?._id)
             r.destroy()
           } catch (e) {
             console.log(e)
