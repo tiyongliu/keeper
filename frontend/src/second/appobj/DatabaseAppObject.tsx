@@ -1,4 +1,4 @@
-import {defineComponent, PropType, toRefs, unref, computed} from 'vue'
+import {computed, defineComponent, PropType, toRefs, unref} from 'vue'
 import {storeToRefs} from 'pinia'
 import {get, isEqual, uniqWith} from 'lodash-es'
 import AppObjectCore from './AppObjectCore.vue'
@@ -24,7 +24,9 @@ export default defineComponent({
     const localeStore = useLocaleStore()
     const {pinnedDatabases} = storeToRefs(localeStore)
     const {data, passProps} = toRefs(props)
-    const isPinned = computed(() => unref(pinnedDatabases).find(x => x.name == unref(data)!.name && x.connection?._id == unref(data)!.connection?._id))
+
+    const isPinned = computed(() =>
+      !!unref(pinnedDatabases).find(x => unref(x).name == unref(data)!.name && unref(x).connection?._id == unref(data)!.connection?._id))
 
     return () => (
       <AppObjectCore
@@ -38,11 +40,11 @@ export default defineComponent({
         onClick={() => bootstrap.subscribeCurrentDatabase(unref(data)!)}
         menu={createMenu}
         showPinnedInsteadOfUnpin={unref(passProps)?.showPinnedInsteadOfUnpin}
-        onPin={unref(isPinned) ? null : () => localeStore.subscribePinnedDatabases(uniqWith([
+        pin={unref(isPinned) ? null : () => localeStore.subscribePinnedDatabases(uniqWith([
           ...unref(pinnedDatabases),
           unref(data!)
         ], isEqual))}
-        onUnpin={unref(isPinned) ? () => {
+        unpin={unref(isPinned) ? () => {
           localeStore.subscribePinnedDatabases(
             unref(pinnedDatabases).filter(x => x.name != unref(data)!.name || x.connection?._id != unref(data)!.connection?._id) as []
           )
@@ -88,6 +90,6 @@ export function getDatabaseMenuItems() {
     {onClick: handleExport, text: 'Export wizard'},
     {onClick: handleSqlRestore, text: 'Restore/import SQL dump'},
     {onClick: handleSqlDump, text: 'Backup/export SQL dump'},
-    { divider: true },
+    {divider: true},
   ]
 }

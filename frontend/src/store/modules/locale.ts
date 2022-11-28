@@ -88,13 +88,11 @@ export const useLocaleStore = defineStore({
     },
     subscribePinnedDatabases(value: IPinnedDatabasesItem[]) {
       this.pinnedDatabases = value
-      setWithStorageVariableCache('pinnedDatabases', this.pinnedDatabases)
-      return this.pinnedDatabases
+      setWithStorageVariableCache('pinnedDatabases', value)
     },
     subscribePinnedTables(value: any[]) {
       this.pinnedTables = value
-      setWithStorageVariableCache('pinnedTables', this.pinnedTables)
-      return this.pinnedTables
+      setWithStorageVariableCache('pinnedTables', value)
     },
     subscribeLeftPanelWidth(value) {
       this.leftPanelWidth += value

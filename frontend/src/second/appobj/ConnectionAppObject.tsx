@@ -140,7 +140,8 @@ export default defineComponent({
         onOk: async () => {
           try {
             await connectionDeleteApi({_id: data.value?._id})
-            await bootstrap.removeCurrentDatabase(data.value?._id)
+            // todo 暂时不使用删除连接池并判断是否为当前连接并清楚
+            // await bootstrap.removeCurrentDatabase(data.value?._id)
             r.destroy()
           } catch (e) {
             console.log(e)

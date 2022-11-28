@@ -405,7 +405,7 @@ export default defineComponent({
     const {pinnedTables} = storeToRefs(localeStore)
     const {data, passProps} = toRefs(props)
 
-    const isPinned = computed(() => !!pinnedTables.value.find(x => testEqual(unref(data), unref(x))))
+    const isPinned = computed(() => !!unref(pinnedTables).find(x => testEqual(unref(data), unref(x))))
 
     function handleClick(forceNewTab = false) {
       handleDatabaseObjectClick(data.value, forceNewTab)
@@ -417,11 +417,11 @@ export default defineComponent({
       title={unref(data)!.schemaName ? `${unref(data)!.schemaName}.${unref(data)!.pureName}` : unref(data)!.pureName}
       icon={databaseObjectIcons[data.value!.objectTypeField]}
       showPinnedInsteadOfUnpin={passProps.value?.showPinnedInsteadOfUnpin}
-      onPin={unref(isPinned) ? null : () => localeStore.subscribePinnedTables([
+      pin={unref(isPinned) ? null : () => localeStore.subscribePinnedTables([
         ...unref(pinnedTables),
         unref(data)!
       ])}
-      onUnpin={unref(isPinned) ? () => localeStore.subscribePinnedTables(
+      unpin={unref(isPinned) ? () => localeStore.subscribePinnedTables(
         unref(pinnedTables).filter(x => !testEqual(x, data.value))
       ) : null}
       extInfo={unref(data)!.tableRowCount != null ? `${formatRowCount(unref(data)!.tableRowCount)} rows` : null}

@@ -30,17 +30,17 @@
     <span v-if="extInfo" class="ext-info">
       {{extInfo}}
     </span>
-    <template v-if="onPin">
-      <span class="pin" @click.stop.prevent="onPin">
+    <template v-if="pin">
+      <span class="pin" @click.stop.prevent="handlePin">
         <FontIcon icon="mdi mdi-pin"/>
       </span>
     </template>
-    <template v-if="onUnpin">
+    <template v-if="unpin">
       <span class="pin-active" v-if="showPinnedInsteadOfUnpin">
         <FontIcon icon="icon pin" />
       </span>
       <template v-else>
-        <span class="unpin" @click.stop.prevent="onUnpin">
+        <span class="unpin" @click.stop.prevent="handleUnpin">
           <FontIcon icon="icon close"/>
         </span>
       </template>
@@ -103,10 +103,10 @@ export default defineComponent({
     colorMark: {
 
     },
-    onPin: {
+    pin: {
       type: Function as PropType<Nullable<Function>>
     },
-    onUnpin: {
+    unpin: {
       type: Function as PropType<Nullable<Function>>
     },
     showPinnedInsteadOfUnpin: {
@@ -126,7 +126,7 @@ export default defineComponent({
   },
   emits: ['click', 'expand', 'dblclick', 'middleclick'],
   setup(props, {emit}) {
-    //todo
+    const {pin, unpin} = toRefs(props)
     let checkedObjectsStore = null
 
     const handleExpand = () => {
@@ -159,13 +159,27 @@ export default defineComponent({
       }
     }
 
+    function handlePin(e) {
+      e.preventDefault()
+      e.stopPropagation()
+      pin.value && pin.value()
+    }
+
+    function handleUnpin(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      unpin.value && unpin.value()
+    }
+
     return {
       ...toRefs(props),
       handleExpand,
       handleClick,
       handleMouseUp,
       handleContext,
-      handleContextMenu
+      handleContextMenu,
+      handlePin,
+      handleUnpin
     }
   }
 })

@@ -3,7 +3,7 @@ import {storeToRefs} from 'pinia'
 import {useBootstrapStore} from '/@/store/modules/bootstrap'
 import {useLocaleStore} from '/@/store/modules/locale'
 import AppObjectList from '/@/second/appobj/AppObjectList'
-import PinnedAppObject from '/@/second/appobj/PinnedAppObject'
+import PinnedAppObject from '/@/second/appobj/PinnedAppObject.vue'
 import WidgetsInnerContainer from './WidgetsInnerContainer.vue'
 
 export default defineComponent({
