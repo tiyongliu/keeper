@@ -1,4 +1,5 @@
-import {ref, Ref} from 'vue'
+import {ref, Ref, isRef, isReactive} from 'vue'
+import {isFunction} from '/@/utils/is'
 import stableStringify from 'json-stable-stringify'
 import {extendDatabaseInfo} from '/@/second/keeper-tools'
 import {setLocalStorage} from '/@/second/utility/storageCache'
@@ -65,7 +66,7 @@ const settingsLoader = () => ({
   reloadTrigger: 'settings-changed',
 })
 
-export function useConnectionList<T>(targetRef: Ref<T>) {
+export function useConnectionList<T>(targetRef: Ref<T> | Function) {
   return useCore(connectionListLoader, {}, targetRef);
 }
 
@@ -85,7 +86,7 @@ export function useDatabaseStatus<T>(args, targetRef: Ref<T>) {
   return useCore(databaseStatusLoader, args, targetRef);
 }
 
-export function useDatabaseInfo<T>(args, targetRef: Ref<T>) {
+export function useDatabaseInfo<T>(args, targetRef: Ref<T> | Function) {
   return useCore(databaseInfoLoader, args, targetRef);
 }
 
@@ -93,7 +94,7 @@ export function getConnectionInfo(args) {
   return getCore(connectionInfoLoader, args);
 }
 
-export function useConnectionInfo<T>(args, targetRef: Ref<T>) {
+export function useConnectionInfo<T>(args, targetRef: Ref<T> | Function) {
   return useCore(connectionInfoLoader, args, targetRef)
 }
 
@@ -123,14 +124,20 @@ async function getCore(loader, args) {
   return await loadCachedValue(reloadTrigger, key, doLoad)
 }
 
-function useCore<T>(loader, args, targetRef: Ref<T | null | undefined>) {
+function useCore<T>(loader, args, targetRef: Ref<T | null | undefined> | Function) {
   const openedCount = ref(0)
   const {reloadTrigger} = loader(args);
 
   async function handleReload() {
     const res = await getCore(loader, args);
     if (openedCount.value > 0) {
-      targetRef.value = res
+      if (isRef(targetRef)) {
+        targetRef.value = res
+      } else if (isReactive(targetRef)) {
+        targetRef = res
+      } else if (typeof isFunction(targetRef)) {
+        targetRef(res)
+      }
     }
   }
 

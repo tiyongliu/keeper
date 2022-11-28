@@ -38,17 +38,7 @@
 </template>
 
 <script lang="ts">
-import {
-  computed,
-  defineComponent,
-  onBeforeUnmount,
-  onMounted,
-  PropType,
-  ref,
-  toRefs,
-  unref,
-  watch,
-} from 'vue'
+import {computed, defineComponent, PropType, ref, toRefs, unref, watch} from 'vue'
 import {storeToRefs} from 'pinia'
 import {fromPairs, isFunction} from 'lodash-es'
 import stableStringify from 'json-stable-stringify'
@@ -58,12 +48,7 @@ import ReferenceHeader from '/@/second/datagrid/ReferenceHeader.vue'
 import SqlDataGridCore from '/@/second/datagrid/SqlDataGridCore'
 import SqlFormView from '/@/second/formview/SqlFormView'
 import {useBootstrapStore} from "/@/store/modules/bootstrap"
-import {
-  useConnectionInfo,
-  useConnectionList,
-  useDatabaseInfo,
-  useDatabaseServerVersion
-} from '/@/api/bridge'
+import {useConnectionInfo, useDatabaseInfo, useDatabaseServerVersion} from '/@/api/bridge'
 import {getBoolSettingsValue} from '/@/second/settings/settingsTools'
 import {getDictionaryDescription} from '/@/second/utility/dictionaryDescriptionTools'
 import {
@@ -79,6 +64,7 @@ import {
 import {extendDatabaseInfoFromApps, findEngineDriver} from '/@/second/keeper-tools'
 import {getFilterValueExpression} from '/@/second/keeper-filterparser'
 import {DatabaseInfo, ExtensionsDirectory} from '/@/second/keeper-types'
+import {useClusterApiStore} from '/@/store/modules/clusterApi'
 
 export default defineComponent({
   name: 'TableDataGrid',
@@ -129,8 +115,6 @@ export default defineComponent({
     SqlFormView
   },
   setup(props) {
-    const bootstrap = useBootstrapStore()
-    const {extensions} = storeToRefs(bootstrap)
     const {
       config,
       setConfig,
@@ -145,8 +129,10 @@ export default defineComponent({
       multipleGridsOnTab
     } = toRefs(props)
 
-    const reference = computed(() => config.value!.reference)
-    const childConfig = computed(() => config.value!.childConfig)
+    const bootstrap = useBootstrapStore()
+    const {extensions} = storeToRefs(bootstrap)
+    const clusterApi = useClusterApiStore()
+    const {connectionList: connections} = storeToRefs(clusterApi)
 
     const myLoadedTime = ref(0)
     let connection = ref()
@@ -154,7 +140,9 @@ export default defineComponent({
     let serverVersion = ref()
     let apps = ref([])
     let extendedDbInfo = ref()
-    let connections = ref()
+
+    const reference = computed(() => config.value?.reference)
+    const childConfig = computed(() => config.value?.childConfig)
 
     watch(() => [conid.value, database.value], () => {
       useConnectionInfo({conid: unref(conid)}, connection)
@@ -191,9 +179,6 @@ export default defineComponent({
       serverVersion.value,
       table => getDictionaryDescription(table, conid.value!, database.value!, apps.value, connections.value) as any
     ) as FormViewDisplay : null)
-
-    onMounted(() => useConnectionList(connections))
-    onBeforeUnmount(() => connections.value = null)
 
     const childCache = ref(createGridCache())
     const childCacheUpdate = target => childCache.value = target

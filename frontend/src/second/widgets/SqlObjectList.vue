@@ -79,6 +79,7 @@ import {ApplicationDefinition, DatabaseInfo} from '/@/second/keeper-types'
 import {findEngineDriver} from '/@/second/keeper-tools'
 import {filterAppsForDatabase} from '/@/second/utility/appTools'
 import {useBootstrapStore} from "/@/store/modules/bootstrap"
+import {useClusterApiStore} from '/@/store/modules/clusterApi'
 
 export default defineComponent({
   name: "SqlObjectList",
@@ -106,6 +107,8 @@ export default defineComponent({
     const filter = ref('')
     const {conid, database} = toRefs(props)
     const flag = ref(true)
+    const clusterApi = useClusterApiStore()
+    const {connection} = storeToRefs(clusterApi)
 
     const handleRefreshDatabase = async () => {
       try {
@@ -122,7 +125,6 @@ export default defineComponent({
     const {currentDatabase, extensions} = storeToRefs(bootstrap)
     let objects = ref()
     let status = ref()
-    let connection = ref()
 
     const objectList = ref<unknown[]>([])
     const dbApps = ref<ApplicationDefinition[]>([])
@@ -141,7 +143,7 @@ export default defineComponent({
         counter?: number;
         analysedTime?: number;
       }>({conid: unref(conid), database: unref(database)}, status)
-      useConnectionInfo({conid: unref(conid)}, connection)
+      useConnectionInfo({conid: unref(conid)}, clusterApi.setConnection)
 
       dbApps.value = filterAppsForDatabase(unref(currentDatabase)?.connection, unref(currentDatabase)!.name, [])
     }, {
