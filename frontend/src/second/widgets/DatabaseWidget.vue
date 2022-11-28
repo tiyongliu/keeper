@@ -41,9 +41,10 @@
 </template>
 
 <script lang="ts">
-import {computed, defineComponent, PropType, ref, toRef, unref, watch} from 'vue'
+import {computed, defineComponent, PropType, toRef, unref} from 'vue'
 import {storeToRefs} from 'pinia'
-import {useBootstrapStore} from "/@/store/modules/bootstrap"
+import {useBootstrapStore} from '/@/store/modules/bootstrap'
+import {useClusterApiStore} from '/@/store/modules/clusterApi'
 import {useLocaleStore} from '/@/store/modules/locale'
 import ErrorInfo from '/@/second/elements/ErrorInfo.vue'
 import WidgetColumnBar from './WidgetColumnBar.vue'
@@ -53,7 +54,6 @@ import ConnectionList from './ConnectionList.vue'
 import SqlObjectList from './SqlObjectList.vue'
 import PinnedObjectsList from './PinnedObjectsList'
 import {findEngineDriver} from '/@/second/keeper-tools'
-import {useConnectionInfo} from "/@/api/bridge";
 
 export default defineComponent({
   name: "DatabaseWidget",
@@ -77,15 +77,14 @@ export default defineComponent({
     const {currentDatabase, extensions} = storeToRefs(bootstrap)
     const localeStore = useLocaleStore()
     const {pinnedDatabases, pinnedTables} = storeToRefs(localeStore)
+
+    const clusterApi = useClusterApiStore()
+    const {connection} = storeToRefs(clusterApi)
+
     const database = computed(() => unref(currentDatabase)?.name)
     const conid = computed(() => unref(currentDatabase)?.connection._id)
     const driver = computed(() => extensions.value ? findEngineDriver(connection.value, extensions.value) : null)
     const singleDatabase = computed(() => unref(currentDatabase)?.connection?.singleDatabase)
-    const connection = ref()
-
-    watch(() => [conid.value, database.value], () => {
-      useConnectionInfo({conid: unref(conid)}, connection)
-    })
 
     return {
       hidden: toRef(props, 'hidden'),

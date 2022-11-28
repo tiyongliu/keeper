@@ -52,6 +52,7 @@ import LargeButton from '/@/second/buttons/LargeButton.vue'
 //TODO
 import ConnectionModal from '/@/second/modals/ConnectionModal.vue'
 import {useModal} from '/@/components/Modal'
+import {useClusterApiStore} from '/@/store/modules/clusterApi'
 import {serverConnectionsRefreshApi} from '/@/api/simpleApis'
 import {useConnectionList, useServerStatus} from '/@/api/bridge'
 import {IActiveConnection, IConnectionStatus} from '/@/second/typings/types/connections.d'
@@ -70,21 +71,20 @@ export default defineComponent({
     ConnectionModal,
   },
   setup() {
-    const hidden = ref(false)
-    const filter = ref('')
+
     const bootstrap = useBootstrapStore()
     const {openedConnections} = storeToRefs(bootstrap)
+    const clusterApi = useClusterApiStore()
+    const {connectionList: connections} = storeToRefs(clusterApi)
+
+    const hidden = ref(false)
     const flag = ref(true)
-
-    const handleExpandable = (data) => unref(openedConnections).includes(unref(data)._id)
-      && !unref(data).singleDatabase
+    const filter = ref('')
     const connectionsWithStatus = ref<IActiveConnection[]>([])
-
-    const connections = ref()
     const serverStatus = ref()
 
     onMounted(() => {
-      useConnectionList<IActiveConnection[]>(connections)
+      useConnectionList<IActiveConnection[]>(clusterApi.setConnectionList)
       useServerStatus<{ [key: string]: IConnectionStatus }>(serverStatus)
     })
 
@@ -96,6 +96,9 @@ export default defineComponent({
     }, {
       deep: true
     })
+
+    const handleExpandable = (data) =>
+      unref(openedConnections).includes(unref(data)._id) && !unref(data).singleDatabase
 
     const handleRefreshConnections = async () => {
       try {
@@ -124,7 +127,8 @@ export default defineComponent({
       register,
       openModal,
       closeModal,
-      connections, serverStatus,
+      connections,
+      serverStatus,
       handleRefreshConnections
     }
   }

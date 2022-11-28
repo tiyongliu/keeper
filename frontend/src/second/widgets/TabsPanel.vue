@@ -71,13 +71,13 @@
 </template>
 
 <script lang="ts">
-import {computed, defineComponent, nextTick, onMounted, ref, unref} from 'vue'
+import {computed, defineComponent, nextTick, ref, unref} from 'vue'
 import {findIndex, max, min} from 'lodash-es'
 import {storeToRefs} from 'pinia'
 import FontIcon from '/@/second/icons/FontIcon.vue'
 import {useLocaleStore} from '/@/store/modules/locale'
 import {useBootstrapStore} from '/@/store/modules/bootstrap'
-import {getConnectionInfo, useConnectionList} from '/@/api/bridge'
+import {getConnectionInfo} from '/@/api/bridge'
 import {getTabDbKey, groupTabs, sortTabs} from '/@/second/utility/openNewTab'
 import {setSelectedTab} from '/@/second/utility/common'
 import {
@@ -88,6 +88,7 @@ import {
   getDbIcon,
   getTabDbName
 } from './TabsPanel_'
+import {useClusterApiStore} from '/@/store/modules/clusterApi'
 
 export default defineComponent({
   name: "TabsPanel",
@@ -98,7 +99,9 @@ export default defineComponent({
     const {openedTabs} = storeToRefs(localeStore)
     const bootstrap = useBootstrapStore()
     const {currentDatabase} = storeToRefs(bootstrap)
-    let connectionList = ref()
+
+    const clusterApi = useClusterApiStore()
+    const {connectionList} = storeToRefs(clusterApi)
 
     const draggingTab = ref(null)
     const draggingTabTarget = ref(null)
@@ -108,7 +111,7 @@ export default defineComponent({
     const handleTabsWheel = async (e) => {
       if (!e.shiftKey) {
         await nextTick()
-        domTabs.value!.scrollBy({ top: 0, left: e.deltaY < 0 ? -150 : 150, behavior: 'smooth' })
+        domTabs.value!.scrollBy({top: 0, left: e.deltaY < 0 ? -150 : 150, behavior: 'smooth'})
       }
     }
 
@@ -132,11 +135,6 @@ export default defineComponent({
     })
 
     const groupedTabs = computed(() => groupTabs(tabsWithDb.value))
-
-
-    onMounted(() => {
-      useConnectionList(connectionList)
-    })
 
     const handleTabClick = (e, tabid) => {
       if (e.target.closest('.tabCloseButton')) {
