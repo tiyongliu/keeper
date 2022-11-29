@@ -13,4 +13,5 @@ type SqlStandard interface {
 	GetVersion() (*VersionMsg, error)
 	ListDatabases() (interface{}, error)
 	Close() error
+	Query(sql string) (interface{}, error)
 }

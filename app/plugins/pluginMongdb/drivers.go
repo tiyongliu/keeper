@@ -116,3 +116,7 @@ func (mg *MongoDBDrivers) ListCollections(databaseName string) {
 func (mg *MongoDBDrivers) Ping() error {
 	return mg.DB.Ping(context.Background(), nil)
 }
+
+func (mg *MongoDBDrivers) Query(sql string) (interface{}, error) {
+	return nil, nil
+}

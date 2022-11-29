@@ -1,3 +1,5 @@
+import {driverBase} from '../../keeper-tools'
+import Dumper from './Dumper'
 const spatialTypes = [
   'POINT',
   'LINESTRING',
@@ -96,10 +98,12 @@ const dialect = {
 };
 
 const mysqlDriverBase = {
+  ...driverBase,
   showConnectionField: (field, values) =>
     ['authType', 'user', 'password', 'defaultDatabase', 'singleDatabase', 'isReadOnly'].includes(field) ||
     (values.authType == 'socket' && ['socketPath'].includes(field)) ||
     (values.authType != 'socket' && ['server', 'port'].includes(field)),
+  dumperClass: Dumper,
   dialect,
   defaultPort: 3306,
   readOnlySessions: true,
