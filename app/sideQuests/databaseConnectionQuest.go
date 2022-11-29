@@ -1,9 +1,12 @@
 package sideQuests
 
 import (
+	"context"
+	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"keeper/app/adapter"
 	"keeper/app/internal"
 	"keeper/app/pkg/containers"
+	"keeper/app/pkg/logger"
 	"keeper/app/pkg/standard"
 	"keeper/app/utility"
 )
@@ -152,6 +155,32 @@ func (msg *DatabaseConnection) handleIncrementalRefresh(ch chan *containers.Echo
 	msg.setStatus(ch, func() (*containers.OpenedStatus, error) {
 		return &containers.OpenedStatus{Name: "ok"}, nil
 	})*/
+}
+
+func (msg *DatabaseConnection) HandleSqlSelect(ch chan *containers.EchoMessage, ctx context.Context, conn *containers.OpenedDatabaseConnection, msgid string, _select map[string]interface{}) (err error) {
+	runtime.EventsEmit(ctx, "handleSqlSelect", _select)
+	runtime.EventsOn(ctx, "handleSqlSelectReturn", func(sql ...interface{}) {
+		utility.WithRecover(func() {
+			driver, e := internal.GetStoragePool(conn.Conid)
+			if err != nil {
+				err = e
+			}
+			logger.Info("11111111111")
+			msg.handleQueryData(driver, msgid, sql[0].(string), true)
+		}, func(er error) {
+			err = er
+		})
+	})
+	logger.Info("22222222222")
+	return err
+}
+
+func (msg *DatabaseConnection) handleQueryData(driver standard.SqlStandard, msgid, sql string, skipReadonlyCheck bool) {
+	//driver
+	//get driver
+	//driver query
+
+	driver.Query(sql)
 }
 
 func (msg *DatabaseConnection) ReadVersion(ch chan *containers.EchoMessage, pool standard.SqlStandard) error {

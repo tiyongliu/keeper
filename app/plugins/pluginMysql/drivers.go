@@ -338,3 +338,14 @@ func (mysql *MysqlDrivers) Programmables(sql string) (*modules.MysqlRowsResult, 
 
 	return &modules.MysqlRowsResult{Rows: programmables, Columns: sqlQuery.Columns}, nil
 }
+
+func (mysql *MysqlDrivers) Query(sql string) (interface{}, error) {
+	rows, err := mysql.DB.Raw(sql).Rows()
+	if err != nil {
+		return nil, err
+	}
+
+	for rows.Next() {
+	}
+	return nil, nil
+}

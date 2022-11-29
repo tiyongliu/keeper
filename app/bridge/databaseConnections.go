@@ -243,8 +243,14 @@ func (dc *DatabaseConnections) Status(req *DatabaseRequest) *serializer.Response
 	})
 }
 
-func (dc *DatabaseConnections) sendRequest() {
+type message struct {
+}
 
+func (dc *DatabaseConnections) sendRequest(conn *containers.OpenedDatabaseConnection, message *containers.EchoMessage) {
+	msgid := uuid.NewV4().String()
+	ch := make(chan *containers.EchoMessage)
+	go dc.DatabaseConnection.HandleSqlSelect(ch, Application.ctx, conn, msgid, message.Payload.(map[string]interface{}))
+	go dc.pipeHandler(ch, conn.Conid, conn.Database)
 }
 
 type DatabaseKillRequest struct {
@@ -305,6 +311,7 @@ func findByDatabaseConnection(s []*containers.OpenedDatabaseConnection, conid, d
 
 type SqlSelectRequest struct {
 	databaseConnections
+	Select map[string]interface{}
 }
 
 const sqlSelectResponse1 = `{"msgtype":"response","rows":[{"file_id":"1","file_former_name":"手机数码.jpg","file_name":"1641349689799523.jpg","file_size":"39210","user_id":"0","file_join_id":"0","file_join_type":0,"hash":"Fpz0dpAqNBOvDpWxLMYTbQh55Vu2","bucket":"shop-attach","status":3,"created_at":"2022-01-05 10:28:10","updated_at":"2022-01-05 10:28:13","expire_at":"2022-01-06 10:28:10"},{"file_id":"2","file_former_name":"手机通信.jpg","file_name":"1641349822230131.jpg","file_size":"18639","user_id":"0","file_join_id":"0","file_join_type":0,"hash":"FhXNYgX1Qoq3Zc-mchM_-kS7uBQJ","bucket":"shop-attach","status":3,"created_at":"2022-01-05 10:30:23","updated_at":"2022-01-05 10:30:28","expire_at":"2022-01-06 10:30:23"},{"file_id":"3","file_former_name":"智能设备.jpg","file_name":"1641349866733432.jpg","file_size":"15691","user_id":"0","file_join_id":"0","file_join_type":0,"hash":"FguNw9ix6gpDhzRY8LXkefIKq3m4","bucket":"shop-attach","status":3,"created_at":"2022-01-05 10:31:06","updated_at":"2022-01-05 10:31:09","expire_at":"2022-01-06 10:31:06"},{"file_id":"4","file_former_name":"珠宝钟表.jpg","file_name":"1641349918485103.jpg","file_size":"39843","user_id":"0","file_join_id":"0","file_join_type":0,"hash":"Fs0s0lHAwmCq8Po7uStauM4d7iUK","bucket":"shop-attach","status":3,"created_at":"2022-01-05 10:31:59","updated_at":"2022-01-05 10:32:01","expire_at":"2022-01-06 10:31:59"},{"file_id":"5","file_former_name":"美妆护肤.jpg","file_name":"1641350062303094.jpg","file_size":"55132","user_id":"0","file_join_id":"0","file_join_type":0,"hash":"FkBkE6g4ovLpD-TYHSq1r8_UJp0-","bucket":"shop-attach","status":3,"created_at":"2022-01-05 10:34:22","updated_at":"2022-01-05 10:34:24","expire_at":"2022-01-06 10:34:22"},{"file_id":"6","file_former_name":"运动服饰.jpg","file_name":"1641350090842956.jpg","file_size":"55643","user_id":"0","file_join_id":"0","file_join_type":0,"hash":"FiPeHFO9ABeFRJoxa9YyUZpSLq9q","bucket":"shop-attach","status":3,"created_at":"2022-01-05 10:34:50","updated_at":"2022-01-05 10:34:54","expire_at":"2022-01-06 10:34:50"},{"file_id":"7","file_former_name":"美味零食.jpg","file_name":"1641350177654581.jpg","file_size":"43265","user_id":"0","file_join_id":"0","file_join_type":0,"hash":"FjyxG-nj_cIOtZCPSZZOVA3m4Efn","bucket":"shop-attach","status":3,"created_at":"2022-01-05 10:36:18","updated_at":"2022-01-05 10:36:19","expire_at":"2022-01-06 10:36:18"}],"columns":[{"columnName":"file_id"},{"columnName":"file_former_name"},{"columnName":"file_name"},{"columnName":"file_size"},{"columnName":"user_id"},{"columnName":"file_join_id"},{"columnName":"file_join_type"},{"columnName":"hash"},{"columnName":"bucket"},{"columnName":"status"},{"columnName":"created_at"},{"columnName":"updated_at"},{"columnName":"expire_at"}]}`
@@ -313,14 +320,14 @@ const sqlSelectResponse1 = `{"msgtype":"response","rows":[{"file_id":"1","file_f
 //const sqlSelectResponse2 = `{"msgtype":"response","rows":[],"columns":[{"columnName":"file_id"},{"columnName":"file_former_name"},{"columnName":"file_name"},{"columnName":"file_size"},{"columnName":"user_id"},{"columnName":"file_join_id"},{"columnName":"file_join_type"},{"columnName":"hash"},{"columnName":"bucket"},{"columnName":"status"},{"columnName":"created_at"},{"columnName":"updated_at"},{"columnName":"expire_at"}]}`
 
 func (dc *DatabaseConnections) SqlSelect(req *SqlSelectRequest) *serializer.Response {
+
+	opened := dc.ensureOpened(req.Conid, req.Database)
+	dc.sendRequest(opened, &containers.EchoMessage{Payload: req.Select, MsgType: "sqlSelect"})
+
 	unmarshal, err := utility.JsonUnmarshal([]byte(sqlSelectResponse1))
 	if err != nil {
 		return serializer.Fail(err.Error())
 	} else {
 		return serializer.SuccessData(serializer.SUCCESS, unmarshal)
 	}
-}
-
-func sendRequest(conn string) {
-	uuid.NewV4().String()
 }

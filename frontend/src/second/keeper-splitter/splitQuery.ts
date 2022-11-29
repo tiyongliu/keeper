@@ -455,7 +455,7 @@ export function finishSplitStream(context: SplitStreamContext) {
   pushCurrentQueryPart(context);
 }
 
-export function splitQuery(sql: string, options: SplitterOptions = null): SplitResultItem[] {
+export function splitQuery(sql: string, options: Nullable<SplitterOptions> = null): SplitResultItem[] {
   const usedOptions = {
     ...defaultSplitterOptions,
     ...options,

@@ -13,10 +13,9 @@
   import { useLocale } from '/@/locales/useLocale';
   import {onMounted} from 'vue'
   import {connectionListApi} from '/@/api/simpleApis'
-
-  //TODO
+  import dispatchRuntimeEvent from "/@/api/event";
   import initPluginsProvider from '/@/second/plugins/PluginsProvider'
-  import { subscribeConnectionPingers } from '/@/api/connectionsPinger';
+  import { subscribeConnectionPingers } from '/@/api/connectionsPinger'
   let loadedApi = false
 
   import 'dayjs/locale/zh-cn';
@@ -53,6 +52,10 @@
     loadApi()
     const removed = document.getElementById('starting_dbgate_zero');
     if (removed) removed.remove();
+
+    if (window.runtime) {
+      dispatchRuntimeEvent()
+    }
   })
 
 </script>
