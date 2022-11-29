@@ -1,17 +1,20 @@
 package adapter
 
 import (
-	"keeper/app/pkg/standard"
+	"keeper/app/db"
+	"keeper/app/db/adapter/mongo"
+	"keeper/app/db/adapter/mysql"
+
 	mongoAnalyser "keeper/app/plugins/pluginMongdb/backend"
 	mysqlAnalyser "keeper/app/plugins/pluginMysql/backend"
 )
 
-func AnalyseFull(driver standard.SqlStandard, database string) map[string]interface{} {
+func AnalyseFull(driver db.Session, database string) map[string]interface{} {
 	switch driver.Dialect() {
-	case standard.MONGOALIAS:
+	case mongo.Adapter:
 		analyser := mongoAnalyser.NewAnalyser(driver, database)
 		return analyser.DatabaseAnalyser.AddEngineField(analyser.RunAnalysis())
-	case standard.MYSQLALIAS:
+	case mysql.Adapter:
 		analyser := mysqlAnalyser.NewAnalyser(driver, database)
 		return analyser.DatabaseAnalyser.AddEngineField(analyser.RunAnalysis())
 	default:
@@ -23,7 +26,7 @@ func AnalyseIncremental() {
 
 }
 
-//查询表
+// 查询表
 func CreateDumper() {
 
 }

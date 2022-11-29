@@ -1,8 +1,9 @@
 package bridge
 
 import (
+	"keeper/app/db/adapter/mongo"
+	"keeper/app/db/adapter/mysql"
 	"keeper/app/pkg/serializer"
-	"keeper/app/pkg/standard"
 	MongoDBFrontend "keeper/app/plugins/pluginMongdb/frontend"
 	MysqlFrontend "keeper/app/plugins/pluginMysql/frontend"
 )
@@ -15,9 +16,10 @@ func NewPlugins() *Plugins {
 }
 
 func (p *Plugins) Installed() *serializer.Response {
+
 	return serializer.SuccessData(serializer.SUCCESS, []map[string]string{
-		{"name": standard.MONGOALIAS},
-		{"name": standard.MYSQLALIAS},
+		{"name": mongo.Adapter},
+		{"name": mysql.Adapter},
 	})
 }
 
@@ -27,9 +29,9 @@ type ScriptRequest struct {
 
 func (p *Plugins) Script(req *ScriptRequest) *serializer.Response {
 	switch req.PackageName {
-	case standard.MONGOALIAS:
+	case mongo.Adapter:
 		return serializer.SuccessData(serializer.SUCCESS, map[string]interface{}{"drivers": MongoDBFrontend.Driver()})
-	case standard.MYSQLALIAS:
+	case mysql.Adapter:
 		return serializer.SuccessData(serializer.SUCCESS, map[string]interface{}{"drivers": MysqlFrontend.Driver()})
 	default:
 		return serializer.SuccessData(serializer.SUCCESS, nil)

@@ -54,7 +54,7 @@ import {computed, defineComponent, PropType, toRefs} from 'vue'
 import RowHeaderCell from '/@/second/datagrid/RowHeaderCell.vue'
 import DataGridCell from '/@/second/datagrid/DataGridCell.vue'
 import Grider from '/@/second/datagrid/Grider'
-import InplaceEditor from './InplaceEditor.vue'
+import InplaceEditor from '/@/second/datagrid/InplaceEditor.vue'
 import {MacroSelectedCell} from '/@/second/keeper-datalib'
 import {CellAddress} from './selection'
 import {cellIsSelected} from './gridutil'
@@ -111,7 +111,7 @@ export default defineComponent({
       default: false
     },
     currentCellColumn: {
-      type: [Number, String] as PropType<number | 'header' | 'filter'>,
+      type: [String, Number] as PropType<number | 'header' | 'filter'>,
     },
     conid: {
       type: String as PropType<string>

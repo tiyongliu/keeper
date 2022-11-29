@@ -2,19 +2,19 @@ package backend
 
 import (
 	"github.com/samber/lo"
-	"keeper/app/pkg/standard"
+	"keeper/app/db"
+	"keeper/app/db/adapter/mongo"
+	"keeper/app/db/standard/modules"
 	"keeper/app/plugins"
-	"keeper/app/plugins/modules"
-	"keeper/app/plugins/pluginMongdb"
 )
 
 type Analyser struct {
-	Driver           standard.SqlStandard
+	Driver           db.Session
 	DatabaseAnalyser *plugins.DatabaseAnalyser
 	DatabaseName     string
 }
 
-func NewAnalyser(driver standard.SqlStandard, database string) *Analyser {
+func NewAnalyser(driver db.Session, database string) *Analyser {
 	return &Analyser{
 		Driver:           driver,
 		DatabaseName:     database,
@@ -23,7 +23,7 @@ func NewAnalyser(driver standard.SqlStandard, database string) *Analyser {
 }
 
 func (da *Analyser) RunAnalysis() map[string]interface{} {
-	driver, ok := da.Driver.(*pluginMongdb.MongoDBDrivers)
+	driver, ok := da.Driver.(*mongo.Source)
 	if !ok && driver == nil {
 		return nil
 	}

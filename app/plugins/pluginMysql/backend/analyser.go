@@ -3,11 +3,11 @@ package backend
 import (
 	"fmt"
 	"github.com/samber/lo"
+	"keeper/app/db"
+	"keeper/app/db/adapter/mysql"
+	"keeper/app/db/standard/modules"
 	"keeper/app/pkg/logger"
-	"keeper/app/pkg/standard"
 	"keeper/app/plugins"
-	"keeper/app/plugins/modules"
-	"keeper/app/plugins/pluginMysql"
 	staticSql "keeper/app/plugins/pluginMysql/backend/sql"
 	"keeper/app/utility"
 	"reflect"
@@ -34,12 +34,12 @@ func init() {
 }
 
 type Analyser struct {
-	Driver           standard.SqlStandard
+	Driver           db.Session
 	DatabaseName     string
 	DatabaseAnalyser *plugins.DatabaseAnalyser
 }
 
-func NewAnalyser(driver standard.SqlStandard, database string) *Analyser {
+func NewAnalyser(driver db.Session, database string) *Analyser {
 	return &Analyser{
 		Driver:           driver,
 		DatabaseName:     database,
@@ -55,7 +55,7 @@ func (as *Analyser) CreateQuery(resFileName string, typeFields []string) string 
 }
 
 func (as *Analyser) RunAnalysis() map[string]interface{} {
-	driver, ok := as.Driver.(*pluginMysql.MysqlDrivers)
+	driver, ok := as.Driver.(*mysql.Source)
 	if !ok && driver == nil {
 		return nil
 	}
@@ -66,6 +66,7 @@ func (as *Analyser) RunAnalysis() map[string]interface{} {
 	pkColumns, err := driver.PrimaryKeys(as.CreateQuery("primaryKeys", []string{"tables"}))
 	if err != nil {
 		logger.Errorf("Error running analyser query %v", err)
+
 		pkColumns = &modules.MysqlRowsResult{Rows: []*modules.PrimaryKey{}}
 	}
 

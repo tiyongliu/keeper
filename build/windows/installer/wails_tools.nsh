@@ -14,7 +14,7 @@
     !define INFO_PRODUCTNAME "keeper"
 !endif
 !ifndef INFO_PRODUCTVERSION
-    !define INFO_PRODUCTVERSION "0.0.2.1"
+    !define INFO_PRODUCTVERSION "0.0.2.2"
 !endif
 !ifndef INFO_COPYRIGHT
     !define INFO_COPYRIGHT "Copyright........."

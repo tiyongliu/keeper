@@ -1,10 +1,15 @@
 package sideQuests
 
 import (
-	"keeper/app/adapter"
-	"keeper/app/internal"
+	"context"
+	"errors"
+	"github.com/samber/lo"
+	"github.com/wailsapp/wails/v2/pkg/runtime"
+	"keeper/app/db"
+	"keeper/app/db/adapter"
+	"keeper/app/db/persist"
 	"keeper/app/pkg/containers"
-	"keeper/app/pkg/standard"
+	"keeper/app/pkg/serializer"
 	"keeper/app/utility"
 )
 
@@ -42,7 +47,17 @@ func (msg *DatabaseConnection) Connect(ch chan *containers.EchoMessage, newOpene
 		})
 	}
 
-	driver, err := internal.TargetStoragePool(newOpened.Conid, newOpened.Connection)
+	//logger.Infof("newOpened Connect req: %s", utility.ToJsonStr(lo.Assign(newOpened.Connection, map[string]interface{}{"database": newOpened.Database})))
+	driver, err := persist.GetStorageSession().Scanner(
+		newOpened.Conid,
+		lo.Assign(newOpened.Connection, map[string]interface{}{"database": newOpened.Database}),
+	)
+	//driver, err := internal.TargetStoragePool(newOpened.Conid, newOpened.Connection)
+
+	//driver, err := drivers.NewCompatDriver().Open(
+	//	lo.Assign(newOpened.Connection, map[string]interface{}{"database": newOpened.Database}),
+	//)
+
 	if err != nil {
 		msg.setStatus(ch, func() (*containers.OpenedStatus, error) {
 			return &containers.OpenedStatus{Name: "error", Message: err.Error()}, err
@@ -86,8 +101,8 @@ func (msg *DatabaseConnection) setStatus(ch chan *containers.EchoMessage, data f
 	}
 }
 
-func (msg *DatabaseConnection) readVersion(ch chan *containers.EchoMessage, pool standard.SqlStandard) error {
-	version, err := pool.GetVersion()
+func (msg *DatabaseConnection) readVersion(ch chan *containers.EchoMessage, driver db.Session) error {
+	version, err := driver.Version()
 	if err != nil {
 		return err
 	}
@@ -95,20 +110,20 @@ func (msg *DatabaseConnection) readVersion(ch chan *containers.EchoMessage, pool
 	ch <- &containers.EchoMessage{
 		Payload: version,
 		MsgType: "version",
-		Dialect: pool.Dialect(),
+		Dialect: driver.Dialect(),
 	}
 
 	return nil
 }
 
-func (msg *DatabaseConnection) handleFullRefresh(ch chan *containers.EchoMessage, pool standard.SqlStandard, database string) {
+func (msg *DatabaseConnection) handleFullRefresh(ch chan *containers.EchoMessage, driver db.Session, database string) {
 	loadingModel = true
 
 	msg.setStatus(ch, func() (*containers.OpenedStatus, error) {
 		return &containers.OpenedStatus{Name: "loadStructure"}, nil
 	})
 
-	analysedStructure = adapter.AnalyseFull(pool, database)
+	analysedStructure = adapter.AnalyseFull(driver, database)
 	analysedTime = utility.NewUnixTime()
 	ch <- &containers.EchoMessage{MsgType: "structure", Payload: analysedStructure}
 	ch <- &containers.EchoMessage{MsgType: "structureTime", Payload: analysedTime}
@@ -119,7 +134,7 @@ func (msg *DatabaseConnection) handleFullRefresh(ch chan *containers.EchoMessage
 	loadingModel = false
 }
 
-func (msg *DatabaseConnection) handleIncrementalRefresh(ch chan *containers.EchoMessage, forceSend bool, pool standard.SqlStandard, database string) {
+func (msg *DatabaseConnection) handleIncrementalRefresh(ch chan *containers.EchoMessage, forceSend bool, pool db.Session, database string) {
 	/*loadingModel = true
 	msg.setStatus(ch, func() (*containers.OpenedStatus, error) {
 		return &containers.OpenedStatus{Name: "checkStructure", Counter: getStatusCounter()}, nil
@@ -154,8 +169,52 @@ func (msg *DatabaseConnection) handleIncrementalRefresh(ch chan *containers.Echo
 	})*/
 }
 
-func (msg *DatabaseConnection) ReadVersion(ch chan *containers.EchoMessage, pool standard.SqlStandard) error {
-	version, err := pool.GetVersion()
+func (msg *DatabaseConnection) HandleSqlSelect(
+	ctx context.Context, conn *containers.OpenedDatabaseConnection, selectParams interface{}) *containers.EchoMessage {
+	ch := make(chan *containers.EchoMessage, 1)
+	runtime.EventsEmit(ctx, "handleSqlSelect", selectParams)
+	runtime.EventsOnce(ctx, "handleSqlSelectReturn", func(sql ...interface{}) {
+		utility.WithRecover(func() {
+			driver, err := persist.GetStorageSession().GetItem(conn.Conid, conn.Database)
+			if err != nil {
+				ch <- &containers.EchoMessage{
+					MsgType: "response",
+					Err:     err,
+				}
+				return
+			}
+
+			//todo 这个短期测试使用，后期需要删除掉
+			if driver.Ping() != nil {
+				ch <- &containers.EchoMessage{
+					MsgType: "response",
+					Err:     driver.Ping(),
+				}
+				return
+			}
+			ch <- msg.handleQueryData(driver, sql[0].(string), true)
+		}, func(err error) {
+			ch <- &containers.EchoMessage{
+				MsgType: "response",
+				Err:     errors.New(serializer.ErrNil),
+			}
+		})
+	})
+	defer close(ch)
+	return <-ch
+}
+
+func (msg *DatabaseConnection) handleQueryData(driver db.Session, sql string, skipReadonlyCheck bool) *containers.EchoMessage {
+	res, err := driver.Query(sql)
+	return &containers.EchoMessage{
+		Payload: res,
+		MsgType: "response",
+		Err:     err,
+	}
+}
+
+func (msg *DatabaseConnection) ReadVersion(ch chan *containers.EchoMessage, driver db.Session) error {
+	version, err := driver.Version()
 	if err != nil {
 		return err
 	}

@@ -1,11 +1,12 @@
 package sideQuests
 
 import (
-	"keeper/app/pkg/standard"
+	"keeper/app/db"
+	"keeper/app/db/standard/modules"
 )
 
-func readVersion(driver standard.SqlStandard) (*standard.VersionMsg, error) {
-	version, err := driver.GetVersion()
+func readVersion(driver db.Session) (*modules.Version, error) {
+	version, err := driver.Version()
 	if err != nil {
 		return nil, err
 	}
