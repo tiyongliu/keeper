@@ -1,9 +1,9 @@
 package sideQuests
 
 import (
-	"keeper/app/internal"
+	"keeper/app/db"
+	"keeper/app/db/drivers"
 	"keeper/app/pkg/containers"
-	"keeper/app/pkg/standard"
 	"keeper/app/utility"
 	"time"
 )
@@ -11,6 +11,7 @@ import (
 var serverLastStatus string
 var serverLastDatabases string
 var serverLastPing utility.UnixTime
+var storedConnection = make(map[string]interface{})
 
 type StatusMessage struct {
 	Name    string `json:"name"`
@@ -68,14 +69,29 @@ func (msg *ServerConnection) ResetVars() {
 	serverLastDatabases = ""
 }
 
-func (msg *ServerConnection) Connect(ch chan *containers.EchoMessage, conid string, connection map[string]interface{}) {
+func (msg *ServerConnection) Connect(ch chan *containers.EchoMessage, connection map[string]interface{}) {
+	storedConnection = connection
 	defer close(ch)
 
 	setStatus(ch, func() (*containers.OpenedStatus, error) {
 		return &containers.OpenedStatus{Name: "pending"}, nil
 	})
 
-	driver, err := internal.TargetStoragePool(conid, connection)
+	driver, err := drivers.NewCompatDriver().Open(connection)
+	if err != nil {
+		setStatus(ch, func() (*containers.OpenedStatus, error) {
+			return &containers.OpenedStatus{Name: "error", Message: err.Error()}, err
+		})
+		return
+	}
+	//targetDriver, err := internal.RequireEngineDriver(connection)
+	//if err != nil {
+	//
+	//}
+	//internal.ConnectUtility1(targetDriver, storedConnection, "app")
+
+	//driver, err := internal.TargetStoragePool(conid, connection)
+	//connectUtility
 
 	if err != nil {
 		setStatus(ch, func() (*containers.OpenedStatus, error) {
@@ -117,8 +133,8 @@ func (msg *ServerConnection) CreateDatabase() {
 
 }
 
-func (msg *ServerConnection) readVersion(ch chan *containers.EchoMessage, driver standard.SqlStandard) error {
-	version, err := driver.GetVersion()
+func (msg *ServerConnection) readVersion(ch chan *containers.EchoMessage, driver db.Session) error {
+	version, err := driver.Version()
 	if err != nil {
 		setStatus(ch, func() (*containers.OpenedStatus, error) {
 			return &containers.OpenedStatus{Name: "error", Message: err.Error()}, err
@@ -134,7 +150,7 @@ func (msg *ServerConnection) readVersion(ch chan *containers.EchoMessage, driver
 	return nil
 }
 
-func (msg *ServerConnection) handleRefresh(ch chan *containers.EchoMessage, driver standard.SqlStandard) error {
+func (msg *ServerConnection) handleRefresh(ch chan *containers.EchoMessage, driver db.Session) error {
 	databases, err := driver.ListDatabases()
 	if err != nil {
 		setStatus(ch, func() (*containers.OpenedStatus, error) {

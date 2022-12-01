@@ -2,22 +2,21 @@ package backend
 
 import (
 	"fmt"
-	"keeper/app/plugins/modules"
-	"keeper/app/plugins/pluginMysql"
+	"keeper/app/db/drivers"
 	"testing"
 )
 
 func TestNewAnalyser(t *testing.T) {
-	pool, err := pluginMysql.NewSimpleMysqlPool(&modules.SimpleSettingMysql{
-		Host:     "localhost",
-		Username: "root",
-		Password: "123456",
-		Port:     "3306",
+	driver, err := drivers.NewCompatDriver().Open(map[string]interface{}{
+		"username": "root",
+		"password": "123456",
+		"port":     "3306",
+		"database": "",
+		"host":     "localhost",
 	})
-
 	if err != nil {
 		fmt.Printf("err: %v \n", err)
 		return
 	}
-	NewAnalyser(pool, "yami_shops").RunAnalysis()
+	NewAnalyser(driver, "yami_shops").RunAnalysis()
 }

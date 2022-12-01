@@ -2,11 +2,14 @@ package internal
 
 import (
 	"encoding/json"
+	"github.com/samber/lo"
 	"io/ioutil"
+	"keeper/app/pkg/logger"
 	"keeper/app/utility"
 	"log"
 	"os"
 	"path/filepath"
+	"reflect"
 	"strings"
 )
 
@@ -81,13 +84,26 @@ func encryptPasswordField(connection map[string]string, field string) map[string
 	return connection
 }
 
-func decryptPasswordField(connection map[string]string, field string) map[string]string {
+/*func decryptPasswordField(connection map[string]string, field string) map[string]string {
 	if connection != nil &&
 		connection[field] != "" &&
 		strings.HasPrefix(connection[field], "crypt:") {
 		decrypt := getEncryptor().decrypt(strings.Split(connection[field], "crypt:")[1])
 		//TODO "123456" 需要去掉前后的“”, 当前只是剔除前后空格
 		connection[field] = decrypt[1 : len(decrypt)-1]
+	}
+
+	return connection
+}*/
+
+func decryptPasswordField(connection map[string]interface{}, field string) map[string]interface{} {
+	if connection != nil && connection[field] != nil && reflect.ValueOf(connection[field]).Kind() == reflect.String {
+		logger.Infof("password.reflect: %s", connection[field])
+		value := connection[field].(string)
+		if field != "" && strings.HasPrefix(value, "crypt:") {
+			decrypt := getEncryptor().decrypt(strings.Split(value, "crypt:")[1])
+			connection[field] = strings.Trim(decrypt[1:len(decrypt)-1], "")
+		}
 	}
 
 	return connection
@@ -107,15 +123,15 @@ func MaskConnection(connection map[string]string) map[string]string {
 	return utility.MapOmit(connection, []string{"password", "sshPassword", "sshKeyfilePassword"})
 }
 
-func DecryptConnection(connection map[string]string) map[string]string {
+func DecryptConnection(connection map[string]interface{}) map[string]interface{} {
 	connection = decryptPasswordField(connection, "password")
 	connection = decryptPasswordField(connection, "sshPassword")
 	connection = decryptPasswordField(connection, "sshKeyfilePassword")
 	return connection
 }
 
-func PickSafeConnectionInfo(connection map[string]string) map[string]string {
-	return utility.MapValues(connection, func(k, v interface{}) interface{} {
+func PickSafeConnectionInfo(connection map[string]interface{}) map[string]interface{} {
+	return lo.MapValues(connection, func(v interface{}, k string) interface{} {
 		if k == "engine" || k == "port" || k == "authType" || k == "sshMode" || k == "passwordMode" {
 			return v
 		}
