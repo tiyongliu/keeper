@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"keeper/app/internal"
+	"keeper/app/pkg/logger"
 	"sync"
 )
 
@@ -38,6 +39,16 @@ func NewApp() *App {
 func (a *App) Startup(ctx context.Context) {
 	a.ctx = ctx
 	Application.ctx = ctx
+	logger.Infof("%s", fmt.Sprintf(`
+  _                             
+ | |                            
+ | | _____  ___ _ __   ___ _ __ 
+ | |/ / _ \/ _ \ '_ \ / _ \ '__|
+ |   <  __/  __/ |_) |  __/ |   
+ |_|\_\___|\___| .__/ \___|_|   
+               | |              
+               |_|
+`))
 }
 
 // shutdown is called at application termination

@@ -1,87 +1,12 @@
-package pluginMysql
+package mysql
 
 import (
 	"database/sql"
-	"fmt"
-	"gorm.io/gorm"
-	"keeper/app/pkg/logger"
-	"keeper/app/pkg/standard"
-	"keeper/app/plugins/modules"
-	"regexp"
+	"keeper/app/db/standard/modules"
 )
 
-type MysqlDrivers struct {
-	DB *gorm.DB
-}
-
-func NewMysql() standard.SqlStandard {
-	return &MysqlDrivers{}
-}
-
-func (mysql *MysqlDrivers) Dialect() string {
-	return standard.MYSQLALIAS
-}
-
-func (mysql *MysqlDrivers) Connect() interface{} {
-	return nil
-}
-
-func (mysql *MysqlDrivers) GetPoolInfo() interface{} {
-	return mysql.DB
-}
-
-func (mysql *MysqlDrivers) GetVersion() (*standard.VersionMsg, error) {
-	var rows []string
-	err := mysql.DB.Raw("select version()").Scan(&rows).Error
-	if err != nil {
-		logger.Errorf("get mysql version failed: %v", err)
-		return nil, err
-	}
-
-	if len(rows) > 0 && rows[0] != "" {
-		subMath := regexp.MustCompile("(.*)-MariaDB-").FindAllSubmatch([]byte(rows[0]), -1)
-		if len(subMath) >= 1 {
-			return &standard.VersionMsg{
-				Version:     rows[0],
-				VersionText: fmt.Sprintf("MariaDB %s", subMath[0]),
-			}, nil
-		}
-	}
-
-	return &standard.VersionMsg{
-		Version:     rows[0],
-		VersionText: fmt.Sprintf("MySQL %s", rows[0]),
-	}, nil
-}
-
-func (mysql *MysqlDrivers) ListDatabases() (interface{}, error) {
-	var rows []string
-	err := mysql.DB.Raw("SHOW DATABASES").Scan(&rows).Error
-	if err != nil {
-		logger.Errorf("get mysql lastDatabases failed: %v", err)
-		return nil, err
-	}
-	return TransformListDatabases(rows), nil
-}
-
-func (mysql *MysqlDrivers) Close() error {
-	db, err := mysql.DB.DB()
-	if err != nil {
-		return err
-	}
-	return db.Close()
-}
-
-func (mysql *MysqlDrivers) Ping() error {
-	db, err := mysql.DB.DB()
-	if err != nil {
-		return err
-	}
-	return db.Ping()
-}
-
-func (mysql *MysqlDrivers) UniqueNames(sql string) (*modules.MysqlRowsResult, error) {
-	rows, err := mysql.DB.Raw(sql).Rows()
+func (s *Source) UniqueNames(sql string) (*modules.MysqlRowsResult, error) {
+	rows, err := s.sqlDB.Raw(sql).Rows()
 	if err != nil {
 		return nil, err
 	}
@@ -105,8 +30,8 @@ func (mysql *MysqlDrivers) UniqueNames(sql string) (*modules.MysqlRowsResult, er
 	}, nil
 }
 
-func (mysql *MysqlDrivers) Indexes(sql string) (*modules.MysqlRowsResult, error) {
-	rows, err := mysql.DB.Raw(sql).Rows()
+func (s *Source) Indexes(sql string) (*modules.MysqlRowsResult, error) {
+	rows, err := s.sqlDB.Raw(sql).Rows()
 	if err != nil {
 		return nil, err
 	}
@@ -136,8 +61,8 @@ func (mysql *MysqlDrivers) Indexes(sql string) (*modules.MysqlRowsResult, error)
 	}, nil
 }
 
-func (mysql *MysqlDrivers) Tables(sql string) (*modules.MysqlRowsResult, error) {
-	rows, err := mysql.DB.Raw(sql).Rows()
+func (s *Source) Tables(sql string) (*modules.MysqlRowsResult, error) {
+	rows, err := s.sqlDB.Raw(sql).Rows()
 
 	if err != nil {
 		return nil, err
@@ -168,8 +93,8 @@ func (mysql *MysqlDrivers) Tables(sql string) (*modules.MysqlRowsResult, error) 
 	}, nil
 }
 
-func (mysql *MysqlDrivers) Columns(sql string) (*modules.MysqlRowsResult, error) {
-	sqlQuery, err := getSqlQuery(mysql.DB, sql)
+func (s *Source) Columns(sql string) (*modules.MysqlRowsResult, error) {
+	sqlQuery, err := getSqlQuery(s.sqlDB, sql)
 	if err != nil {
 		return nil, err
 	}
@@ -204,19 +129,6 @@ func (mysql *MysqlDrivers) Columns(sql string) (*modules.MysqlRowsResult, error)
 	}, nil
 }
 
-type Query struct {
-	Rows    *sql.Rows
-	Columns []*modules.Column `json:"columns"`
-}
-
-func getSqlQuery(db *gorm.DB, sql string) (*Query, error) {
-	rows, err := db.Raw(sql).Rows()
-	if err != nil {
-		return nil, nil
-	}
-	return &Query{Rows: rows, Columns: getSqlColumns(rows)}, nil
-}
-
 func getSqlColumns(rows *sql.Rows) (columns []*modules.Column) {
 	rowsColumns, err := rows.Columns()
 	if err != nil {
@@ -228,8 +140,8 @@ func getSqlColumns(rows *sql.Rows) (columns []*modules.Column) {
 	return columns
 }
 
-func (mysql *MysqlDrivers) PrimaryKeys(sql string) (*modules.MysqlRowsResult, error) {
-	rows, err := mysql.DB.Raw(sql).Rows()
+func (s *Source) PrimaryKeys(sql string) (*modules.MysqlRowsResult, error) {
+	rows, err := s.sqlDB.Raw(sql).Rows()
 	if err != nil {
 		return nil, err
 	}
@@ -254,8 +166,8 @@ func (mysql *MysqlDrivers) PrimaryKeys(sql string) (*modules.MysqlRowsResult, er
 	return &modules.MysqlRowsResult{Rows: primaryKeys, Columns: columns}, nil
 }
 
-func (mysql *MysqlDrivers) ForeignKeys(sql string) (*modules.MysqlRowsResult, error) {
-	sqlQuery, err := getSqlQuery(mysql.DB, sql)
+func (s *Source) ForeignKeys(sql string) (*modules.MysqlRowsResult, error) {
+	sqlQuery, err := getSqlQuery(s.sqlDB, sql)
 	if err != nil {
 		return nil, err
 	}
@@ -288,8 +200,8 @@ func (mysql *MysqlDrivers) ForeignKeys(sql string) (*modules.MysqlRowsResult, er
 	return &modules.MysqlRowsResult{Rows: foreignKeys, Columns: sqlQuery.Columns}, nil
 }
 
-func (mysql *MysqlDrivers) Views(sql string) (*modules.MysqlRowsResult, error) {
-	sqlQuery, err := getSqlQuery(mysql.DB, sql)
+func (s *Source) Views(sql string) (*modules.MysqlRowsResult, error) {
+	sqlQuery, err := getSqlQuery(s.sqlDB, sql)
 	if err != nil {
 		return nil, err
 	}
@@ -311,8 +223,8 @@ func (mysql *MysqlDrivers) Views(sql string) (*modules.MysqlRowsResult, error) {
 	}, nil
 }
 
-func (mysql *MysqlDrivers) Programmables(sql string) (*modules.MysqlRowsResult, error) {
-	sqlQuery, err := getSqlQuery(mysql.DB, sql)
+func (s *Source) Programmables(sql string) (*modules.MysqlRowsResult, error) {
+	sqlQuery, err := getSqlQuery(s.sqlDB, sql)
 	if err != nil {
 		return nil, err
 	}
@@ -337,15 +249,4 @@ func (mysql *MysqlDrivers) Programmables(sql string) (*modules.MysqlRowsResult, 
 	}
 
 	return &modules.MysqlRowsResult{Rows: programmables, Columns: sqlQuery.Columns}, nil
-}
-
-func (mysql *MysqlDrivers) Query(sql string) (interface{}, error) {
-	rows, err := mysql.DB.Raw(sql).Rows()
-	if err != nil {
-		return nil, err
-	}
-
-	for rows.Next() {
-	}
-	return nil, nil
 }

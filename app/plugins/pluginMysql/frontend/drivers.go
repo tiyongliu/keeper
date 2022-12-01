@@ -2,11 +2,13 @@ package frontend
 
 import (
 	"github.com/samber/lo"
-	"keeper/app/utility"
 )
 
 type ConnectionFieldValues struct {
 	AuthType string `json:"authType"`
+}
+
+type PreConnectDriver interface {
 }
 
 func mysqlDriverBase() map[string]interface{} {
@@ -26,14 +28,14 @@ func valuesAuthType(field string, values *ConnectionFieldValues) bool {
 }
 
 func mysqlDriver() map[string]interface{} {
-	return utility.MergeUnknownMaps(mysqlDriverBase(), dialect, map[string]interface{}{
+	return lo.Assign(mysqlDriverBase(), dialect, map[string]interface{}{
 		"title":  "MySQL",
 		"engine": "mysql",
 	})
 }
 
 func mariaDriver() map[string]interface{} {
-	return utility.MergeUnknownMaps(
+	return lo.Assign(
 		mysqlDriverBase(),
 		dialect,
 		map[string]interface{}{

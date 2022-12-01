@@ -1,12 +1,5 @@
 package modules
 
-type SimpleSettingMysql struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
-	Host     string `json:"host"`
-	Port     string `json:"port"`
-}
-
 type MysqlDatabase struct {
 	Name string `json:"name"`
 }
@@ -118,7 +111,7 @@ type ViewTexts struct {
 	PureName string `json:"pureName"`
 }
 
-//todo 需要先写页面
+// todo 需要先写页面
 type MysqlSelectRequest struct {
 	CommandType string `json:"commandType"`
 	Form        *Form  `json:"form"`

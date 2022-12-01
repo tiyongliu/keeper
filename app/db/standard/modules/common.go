@@ -1,9 +1,6 @@
-package standard
+package modules
 
-type VersionMsg struct {
+type Version struct {
 	Version     string `json:"version"`
 	VersionText string `json:"versionText"`
-}
-
-type DataSourceMsg struct {
 }

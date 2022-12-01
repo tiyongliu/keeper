@@ -53,7 +53,7 @@ func Test_PickSafeConnectionInfo(t *testing.T) {
 
 	fmt.Println(utility.DataDir())
 
-	fmt.Println(PickSafeConnectionInfo(map[string]string{
+	fmt.Println(PickSafeConnectionInfo(map[string]interface{}{
 		"server":     "localhost",
 		"engine":     "mysql@dbgate-pluginMysql",
 		"sshMode":    "userPassword",

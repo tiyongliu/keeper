@@ -3,10 +3,10 @@ package bridge
 import (
 	"fmt"
 	"github.com/samber/lo"
+	"keeper/app/db/standard/modules"
 	"keeper/app/internal"
 	"keeper/app/pkg/containers"
 	"keeper/app/pkg/serializer"
-	"keeper/app/pkg/standard"
 	"keeper/app/sideQuests"
 	"keeper/app/utility"
 	"sync"
@@ -43,7 +43,7 @@ func (sc *ServerConnections) handleDatabases(conid string, databases interface{}
 	utility.EmitChanged(Application.ctx, fmt.Sprintf("database-list-changed-%s", conid))
 }
 
-func (sc *ServerConnections) handleVersion(conid string, version *standard.VersionMsg) {
+func (sc *ServerConnections) handleVersion(conid string, version *modules.Version) {
 	existing := findByServerConnection(sc.Opened, conid)
 
 	if existing == nil {
@@ -97,7 +97,7 @@ func (sc *ServerConnections) ensureOpened(conid string) *containers.OpenedServer
 	ch := make(chan *containers.EchoMessage)
 	defer func() {
 		sc.ServerConnectionChannel.ResetVars()
-		go sc.ServerConnectionChannel.Connect(ch, conid, connection)
+		go sc.ServerConnectionChannel.Connect(ch, connection)
 		go sc.pipeHandler(ch, conid)
 	}()
 
@@ -200,7 +200,7 @@ func (sc *ServerConnections) pipeHandler(chData <-chan *containers.EchoMessage, 
 			case "status":
 				sc.handleStatus(conid, message.Payload.(*containers.OpenedStatus))
 			case "version":
-				sc.handleVersion(conid, message.Payload.(*standard.VersionMsg))
+				sc.handleVersion(conid, message.Payload.(*modules.Version))
 			case "databases":
 				sc.handleDatabases(conid, message.Payload)
 			case "ping":

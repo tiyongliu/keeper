@@ -1,7 +1,7 @@
 package containers
 
 import (
-	"keeper/app/pkg/standard"
+	"keeper/app/db/standard/modules"
 	"keeper/app/utility"
 )
 
@@ -24,7 +24,7 @@ type OpenedServerConnection struct {
 	Databases    interface{}            `json:"databases"`
 	Connection   map[string]interface{} `json:"connection"`
 	Disconnected bool                   `json:"disconnected"`
-	Version      *standard.VersionMsg   `json:"version"`
+	Version      *modules.Version       `json:"version"`
 }
 
 type OpenedDatabaseConnection struct {
@@ -32,7 +32,7 @@ type OpenedDatabaseConnection struct {
 	Status        *OpenedStatus          `json:"status"`
 	Database      string                 `json:"database"`
 	Connection    map[string]interface{} `json:"connection"`
-	ServerVersion *standard.VersionMsg   `json:"version"`
+	ServerVersion *modules.Version       `json:"version"`
 	Structure     map[string]interface{} `json:"structure"`
 	AnalysedTime  utility.UnixTime       `json:"analysedTime"`
 	Disconnected  bool                   `json:"disconnected"`

@@ -3,15 +3,14 @@ package plugins
 import (
 	"fmt"
 	"github.com/samber/lo"
-	"keeper/app/pkg/standard"
-	"keeper/app/plugins/modules"
-	"keeper/app/utility"
+	"keeper/app/db"
+	"keeper/app/db/standard/modules"
 	"strings"
 )
 
 type DatabaseAnalyser struct {
 	Modifications []string
-	Driver        standard.SqlStandard
+	Driver        db.Session
 	Structure     interface{}
 }
 
@@ -21,7 +20,7 @@ type AnalyserAdapter interface {
 
 var structureFields = []string{"tables", "collections", "views", "matviews", "functions", "procedures", "triggers"}
 
-func NewDatabaseAnalyser(driver standard.SqlStandard) *DatabaseAnalyser {
+func NewDatabaseAnalyser(driver db.Session) *DatabaseAnalyser {
 	return &DatabaseAnalyser{
 		Modifications: nil,
 		Driver:        driver,
@@ -61,7 +60,7 @@ func (da *DatabaseAnalyser) AddEngineField(db map[string]interface{}) map[string
 }
 
 func (da *DatabaseAnalyser) MergeAnalyseResult(newlyAnalysed map[string]interface{}) map[string]interface{} {
-	return utility.MergeUnknownMaps(CreateEmptyStructure(), newlyAnalysed)
+	return lo.Assign(CreateEmptyStructure(), newlyAnalysed)
 }
 
 func ExtractPrimaryKeys(table *modules.Table, pkColumns []*modules.PrimaryKey) map[string]interface{} {

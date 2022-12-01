@@ -4,17 +4,16 @@ go 1.18
 
 require (
 	github.com/Luzifer/go-openssl/v4 v4.1.0
-	github.com/go-sql-driver/mysql v1.6.0
+	github.com/go-sql-driver/mysql v1.7.0
 	github.com/mgutz/ansi v0.0.0-20200706080929-d51e80ef957d
-	github.com/mitchellh/mapstructure v1.5.0
 	github.com/natefinch/lumberjack v2.0.0+incompatible
-	github.com/samber/lo v1.35.0
+	github.com/samber/lo v1.36.0
 	github.com/satori/go.uuid v1.2.0
 	github.com/wailsapp/wails/v2 v2.2.0
 	go.mongodb.org/mongo-driver v1.11.0
-	go.uber.org/zap v1.23.0
+	go.uber.org/zap v1.24.0
 	gorm.io/driver/mysql v1.4.4
-	gorm.io/gorm v1.24.1
+	gorm.io/gorm v1.24.2
 )
 
 require (

@@ -2,14 +2,10 @@ package bridge
 
 import (
 	"fmt"
-	"github.com/mitchellh/mapstructure"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
+	"keeper/app/db/drivers"
 	"keeper/app/internal"
 	"keeper/app/pkg/serializer"
-	"keeper/app/pkg/standard"
-	"keeper/app/plugins/modules"
-	"keeper/app/plugins/pluginMongdb"
-	"keeper/app/plugins/pluginMysql"
 	"keeper/app/utility"
 	"path"
 )
@@ -45,92 +41,39 @@ const (
 )
 
 func (conn *Connections) Test(connection map[string]interface{}) *serializer.Response {
-	switch connection["engine"].(string) {
-	case standard.MYSQLALIAS:
-		simpleSettingMysql := &modules.SimpleSettingMysql{}
-		err := mapstructure.Decode(connection, simpleSettingMysql)
-		if err != nil {
-			runtime.MessageDialog(Application.ctx, runtime.MessageDialogOptions{
-				Type:          runtime.ErrorDialog,
-				Title:         "Error",
-				Message:       err.Error(),
-				Buttons:       []string{oK},
-				DefaultButton: oK,
-			})
-			return serializer.Fail(err.Error())
-		}
-
-		pool, err := pluginMysql.NewSimpleMysqlPool(simpleSettingMysql)
-		if err != nil {
-			runtime.MessageDialog(Application.ctx, runtime.MessageDialogOptions{
-				Type:          runtime.ErrorDialog,
-				Title:         testTitleFailed,
-				Message:       err.Error(),
-				Buttons:       []string{oK},
-				DefaultButton: oK,
-			})
-			return serializer.Fail(err.Error())
-		} else {
-			defer pool.Close()
-			driver, err := pool.GetVersion()
-			if err != nil {
-				runtime.MessageDialog(Application.ctx, runtime.MessageDialogOptions{
-					Type:          runtime.ErrorDialog,
-					Title:         testTitleFailed,
-					Message:       err.Error(),
-					Buttons:       []string{oK},
-					DefaultButton: oK,
-				})
-				return serializer.Fail(err.Error())
-			}
-			runtime.MessageDialog(Application.ctx, runtime.MessageDialogOptions{
-				Title:         testTitleSuccess,
-				Message:       "Connected" + fmt.Sprintf(": %s", driver.VersionText),
-				Buttons:       []string{oK},
-				DefaultButton: oK,
-			})
-			return serializer.SuccessData(serializer.SUCCESS, nil)
-		}
-	case standard.MONGOALIAS:
-		pool, err := pluginMongdb.NewSimpleMongoDBPool(&modules.SimpleSettingMongoDB{
-			Host: connection["host"].(string),
-			Port: connection["port"].(string),
-		})
-		if err != nil {
-			runtime.MessageDialog(Application.ctx, runtime.MessageDialogOptions{
-				Type:          runtime.ErrorDialog,
-				Title:         testTitleFailed,
-				Message:       err.Error(),
-				Buttons:       []string{oK},
-				DefaultButton: oK,
-			})
-			return serializer.Fail(err.Error())
-		} else {
-			defer pool.Close()
-			driver, err := pool.GetVersion()
-			if err != nil {
-				runtime.MessageDialog(Application.ctx, runtime.MessageDialogOptions{
-					Type:          runtime.ErrorDialog,
-					Title:         testTitleFailed,
-					Message:       err.Error(),
-					Buttons:       []string{oK},
-					DefaultButton: oK,
-				})
-				return serializer.Fail(err.Error())
-			}
-
-			runtime.MessageDialog(Application.ctx, runtime.MessageDialogOptions{
-				Title:         connectionSuccess,
-				Message:       "Connected" + fmt.Sprintf(": %s", driver.VersionText),
-				Buttons:       []string{oK},
-				DefaultButton: oK,
-			})
-
-			return serializer.SuccessData(serializer.SUCCESS, nil)
-		}
-	default:
+	if connection == nil || connection["engine"] == nil || connection["engine"].(string) == "" {
 		return serializer.Fail(serializer.ParamsErr)
 	}
+
+	driver, err := drivers.NewCompatDriver().Open(connection)
+	if err != nil {
+		runtime.MessageDialog(Application.ctx, runtime.MessageDialogOptions{
+			Type:          runtime.ErrorDialog,
+			Title:         "Error",
+			Message:       err.Error(),
+			Buttons:       []string{oK},
+			DefaultButton: oK,
+		})
+		return serializer.Fail(err.Error())
+	}
+	version, err := driver.Version()
+	if err != nil {
+		runtime.MessageDialog(Application.ctx, runtime.MessageDialogOptions{
+			Type:          runtime.ErrorDialog,
+			Title:         testTitleFailed,
+			Message:       err.Error(),
+			Buttons:       []string{oK},
+			DefaultButton: oK,
+		})
+		return serializer.Fail(err.Error())
+	}
+	runtime.MessageDialog(Application.ctx, runtime.MessageDialogOptions{
+		Title:         testTitleSuccess,
+		Message:       "Connected" + fmt.Sprintf(": %s", version.VersionText),
+		Buttons:       []string{oK},
+		DefaultButton: oK,
+	})
+	return serializer.SuccessData(serializer.SUCCESS, nil)
 }
 
 func (conn *Connections) Save(connection map[string]string) *serializer.Response {

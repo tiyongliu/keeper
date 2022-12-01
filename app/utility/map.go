@@ -66,23 +66,3 @@ func CompareTwoMapInterface(data1 map[string]interface{}, data2 map[string]inter
 
 	return string(dataStr1) == string(dataStr2)
 }
-
-func MergeUnknownMaps(maps ...map[string]interface{}) map[string]interface{} {
-	result := make(map[string]interface{})
-	for _, m := range maps {
-		for k, v := range m {
-			result[k] = v
-		}
-	}
-	return result
-}
-
-func MergeMaps(maps ...map[string]string) map[string]string {
-	result := make(map[string]string)
-	for _, m := range maps {
-		for k, v := range m {
-			result[k] = v
-		}
-	}
-	return result
-}
