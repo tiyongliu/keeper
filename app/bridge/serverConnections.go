@@ -3,8 +3,8 @@ package bridge
 import (
 	"fmt"
 	"github.com/samber/lo"
+	"keeper/app/db/persist"
 	"keeper/app/db/standard/modules"
-	"keeper/app/internal"
 	"keeper/app/pkg/containers"
 	"keeper/app/pkg/serializer"
 	"keeper/app/sideQuests"
@@ -105,11 +105,11 @@ func (sc *ServerConnections) ensureOpened(conid string) *containers.OpenedServer
 }
 
 func (sc *ServerConnections) checker(conid string) error {
-	pool, err := internal.GetStoragePool(conid)
+	driver, err := persist.GetStorageSession().Read(conid)
 	if err != nil {
 		return err
 	}
-	return pool.Ping()
+	return driver.Ping()
 }
 
 func (sc *ServerConnections) ListDatabases(request map[string]string) *serializer.Response {
@@ -134,8 +134,8 @@ func (sc *ServerConnections) ServerStatus() interface{} {
 func (sc *ServerConnections) Ping(connections []string) *serializer.Response {
 	for _, conid := range lo.Uniq[string](connections) {
 		last := sc.LastPinged[conid]
-		if pool, err := internal.GetStoragePool(conid); err == nil {
-			if err = pool.Ping(); err != nil {
+		if driver, err := persist.GetStorageSession().Read(conid); err == nil {
+			if err = driver.Ping(); err != nil {
 				sc.Close(conid, true)
 				continue
 			}
@@ -167,7 +167,7 @@ func (sc *ServerConnections) Close(conid string, kill bool) {
 			"status": existing.Status,
 		}
 		sc.LastPinged[conid] = 0
-		_ = internal.DeleteStoragePool(conid)
+		_ = persist.GetStorageSession().Delete(conid)
 		utility.EmitChanged(Application.ctx, "server-status-changed")
 	}
 }

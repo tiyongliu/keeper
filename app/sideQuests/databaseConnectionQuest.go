@@ -6,8 +6,7 @@ import (
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"keeper/app/adapter"
 	"keeper/app/db"
-	"keeper/app/db/drivers"
-	"keeper/app/internal"
+	"keeper/app/db/persist"
 	"keeper/app/pkg/containers"
 	"keeper/app/pkg/logger"
 	"keeper/app/utility"
@@ -38,14 +37,6 @@ func (msg *DatabaseConnection) ResetVars() {
 	lastStatusString = ""
 }
 
-func LoadConnection(connection map[string]interface{}, database string) map[string]interface{} {
-	if connection["database"] == nil || connection["database"] == "" {
-		connection["database"] = database
-	}
-
-	return connection
-}
-
 func (msg *DatabaseConnection) Connect(ch chan *containers.EchoMessage, newOpened *containers.OpenedDatabaseConnection, structure interface{}) {
 	defer close(ch)
 	databaseLast = utility.NewUnixTime()
@@ -55,14 +46,18 @@ func (msg *DatabaseConnection) Connect(ch chan *containers.EchoMessage, newOpene
 		})
 	}
 
-	logger.Infof("newOpened Connect req: %s", newOpened)
+	logger.Infof("newOpened Connect req: %s", utility.ToJsonStr(newOpened.Connection))
 
-	newOpened.Connection = LoadConnection(newOpened.Connection, newOpened.Database)
-
-	//driver, err := internal.TargetStoragePool(newOpened.Conid, newOpened.Connection)
-	driver, err := drivers.NewCompatDriver().Open(
+	driver, err := persist.GetStorageSession().Scanner(
+		newOpened.Conid,
 		lo.Assign(newOpened.Connection, map[string]interface{}{"database": newOpened.Database}),
 	)
+	//driver, err := internal.TargetStoragePool(newOpened.Conid, newOpened.Connection)
+
+	//driver, err := drivers.NewCompatDriver().Open(
+	//	lo.Assign(newOpened.Connection, map[string]interface{}{"database": newOpened.Database}),
+	//)
+
 	if err != nil {
 		msg.setStatus(ch, func() (*containers.OpenedStatus, error) {
 			return &containers.OpenedStatus{Name: "error", Message: err.Error()}, err
@@ -179,7 +174,7 @@ func (msg *DatabaseConnection) HandleSqlSelect(ch chan *containers.EchoMessage,
 	runtime.EventsEmit(ctx, "handleSqlSelect", selectParams)
 	runtime.EventsOn(ctx, "handleSqlSelectReturn", func(sql ...interface{}) {
 		utility.WithRecover(func() {
-			driver, e := internal.GetStoragePool(conn.Conid)
+			driver, e := persist.GetStorageSession().Read(conn.Conid)
 			if err != nil {
 				err = e
 			}

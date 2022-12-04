@@ -114,9 +114,6 @@ func (dc *DatabaseConnections) ensureOpened(conid, database string) *containers.
 	}
 
 	ch := make(chan *containers.EchoMessage)
-
-	logger.Infof("oooooooooooooo %s", utility.ToJsonStr(newOpened))
-	logger.Infof("structure %s", utility.ToJsonStr(structure))
 	defer func() {
 		dc.DatabaseConnection.ResetVars()
 		go dc.DatabaseConnection.Connect(ch, newOpened, structure)
