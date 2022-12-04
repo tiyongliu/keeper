@@ -3,7 +3,7 @@ package bridge
 import (
 	"context"
 	"fmt"
-	"keeper/app/internal"
+	"keeper/app/db/persist"
 	"keeper/app/pkg/logger"
 	"sync"
 )
@@ -67,6 +67,6 @@ func (a App) DomReady(ctx context.Context) {
 }
 
 func (a *App) OnBeforeClose(ctx context.Context) bool {
-	internal.CleanStoragePool()
+	persist.GetStorageSession().Clear()
 	return false
 }

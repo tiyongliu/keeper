@@ -8,6 +8,7 @@ import (
 var (
 	ErrMissingDriverName = errors.New(`keeper: missing database driver name`)
 	ErrNotConnected      = errors.New(`keeper: not connected to a database`)
+	ErrNilRecord         = errors.New(`keeper: invalid item (nil)`)
 
 	ErrMissingAdapter           = errors.New(`keeper: missing adapter`)
 	ErrAlreadyWithinTransaction = errors.New(`keeper: already within a transaction`)
@@ -34,7 +35,6 @@ var (
 	ErrUnsupportedDestination   = errors.New(`keeper: unsupported destination type`)
 	ErrUnsupportedType          = errors.New(`keeper: type does not support marshaling`)
 	ErrUnsupportedValue         = errors.New(`keeper: value does not support unmarshaling`)
-	ErrNilRecord                = errors.New(`keeper: invalid item (nil)`)
 	ErrRecordIDIsZero           = errors.New(`keeper: item ID is not defined`)
 	ErrMissingPrimaryKeys       = errors.New(`keeper: collection %q has no primary keys`)
 	ErrWarnSlowQuery            = errors.New(`keeper: slow query`)
