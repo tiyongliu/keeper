@@ -12,7 +12,7 @@
 ![](https://assets.cdbob.cn/keeper-01.png)
 ![](https://github.com/422720735/easy_go/blob/master/keeper.png)
 
-目前版本0.0.2-bata.1，很多功能是不完善，并不能作为生成环境使用，如果你正准备用`wails`架构自己的桌面程序，本项目可作为一个参考，可以下载发新预览版尝鲜。[0.0.1](https://github.com/tiyongliu/keeper/releases/tag/0.0.1-rc.1)
+目前版本0.0.2.2-alpha.1，很多功能是不完善，并不能作为生成环境使用，如果你正准备用`wails`架构自己的桌面程序，本项目可作为一个参考，可以下载发新预览版尝鲜。[0.0.2.2-alpha.1](https://github.com/tiyongliu/keeper/releases/tag/0.0.2.2-alpha.1)
 
 ## 功能
 - 使用`go`、`wails`、`vue3`构建桌面数据库可视化工具
