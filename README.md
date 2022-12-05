@@ -20,11 +20,35 @@
 - 目前仅支持`mongodb`、`mysql`的使用
 - `windows` `macOs` `lunux` 发行版
 
-## 开发环境
-### 1.wails install
-[wails install](https://wails.io/zh-Hans/docs/gettingstarted/installation)
+# 开发环境安装
 
-### 2.frontend install
+## 1.安装[go](https://go.dev/dl/)最低版本要求1.18，安装完成请验证环境正确
+
+### 验证是否配置成功和请您是否已安装 Go 1.18+
+```shell
+go version
+go env
+```
+
+## 2.安装[wails](https://wails.io/zh-Hans/docs/gettingstarted/installation)
+```shell
+go install github.com/wailsapp/wails/v2/cmd/wails@latest
+```
+
+### 验证是否配置成功
+```shell
+wails doctor
+```
+
+## 3.node安装
+### 安装[node.js](https://nodejs.org/en/)最低版本要求16，安装完成请验证环境正确
+
+### 请检查您是否已安装node.js 16+
+```shell
+node -v
+```
+
+## 4.frontend 安装
 ```shell
 pnpm install -g #安装了pnpm请跳过这一步  
 
@@ -33,7 +57,7 @@ pnpm install
 pnpm build
 ```
 
-### 3. run app
+### 5. run app
 ```shell
 wails dev #keeper同级目录下运行
 ```

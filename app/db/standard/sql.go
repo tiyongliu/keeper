@@ -9,4 +9,5 @@ type SQL interface {
 	Version() (*modules.Version, error)
 	Close() error
 	ListDatabases() (interface{}, error)
+	Query(sql string) (interface{}, error)
 }

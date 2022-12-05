@@ -5,6 +5,7 @@ import (
 	"keeper/app/db"
 	"keeper/app/db/drivers"
 	"keeper/app/pkg/logger"
+	"keeper/app/pkg/serializer"
 	"keeper/app/utility"
 	"sync"
 )
@@ -12,15 +13,18 @@ import (
 var lookupIdOnce sync.Once
 var lookupIdSession *StorageSession
 
+type repositoryId string
+type databaseId string
+
 type StorageSession struct {
-	source map[string]db.Session
+	source map[repositoryId]map[databaseId]db.Session
 	mu     sync.RWMutex
 }
 
 func GetStorageSession() *StorageSession {
 	lookupIdOnce.Do(func() {
 		lookupIdSession = &StorageSession{
-			source: make(map[string]db.Session),
+			source: make(map[repositoryId]map[databaseId]db.Session),
 		}
 	})
 
@@ -32,8 +36,12 @@ func (s *StorageSession) Scanner(conid string, connection map[string]interface{}
 		return nil, db.ErrNilRecord
 	}
 
-	session, err := s.GetItem(conid)
-	if err != nil {
+	var database string
+	if connection["database"] != nil {
+		database = connection["database"].(string)
+	}
+	session, err := s.GetItem(conid, database)
+	if err != nil || session.Ping() != nil {
 		if connection == nil {
 			return nil, db.ErrNotConnected
 		}
@@ -43,7 +51,7 @@ func (s *StorageSession) Scanner(conid string, connection map[string]interface{}
 			return nil, err
 		}
 
-		if err = s.SetItem(conid, session); err != nil {
+		if err = s.SetItem(conid, database, session); err != nil {
 			return nil, err
 		}
 	}
@@ -55,27 +63,50 @@ func (s *StorageSession) Scanner(conid string, connection map[string]interface{}
 	return session, nil
 }
 
-func (s *StorageSession) SetItem(conid string, driver db.Session) error {
+func (s *StorageSession) SetItem(conid, database string, driver db.Session) error {
 	if driver == nil {
-		return errors.New("invalid memory address or nil pointer dereference")
+		return errors.New(serializer.ErrNil)
 	}
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	s.source[conid] = driver
+	if s.source[repositoryId(conid)] == nil {
+		s.source[repositoryId(conid)] = make(map[databaseId]db.Session)
+	}
+
+	s.source[repositoryId(conid)][databaseId(database)] = driver
+
 	return nil
 }
 
-func (s *StorageSession) GetItem(conid string) (driver db.Session, err error) {
+func (s *StorageSession) GetDatabaseMap(conid string) (map[databaseId]db.Session, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
-	session, ok := s.source[conid]
+	sessionMap, ok := s.source[repositoryId(conid)]
 	if !ok {
-		return nil, errors.New("invalid memory address or nil pointer dereference")
+		return nil, errors.New(serializer.ErrNil)
 	}
 
-	return session, nil
+	return sessionMap, nil
+}
+
+func (s *StorageSession) GetItem(conid, database string) (driver db.Session, err error) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	sessionMap, ok := s.source[repositoryId(conid)]
+	if !ok {
+		return nil, errors.New(serializer.ErrNil)
+	}
+
+	for k, v := range sessionMap {
+		if k == databaseId(database) {
+			return v, nil
+		}
+	}
+
+	return nil, errors.New("invalid database")
 }
 
 func (s *StorageSession) RemoveItem(conid string) (err error) {
@@ -83,7 +114,7 @@ func (s *StorageSession) RemoveItem(conid string) (err error) {
 	defer s.mu.Unlock()
 	utility.WithRecover(func() {
 		if err = s.closeDriver(conid); err == nil {
-			delete(s.source, conid)
+			delete(s.source, repositoryId(conid))
 		}
 	}, func(e error) {
 		logger.Errorf("delete driver id failed %v", err)
@@ -96,16 +127,21 @@ func (s *StorageSession) RemoveItem(conid string) (err error) {
 func (s *StorageSession) Clear() {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	for _, session := range s.source {
-		session.Close()
+	for _, sessions := range s.source {
+		for _, session := range sessions {
+			session.Close()
+		}
 	}
-	s.source = make(map[string]db.Session)
+	s.source = make(map[repositoryId]map[databaseId]db.Session)
 }
 
 func (s *StorageSession) closeDriver(conid string) error {
-	session := s.source[conid]
-	if session != nil {
-		return session.Close()
+	sessions := s.source[repositoryId(conid)]
+	if sessions != nil {
+		for _, session := range sessions {
+			session.Close()
+		}
+		s.source[repositoryId(conid)] = nil
 	}
 	return nil
 }

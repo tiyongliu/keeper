@@ -44,3 +44,7 @@ func (s *Source) ListDatabases() (interface{}, error) {
 	err := db.RunCommand(s.ctx, buildInfoCmd).Decode(&buildInfoDoc)
 	return buildInfoDoc.Databases, err
 }
+
+func (s *Source) Query(sql string) (interface{}, error) {
+	return nil, nil
+}

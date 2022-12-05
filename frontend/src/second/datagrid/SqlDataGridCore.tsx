@@ -1,4 +1,4 @@
-import {Component, defineComponent, PropType, ref, toRefs, unref, watch} from 'vue'
+import {Component, defineComponent, PropType, ref, toRefs, unref, watch, onBeforeUnmount} from 'vue'
 import LoadingDataGridCore from '/@/second/datagrid/LoadingDataGridCore'
 // import eb_system_config from '/@/second/tabs/eb_system_config.json'
 // import credential_count from '/@/second/tabs/credential_count.json'
@@ -101,6 +101,11 @@ export default defineComponent({
       selectedCellsPublished.value = data
       emit('selectedCellsPublished', data)
     }
+
+    onBeforeUnmount(() => {
+      loadedRows.value = []
+      grider.value = null
+    })
 
     return () => (
       <LoadingDataGridCore

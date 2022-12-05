@@ -40,19 +40,19 @@ func loadConnection(storedConnection map[string]interface{}) map[string]interfac
 	return storedConnection
 }
 
-func createSession(setting map[string]interface{}) (db.Session, error) {
-	if setting != nil && setting[driverName].(string) != "" {
-		switch setting[driverName] {
+func createSession(storedConnection map[string]interface{}) (db.Session, error) {
+	if storedConnection != nil && storedConnection[driverName].(string) != "" {
+		switch storedConnection[driverName] {
 		case mysql.Adapter:
-			logger.Infof("setting = %s", utility.ToJsonStr(setting))
-			parseSetting, err := mysql.ParseSetting(setting)
+			logger.Infof("setting = %s", utility.ToJsonStr(storedConnection))
+			parseSetting, err := mysql.ParseSetting(storedConnection)
 			if err != nil {
 				logger.Errorf("setting parse failed %v", err)
 				return nil, err
 			}
 			return mysql.Open(parseSetting)
 		case mongo.Adapter:
-			parseSetting, err := mongo.ParseSetting(setting)
+			parseSetting, err := mongo.ParseSetting(storedConnection)
 			if err != nil {
 				logger.Errorf("setting parse failed %v", err)
 				return nil, err

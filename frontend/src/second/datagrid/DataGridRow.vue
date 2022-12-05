@@ -111,7 +111,7 @@ export default defineComponent({
       default: false
     },
     currentCellColumn: {
-      type: [Number, String] as PropType<number | 'header' | 'filter'>,
+      type: [String, Number] as PropType<number | 'header' | 'filter'>,
     },
     conid: {
       type: String as PropType<string>

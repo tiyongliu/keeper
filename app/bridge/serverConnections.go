@@ -98,18 +98,10 @@ func (sc *ServerConnections) ensureOpened(conid string) *containers.OpenedServer
 	defer func() {
 		sc.ServerConnectionChannel.ResetVars()
 		go sc.ServerConnectionChannel.Connect(ch, connection)
-		go sc.pipeHandler(ch, conid)
+		go sc.consumer(ch, conid)
 	}()
 
 	return newOpened
-}
-
-func (sc *ServerConnections) checker(conid string) error {
-	driver, err := persist.GetStorageSession().GetItem(conid)
-	if err != nil {
-		return err
-	}
-	return driver.Ping()
 }
 
 func (sc *ServerConnections) ListDatabases(request map[string]string) *serializer.Response {
@@ -134,12 +126,12 @@ func (sc *ServerConnections) ServerStatus() interface{} {
 func (sc *ServerConnections) Ping(connections []string) *serializer.Response {
 	for _, conid := range lo.Uniq[string](connections) {
 		last := sc.LastPinged[conid]
-		if driver, err := persist.GetStorageSession().GetItem(conid); err == nil {
-			if err = driver.Ping(); err != nil {
-				sc.Close(conid, true)
-				continue
-			}
-		}
+		//if driver, err := persist.GetStorageSession().GetItem(conid); err == nil {
+		//	if err = driver.Ping(); err != nil {
+		//		sc.Close(conid, true)
+		//		continue
+		//	}
+		//}
 
 		if last > 0 && utility.NewUnixTime()-last < utility.GetUnixTime(30*1000) {
 			continue
@@ -187,7 +179,7 @@ func (sc *ServerConnections) Refresh(req *ServerRefreshRequest) *serializer.Resp
 	})
 }
 
-func (sc *ServerConnections) pipeHandler(chData <-chan *containers.EchoMessage, conid string) {
+func (sc *ServerConnections) consumer(chData <-chan *containers.EchoMessage, conid string) {
 	for {
 		message, ok := <-chData
 		if message != nil {

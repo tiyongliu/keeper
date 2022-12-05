@@ -8,6 +8,8 @@
 - 重构数据库open方式
 - 前端连接数据库代码精简
 - driver storageSession 重构
+- 修复`CellValue.vue` props value 如果传值为''，界面上会显示true。
+- 修复`databaseConnections.go`SqlSelect方法 call sendRequest
 
 ## 0.0.2.1-alpha.1(2022-09-23)
 

@@ -18,7 +18,7 @@
 </template>
 
 <script lang="ts">
-import {computed, defineComponent, PropType, toRefs} from 'vue'
+import {computed, defineComponent, PropType, toRefs, unref} from 'vue'
 import {get} from 'lodash-es'
 import ShowFormButton from '/@/second/formview/ShowFormButton.vue'
 import CellValue from '/@/second/datagrid/CellValue.vue'
@@ -38,7 +38,7 @@ export default defineComponent({
       type: Object as PropType<{ colIndex?: number, isStructured: boolean, uniquePath: string, uniqueName: string }>
     },
     rowData: {
-      type: [Boolean, String, Number, Object, Array] as PropType<boolean | string | number | object | string[]>
+      type: Object as PropType<object>
     },
     colIndex: {
       type: Number as PropType<number>,
@@ -111,9 +111,9 @@ export default defineComponent({
   setup(props) {
     const {col, rowData, maxWidth, minWidth} = toRefs(props)
     const value = computed(() => {
-      return col.value ?
-        col.value?.isStructured ? get(rowData.value || {}, col.value?.uniquePath) : (rowData.value || {})[col.value!.uniqueName]
-        : null
+      return unref(col)!.isStructured
+        ? get(unref(rowData) || {}, unref(col)!.uniquePath)
+        : (unref(rowData) || {})[unref(col)!.uniqueName]
     })
 
     function computeStyle(col) {

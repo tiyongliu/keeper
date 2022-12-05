@@ -406,13 +406,16 @@ export default defineComponent({
 
     watch(() => [collapsedLeftColumnStore.value], updateWidgetStyle)
 
-    watch(() => [grider.value, columns.value, containerWidth.value, display.value], () => {
+    watch(() => [
+      // grider.value, columns.value,
+      containerWidth.value, display.value], () => {
       columnSizes.value = countColumnSizes(grider.value!, columns.value, containerWidth.value, display.value!)
-    })
-
-    watch(() => [onLoadNextData.value, display.value], () => {
       updateWidgetStyle()
     })
+
+    // watch(() => [onLoadNextData.value, display.value], () => {
+    //   updateWidgetStyle()
+    // })
 
     watch(() => [firstVisibleRowScrollIndex.value, visibleRowCountUpperBound.value], async () => {
       if (onLoadNextData.value && grider.value && firstVisibleRowScrollIndex.value + visibleRowCountUpperBound.value >= grider.value!.rowCount && rowHeight.value > 0) {

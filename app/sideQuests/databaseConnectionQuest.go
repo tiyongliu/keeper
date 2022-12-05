@@ -2,13 +2,14 @@ package sideQuests
 
 import (
 	"context"
+	"errors"
 	"github.com/samber/lo"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
-	"keeper/app/adapter"
 	"keeper/app/db"
+	"keeper/app/db/adapter"
 	"keeper/app/db/persist"
 	"keeper/app/pkg/containers"
-	"keeper/app/pkg/logger"
+	"keeper/app/pkg/serializer"
 	"keeper/app/utility"
 )
 
@@ -46,8 +47,7 @@ func (msg *DatabaseConnection) Connect(ch chan *containers.EchoMessage, newOpene
 		})
 	}
 
-	logger.Infof("newOpened Connect req: %s", utility.ToJsonStr(newOpened.Connection))
-
+	//logger.Infof("newOpened Connect req: %s", utility.ToJsonStr(lo.Assign(newOpened.Connection, map[string]interface{}{"database": newOpened.Database})))
 	driver, err := persist.GetStorageSession().Scanner(
 		newOpened.Conid,
 		lo.Assign(newOpened.Connection, map[string]interface{}{"database": newOpened.Database}),
@@ -169,27 +169,48 @@ func (msg *DatabaseConnection) handleIncrementalRefresh(ch chan *containers.Echo
 	})*/
 }
 
-func (msg *DatabaseConnection) HandleSqlSelect(ch chan *containers.EchoMessage,
-	ctx context.Context, conn *containers.OpenedDatabaseConnection, msgid string, selectParams interface{}) (err error) {
+func (msg *DatabaseConnection) HandleSqlSelect(
+	ctx context.Context, conn *containers.OpenedDatabaseConnection, selectParams interface{}) *containers.EchoMessage {
+	ch := make(chan *containers.EchoMessage, 1)
 	runtime.EventsEmit(ctx, "handleSqlSelect", selectParams)
 	runtime.EventsOn(ctx, "handleSqlSelectReturn", func(sql ...interface{}) {
 		utility.WithRecover(func() {
-			driver, e := persist.GetStorageSession().GetItem(conn.Conid)
+			driver, err := persist.GetStorageSession().GetItem(conn.Conid, conn.Database)
 			if err != nil {
-				err = e
+				ch <- &containers.EchoMessage{
+					MsgType: "response",
+					Err:     err,
+				}
+				return
 			}
 
-			msg.handleQueryData(driver, msgid, sql[0].(string), selectParams, true)
-		}, func(er error) {
-			err = er
+			//todo 这个短期测试使用，后期需要删除掉
+			if driver.Ping() != nil {
+				ch <- &containers.EchoMessage{
+					MsgType: "response",
+					Err:     driver.Ping(),
+				}
+				return
+			}
+			ch <- msg.handleQueryData(driver, sql[0].(string), true)
+		}, func(err error) {
+			ch <- &containers.EchoMessage{
+				MsgType: "response",
+				Err:     errors.New(serializer.ErrNil),
+			}
 		})
 	})
 
-	return err
+	return <-ch
 }
 
-func (msg *DatabaseConnection) handleQueryData(driver db.Session, msgid, sql string, selectParams interface{}, skipReadonlyCheck bool) {
-
+func (msg *DatabaseConnection) handleQueryData(driver db.Session, sql string, skipReadonlyCheck bool) *containers.EchoMessage {
+	res, err := driver.Query(sql)
+	return &containers.EchoMessage{
+		Payload: res,
+		MsgType: "response",
+		Err:     err,
+	}
 }
 
 func (msg *DatabaseConnection) ReadVersion(ch chan *containers.EchoMessage, driver db.Session) error {

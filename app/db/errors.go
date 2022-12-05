@@ -9,6 +9,8 @@ var (
 	ErrMissingDriverName = errors.New(`keeper: missing database driver name`)
 	ErrNotConnected      = errors.New(`keeper: not connected to a database`)
 	ErrNilRecord         = errors.New(`keeper: invalid item (nil)`)
+	ErrInvalidConnection = errors.New(`keeper: invalid connection`)
+	ErrInvalidDatabase   = errors.New(`keeper: invalid database`)
 	ErrInvalidCollection = errors.New(`keeper: invalid collection`)
 
 	ErrMissingAdapter           = errors.New(`keeper: missing adapter`)

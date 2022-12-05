@@ -7,7 +7,3 @@ export default {
   name: "ConnectionModalSslFields"
 }
 </script>
-
-<style scoped>
-
-</style>

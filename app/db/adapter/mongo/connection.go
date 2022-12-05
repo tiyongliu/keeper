@@ -63,11 +63,11 @@ func (c ConnectionURL) String() (s string) {
 	return u.String()
 }
 
-func ParseSetting(setting map[string]interface{}) (*ConnectionURL, error) {
-	if setting == nil {
-		return nil, db.ErrInvalidCollection
+func ParseSetting(connection map[string]interface{}) (*ConnectionURL, error) {
+	if connection == nil {
+		return nil, db.ErrInvalidConnection
 	}
-	marshal, err := json.Marshal(&setting)
+	marshal, err := json.Marshal(&connection)
 	if err != nil {
 		return nil, err
 	}
