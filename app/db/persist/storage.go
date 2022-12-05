@@ -19,7 +19,9 @@ type StorageSession struct {
 
 func GetStorageSession() *StorageSession {
 	lookupIdOnce.Do(func() {
-		lookupIdSession = &StorageSession{}
+		lookupIdSession = &StorageSession{
+			source: make(map[string]db.Session),
+		}
 	})
 
 	return lookupIdSession
@@ -30,13 +32,18 @@ func (s *StorageSession) Scanner(conid string, connection map[string]interface{}
 		return nil, db.ErrNilRecord
 	}
 
-	session, err := s.Read(conid)
+	session, err := s.GetItem(conid)
 	if err != nil {
 		if connection == nil {
 			return nil, db.ErrNotConnected
 		}
+
 		session, err = drivers.NewCompatDriver().Open(connection)
 		if err != nil {
+			return nil, err
+		}
+
+		if err = s.SetItem(conid, session); err != nil {
 			return nil, err
 		}
 	}
@@ -48,7 +55,7 @@ func (s *StorageSession) Scanner(conid string, connection map[string]interface{}
 	return session, nil
 }
 
-func (s *StorageSession) Write(conid string, driver db.Session) error {
+func (s *StorageSession) SetItem(conid string, driver db.Session) error {
 	if driver == nil {
 		return errors.New("invalid memory address or nil pointer dereference")
 	}
@@ -59,7 +66,7 @@ func (s *StorageSession) Write(conid string, driver db.Session) error {
 	return nil
 }
 
-func (s *StorageSession) Read(conid string) (driver db.Session, err error) {
+func (s *StorageSession) GetItem(conid string) (driver db.Session, err error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
@@ -71,11 +78,13 @@ func (s *StorageSession) Read(conid string) (driver db.Session, err error) {
 	return session, nil
 }
 
-func (s *StorageSession) Delete(conid string) (err error) {
+func (s *StorageSession) RemoveItem(conid string) (err error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	utility.WithRecover(func() {
-		delete(s.source, conid)
+		if err = s.closeDriver(conid); err == nil {
+			delete(s.source, conid)
+		}
 	}, func(e error) {
 		logger.Errorf("delete driver id failed %v", err)
 		err = e
@@ -87,5 +96,16 @@ func (s *StorageSession) Delete(conid string) (err error) {
 func (s *StorageSession) Clear() {
 	s.mu.Lock()
 	defer s.mu.Unlock()
+	for _, session := range s.source {
+		session.Close()
+	}
 	s.source = make(map[string]db.Session)
+}
+
+func (s *StorageSession) closeDriver(conid string) error {
+	session := s.source[conid]
+	if session != nil {
+		return session.Close()
+	}
+	return nil
 }

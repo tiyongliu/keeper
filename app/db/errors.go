@@ -9,6 +9,7 @@ var (
 	ErrMissingDriverName = errors.New(`keeper: missing database driver name`)
 	ErrNotConnected      = errors.New(`keeper: not connected to a database`)
 	ErrNilRecord         = errors.New(`keeper: invalid item (nil)`)
+	ErrInvalidCollection = errors.New(`keeper: invalid collection`)
 
 	ErrMissingAdapter           = errors.New(`keeper: missing adapter`)
 	ErrAlreadyWithinTransaction = errors.New(`keeper: already within a transaction`)
@@ -16,7 +17,6 @@ var (
 	ErrExpectingNonNilModel     = errors.New(`keeper: expecting non nil model`)
 	ErrExpectingPointerToStruct = errors.New(`keeper: expecting pointer to struct`)
 	ErrGivingUpTryingToConnect  = errors.New(`keeper: giving up trying to connect: too many clients`)
-	ErrInvalidCollection        = errors.New(`keeper: invalid collection`)
 	ErrMissingCollectionName    = errors.New(`keeper: missing collection name`)
 	ErrMissingConditions        = errors.New(`keeper: missing selector conditions`)
 	ErrMissingConnURL           = errors.New(`keeper: missing DSN`)

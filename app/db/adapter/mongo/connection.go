@@ -3,6 +3,7 @@ package mongo
 import (
 	"encoding/json"
 	"fmt"
+	"keeper/app/db"
 	"net/url"
 	"strings"
 )
@@ -63,6 +64,9 @@ func (c ConnectionURL) String() (s string) {
 }
 
 func ParseSetting(setting map[string]interface{}) (*ConnectionURL, error) {
+	if setting == nil {
+		return nil, db.ErrInvalidCollection
+	}
 	marshal, err := json.Marshal(&setting)
 	if err != nil {
 		return nil, err
@@ -71,6 +75,10 @@ func ParseSetting(setting map[string]interface{}) (*ConnectionURL, error) {
 	err = json.Unmarshal(marshal, urlDSN)
 	if err != nil {
 		return nil, err
+	}
+
+	if urlDSN.Host == "" {
+		return nil, fmt.Errorf("lack of host")
 	}
 	return urlDSN, nil
 }

@@ -3,6 +3,7 @@ package mysql
 import (
 	"encoding/json"
 	"fmt"
+	"keeper/app/db"
 	"net"
 	"net/url"
 )
@@ -74,6 +75,10 @@ func (c ConnectionURL) String() (s string) {
 }
 
 func ParseSetting(setting map[string]interface{}) (*ConnectionURL, error) {
+	if setting == nil {
+		return nil, db.ErrInvalidCollection
+	}
+
 	marshal, err := json.Marshal(&setting)
 	if err != nil {
 		return nil, err
@@ -83,5 +88,16 @@ func ParseSetting(setting map[string]interface{}) (*ConnectionURL, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	if urlDSN.User == "" {
+		return nil, fmt.Errorf("lack of user")
+	}
+	if urlDSN.Password == "" {
+		return nil, fmt.Errorf("lack of password")
+	}
+	if urlDSN.Host == "" {
+		return nil, fmt.Errorf("lack of host")
+	}
+
 	return urlDSN, nil
 }

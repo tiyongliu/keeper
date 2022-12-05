@@ -174,7 +174,7 @@ func (msg *DatabaseConnection) HandleSqlSelect(ch chan *containers.EchoMessage,
 	runtime.EventsEmit(ctx, "handleSqlSelect", selectParams)
 	runtime.EventsOn(ctx, "handleSqlSelectReturn", func(sql ...interface{}) {
 		utility.WithRecover(func() {
-			driver, e := persist.GetStorageSession().Read(conn.Conid)
+			driver, e := persist.GetStorageSession().GetItem(conn.Conid)
 			if err != nil {
 				err = e
 			}

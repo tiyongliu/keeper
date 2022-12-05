@@ -105,7 +105,7 @@ func (sc *ServerConnections) ensureOpened(conid string) *containers.OpenedServer
 }
 
 func (sc *ServerConnections) checker(conid string) error {
-	driver, err := persist.GetStorageSession().Read(conid)
+	driver, err := persist.GetStorageSession().GetItem(conid)
 	if err != nil {
 		return err
 	}
@@ -134,7 +134,7 @@ func (sc *ServerConnections) ServerStatus() interface{} {
 func (sc *ServerConnections) Ping(connections []string) *serializer.Response {
 	for _, conid := range lo.Uniq[string](connections) {
 		last := sc.LastPinged[conid]
-		if driver, err := persist.GetStorageSession().Read(conid); err == nil {
+		if driver, err := persist.GetStorageSession().GetItem(conid); err == nil {
 			if err = driver.Ping(); err != nil {
 				sc.Close(conid, true)
 				continue
@@ -167,7 +167,7 @@ func (sc *ServerConnections) Close(conid string, kill bool) {
 			"status": existing.Status,
 		}
 		sc.LastPinged[conid] = 0
-		_ = persist.GetStorageSession().Delete(conid)
+		_ = persist.GetStorageSession().RemoveItem(conid)
 		utility.EmitChanged(Application.ctx, "server-status-changed")
 	}
 }
