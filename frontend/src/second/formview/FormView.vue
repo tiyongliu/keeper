@@ -87,7 +87,7 @@ import LoadingInfo from '/@/second/elements/LoadingInfo.vue'
 import InplaceEditor from '/@/second/datagrid/InplaceEditor.vue'
 import {plusExpandIcon} from '/@/second/icons/expandIcons'
 import createReducer from '/@/second/utility/createReducer'
-
+import ChangeSetFormer from './ChangeSetFormer'
 export default defineComponent({
   name: 'FormView',
   components: {
@@ -115,21 +115,23 @@ export default defineComponent({
       default: false
     },
     allRowCount: {
-      type: Number as PropType<number>
+      type: Number as PropType<Nullable<number>>
     },
     rowCountBefore: {
-      type: Number as PropType<number>
+      type: Number as PropType<Nullable<number>>
     },
     isLoading: {
       type: Boolean as PropType<boolean>
     },
     former: {
-      type: Object as PropType<{rowData?: object, rowStatus: unknown, editable: boolean}>
+      type: Object as PropType<Nullable<ChangeSetFormer>>
     },
     formDisplay: {
       type: Object as PropType<TableFormViewDisplay>
     },
-    //onNavigate
+    navigate: {
+      type: Function as PropType<(command: Promise<'begin' | 'previous' | 'next' | 'end'>) => void>
+    }
   },
   setup(props) {
     const {former, rowCountBefore, allRowCount, formDisplay} = toRefs(props)
