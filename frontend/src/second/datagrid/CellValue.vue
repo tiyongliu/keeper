@@ -86,7 +86,11 @@ export default defineComponent({
   setup(props) {
     return {
       ...toRefs(props),
-      isDate, isNumber, isString, isArray, isPlainObject,
+      isDate,
+      isNumber,
+      isString,
+      isArray,
+      isPlainObject,
       dateTimeRegex,
       formatDateTime,
       formatNumber,

@@ -98,7 +98,7 @@ func (sc *ServerConnections) ensureOpened(conid string) *containers.OpenedServer
 	defer func() {
 		sc.ServerConnectionChannel.ResetVars()
 		go sc.ServerConnectionChannel.Connect(ch, connection)
-		go sc.consumer(ch, conid)
+		go sc.receiver(ch, conid)
 	}()
 
 	return newOpened
@@ -179,7 +179,7 @@ func (sc *ServerConnections) Refresh(req *ServerRefreshRequest) *serializer.Resp
 	})
 }
 
-func (sc *ServerConnections) consumer(chData <-chan *containers.EchoMessage, conid string) {
+func (sc *ServerConnections) receiver(chData <-chan *containers.EchoMessage, conid string) {
 	for {
 		message, ok := <-chData
 		if message != nil {
