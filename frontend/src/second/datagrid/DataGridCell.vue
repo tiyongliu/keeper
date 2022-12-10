@@ -14,6 +14,8 @@
     :data-row="`${rowIndex}`"
     :data-col="`${colIndex == null ? col.colIndex : colIndex}`">
     <CellValue :rowData="rowData" :value="value" :jsonParsedValue="jsonParsedValue"/>
+
+    <slot v-if="showSlot"></slot>
   </td>
 </template>
 
