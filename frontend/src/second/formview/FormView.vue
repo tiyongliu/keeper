@@ -35,8 +35,9 @@
             :rowData="rowData"
             :colIndex="chunkIndex * 2 + 1"
             :isSelected="currentCell[0] == rowIndex && currentCell[1] == chunkIndex * 2 + 1"
-            :isModifiedCell="rowStatus.modifiedFields && rowStatus.modifiedFields.has(col.uniqueName)"
-            :allowHintField="!(rowStatus.modifiedFields && rowStatus.modifiedFields.has(col.uniqueName))"
+            :isModifiedCell="(rowStatus && rowStatus.modifiedFields) && rowStatus.modifiedFields.has(col.uniqueName)"
+            :allowHintField="!((rowStatus && rowStatus.modifiedFields) && rowStatus.modifiedFields.has(col.uniqueName))"
+            v-model:domCell="domCells[`${rowIndex},${chunkIndex * 2 + 1}`]"
             :showSlot="!rowData ||
                   (inplaceEditorState.cell &&
                   rowIndex == inplaceEditorState.cell[0] &&
@@ -136,6 +137,8 @@ export default defineComponent({
   setup(props) {
     const {former, rowCountBefore, allRowCount, focusOnVisible, formDisplay} = toRefs(props)
     const container = ref<Nullable<HTMLElement>>(null)
+    const domCells = ref<{[key in string]: unknown}>({})
+
     const wrapperWidth = ref(container.value ? container.value.clientWidth : 0)
     const wrapperHeight = ref(container.value ? container.value.clientWidth : 0)
     const rowHeight = computed(() => 25) //todo  $: rowHeight = $dataGridRowHeight;
@@ -143,7 +146,6 @@ export default defineComponent({
     let currentCell = reactive([0, 0])
 
     const tabVisible = inject('tabVisible')
-    const domCells = {}
 
     watch(() => [unref(tabVisible), focusOnVisible.value], () => {
       if (unref(tabVisible) && focusOnVisible.value) {
@@ -205,7 +207,7 @@ export default defineComponent({
     }
 
     const getCellWidth = (row, col) => {
-      const element = domCells[`${row},${col}`];
+      const element = domCells.value[`${row},${col}`];
       if (element) return element.getBoundingClientRect().width;
       return 100;
     }
@@ -236,6 +238,7 @@ export default defineComponent({
 
     return {
       container,
+      domCells,
       ...toRefs(props),
       wrapperWidth,
       currentCell,

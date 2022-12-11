@@ -1,5 +1,6 @@
 <template>
   <td
+    ref="domCell"
     :class="[
       isSelected && 'isSelected',
       isFrameSelected && 'isFrameSelected',
@@ -20,7 +21,7 @@
 </template>
 
 <script lang="ts">
-import {computed, defineComponent, PropType, toRefs, unref} from 'vue'
+import {computed, defineComponent, PropType, toRefs, unref, ref} from 'vue'
 import {get} from 'lodash-es'
 import ShowFormButton from '/@/second/formview/ShowFormButton.vue'
 import CellValue from '/@/second/datagrid/CellValue.vue'
@@ -110,8 +111,10 @@ export default defineComponent({
     // onDictionaryLookup
     // onSetValue
   },
-  setup(props) {
+  emits: ['update:domCell'],
+  setup(props, {emit}) {
     const {col, rowData, maxWidth, minWidth} = toRefs(props)
+    const domCell = ref<Nullable<HTMLElement>>(null)
     const value = computed(() => {
       return unref(col)!.isStructured
         ? get(unref(rowData) || {}, unref(col)!.uniquePath)
@@ -132,8 +135,13 @@ export default defineComponent({
     const style = computed(() => computeStyle(col.value))
     const jsonParsedValue = computed(() => isJsonLikeLongString(value.value) ? safeJsonParse(value.value) : null)
 
+    function updatedomCell() {
+      emit('update:domCell', domCell.value)
+    }
+
     return {
       ...toRefs(props),
+      domCell,
       value,
       style,
       jsonParsedValue,

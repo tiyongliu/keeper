@@ -63,6 +63,7 @@ export default defineComponent({
 
     return () => (
       <FormView
+        {...Object.assign({}, props, attrs)}
         former={former.value}
         isLoading={isLoadingData.value}
         allRowCount={allRowCount.value}

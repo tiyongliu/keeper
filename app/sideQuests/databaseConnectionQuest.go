@@ -173,7 +173,7 @@ func (msg *DatabaseConnection) HandleSqlSelect(
 	ctx context.Context, conn *containers.OpenedDatabaseConnection, selectParams interface{}) *containers.EchoMessage {
 	ch := make(chan *containers.EchoMessage, 1)
 	runtime.EventsEmit(ctx, "handleSqlSelect", selectParams)
-	runtime.EventsOn(ctx, "handleSqlSelectReturn", func(sql ...interface{}) {
+	runtime.EventsOnce(ctx, "handleSqlSelectReturn", func(sql ...interface{}) {
 		utility.WithRecover(func() {
 			driver, err := persist.GetStorageSession().GetItem(conn.Conid, conn.Database)
 			if err != nil {
@@ -200,7 +200,7 @@ func (msg *DatabaseConnection) HandleSqlSelect(
 			}
 		})
 	})
-
+	defer close(ch)
 	return <-ch
 }
 
