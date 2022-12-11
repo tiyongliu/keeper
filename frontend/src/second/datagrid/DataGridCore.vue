@@ -786,7 +786,6 @@ export default defineComponent({
     }
 
     function handleSetFormView(rowData, column) {
-      console.log(rowData, column, `rowData, column_rowData, column`)
       if (column) {
         openReferenceForm(unref(rowData), column, conid.value, database.value);
       } else {

@@ -107,12 +107,12 @@ export default defineComponent({
     config: {
       type: Object as PropType<GridConfig>,
     },
-    setConfig: {
-      type: Function as PropType<(target: any) => void>
-    },
     focusOnVisible: {
       type: Boolean as PropType<boolean>,
       default: false
+    },
+    setConfig: {
+      type: Function as PropType<(target: any) => void>
     },
     allRowCount: {
       type: Number as PropType<Nullable<number>>
@@ -134,7 +134,7 @@ export default defineComponent({
     }
   },
   setup(props) {
-    const {former, rowCountBefore, allRowCount, formDisplay} = toRefs(props)
+    const {former, rowCountBefore, allRowCount, focusOnVisible, formDisplay} = toRefs(props)
     const container = ref<Nullable<HTMLElement>>(null)
     const wrapperWidth = ref(container.value ? container.value.clientWidth : 0)
     const wrapperHeight = ref(container.value ? container.value.clientWidth : 0)
@@ -145,11 +145,10 @@ export default defineComponent({
     const tabVisible = inject('tabVisible')
     const domCells = {}
 
-    watch(() => [unref(tabVisible), ], () => {
-      if (unref(tabVisible)) {
+    watch(() => [unref(tabVisible), focusOnVisible.value], () => {
+      if (unref(tabVisible) && focusOnVisible.value) {
         updateWidgetStyle()
       }
-
     })
 
     const rowData = computed(() => former.value ? former.value?.rowData : null)

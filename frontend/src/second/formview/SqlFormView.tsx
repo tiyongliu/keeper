@@ -6,7 +6,6 @@ import {TableFormViewDisplay} from '/@/second/keeper-datalib'
 
 export default defineComponent({
   name: 'SqlFormView',
-  components: {FormView},
   props: {
     formDisplay: {
       type: Object as PropType<TableFormViewDisplay>
@@ -62,13 +61,15 @@ export default defineComponent({
       loadedTime.value = new Date().getTime()
     }
 
-    return () => (<FormView
-      former={former.value}
-      isLoading={isLoadingData.value}
-      allRowCount={allRowCount.value}
-      rowCountBefore={rowCountBefore.value}
-      navigate={handleNavigate}
-    />)
+    return () => (
+      <FormView
+        former={former.value}
+        isLoading={isLoadingData.value}
+        allRowCount={allRowCount.value}
+        rowCountBefore={rowCountBefore.value}
+        navigate={handleNavigate}
+      />
+    )
   }
 })
 
@@ -82,7 +83,7 @@ async function loadRow(props, select) {
     database,
     select,
   }) as any
-
+  console.log(response, `rrrrrrrrrrrrrrrrrrrrrr`)
   if (response.errorMessage) return response
   return response.rows[0]
 }
