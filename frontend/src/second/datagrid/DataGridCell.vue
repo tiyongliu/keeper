@@ -16,12 +16,20 @@
     :data-col="`${colIndex == null ? col.colIndex : colIndex}`">
     <CellValue :rowData="rowData" :value="value" :jsonParsedValue="jsonParsedValue"/>
 
+    <ShowFormButton
+      v-if="col && col['foreignKey'] && rowData && rowData[col.uniqueName] && !isCurrentCell"
+      @click="() => setFormView(rowData, col)"
+    />
+    <ShowFormButton
+      icon="icon dots-horizontal"
+      v-if="col && col['foreignKey'] && isCurrentCell && dictionaryLookup"
+      @click="dictionaryLookup"/>
     <slot v-if="showSlot"></slot>
   </td>
 </template>
 
 <script lang="ts">
-import {computed, defineComponent, PropType, toRefs, unref, ref} from 'vue'
+import {computed, defineComponent, PropType, ref, toRefs, unref} from 'vue'
 import {get} from 'lodash-es'
 import ShowFormButton from '/@/second/formview/ShowFormButton.vue'
 import CellValue from '/@/second/datagrid/CellValue.vue'
@@ -94,7 +102,7 @@ export default defineComponent({
       default: false
     },
     setFormView: {
-      type: Function as PropType<Function>,
+      type: Function as PropType<(rowData: any, column: any) => void>,
     },
     isDynamicStructure: {
       type: Boolean as PropType<boolean>,
@@ -108,6 +116,9 @@ export default defineComponent({
       type: Boolean as PropType<boolean>,
       default: false
     },
+    dictionaryLookup: {
+      type: Function as PropType<() => void>
+    }
     // onDictionaryLookup
     // onSetValue
   },

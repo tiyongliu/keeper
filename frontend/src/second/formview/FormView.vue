@@ -43,6 +43,8 @@
                   rowIndex == inplaceEditorState.cell[0] &&
                   chunkIndex * 2 + 1 == inplaceEditorState.cell[1])"
             :isCurrentCell="currentCell[0] == rowIndex && currentCell[1] == chunkIndex * 2 + 1"
+            :setFormView="handleSetFormView"
+            :dictionaryLookup="() => handleLookup(col)"
           >
             <InplaceEditor
               v-if="rowData &&
@@ -137,7 +139,7 @@ export default defineComponent({
   setup(props) {
     const {former, rowCountBefore, allRowCount, focusOnVisible, formDisplay} = toRefs(props)
     const container = ref<Nullable<HTMLElement>>(null)
-    const domCells = ref<{[key in string]: unknown}>({})
+    const domCells = ref<{[key in string]: HTMLElement}>({})
 
     const wrapperWidth = ref(container.value ? container.value.clientWidth : 0)
     const wrapperHeight = ref(container.value ? container.value.clientWidth : 0)
@@ -180,10 +182,6 @@ export default defineComponent({
     onMounted(() => {
       updateWidgetStyle()
     })
-
-    function handleLookup(col) {
-      console.log(col, `col?col`)
-    }
 
     const scrollIntoView = cell => {
       const element = domCells[`${cell[0]},${cell[1]}`];
@@ -236,6 +234,14 @@ export default defineComponent({
       return {}
     }, {})
 
+    function handleSetFormView(rowData,column) {
+
+    }
+
+    function handleLookup(col) {
+      console.log(col, `col?col`)
+    }
+
     return {
       container,
       domCells,
@@ -253,6 +259,7 @@ export default defineComponent({
       filterName,
       plusExpandIcon,
       handleLookup,
+      handleSetFormView,
     }
   }
 })
