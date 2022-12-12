@@ -17,7 +17,7 @@
                 v-if="col.foreignKey"
                 :icon="plusExpandIcon(formDisplay.isExpandedColumn(col.uniqueName))"
                 @click.stop="formDisplay.toggleExpandedColumn(col.uniqueName)"/>
-              <FontIcon v-else icon="icon invisible-box" />
+              <FontIcon v-else icon="icon invisible-box"/>
               <span :style="`margin-left: ${(col.uniquePath.length - 1) * 20}px`"></span>
               <ColumnLabel
                 v-bind="{...col}"
@@ -60,10 +60,10 @@
         </tr>
       </table>
     </div>
-    <div v-if="rowCountInfo" class="row-count-label">{{rowCountInfo}}</div>
+    <div v-if="rowCountInfo" class="row-count-label">{{ rowCountInfo }}</div>
   </div>
 
-  <LoadingInfo v-if="isLoading" wrapper message="Loading data" />
+  <LoadingInfo v-if="isLoading" wrapper message="Loading data"/>
 </template>
 
 <script lang="ts">
@@ -91,6 +91,7 @@ import InplaceEditor from '/@/second/datagrid/InplaceEditor.vue'
 import {plusExpandIcon} from '/@/second/icons/expandIcons'
 import createReducer from '/@/second/utility/createReducer'
 import ChangeSetFormer from './ChangeSetFormer'
+
 export default defineComponent({
   name: 'FormView',
   components: {
@@ -139,12 +140,12 @@ export default defineComponent({
   setup(props) {
     const {former, rowCountBefore, allRowCount, focusOnVisible, formDisplay} = toRefs(props)
     const container = ref<Nullable<HTMLElement>>(null)
-    const domCells = ref<{[key in string]: HTMLElement}>({})
+    const domCells = ref<{ [key in string]: HTMLElement }>({})
 
     const wrapperWidth = ref(container.value ? container.value.clientWidth : 0)
     const wrapperHeight = ref(container.value ? container.value.clientWidth : 0)
     const rowHeight = computed(() => 25) //todo  $: rowHeight = $dataGridRowHeight;
-    // const wrapperHeight = ref()
+
     let currentCell = reactive([0, 0])
 
     const tabVisible = inject('tabVisible')
@@ -168,8 +169,8 @@ export default defineComponent({
 
     function getRowCountInfo(rowCountBefore, allRowCount) {
       if (rowData.value == null) return 'No data'
-      if (allRowCount.rowData == null || rowCountBefore.value == null) return 'Loading row count...'
-      return `Row: ${(rowCountBefore.value + 1).toLocaleString()} / ${allRowCount.value.toLocaleString()}`
+      if (allRowCount == null || rowCountBefore == null) return 'Loading row count...'
+      return `Row: ${(rowCountBefore + 1).toLocaleString()} / ${allRowCount.toLocaleString()}`
     }
 
     function updateWidgetStyle() {
@@ -234,7 +235,7 @@ export default defineComponent({
       return {}
     }, {})
 
-    function handleSetFormView(rowData,column) {
+    function handleSetFormView(rowData, column) {
 
     }
 
@@ -293,9 +294,11 @@ table {
 tr {
   background-color: var(--theme-bg-0);
 }
+
 tr:nth-child(6n + 3) {
   background-color: var(--theme-bg-1);
 }
+
 tr:nth-child(6n + 6) {
   background-color: var(--theme-bg-alt);
 }
@@ -308,6 +311,7 @@ tr:nth-child(6n + 6) {
   background-color: var(--theme-bg-1);
   overflow: hidden;
 }
+
 .header-cell.isSelected {
   background: var(--theme-bg-selected);
 }

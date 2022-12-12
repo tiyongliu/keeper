@@ -10,7 +10,7 @@
 - driver storageSession 重构
 - 修复`CellValue.vue` props value 如果传值为''，界面上会显示true。
 - 修复`databaseConnections.go`SqlSelect方法 call sendRequest
-- SqlFormView.tsx组件的开源
+- 数据库展示单行`SqlFormView.tsx`组件的开发
 - HandleSqlSelect方法runtime.EventsOn改成runtime.EventsOnce
 
 ## 0.0.2.1-alpha.1(2022-09-23)
