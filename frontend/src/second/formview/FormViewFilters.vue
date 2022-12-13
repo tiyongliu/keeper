@@ -17,6 +17,18 @@
         :key="i"
         :formDisplay="formDisplay"
       />
+      <FormViewFilterColumn
+        v-for="(uniqueName, index) in allFilterNames"
+        :key="index"
+        :column="formDisplay ? formDisplay.columns.find(x => x.uniqueName == uniqueName) : null"
+        :formDisplay="formDisplay"
+        :filters="filters"
+        :driver="driver"
+        :conid="conid"
+        :database="database"
+        :schemaName="schemaName"
+        :pureName="pureName"
+      />
     </ManagerInnerContainer>
   </div>
 </template>
@@ -27,6 +39,7 @@ import {keys, union} from 'lodash-es'
 import {Input} from 'ant-design-vue'
 import ManagerInnerContainer from '/@/second/elements/ManagerInnerContainer.vue'
 import PrimaryKeyFilterEditor from '/@/second/formview/PrimaryKeyFilterEditor'
+import FormViewFilterColumn from './FormViewFilterColumn'
 import {TableFormViewDisplay} from '/@/second/keeper-datalib'
 import {EngineDriver} from '/@/second/keeper-types'
 import keycodes from '/@/second/utility/keycodes'
@@ -36,6 +49,7 @@ export default defineComponent({
   components: {
     ManagerInnerContainer,
     PrimaryKeyFilterEditor,
+    FormViewFilterColumn,
     [Input.name]: Input
   },
   props: {
@@ -48,7 +62,6 @@ export default defineComponent({
     setConfig: {
       type: Function as PropType<(target: any) => void>
     },
-
 
     driver: {
       type: Object as PropType<EngineDriver>
