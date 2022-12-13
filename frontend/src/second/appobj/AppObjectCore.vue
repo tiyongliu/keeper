@@ -53,8 +53,6 @@
 <script lang="ts">
 import {defineComponent, PropType, toRefs} from 'vue'
 import FontIcon from '/@/second/icons/FontIcon.vue'
-
-//todo
 import {useContextMenu} from '/@/hooks/web/useContextMenu'
 import {handleContextMenu} from '/@/second/utility/contextMenu'
 
