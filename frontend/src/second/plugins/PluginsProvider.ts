@@ -36,7 +36,7 @@ export default function initPluginsProvider() {
         )
       })
       .then(() => {
-        bootstrap.subscribeExtensions(
+        bootstrap.setExtensions(
           buildExtensions(buildPlugins(installedPlugins.value))
         )
       })
@@ -53,20 +53,14 @@ export default function initPluginsProvider() {
   }
 }
 
-async function loadPlugins(pluginsDict, installedPlugins, dataBase) {
+async function loadPlugins(pluginsDict, installedPlugins, bootstrap) {
   const newPlugins = {}
   for (const installed of installedPlugins || []) {
     if (!keys(pluginsDict).includes(installed.name)) {
-      dataBase.subscribeLoadingPluginStore({
+      bootstrap.setLoadingPluginStore({
         loaded: false,
         loadingPackageName: installed.name
       })
-
-
-      //todo v0.0.2 从接口获取改为静态文件
-      // const resp = await pluginsScriptApi({
-      //   packageName: installed.name,
-      // })
 
       //这种方法开发环境可以，编译后无法访问。
       // const defaultFrontend = await import(`./keeper-plugin-${installed.name}`)
@@ -76,7 +70,7 @@ async function loadPlugins(pluginsDict, installedPlugins, dataBase) {
   }
 
   if (installedPlugins) {
-    dataBase.subscribeLoadingPluginStore({
+    bootstrap.setLoadingPluginStore({
       loaded: true,
       loadingPackageName: null
     })

@@ -11,8 +11,10 @@
         showMacros
         :runMacro="handleRunMacro"
         :macroCondition="macro => macro.type == 'transformValue'"
+        :referenceSourceChanged="handleReferenceSourceChanged"
         :multipleGridsOnTab="multipleGridsOnTab || !!reference"
         allowDefineVirtualReferences
+        :referenceClick="handleReferenceClick"
       />
     </template>
     <template #2>
@@ -65,7 +67,7 @@ import {extendDatabaseInfoFromApps, findEngineDriver} from '/@/second/keeper-too
 import {getFilterValueExpression} from '/@/second/keeper-filterparser'
 import {DatabaseInfo, ExtensionsDirectory} from '/@/second/keeper-types'
 import {useClusterApiStore} from '/@/store/modules/clusterApi'
-
+import {createGridConfig} from '/@/second/keeper-datalib'
 export default defineComponent({
   name: 'TableDataGrid',
   props: {
@@ -238,10 +240,19 @@ export default defineComponent({
       }
     }
 
+    function handleReferenceClick(value) {
+      if (value && value.referenceId && reference.value && reference.value['referenceId'] == value.referenceId) {
+        // reference not changed
+        return;
+      }
+      setChildConfig(createGridConfig(), value)
+    }
+
     return {
       SqlDataGridCore,
       SqlFormView,
       handleReferenceSourceChanged,
+      handleReferenceClick,
       handleCloseReference,
       display,
       formDisplay,

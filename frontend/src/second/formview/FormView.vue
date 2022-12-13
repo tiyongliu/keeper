@@ -38,12 +38,12 @@
             :isModifiedCell="(rowStatus && rowStatus.modifiedFields) && rowStatus.modifiedFields.has(col.uniqueName)"
             :allowHintField="!((rowStatus && rowStatus.modifiedFields) && rowStatus.modifiedFields.has(col.uniqueName))"
             v-model:domCell="domCells[`${rowIndex},${chunkIndex * 2 + 1}`]"
+            :setFormView="handleSetFormView"
             :showSlot="!rowData ||
                   (inplaceEditorState.cell &&
                   rowIndex == inplaceEditorState.cell[0] &&
                   chunkIndex * 2 + 1 == inplaceEditorState.cell[1])"
             :isCurrentCell="currentCell[0] == rowIndex && currentCell[1] == chunkIndex * 2 + 1"
-            :setFormView="handleSetFormView"
             :dictionaryLookup="() => handleLookup(col)"
           >
             <InplaceEditor
@@ -55,10 +55,17 @@
               :width="getCellWidth(rowIndex, chunkIndex * 2 + 1)"
               :inplaceEditorState="inplaceEditorState"
               :dispatchInsplaceEditor="dispatchInsplaceEditor"
-              :cellValue="rowData[col.uniqueName]"/>
+              :cellValue="rowData[col.uniqueName]"
+              @setValue="value => former.setCellValue(col.uniqueName, value)"/>
           </DataGridCell>
         </tr>
       </table>
+      <input
+        type="text"
+        class="focus-field"
+        @keydown="handleKeyDown"
+        @copy="copyToClipboard"
+      />
     </div>
     <div v-if="rowCountInfo" class="row-count-label">{{ rowCountInfo }}</div>
   </div>
@@ -81,6 +88,7 @@ import {
   watch
 } from 'vue'
 import {chunk} from 'lodash-es'
+import {Input} from 'ant-design-vue'
 import {filterName} from '/@/second/keeper-tools'
 import {GridConfig, TableFormViewDisplay} from '/@/second/keeper-datalib'
 import FontIcon from '/@/second/icons/FontIcon.vue'
@@ -91,7 +99,7 @@ import InplaceEditor from '/@/second/datagrid/InplaceEditor.vue'
 import {plusExpandIcon} from '/@/second/icons/expandIcons'
 import createReducer from '/@/second/utility/createReducer'
 import ChangeSetFormer from './ChangeSetFormer'
-
+import {extractRowCopiedValue, copyTextToClipboard} from '/@/second/utility/clipboard'
 export default defineComponent({
   name: 'FormView',
   components: {
@@ -99,7 +107,8 @@ export default defineComponent({
     ColumnLabel,
     DataGridCell,
     LoadingInfo,
-    InplaceEditor
+    InplaceEditor,
+    [Input.name]: Input
   },
   props: {
     conid: {
@@ -184,6 +193,13 @@ export default defineComponent({
       updateWidgetStyle()
     })
 
+    function copyToClipboard() {
+      const column = getCellColumn(currentCell);
+      if (!column) return;
+      const text = currentCell[1] % 2 == 1 ? extractRowCopiedValue(rowData, column.uniqueName) : column.columnName;
+      copyTextToClipboard(text);
+    }
+
     const scrollIntoView = cell => {
       const element = domCells[`${cell[0]},${cell[1]}`];
       if (element) element.scrollIntoView();
@@ -243,6 +259,9 @@ export default defineComponent({
       console.log(col, `col?col`)
     }
 
+    function handleKeyDown(event) {
+
+    }
     return {
       container,
       domCells,
@@ -261,6 +280,8 @@ export default defineComponent({
       plusExpandIcon,
       handleLookup,
       handleSetFormView,
+      handleKeyDown,
+      copyToClipboard
     }
   }
 })

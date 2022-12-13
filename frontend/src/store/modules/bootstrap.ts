@@ -8,14 +8,14 @@ import {ExtensionsDirectory} from '/@/second/typings/types/extensions.d'
 
 interface IVariableBasic {
   openedConnections: string[]
-  currentDatabase: null | IPinnedDatabasesItem,
-  extensions: ExtensionsDirectory | null
-  currentDropDownMenu: null | ICurrentDropDownMenu
+  currentDatabase: Nullable<IPinnedDatabasesItem>,
+  extensions: Nullable<ExtensionsDirectory>
+  currentDropDownMenu: Nullable<ICurrentDropDownMenu>
   commands: object
   commandsSettings: object
-  visibleCommandPalette: null | unknown
+  visibleCommandPalette: Nullable<unknown>
   commandsCustomized: object
-  loadingPluginStore: { loaded: boolean, loadingPackageName: string | null }
+  loadingPluginStore: { loaded: boolean, loadingPackageName: Nullable<string> }
   connections: []
   databases: []
   selectedCellsCallback: Nullable<() => any>
@@ -43,6 +43,8 @@ export interface ICurrentDropDownMenu {
 }
 
 let visibleCommandPaletteValue = null
+let openedConnectionsValue: Nullable<any> = null
+export const getOpenedConnections = () => openedConnectionsValue;
 export const useBootstrapStore = defineStore({
   id: "app-bootstrap",
   state: (): IVariableBasic => ({
@@ -57,21 +59,21 @@ export const useBootstrapStore = defineStore({
     visibleCommandPalette: null,
     commandsCustomized: {},
     loadingPluginStore: {
-      loaded: true,
+      loaded: false,
       loadingPackageName: null
     },
     connections: [],
     databases: [],
-    selectedCellsCallback: null
+    selectedCellsCallback: null,
   }),
   getters: {
     getOpenedConnections(): string[] {
       return this.openedConnections
     },
-    getCurrentDatabase(): IPinnedDatabasesItem | null {
+    getCurrentDatabase(): Nullable<IPinnedDatabasesItem> {
       return this.currentDatabase
     },
-    getPinnedExtensions(): ExtensionsDirectory | null {
+    getPinnedExtensions(): Nullable<ExtensionsDirectory> {
       return this.extensions
     },
     getCommandsCustomized(): any[] {
@@ -83,15 +85,15 @@ export const useBootstrapStore = defineStore({
     }
   },
   actions: {
-    subscribeOpenedConnections(value: string[]) {
+    setOpenedConnections(value: string[]) {
       this.openedConnections = value
     },
     removeCurrentDatabase(deleteId) {
       if (this.currentDatabase && this.currentDatabase.connection._id == deleteId) {
-        this.subscribeCurrentDatabase(null)
+        this.setCurrentDatabase(null)
       }
     },
-    subscribeCurrentDatabase(value: null | IPinnedDatabasesItem) {
+    setCurrentDatabase(value: null | IPinnedDatabasesItem) {
       this.currentDatabase = value
       if (value?.connection?._id) {
         if (value?.connection?.singleDatabase) {
@@ -99,39 +101,44 @@ export const useBootstrapStore = defineStore({
         } else {
           this.openedConnections = uniq([...this.openedConnections, value?.connection?._id])
           this.expandedConnections = uniq([...this.expandedConnections, value?.connection?._id])
+          openedConnectionsValue = this.openedConnections
         }
       }
     },
-    subscribeExtensions(value: ExtensionsDirectory) {
+    setExtensions(value: ExtensionsDirectory) {
       this.extensions = value
     },
-    subscribeCurrentDropDownMenu(value: null | ICurrentDropDownMenu) {
+    setCurrentDropDownMenu(value: null | ICurrentDropDownMenu) {
       this.currentDropDownMenu = value
     },
-    subscribeVisibleCommandPalette(value) {
+    setCommandPalette(value) {
       visibleCommandPaletteValue = value
       console.log(visibleCommandPaletteValue)
       void invalidateCommands()
     },
-    setVisibleCommandPalette(value: null | unknown) {
+    setVisibleCommandPalette(value: Nullable<unknown>) {
       this.visibleCommandPalette = value
     },
-    subscribeCommands(value: object) {
+    setCommands(value: object) {
       this.commands = value
       this.commandsCustomized = derived(this.commands, this.commandsSettings)
     },
-    subscribeCommandsSettings(value: object) {
+    setCommandsSettings(value: object) {
       this.commandsSettings = value
       this.commandsCustomized = derived(this.commands, this.commandsSettings)
     },
-    subscribeLoadingPluginStore(value: { loaded: boolean, loadingPackageName: string | null }) {
+    setLoadingPluginStore(value: { loaded: boolean, loadingPackageName: Nullable<string> }) {
       this.loadingPluginStore = value
     },
-    subscribeConnections(payload): void {
+    setConnections(payload): void {
       this.connections = payload
     },
-    subscribeSelectedCellsCallback(value: () => any) {
+    setSelectedCellsCallback(value: () => any) {
       this.selectedCellsCallback = value
+    },
+    updateExpandedConnections(callback) {
+      console.log(callback)
+      this.expandedConnections = callback(this.expandedConnections)
     }
   }
 });

@@ -37,15 +37,15 @@ export default defineComponent({
         isBold={get(unref(currentDatabase), 'connection._id') == get(unref(data)!.connection, '_id') &&
           get(unref(currentDatabase), 'name') == unref(data)!.name
         }
-        onClick={() => bootstrap.subscribeCurrentDatabase(unref(data)!)}
+        onClick={() => bootstrap.setCurrentDatabase(unref(data)!)}
         menu={createMenu}
         showPinnedInsteadOfUnpin={unref(passProps)?.showPinnedInsteadOfUnpin}
-        pin={unref(isPinned) ? null : () => localeStore.subscribePinnedDatabases(uniqWith([
+        pin={unref(isPinned) ? null : () => localeStore.setPinnedDatabases(uniqWith([
           ...unref(pinnedDatabases),
           unref(data!)
         ], isEqual))}
         unpin={unref(isPinned) ? () => {
-          localeStore.subscribePinnedDatabases(
+          localeStore.setPinnedDatabases(
             unref(pinnedDatabases).filter(x => x.name != unref(data)!.name || x.connection?._id != unref(data)!.connection?._id) as []
           )
         } : null}

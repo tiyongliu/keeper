@@ -70,7 +70,6 @@ import DatabaseObjectAppObject from '/@/second/appobj/DatabaseObjectAppObject'
 import SubColumnParamList from '/@/second/appobj/SubColumnParamList'
 import {getObjectTypeFieldLabel} from '/@/second/utility/common'
 import {chevronExpandIcon} from '/@/second/icons/expandIcons'
-//todo api tables dataSource
 import {storeToRefs} from 'pinia'
 import {flatten, sortBy} from 'lodash-es'
 import {useConnectionInfo, useDatabaseInfo, useDatabaseStatus} from "/@/api/bridge"

@@ -9,7 +9,7 @@ const {getOpenedTabs} = storeToRefs(locale)
 
 const closeTabFunc = closeCondition => tabid => {
   const files = unref(getOpenedTabs)
-  locale.subscribeOpenedTabs(() => {
+  locale.setOpenedTabs(() => {
     const active = files.find(x => x.tabid == tabid);
     if (!active) return files;
     const newFiles = files.map(x => ({
@@ -31,7 +31,7 @@ const closeTabFunc = closeCondition => tabid => {
 
 export const closeMultipleTabs = (closeCondition, deleteFromHistory = false) => {
   const files = unref(getOpenedTabs)
-  locale.subscribeOpenedTabs(() => {
+  locale.setOpenedTabs(() => {
     const newFiles = deleteFromHistory
       ? files.filter(x => !closeCondition(x))
       : files.map(x => ({

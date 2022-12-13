@@ -17,7 +17,7 @@ export async function handleContextMenu(e, items: any = []) {
 
     console.log(`targetElement`, e.target)
     console.log(items, `console----------items-----------`)
-    bootstrap.subscribeCurrentDropDownMenu({left, top, items, targetElement: e.target})
+    bootstrap.setCurrentDropDownMenu({left, top, items, targetElement: e.target})
   }
 
   if (items === '__no_menu') return

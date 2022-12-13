@@ -12,7 +12,7 @@ export default defineComponent({
         top={bootstrap.$state.currentDropDownMenu.top}
         item={bootstrap.$state.currentDropDownMenu.items}
         targetElement={bootstrap.$state.currentDropDownMenu.targetElement}
-        onClose={() => bootstrap.subscribeCurrentDropDownMenu(null)}
+        onClose={() => bootstrap.setCurrentDropDownMenu(null)}
       />
   }
 })

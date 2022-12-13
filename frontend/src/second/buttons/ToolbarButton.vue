@@ -11,7 +11,7 @@
 </template>
 
 <script lang="ts">
-import {defineComponent, toRef} from 'vue'
+import {defineComponent, toRef, toRefs} from 'vue'
 import FontIcon from '/@/second/icons/FontIcon.vue'
 
 export default defineComponent({
@@ -42,7 +42,7 @@ export default defineComponent({
       emit('click')
     }
     return {
-      ...props,
+      ...toRefs(props),
       handleClick
     }
   }

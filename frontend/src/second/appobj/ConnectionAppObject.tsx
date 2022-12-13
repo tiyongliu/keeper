@@ -69,12 +69,12 @@ export default defineComponent({
 
     const handleConnect = () => {
       if (unref(data)!.singleDatabase) {
-        bootstrap.subscribeCurrentDatabase({
+        bootstrap.setCurrentDatabase({
           connection: unref(data)!,
           name: unref(data)!.defaultDatabase
         } as unknown as IPinnedDatabasesItem)
       } else {
-        bootstrap.subscribeOpenedConnections(uniq([...bootstrap.getOpenedConnections, unref(data)!._id]))
+        bootstrap.setOpenedConnections(uniq([...bootstrap.getOpenedConnections, unref(data)!._id]))
         timerId = setTimeout(() => {
           void serverConnectionsRefreshApi({
             conid: unref(data)!._id,
@@ -118,7 +118,7 @@ export default defineComponent({
     })
 
     onMounted(() => {
-      // dataBase.subscribeExtensions(buildExtensions() as any)
+      // dataBase.setExtensions(buildExtensions() as any)
       statusTitleRef.value = unref(statusTitle)
       statusIconRef.value = unref(statusIcon)
       extInfoRef.value = unref(extInfo)

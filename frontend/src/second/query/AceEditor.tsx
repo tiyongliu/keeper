@@ -130,7 +130,7 @@ export default defineComponent({
       e.preventDefault()
       const left = e.pageX
       const top = e.pageY
-      bootstrap.subscribeCurrentDropDownMenu({ left, top, items: menu.value!, targetElement: e.target })
+      bootstrap.setCurrentDropDownMenu({ left, top, items: menu.value!, targetElement: e.target })
     }
 
     const handleKeyDown = (data, hash, keyString, keyCode, event) => {

@@ -417,11 +417,11 @@ export default defineComponent({
       title={unref(data)!.schemaName ? `${unref(data)!.schemaName}.${unref(data)!.pureName}` : unref(data)!.pureName}
       icon={databaseObjectIcons[data.value!.objectTypeField]}
       showPinnedInsteadOfUnpin={passProps.value?.showPinnedInsteadOfUnpin}
-      pin={unref(isPinned) ? null : () => localeStore.subscribePinnedTables([
+      pin={unref(isPinned) ? null : () => localeStore.setPinnedTables([
         ...unref(pinnedTables),
         unref(data)!
       ])}
-      unpin={unref(isPinned) ? () => localeStore.subscribePinnedTables(
+      unpin={unref(isPinned) ? () => localeStore.setPinnedTables(
         unref(pinnedTables).filter(x => !testEqual(x, data.value))
       ) : null}
       extInfo={unref(data)!.tableRowCount != null ? `${formatRowCount(unref(data)!.tableRowCount)} rows` : null}

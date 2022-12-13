@@ -6,13 +6,16 @@
     <template #1>
       <div class="left">
         <WidgetColumnBar>
+
           <WidgetColumnBarItem
             title="Columns"
             name="columns"
             height="45%"
-            :show="columnsShow">
+            :show="(!freeTableColumn || isDynamicStructure) && !isFormView">
             <ColumnManager
-              v-bind="pick(Object.assign({}, $props, $attrs), ['managerSize', 'display', 'isJsonView', 'isDynamicStructure', 'conid', 'database'])"
+              :conid="$attrs['conid']"
+              :database="$attrs['database']"
+              :display="display"
               :managerSize="managerSize"
               :isJsonView="isJsonView"
               :isDynamicStructure="isDynamicStructure"
@@ -23,7 +26,7 @@
             title="Filters"
             name="jsonFilters"
             height="30%"
-            :skip="jsonFiltersSkip">
+            :skip="!isDynamicStructure || !display?.filterable">
             <JsonViewFilters
               v-bind="Object.assign({}, $props, $attrs)"
               :managerSize="managerSize"
@@ -36,14 +39,52 @@
             name="tableFilters"
             height="15%"
             :skip="!display?.filterable || isDynamicStructure || display.filterCount == 0 || isFormView"
-            :collapsed="isDetailView"
-          >
+            :collapsed="isDetailView">
             <JsonViewFilters
               v-bind="Object.assign({}, $props, $attrs)"
               :managerSize="managerSize"
               :isDynamicStructure="isDynamicStructure"
               :useEvalFilters="useEvalFilters"/>
           </WidgetColumnBarItem>
+
+          <WidgetColumnBarItem
+            title="Columns"
+            name="freeColumns"
+            height="40%"
+            skip
+            :show="freeTableColumn && !isDynamicStructure">
+            <FreeTableColumnEditor
+              v-bind="Object.assign({}, $props, $attrs)"
+              :managerSize="managerSize"/>
+          </WidgetColumnBarItem>
+
+          <WidgetColumnBarItem title="Filters" name="filters" height="30%" skip :show="isFormView">
+            <FormViewFilters
+              v-bind="Object.assign({}, $props, $attrs)"
+              :managerSize="managerSize"
+              :driver="formDisplay?.driver"/>
+          </WidgetColumnBarItem>
+
+          <WidgetColumnBarItem
+            title="References"
+            name="references"
+            height="30%"
+            :collapsed="isDetailView"
+            skip
+            :show="showReferences && display?.hasReferences">
+            <ReferenceManager
+              v-bind="Object.assign({}, $props, $attrs)"
+              :managerSize="managerSize"/>
+          </WidgetColumnBarItem>
+
+          <WidgetColumnBarItem
+            title="Macros"
+            name="macros"
+            :skip="!showMacros"
+            :collapsed="!expandMacros">
+            <MacroManager v-bind="Object.assign({}, $props, $attrs)" :managerSize="managerSize"/>
+          </WidgetColumnBarItem>
+
         </WidgetColumnBar>
       </div>
     </template>
@@ -93,7 +134,7 @@ import {
   unref,
   watch
 } from 'vue'
-import {fromPairs, isNumber, mapKeys, pick} from 'lodash-es'
+import {fromPairs, isNumber, mapKeys} from 'lodash-es'
 import HorizontalSplitter from '/@/second/elements/HorizontalSplitter.vue'
 import WidgetColumnBar from '/@/second/widgets/WidgetColumnBar.vue'
 import WidgetColumnBarItem from '/@/second/widgets/WidgetColumnBarItem.vue'
@@ -101,6 +142,10 @@ import VerticalSplitter from '/@/second/elements/VerticalSplitter.vue'
 import MacroDetail from '/@/second/freetable/MacroDetail.vue'
 import ColumnManager from '/@/second/datagrid/ColumnManager.vue'
 import JsonViewFilters from '/@/second/jsonview/JsonViewFilters'
+import FormViewFilters from '/@/second/formview/FormViewFilters.vue'
+import ReferenceManager from '/@/second/datagrid/ReferenceManager.vue'
+import MacroManager from '/@/second/freetable/MacroManager.vue'
+import FreeTableColumnEditor from '/@/second/formview/FreeTableColumnEditor.vue'
 import {getLocalStorage, setLocalStorage} from '/@/second/utility/storageCache'
 import {
   GridConfig,
@@ -124,6 +169,19 @@ function extractMacroValuesForMacro(vObject, mObject) {
 
 export default defineComponent({
   name: "DataGrid",
+  components: {
+    HorizontalSplitter,
+    VerticalSplitter,
+    MacroDetail,
+    WidgetColumnBar,
+    WidgetColumnBarItem,
+    ColumnManager,
+    JsonViewFilters,
+    FormViewFilters,
+    ReferenceManager,
+    MacroManager,
+    FreeTableColumnEditor
+  },
   props: {
     gridCoreComponent: {
       type: [String, Object] as PropType<string | Component | any>,
@@ -181,15 +239,6 @@ export default defineComponent({
       type: Function as PropType<(macro: MacroDefinition, params: {}, cells: MacroSelectedCell[]) => void>
     }
   },
-  components: {
-    HorizontalSplitter,
-    VerticalSplitter,
-    MacroDetail,
-    WidgetColumnBar,
-    WidgetColumnBarItem,
-    ColumnManager,
-    JsonViewFilters
-  },
   setup(props) {
     const {
       config,
@@ -227,7 +276,6 @@ export default defineComponent({
 
     const isFormView = computed(() => !!(formDisplay.value && formDisplay.value.config && formDisplay.value.config.isFormView))
     const isJsonView = computed(() => !!(config.value && config.value['isJsonView']))
-    const columnsShow = computed(() => !freeTableColumn.value || isDynamicStructure.value && isFormView.value)
     const jsonFiltersSkip = computed(() => !isDynamicStructure.value || !(display.value && display.value?.filterable))
     const selectedCellsPublished = ref(() => [])
 
@@ -267,6 +315,7 @@ export default defineComponent({
       if (managerSize.value) setLocalStorage('dataGridManagerWidth', managerSize.value)
     })
 
+
     return {
       domColumnManager,
       gridCoreComponent,
@@ -279,7 +328,6 @@ export default defineComponent({
       extractMacroValuesForMacro,
       handleExecuteMacro,
       unref,
-      columnsShow,
       jsonFiltersSkip,
       freeTableColumn,
       display,
@@ -289,8 +337,7 @@ export default defineComponent({
       isFormView,
       isJsonView,
       isDynamicStructure,
-      useEvalFilters,
-      pick
+      useEvalFilters
     }
   }
 })

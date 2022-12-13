@@ -155,7 +155,7 @@ export default defineComponent({
       if (conid) {
         const connection = await getConnectionInfo({conid, database})
         if (connection) {
-          bootstrap.subscribeCurrentDatabase({
+          bootstrap.setCurrentDatabase({
             connection: unref(connection),
             name: unref(database)
           })
@@ -163,7 +163,7 @@ export default defineComponent({
           return;
         }
       }
-      bootstrap.subscribeCurrentDatabase(null)
+      bootstrap.setCurrentDatabase(null)
     }
 
     function getDatabaseContextMenu(tabs) {
@@ -218,7 +218,7 @@ export default defineComponent({
           ]
 
       const tabs = unref(openedTabs)
-      localeStore.subscribeOpenedTabs(() => {
+      localeStore.setOpenedTabs(() => {
         return tabs.map(x => {
           const index = findIndex(newItems, y => y.tabid == x.tabid)
           if (index >= 0) {

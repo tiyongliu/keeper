@@ -10,6 +10,6 @@ registerCommand({
   name: 'Connection',
   testEnabled: () => false,
   onClick: () => {
-    alert(`33`)
+
   }
 })

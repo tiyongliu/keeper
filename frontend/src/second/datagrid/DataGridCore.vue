@@ -172,7 +172,8 @@ import {
   pick,
   range,
   sumBy,
-  uniq
+  uniq,
+  get
 } from 'lodash-es'
 import ErrorInfo from '/@/second/elements/ErrorInfo.vue'
 import LoadingInfo from '/@/second/elements/LoadingInfo.vue'
@@ -326,6 +327,9 @@ export default defineComponent({
     },
     jslid: {
       type: [String, Number] as PropType<string | number>
+    },
+    referenceClick: {
+      type: Function as PropType<(value: any) => void>
     }
   },
   emits: ['selectedCellsPublished'],
@@ -341,6 +345,7 @@ export default defineComponent({
       allRowCount,
       changeSelectedColumns,
       focusOnVisible,
+      referenceClick
     } = toRefs(props)
 
     const bootstrap = useBootstrapStore()
@@ -429,7 +434,7 @@ export default defineComponent({
         lastPublishledSelectedCellsRef.set(stringified)
         const cellsValue = () => getCellsPublished(selectedCells.value)
         emit('selectedCellsPublished', cellsValue)
-        bootstrap.subscribeSelectedCellsCallback(cellsValue)
+        bootstrap.setSelectedCellsCallback(cellsValue)
         if (changeSelectedColumns.value) changeSelectedColumns.value(getSelectedColumns().map(x => x.columnName))
       }
     })
@@ -437,6 +442,22 @@ export default defineComponent({
     watchEffect(() => {
       if (unref(tabVisible) && domFocusField.value && focusOnVisible.value) {
         domFocusField.value && domFocusField.value.focus()
+      }
+
+      if (display.value && display.value?.groupColumns && display.value?.baseTableOrSimilar && referenceClick.value) {
+        referenceClick.value({
+          referenceId: stableStringify(display.value && display.value.groupColumns),
+          schemaName: display.value.baseTableOrSimilar?.schemaName,
+          pureName: display.value.baseTableOrSimilar?.pureName,
+          columns: display.value.groupColumns.map(col => ({
+            baseName: col,
+            refName: col,
+            dataType: get(
+              display.value!.baseTableOrView?.columns?.find(x => x.columnName == col),
+              'dataType'
+            ),
+          }))
+        })
       }
     })
 
@@ -655,7 +676,6 @@ export default defineComponent({
       if (!rowData) return null
       const cellData = rowData[realColumnUniqueNames.value[cell[1]]]
       console.log(cellData.value, `realColumnUniqueNames`)
-      //todo
       /*if (shouldOpenMultilineDialog(cellData)) {
         showModal(EditCellDataModal, {
           value: cellData,

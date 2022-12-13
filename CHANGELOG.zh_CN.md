@@ -12,6 +12,7 @@
 - 修复`databaseConnections.go`SqlSelect方法 call sendRequest
 - 数据库展示单行`SqlFormView.tsx`组件的开发
 - HandleSqlSelect方法runtime.EventsOn改成runtime.EventsOnce
+- 程序加载完毕，判断是否自动跳转到上次记录页面
 
 ## 0.0.2.1-alpha.1(2022-09-23)
 
