@@ -48,8 +48,6 @@ import SubDatabaseList from '/@/second/appobj/SubDatabaseList'
 import {useBootstrapStore} from '/@/store/modules/bootstrap'
 import runCommand from '/@/second/commands/runCommand'
 import LargeButton from '/@/second/buttons/LargeButton.vue'
-
-//TODO
 import ConnectionModal from '/@/second/modals/ConnectionModal.vue'
 import {useModal} from '/@/components/Modal'
 import {useClusterApiStore} from '/@/store/modules/clusterApi'

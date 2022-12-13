@@ -62,12 +62,6 @@ async function loadPlugins(pluginsDict, installedPlugins, dataBase) {
         loadingPackageName: installed.name
       })
 
-
-      //todo v0.0.2 从接口获取改为静态文件
-      // const resp = await pluginsScriptApi({
-      //   packageName: installed.name,
-      // })
-
       //这种方法开发环境可以，编译后无法访问。
       // const defaultFrontend = await import(`./keeper-plugin-${installed.name}`)
       const defaultFrontend = await plugins[installed.name]

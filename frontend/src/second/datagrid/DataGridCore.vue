@@ -655,7 +655,6 @@ export default defineComponent({
       if (!rowData) return null
       const cellData = rowData[realColumnUniqueNames.value[cell[1]]]
       console.log(cellData.value, `realColumnUniqueNames`)
-      //todo
       /*if (shouldOpenMultilineDialog(cellData)) {
         showModal(EditCellDataModal, {
           value: cellData,

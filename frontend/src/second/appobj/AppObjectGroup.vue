@@ -73,7 +73,7 @@
       const countText = computed(() => unref(filtered).length < unref(items)!.length ? `${unref(filtered).length}/${unref(items)!.length}` : `${unref(items)!.length}`)
 
       const handleCheckAll = (isChecked: boolean) => {
-        //todo console.log(isChecked)
+        console.log(isChecked)
       }
 
       return {
