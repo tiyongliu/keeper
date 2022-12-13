@@ -44,6 +44,20 @@
               :isDynamicStructure="isDynamicStructure"
               :useEvalFilters="useEvalFilters"/>
           </WidgetColumnBarItem>
+
+          <WidgetColumnBarItem
+            title="Columns"
+            name="freeColumns"
+            height="40%"
+            :show="freeTableColumn && !isDynamicStructure">
+          </WidgetColumnBarItem>
+
+          <WidgetColumnBarItem title="Filters" name="filters" height="30%" :show="isFormView">
+            <FormViewFilters
+              v-bind="Object.assign({}, $props, $attrs)"
+              :managerSize="managerSize"
+              :driver="formDisplay?.driver" />
+          </WidgetColumnBarItem>
         </WidgetColumnBar>
       </div>
     </template>
@@ -101,6 +115,7 @@ import VerticalSplitter from '/@/second/elements/VerticalSplitter.vue'
 import MacroDetail from '/@/second/freetable/MacroDetail.vue'
 import ColumnManager from '/@/second/datagrid/ColumnManager.vue'
 import JsonViewFilters from '/@/second/jsonview/JsonViewFilters'
+import FormViewFilters from '/@/second/formview/FormViewFilters.vue'
 import {getLocalStorage, setLocalStorage} from '/@/second/utility/storageCache'
 import {
   GridConfig,
@@ -124,6 +139,16 @@ function extractMacroValuesForMacro(vObject, mObject) {
 
 export default defineComponent({
   name: "DataGrid",
+  components: {
+    HorizontalSplitter,
+    VerticalSplitter,
+    MacroDetail,
+    WidgetColumnBar,
+    WidgetColumnBarItem,
+    ColumnManager,
+    JsonViewFilters,
+    FormViewFilters
+  },
   props: {
     gridCoreComponent: {
       type: [String, Object] as PropType<string | Component | any>,
@@ -180,15 +205,6 @@ export default defineComponent({
     runMacro: {
       type: Function as PropType<(macro: MacroDefinition, params: {}, cells: MacroSelectedCell[]) => void>
     }
-  },
-  components: {
-    HorizontalSplitter,
-    VerticalSplitter,
-    MacroDetail,
-    WidgetColumnBar,
-    WidgetColumnBarItem,
-    ColumnManager,
-    JsonViewFilters
   },
   setup(props) {
     const {
