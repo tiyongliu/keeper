@@ -36,8 +36,7 @@
             name="tableFilters"
             height="15%"
             :skip="!display?.filterable || isDynamicStructure || display.filterCount == 0 || isFormView"
-            :collapsed="isDetailView"
-          >
+            :collapsed="isDetailView">
             <JsonViewFilters
               v-bind="Object.assign({}, $props, $attrs)"
               :managerSize="managerSize"
@@ -56,7 +55,26 @@
             <FormViewFilters
               v-bind="Object.assign({}, $props, $attrs)"
               :managerSize="managerSize"
-              :driver="formDisplay?.driver" />
+              :driver="formDisplay?.driver"/>
+          </WidgetColumnBarItem>
+
+          <WidgetColumnBarItem
+            title="References"
+            name="references"
+            height="30%"
+            :collapsed="isDetailView"
+            :show="showReferences && display?.hasReferences">
+            <ReferenceManager
+              v-bind="Object.assign({}, $props, $attrs)"
+              :managerSize="managerSize"/>
+          </WidgetColumnBarItem>
+
+          <WidgetColumnBarItem
+            title="Macros"
+            name="macros"
+            :skip="!showMacros"
+            :collapsed="!expandMacros">
+            <MacroManager v-bind="Object.assign({}, $props, $attrs)" :managerSize="managerSize"/>
           </WidgetColumnBarItem>
         </WidgetColumnBar>
       </div>
@@ -116,6 +134,8 @@ import MacroDetail from '/@/second/freetable/MacroDetail.vue'
 import ColumnManager from '/@/second/datagrid/ColumnManager.vue'
 import JsonViewFilters from '/@/second/jsonview/JsonViewFilters'
 import FormViewFilters from '/@/second/formview/FormViewFilters.vue'
+import ReferenceManager from '/@/second/datagrid/ReferenceManager.vue'
+import MacroManager from '/@/second/freetable/MacroManager.vue'
 import {getLocalStorage, setLocalStorage} from '/@/second/utility/storageCache'
 import {
   GridConfig,
@@ -147,7 +167,9 @@ export default defineComponent({
     WidgetColumnBarItem,
     ColumnManager,
     JsonViewFilters,
-    FormViewFilters
+    FormViewFilters,
+    ReferenceManager,
+    MacroManager
   },
   props: {
     gridCoreComponent: {
