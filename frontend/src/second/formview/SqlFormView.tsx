@@ -25,9 +25,18 @@ export default defineComponent({
     database: {
       type: String as PropType<string>
     },
+    referenceSourceChanged: {
+      type: Function as PropType<(value: any[], loadedTime: number) => void>
+    }
   },
   setup(props, {attrs}) {
-    const {changeSetState, dispatchChangeSet, formDisplay, masterLoadedTime} = toRefs(props)
+    const {
+      changeSetState,
+      dispatchChangeSet,
+      formDisplay,
+      masterLoadedTime,
+      referenceSourceChanged
+    } = toRefs(props)
     const isLoadingData = ref(false)
     const isLoadedData = ref(false)
     const rowData = ref<Nullable<any>>(null)
@@ -100,6 +109,10 @@ export default defineComponent({
       if (formDisplay.value && formDisplay.value.isLoadedCorrectly) {
         if (!isLoadedData.value && !isLoadingData.value) void handleLoadCurrentRow()
         if (isLoadedData.value && !isLoadingCount.value && !isLoadedCount.value) void handleLoadRowCount()
+      }
+
+      if (referenceSourceChanged.value && rowData.value) {
+        referenceSourceChanged.value([rowData.value], loadedTime.value)
       }
     })
 

@@ -183,15 +183,6 @@ func (msg *DatabaseConnection) HandleSqlSelect(
 				}
 				return
 			}
-
-			//todo 这个短期测试使用，后期需要删除掉
-			if driver.Ping() != nil {
-				ch <- &containers.EchoMessage{
-					MsgType: "response",
-					Err:     driver.Ping(),
-				}
-				return
-			}
 			ch <- msg.handleQueryData(driver, sql[0].(string), true)
 		}, func(err error) {
 			ch <- &containers.EchoMessage{

@@ -1,4 +1,5 @@
-
+import {get} from 'lodash-es'
+import {stringifyCellValue} from '/@/second/keeper-tools'
 export function copyTextToClipboard(text) {
   const oldFocus = document.activeElement;
 
@@ -61,4 +62,10 @@ export function copyTextToClipboard(text) {
     // @ts-ignore
     oldFocus.focus();
   }
+}
+
+export function extractRowCopiedValue(row, col) {
+  let value = row[col];
+  if (value === undefined) value = get(row, col);
+  return stringifyCellValue(value);
 }
