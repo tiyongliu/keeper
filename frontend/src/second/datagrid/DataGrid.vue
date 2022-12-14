@@ -10,7 +10,7 @@
             title="Columns"
             name="columns"
             height="45%"
-            :show="columnsShow">
+            :show="(!freeTableColumn || isDynamicStructure) && columnsShow">
             <ColumnManager
               v-bind="pick(Object.assign({}, $props, $attrs), ['managerSize', 'display', 'isJsonView', 'isDynamicStructure', 'conid', 'database'])"
               :managerSize="managerSize"
@@ -23,7 +23,7 @@
             title="Filters"
             name="jsonFilters"
             height="30%"
-            :skip="jsonFiltersSkip">
+            :skip="!isDynamicStructure || !display?.filterable">
             <JsonViewFilters
               v-bind="Object.assign({}, $props, $attrs)"
               :managerSize="managerSize"
