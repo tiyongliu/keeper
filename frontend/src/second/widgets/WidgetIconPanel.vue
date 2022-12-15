@@ -84,11 +84,11 @@ export default {
       const left = rect.right
       const top = rect.bottom
       const items = [{command: 'settings.show'}, {command: 'theme.changeTheme'}, {command: 'settings.commands'}]
-      bootstrap.subscribeCurrentDropDownMenu({left, top, items})
+      bootstrap.setCurrentDropDownMenu({left, top, items})
     }
 
     function handleChangeWidget(name) {
-      localeStore.subscribeSelectedWidget(name === selectedWidget.value ? null : name)
+      localeStore.setSelectedWidget(name === selectedWidget.value ? null : name)
     }
 
     return {

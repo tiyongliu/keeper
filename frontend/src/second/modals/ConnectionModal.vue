@@ -64,7 +64,7 @@ export default defineComponent({
     const handleSubmit = async () => {
       try {
         const resp = await connectionSaveApi(pickBy(unref(connParams), (item) => !!item))
-        void bootstrap.subscribeConnections([...unref(connections), resp])
+        void bootstrap.setConnections([...unref(connections), resp])
         emit('closeCurrentModal')
       } catch (e) {
         console.log(e)

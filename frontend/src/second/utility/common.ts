@@ -53,5 +53,5 @@ export function setSelectedTabFunc(files, tabid) {
 
 export function setSelectedTab(tabid) {
   const tabs = unref(getOpenedTabs)
-  locale.subscribeOpenedTabs(setSelectedTabFunc(tabs, tabid))
+  locale.setOpenedTabs(setSelectedTabFunc(tabs, tabid))
 }

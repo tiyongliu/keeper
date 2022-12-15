@@ -434,7 +434,7 @@ export default defineComponent({
         lastPublishledSelectedCellsRef.set(stringified)
         const cellsValue = () => getCellsPublished(selectedCells.value)
         emit('selectedCellsPublished', cellsValue)
-        bootstrap.subscribeSelectedCellsCallback(cellsValue)
+        bootstrap.setSelectedCellsCallback(cellsValue)
         if (changeSelectedColumns.value) changeSelectedColumns.value(getSelectedColumns().map(x => x.columnName))
       }
     })

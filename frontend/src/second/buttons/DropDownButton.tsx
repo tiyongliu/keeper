@@ -30,9 +30,9 @@ export default defineComponent({
       const rect = domButton.value!.getBoundingClientRect();
       const left = rect.left;
       const top = rect.bottom;
-      bootstrap.subscribeCurrentDropDownMenu({left, top, items: menu.value!});
+      bootstrap.setCurrentDropDownMenu({left, top, items: menu.value!});
 
-      locale.subscribeCurrentDropDownMenu()
+      locale.setCurrentDropDownMenu()
     }
 
     return () => (

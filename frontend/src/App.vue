@@ -1,61 +1,75 @@
 <template>
   <ConfigProvider :locale="getAntdLocale">
     <AppProvider>
-      <RouterView />
+      <RouterView/>
     </AppProvider>
   </ConfigProvider>
 </template>
 
 <script lang="ts" setup>
-  import { ConfigProvider } from 'ant-design-vue';
-  import { AppProvider } from '/@/components/Application';
-  import { useTitle } from '/@/hooks/web/useTitle';
-  import { useLocale } from '/@/locales/useLocale';
-  import {onMounted} from 'vue'
-  import {connectionListApi} from '/@/api/simpleApis'
-  import dispatchRuntimeEvent from "/@/api/event";
-  import initPluginsProvider from '/@/second/plugins/PluginsProvider'
-  import { subscribeConnectionPingers } from '/@/api/connectionsPinger'
-  let loadedApi = false
+import {ConfigProvider} from 'ant-design-vue';
+import {AppProvider} from '/@/components/Application';
+import {useTitle} from '/@/hooks/web/useTitle';
+import {useLocale} from '/@/locales/useLocale';
+import {onMounted, ref, watchEffect} from 'vue'
+import {storeToRefs} from 'pinia'
+import {connectionListApi} from '/@/api/simpleApis'
+import dispatchRuntimeEvent from "/@/api/event";
+import initPluginsProvider from '/@/second/plugins/PluginsProvider'
+import {subscribeConnectionPingers} from '/@/api/connectionsPinger'
+import {subscribeCurrentDbByTab} from '/@/api/changeCurrentDbByTab'
+import {setAppLoaded} from '/@/second/utility/appLoadManager'
+import {useBootstrapStore} from "/@/store/modules/bootstrap"
+import 'dayjs/locale/zh-cn';
 
-  import 'dayjs/locale/zh-cn';
-  // support Multi-language
-  const { getAntdLocale } = useLocale();
+let loadedApi = ref(false)
 
-  // Listening to page changes and dynamically changing site titles
-  useTitle()
+// support Multi-language
+const {getAntdLocale} = useLocale();
 
-  initPluginsProvider()
+// Listening to page changes and dynamically changing site titles
+useTitle()
 
-  async function loadApi() {
-    try {
-      const connections = await connectionListApi()
-      if (connections) {
-        loadedApi = true
-      }
+initPluginsProvider()
+subscribeCurrentDbByTab()
 
-      if (loadedApi) {
-        subscribeConnectionPingers()
-      }
+const bootstrap = useBootstrapStore()
+const {loadingPluginStore} = storeToRefs(bootstrap)
 
-      if (!loadedApi) {
-        console.log('API not initialized correctly, trying again in 1s');
-        setTimeout(loadApi, 1000);
-      }
-    } catch (err) {
-      console.log('Error calling API, trying again in 1s', err);
+async function loadApi() {
+  try {
+    const connections = await connectionListApi()
+    if (connections) {
+      loadedApi.value = true
+    }
+
+    if (loadedApi.value) {
+      subscribeConnectionPingers()
+    }
+
+    if (!loadedApi.value) {
+      console.log('API not initialized correctly, trying again in 1s');
       setTimeout(loadApi, 1000);
     }
+  } catch (err) {
+    console.log('Error calling API, trying again in 1s', err);
+    setTimeout(loadApi, 1000);
   }
+}
 
-  onMounted(() => {
-    loadApi()
-    const removed = document.getElementById('starting_dbgate_zero');
-    if (removed) removed.remove();
+watchEffect(() => {
+  if (loadedApi.value && loadingPluginStore.value.loaded) {
+    setAppLoaded();
+  }
+})
 
-    if (window.runtime) {
-      dispatchRuntimeEvent()
-    }
-  })
+onMounted(() => {
+  loadApi()
+  const removed = document.getElementById('starting_dbgate_zero');
+  if (removed) removed.remove();
 
+  if (window.runtime) {
+    dispatchRuntimeEvent()
+  }
+})
 </script>

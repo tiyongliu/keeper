@@ -34,6 +34,8 @@ export default defineComponent({
       changeSetState,
       dispatchChangeSet,
       formDisplay,
+      conid,
+      database,
       masterLoadedTime,
       referenceSourceChanged
     } = toRefs(props)
@@ -118,7 +120,11 @@ export default defineComponent({
 
     return () => (
       <FormView
-        {...Object.assign({}, props, attrs)}
+        {...Object.assign({
+          formDisplay: formDisplay.value,
+          conid: conid.value,
+          database: database.value,
+        }, attrs)}
         former={former.value}
         isLoading={isLoadingData.value}
         allRowCount={allRowCount.value}

@@ -89,7 +89,7 @@ export default async function openNewTab(newTab, initialData: any = undefined, o
 
   if (existing) {
     // @ts-ignore
-    locale.subscribeOpenedTabs(setSelectedTabFunc(unref(getOpenedTabs), existing.tabid))
+    locale.setOpenedTabs(setSelectedTabFunc(unref(getOpenedTabs), existing.tabid))
     return
   }
 
@@ -114,7 +114,7 @@ export default async function openNewTab(newTab, initialData: any = undefined, o
   }
 
   const files = unref(getOpenedTabs)
-  locale.subscribeOpenedTabs(() => {
+  locale.setOpenedTabs(() => {
     const dbKey = getTabDbKey(newTab)
     const items = sortTabs(files.filter(x => x.closedTime == null));
 

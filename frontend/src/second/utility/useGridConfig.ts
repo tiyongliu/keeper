@@ -1,4 +1,4 @@
-import {ref, watchEffect} from 'vue'
+import {ref, watch, unref} from 'vue'
 import {createGridConfig} from '/@/second/keeper-datalib'
 
 function doLoadGridConfigFunc(tabid: string) {
@@ -20,12 +20,10 @@ function doLoadGridConfigFunc(tabid: string) {
 export default function useGridConfig(tabid: string) {
   const config = ref(doLoadGridConfigFunc(tabid))
 
-  watchEffect(() => {
-    // const value = unref(config)
-    // localStorage.setItem(`tabdata_grid_${tabid}`, JSON.stringify(value))
-  })
-
-  // watch()
+  watch(() => unref(config), () => {
+    const value = unref(config)
+    localStorage.setItem(`tabdata_grid_${tabid}`, JSON.stringify(value))
+  }, {immediate: true})
 
   return config
 }

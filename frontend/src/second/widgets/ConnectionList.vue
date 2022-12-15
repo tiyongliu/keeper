@@ -95,8 +95,13 @@ export default defineComponent({
       deep: true
     })
 
-    const handleExpandable = (data) =>
-      unref(openedConnections).includes(unref(data)._id) && !unref(data).singleDatabase
+    watch(() => openedConnections.value, () => {
+      console.log(openedConnections.value, `openedConnectionsopenedConnections`)
+    })
+
+    const handleExpandable = (data) => {
+      return openedConnections.value.includes(unref(data)._id) && !unref(data).singleDatabase
+    }
 
     const handleRefreshConnections = async () => {
       try {

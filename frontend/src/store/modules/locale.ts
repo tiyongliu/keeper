@@ -18,7 +18,8 @@ const lsLocaleSetting = (ls.get(LOCALE_KEY) || localeSetting) as LocaleSetting;
 
 interface LocaleState {
   localInfo: LocaleSetting;
-  selectedWidget: null | string
+  selectedWidget: Nullable<string>
+  recentDatabases: unknown[]
   pinnedDatabases: IPinnedDatabasesItem[]
   pinnedTables: any[]
   openedTabs: TabDefinition[]
@@ -40,6 +41,7 @@ export const useLocaleStore = defineStore({
     localInfo: lsLocaleSetting,
     openedTabs: getWithStorageVariableCache<TabDefinition[]>([], 'openedTabs'),
     selectedWidget: getWithStorageVariableCache('database', 'selectedWidget'),
+    recentDatabases: getWithStorageVariableCache([], 'recentDatabases'),
     pinnedDatabases: getWithStorageVariableCache([], 'pinnedDatabases'),
     pinnedTables: getWithStorageVariableCache([], 'pinnedTables'),
     currentDropDownMenu: null,
@@ -62,6 +64,12 @@ export const useLocaleStore = defineStore({
     },
     getOpenedTabs(): TabDefinition[] {
       return this.openedTabs
+    },
+    activeTabId(): string | undefined {
+      return this.openedTabs.find(x => x.selected)?.tabid
+    },
+    activeTab(): any {
+      return this.openedTabs.find(x => x.selected)
     }
   },
   actions: {
@@ -82,41 +90,45 @@ export const useLocaleStore = defineStore({
         ...this.localInfo,
       });
     },
-    subscribeSelectedWidget(name: string | null) {
+    setSelectedWidget(name: Nullable<string>) {
       this.selectedWidget = name
       setWithStorageVariableCache('selectedWidget', name)
     },
-    subscribePinnedDatabases(value: IPinnedDatabasesItem[]) {
+    setPinnedDatabases(value: IPinnedDatabasesItem[]) {
       this.pinnedDatabases = value
       setWithStorageVariableCache('pinnedDatabases', value)
     },
-    subscribePinnedTables(value: any[]) {
+    setPinnedTables(value: any[]) {
       this.pinnedTables = value
       setWithStorageVariableCache('pinnedTables', value)
     },
-    subscribeLeftPanelWidth(value) {
+    setLeftPanelWidth(value) {
       this.leftPanelWidth += value
       document.documentElement.style.setProperty("--dim-left-panel-width", `${this.leftPanelWidth}px`);
       if (isNumber(this.leftPanelWidth)) {
         setWithStorageVariableCache(LEFTPANELWIDTH, String(this.leftPanelWidth));
       }
     },
-    subscribeCssVariable(value, transform, cssVariable) {
+    setCssVariable(value, transform, cssVariable) {
       document.documentElement.style.setProperty(cssVariable, transform(value));
     },
-    subscribeDynamicProps(value: { splitterVisible: boolean }) {
+    setDynamicProps(value: { splitterVisible: boolean }) {
       this.dynamicProps = value
     },
-    subscribeCurrentDropDownMenu() {
+    setCurrentDropDownMenu() {
 
     },
-    subscribeOpenedTabs(value) {
+    setOpenedTabs(value) {
       if (typeof value == 'function') {
         this.openedTabs = value()
       } else {
         this.openedTabs = value
       }
+      localStorage.setItem('openedTabs', JSON.stringify(this.openedTabs))
     },
+    setRecentDatabases() {
+
+    }
   },
 });
 

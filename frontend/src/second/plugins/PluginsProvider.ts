@@ -36,7 +36,7 @@ export default function initPluginsProvider() {
         )
       })
       .then(() => {
-        bootstrap.subscribeExtensions(
+        bootstrap.setExtensions(
           buildExtensions(buildPlugins(installedPlugins.value))
         )
       })
@@ -53,11 +53,11 @@ export default function initPluginsProvider() {
   }
 }
 
-async function loadPlugins(pluginsDict, installedPlugins, dataBase) {
+async function loadPlugins(pluginsDict, installedPlugins, bootstrap) {
   const newPlugins = {}
   for (const installed of installedPlugins || []) {
     if (!keys(pluginsDict).includes(installed.name)) {
-      dataBase.subscribeLoadingPluginStore({
+      bootstrap.setLoadingPluginStore({
         loaded: false,
         loadingPackageName: installed.name
       })
@@ -70,7 +70,7 @@ async function loadPlugins(pluginsDict, installedPlugins, dataBase) {
   }
 
   if (installedPlugins) {
-    dataBase.subscribeLoadingPluginStore({
+    bootstrap.setLoadingPluginStore({
       loaded: true,
       loadingPackageName: null
     })

@@ -26,7 +26,7 @@
     </div>
     <div v-if="selectedWidget" class="horizontal-split-handle splitter"
          v-splitterDrag="'clientX'"
-         :resizeSplitter="(e) => localeStore.subscribeLeftPanelWidth(e.detail)">
+         :resizeSplitter="(e) => localeStore.setLeftPanelWidth(e.detail)">
     </div>
     <CurrentDropDownMenu/>
     <div class="snackbar-container">snackbar-container</div>
@@ -70,15 +70,15 @@ export default defineComponent({
     onMounted(() => excludeFirst.value = true)
 
     watch(() => selectedWidget.value, () => {
-      localeStore.subscribeCssVariable(selectedWidget.value, x => (x ? 1 : 0), '--dim-visible-left-panel')
+      localeStore.setCssVariable(selectedWidget.value, x => (x ? 1 : 0), '--dim-visible-left-panel')
     }, {immediate: true})
 
     watch(() => leftPanelWidth.value, () => {
-      localeStore.subscribeCssVariable(leftPanelWidth.value, x => `${x}px`, '--dim-left-panel-width')
+      localeStore.setCssVariable(leftPanelWidth.value, x => `${x}px`, '--dim-left-panel-width')
     }, {immediate: true})
 
     watch(() => visibleTitleBar.value, () => {
-      localeStore.subscribeCssVariable(visibleTitleBar.value, x => (x ? 1 : 0), '--dim-visible-titlebar')
+      localeStore.setCssVariable(visibleTitleBar.value, x => (x ? 1 : 0), '--dim-visible-titlebar')
     }, {immediate: true})
 
     return {
