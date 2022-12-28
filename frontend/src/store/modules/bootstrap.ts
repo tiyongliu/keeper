@@ -43,6 +43,8 @@ export interface ICurrentDropDownMenu {
 }
 
 let visibleCommandPaletteValue = null
+let openedConnectionsValue: Nullable<any> = null
+export const getOpenedConnections = () => openedConnectionsValue;
 export const useBootstrapStore = defineStore({
   id: "app-bootstrap",
   state: (): IVariableBasic => ({
@@ -99,6 +101,7 @@ export const useBootstrapStore = defineStore({
         } else {
           this.openedConnections = uniq([...this.openedConnections, value?.connection?._id])
           this.expandedConnections = uniq([...this.expandedConnections, value?.connection?._id])
+          openedConnectionsValue = this.openedConnections
         }
       }
     },
@@ -133,6 +136,9 @@ export const useBootstrapStore = defineStore({
     setSelectedCellsCallback(value: () => any) {
       this.selectedCellsCallback = value
     },
+    updateExpandedConnections(callback) {
+      this.expandedConnections = callback(this.expandedConnections)
+    }
   }
 });
 

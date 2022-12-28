@@ -126,8 +126,9 @@ export const useLocaleStore = defineStore({
       }
       localStorage.setItem('openedTabs', JSON.stringify(this.openedTabs))
     },
-    setRecentDatabases() {
-
+    updateRecentDatabases(callback) {
+      this.recentDatabases = callback(this.recentDatabases)
+      localStorage.setItem('recentDatabases', JSON.stringify(this.recentDatabases))
     }
   },
 });

@@ -17,6 +17,7 @@ import {connectionListApi} from '/@/api/simpleApis'
 import dispatchRuntimeEvent from "/@/api/event";
 import initPluginsProvider from '/@/second/plugins/PluginsProvider'
 import {subscribeConnectionPingers} from '/@/api/connectionsPinger'
+import {subscribeRecentDatabaseSwitch} from '/@/api/recentDatabaseSwitch'
 import {subscribeCurrentDbByTab} from '/@/api/changeCurrentDbByTab'
 import {setAppLoaded} from '/@/second/utility/appLoadManager'
 import {useBootstrapStore} from "/@/store/modules/bootstrap"
@@ -32,6 +33,7 @@ useTitle()
 
 initPluginsProvider()
 subscribeCurrentDbByTab()
+subscribeRecentDatabaseSwitch()
 
 const bootstrap = useBootstrapStore()
 const {loadingPluginStore} = storeToRefs(bootstrap)

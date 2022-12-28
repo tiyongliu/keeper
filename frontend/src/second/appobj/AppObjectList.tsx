@@ -40,6 +40,12 @@ export default defineComponent({
     disableContextMenu: {
       type: Boolean as PropType<boolean>,
       default: false
+    },
+    getIsExpanded: {
+      type: Function as PropType<(data: any) => boolean>,
+    },
+    setIsExpanded: {
+      type: Function as PropType<(data: any, isExpanded: boolean) => void>,
     }
   },
   setup(props) {
@@ -51,6 +57,8 @@ export default defineComponent({
       passProps,
       expandIconFunc,
       isExpandable,
+      getIsExpanded,
+      setIsExpanded,
       disableContextMenu,
     } = toRefs(props)
 
@@ -97,6 +105,8 @@ export default defineComponent({
         groupFunc={unref(groupFunc)}
         disableContextMenu={unref(disableContextMenu)}
         filter={unref(filter)}
+        getIsExpanded={unref(getIsExpanded)}
+        setIsExpanded={unref(setIsExpanded)}
         passProps={unref(passProps)}
       />)
     }
@@ -114,6 +124,8 @@ export default defineComponent({
         filter={unref(filter)}
         isExpandedBySearch={(childrenMatched.value)!.includes(data)}
         passProps={unref(passProps)}
+        getIsExpanded={unref(getIsExpanded)}
+        setIsExpanded={unref(setIsExpanded)}
       />)
     }
 

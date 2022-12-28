@@ -19,6 +19,10 @@
       expandOnClick
       :isExpandable="handleExpandable"
       :passProps="{showPinnedInsteadOfUnpin: true}"
+      :getIsExpanded="data => expandedConnections.includes(data._id) && !data.singleDatabase"
+      :setIsExpanded="(data, value) => {
+        updateExpandedConnections(old => (value ? [...old, data._id] : old.filter(x => x != data._id)))
+      }"
     />
     <LargeButton
       v-else
@@ -69,12 +73,10 @@ export default defineComponent({
     ConnectionModal,
   },
   setup() {
-
     const bootstrap = useBootstrapStore()
-    const {openedConnections} = storeToRefs(bootstrap)
+    const {openedConnections, expandedConnections} = storeToRefs(bootstrap)
     const clusterApi = useClusterApiStore()
     const {connectionList: connections} = storeToRefs(clusterApi)
-
     const hidden = ref(false)
     const flag = ref(true)
     const filter = ref('')
@@ -132,7 +134,9 @@ export default defineComponent({
       closeModal,
       connections,
       serverStatus,
-      handleRefreshConnections
+      handleRefreshConnections,
+      expandedConnections,
+      updateExpandedConnections: bootstrap.updateExpandedConnections
     }
   }
 })
