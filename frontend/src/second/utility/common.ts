@@ -1,10 +1,7 @@
-import {unref} from 'vue'
-import {startCase} from 'lodash-es';
-import {storeToRefs} from "pinia"
-import {useLocaleStore} from "/@/store/modules/locale";
+import {startCase} from 'lodash-es'
+import {useLocaleStore} from '/@/store/modules/locale'
 
 const locale = useLocaleStore()
-const {getOpenedTabs} = storeToRefs(locale)
 
 export function getObjectTypeFieldLabel(objectTypeField) {
   if (objectTypeField == 'matviews') return 'Materialized Views';
@@ -52,6 +49,5 @@ export function setSelectedTabFunc(files, tabid) {
 }
 
 export function setSelectedTab(tabid) {
-  const tabs = unref(getOpenedTabs)
-  locale.setOpenedTabs(setSelectedTabFunc(tabs, tabid))
+  locale.updateOpenedTabs(tabs => setSelectedTabFunc(tabs, tabid))
 }

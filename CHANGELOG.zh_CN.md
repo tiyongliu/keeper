@@ -1,6 +1,11 @@
+## 0.0.2.2-alpha.2(2022-12-29)
+
+### 🐛 Bug Fixes
+
 ## 0.0.2.2-alpha.1(2022-11-28)
 
 ### ✨ Features
+- 新增数据库展示单行`SqlFormView.tsx`组件的开发
 
 ### 🐛 Bug Fixes
 - 修复mysql连接池database被写死
@@ -10,7 +15,7 @@
 - driver storageSession 重构
 - 修复`CellValue.vue` props value 如果传值为''，界面上会显示true。
 - 修复`databaseConnections.go`SqlSelect方法 call sendRequest
-- 数据库展示单行`SqlFormView.tsx`组件的开发
+
 - HandleSqlSelect方法runtime.EventsOn改成runtime.EventsOnce
 - 程序加载完毕，判断是否自动跳转到上次记录页面
 

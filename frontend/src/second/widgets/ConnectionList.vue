@@ -97,7 +97,6 @@ export default defineComponent({
       deep: true
     })
 
-
     const handleRefreshConnections = async () => {
       try {
         if (flag.value) {
