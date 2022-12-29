@@ -9,7 +9,7 @@ import {setSelectedTabFunc} from '/@/second/utility/common'
 import {buildUUID} from '/@/utils/uuid'
 
 const locale = useLocaleStore()
-const {openedTabs: oldTabs, getOpenedTabs} = storeToRefs(locale)
+const {openedTabs: oldTabs} = storeToRefs(locale)
 
 function findFreeNumber(numbers: number[]) {
   if (numbers.length == 0) return 1;
@@ -89,7 +89,7 @@ export default async function openNewTab(newTab, initialData: any = undefined, o
 
   if (existing) {
     // @ts-ignore
-    locale.setOpenedTabs(setSelectedTabFunc(unref(getOpenedTabs), existing.tabid))
+    locale.updateOpenedTabs(tabs => setSelectedTabFunc(tabs, existing.tabid))
     return
   }
 
@@ -113,8 +113,7 @@ export default async function openNewTab(newTab, initialData: any = undefined, o
     }
   }
 
-  const files = unref(getOpenedTabs)
-  locale.setOpenedTabs(() => {
+  locale.updateOpenedTabs(files => {
     const dbKey = getTabDbKey(newTab)
     const items = sortTabs(files.filter(x => x.closedTime == null));
 

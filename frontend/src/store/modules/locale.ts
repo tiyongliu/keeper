@@ -1,7 +1,7 @@
 import type {LocaleSetting, LocaleType} from '/#/config';
-
 import {defineStore} from 'pinia';
 import {store} from '/@/store';
+import invalidateCommands from '/@/second/commands/invalidateCommands'
 
 import {LOCALE_KEY} from '/@/enums/cacheEnum';
 import {createLocalStorage} from '/@/utils/cache';
@@ -34,7 +34,8 @@ interface LocaleState {
 const LEFTPANELWIDTH = "leftPanelWidth"
 export const dynamicProps = reactive({splitterVisible: false})
 const _leftPanelWidth = getWithStorageVariableCache(300, LEFTPANELWIDTH)
-
+let openedTabsValue: Nullable<TabDefinition[]> = null
+export const getOpenedTabs = () => openedTabsValue
 export const useLocaleStore = defineStore({
   id: 'app-locale',
   state: (): LocaleState => ({
@@ -118,16 +119,14 @@ export const useLocaleStore = defineStore({
     setCurrentDropDownMenu() {
 
     },
-    setOpenedTabs(value) {
-      if (typeof value == 'function') {
-        this.openedTabs = value()
-      } else {
-        this.openedTabs = value
-      }
+    updateOpenedTabs(updater) {
+      this.openedTabs = updater(this.openedTabs)
       localStorage.setItem('openedTabs', JSON.stringify(this.openedTabs))
+      openedTabsValue = this.openedTabs
+      void invalidateCommands()
     },
-    updateRecentDatabases(callback) {
-      this.recentDatabases = callback(this.recentDatabases)
+    updateRecentDatabases(updater) {
+      this.recentDatabases = updater(this.recentDatabases)
       localStorage.setItem('recentDatabases', JSON.stringify(this.recentDatabases))
     }
   },

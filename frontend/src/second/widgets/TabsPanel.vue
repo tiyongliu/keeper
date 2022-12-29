@@ -89,6 +89,7 @@ import {
   getTabDbName
 } from './TabsPanel_'
 import {useClusterApiStore} from '/@/store/modules/clusterApi'
+import {IPinnedDatabasesItem} from "/@/second/typings/types/standard";
 
 export default defineComponent({
   name: "TabsPanel",
@@ -158,7 +159,7 @@ export default defineComponent({
           bootstrap.setCurrentDatabase({
             connection: unref(connection),
             name: unref(database)
-          })
+          } as Nullable<IPinnedDatabasesItem>)
           // $currentDatabase = { connection, name: database };
           return;
         }
@@ -217,8 +218,7 @@ export default defineComponent({
             ...items.slice(dstIndexLast + 1),
           ]
 
-      const tabs = unref(openedTabs)
-      localeStore.setOpenedTabs(() => {
+      localeStore.updateOpenedTabs(tabs => {
         return tabs.map(x => {
           const index = findIndex(newItems, y => y.tabid == x.tabid)
           if (index >= 0) {

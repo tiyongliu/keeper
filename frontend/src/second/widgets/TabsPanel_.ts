@@ -1,15 +1,12 @@
-import {nextTick, unref} from 'vue'
-import {storeToRefs} from "pinia"
-import {get, findLastIndex} from 'lodash-es'
+import {nextTick} from 'vue'
+import {findLastIndex, get} from 'lodash-es'
 import {useLocaleStore} from "/@/store/modules/locale"
 import getConnectionLabel from '/@/second/utility/getConnectionLabel'
 
 const locale = useLocaleStore()
-const {getOpenedTabs} = storeToRefs(locale)
 
 const closeTabFunc = closeCondition => tabid => {
-  const files = unref(getOpenedTabs)
-  locale.setOpenedTabs(() => {
+  locale.updateOpenedTabs(files => {
     const active = files.find(x => x.tabid == tabid);
     if (!active) return files;
     const newFiles = files.map(x => ({
@@ -21,6 +18,7 @@ const closeTabFunc = closeCondition => tabid => {
       return newFiles;
     }
 
+    // @ts-ignore
     const selectedIndex = findLastIndex(newFiles, x => x.closedTime == null)
     return newFiles.map((x, index) => ({
       ...x,
@@ -30,8 +28,7 @@ const closeTabFunc = closeCondition => tabid => {
 }
 
 export const closeMultipleTabs = (closeCondition, deleteFromHistory = false) => {
-  const files = unref(getOpenedTabs)
-  locale.setOpenedTabs(() => {
+  locale.updateOpenedTabs(files => {
     const newFiles = deleteFromHistory
       ? files.filter(x => !closeCondition(x))
       : files.map(x => ({
@@ -43,6 +40,7 @@ export const closeMultipleTabs = (closeCondition, deleteFromHistory = false) => 
       return newFiles;
     }
 
+    // @ts-ignore
     const selectedIndex = findLastIndex(newFiles, x => x.closedTime == null)
     return newFiles.map((x, index) => ({
       ...x,
@@ -70,7 +68,7 @@ export function getTabDbName(tab, connectionList) {
   if (tab.props && tab.props.conid && tab.props.database) return tab.props.database;
   if (tab.props && tab.props.conid) {
     const connection = connectionList?.find(x => x._id == tab.props.conid);
-    if (connection) return getConnectionLabel(connection, { allowExplicitDatabase: false });
+    if (connection) return getConnectionLabel(connection, {allowExplicitDatabase: false});
     return '???';
   }
   if (tab.props && tab.props.archiveFolder) return tab.props.archiveFolder;
@@ -81,7 +79,7 @@ export async function scrollInViewTab(tabid) {
   await nextTick()
   const element = document.getElementById(`file-tab-item-${tabid}`);
   if (element) {
-    element.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+    element.scrollIntoView({block: 'nearest', inline: 'nearest'});
   }
 }
 

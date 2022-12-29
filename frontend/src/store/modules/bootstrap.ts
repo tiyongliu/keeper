@@ -93,7 +93,7 @@ export const useBootstrapStore = defineStore({
         this.setCurrentDatabase(null)
       }
     },
-    setCurrentDatabase(value: null | IPinnedDatabasesItem) {
+    setCurrentDatabase(value: Nullable<IPinnedDatabasesItem>) {
       this.currentDatabase = value
       if (value?.connection?._id) {
         if (value?.connection?.singleDatabase) {
@@ -136,9 +136,8 @@ export const useBootstrapStore = defineStore({
     setSelectedCellsCallback(value: () => any) {
       this.selectedCellsCallback = value
     },
-    updateExpandedConnections(callback) {
-      console.log(callback)
-      this.expandedConnections = callback(this.expandedConnections)
+    updateExpandedConnections(updater) {
+      this.expandedConnections = updater(this.expandedConnections)
     }
   }
 });

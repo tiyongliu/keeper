@@ -1,4 +1,4 @@
-import {ref, watch, unref} from 'vue'
+import {ref, watch, unref, onBeforeUnmount} from 'vue'
 import {createGridConfig} from '/@/second/keeper-datalib'
 
 function doLoadGridConfigFunc(tabid: string) {
@@ -20,10 +20,12 @@ function doLoadGridConfigFunc(tabid: string) {
 export default function useGridConfig(tabid: string) {
   const config = ref(doLoadGridConfigFunc(tabid))
 
-  watch(() => unref(config), () => {
-    const value = unref(config)
+  watch(() => unref(config), (value) => {
     localStorage.setItem(`tabdata_grid_${tabid}`, JSON.stringify(value))
   }, {immediate: true})
 
+  onBeforeUnmount(() => {
+    localStorage.removeItem(`tabdata_grid_${tabid}`)
+  })
   return config
 }
