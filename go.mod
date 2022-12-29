@@ -7,7 +7,7 @@ require (
 	github.com/go-sql-driver/mysql v1.7.0
 	github.com/mgutz/ansi v0.0.0-20200706080929-d51e80ef957d
 	github.com/natefinch/lumberjack v2.0.0+incompatible
-	github.com/samber/lo v1.36.0
+	github.com/samber/lo v1.37.0
 	github.com/satori/go.uuid v1.2.0
 	github.com/wailsapp/wails/v2 v2.2.0
 	go.mongodb.org/mongo-driver v1.11.1

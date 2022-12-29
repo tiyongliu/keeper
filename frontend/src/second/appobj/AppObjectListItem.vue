@@ -89,15 +89,19 @@ export default defineComponent({
     } = toRefs(props)
     const module = toRaw(props.module)
     const subItemsComponent = toRaw(props.subItemsComponent)
-    const isExpanded = ref(false)
+    const isExpandedCore = ref(false)
 
     const expandable = computed(() => {
-      return unref(data) && unref(isExpandable) && unref(isExpandable)!(data)
+      return data.value && isExpandable.value && isExpandable.value(data.value)
+    })
+
+    const isExpanded = computed(() => {
+      return expandable.value ? (getIsExpanded.value && setIsExpanded.value ? getIsExpanded.value(data.value) : isExpandedCore.value) : false
     })
 
     async function handleExpand() {
       if (unref(subItemsComponent) && unref(expandOnClick)) {
-        isExpanded.value = !isExpanded.value
+        handleExpandButton()
       }
     }
 
@@ -105,17 +109,9 @@ export default defineComponent({
       if (getIsExpanded.value && setIsExpanded.value) {
         setIsExpanded.value(data.value, !isExpanded.value)
       } else {
-        isExpanded.value = !isExpanded.value
+        isExpandedCore.value = !isExpandedCore.value
       }
     }
-
-    watch(
-      () => [expandable.value, isExpanded.value],
-      (watchExpandable, watchIsExpanded) => {
-        if (!watchExpandable && watchIsExpanded) {
-          isExpanded.value = false
-        }
-      })
 
     return {
       data,

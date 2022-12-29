@@ -17,7 +17,7 @@
       :module="connectionAppObject"
       :subItemsComponent="SubDatabaseList"
       expandOnClick
-      :isExpandable="handleExpandable"
+      :isExpandable="data => openedConnections.includes(data._id) && !data.singleDatabase"
       :passProps="{showPinnedInsteadOfUnpin: true}"
       :getIsExpanded="data => expandedConnections.includes(data._id) && !data.singleDatabase"
       :setIsExpanded="(data, value) => {
@@ -97,13 +97,6 @@ export default defineComponent({
       deep: true
     })
 
-    watch(() => openedConnections.value, () => {
-      console.log(openedConnections.value, `openedConnectionsopenedConnections`)
-    })
-
-    const handleExpandable = (data) => {
-      return openedConnections.value.includes(unref(data)._id) && !unref(data).singleDatabase
-    }
 
     const handleRefreshConnections = async () => {
       try {
@@ -127,7 +120,6 @@ export default defineComponent({
       getConnectionLabel,
       connectionAppObject: ConnectionAppObject,
       SubDatabaseList,
-      handleExpandable,
       runCommand,
       register,
       openModal,
@@ -136,6 +128,7 @@ export default defineComponent({
       serverStatus,
       handleRefreshConnections,
       expandedConnections,
+      openedConnections,
       updateExpandedConnections: bootstrap.updateExpandedConnections
     }
   }

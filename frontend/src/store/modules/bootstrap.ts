@@ -137,6 +137,7 @@ export const useBootstrapStore = defineStore({
       this.selectedCellsCallback = value
     },
     updateExpandedConnections(callback) {
+      console.log(callback)
       this.expandedConnections = callback(this.expandedConnections)
     }
   }
