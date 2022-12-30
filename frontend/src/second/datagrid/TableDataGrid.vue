@@ -147,9 +147,9 @@ export default defineComponent({
     const childConfig = computed(() => config.value?.childConfig)
 
     watch(() => [conid.value, database.value], () => {
-      useConnectionInfo({conid: unref(conid)}, connection)
-      useDatabaseInfo<DatabaseInfo>({conid: unref(conid), database: unref(database)}, dbinfo)
-      useDatabaseServerVersion({conid: unref(conid), database: unref(database)}, serverVersion)
+      useConnectionInfo({conid: conid.value}, connection)
+      useDatabaseInfo<DatabaseInfo>({conid: conid.value, database: database.value}, dbinfo)
+      useDatabaseServerVersion({conid: conid.value, database: database.value}, serverVersion)
     }, {immediate: true})
 
     watch(() => dbinfo.value, () => {

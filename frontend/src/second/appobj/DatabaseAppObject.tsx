@@ -34,21 +34,16 @@ export default defineComponent({
         title={unref(data)!.name}
         extInfo={unref(data)!.extInfo}
         icon="img database"
-        isBold={get(unref(currentDatabase), 'connection._id') == get(unref(data)!.connection, '_id') &&
-          get(unref(currentDatabase), 'name') == unref(data)!.name
+        isBold={get(unref(currentDatabase), 'connection._id') == get(data.value!.connection, '_id') &&
+          get(unref(currentDatabase), 'name') == data.value!.name
         }
-        onClick={() => bootstrap.setCurrentDatabase(unref(data)!)}
+        onClick={() => bootstrap.setCurrentDatabase(data.value!)}
         menu={createMenu}
         showPinnedInsteadOfUnpin={unref(passProps)?.showPinnedInsteadOfUnpin}
-        pin={unref(isPinned) ? null : () => localeStore.setPinnedDatabases(uniqWith([
-          ...unref(pinnedDatabases),
-          unref(data!)
-        ], isEqual))}
-        unpin={unref(isPinned) ? () => {
-          localeStore.setPinnedDatabases(
-            unref(pinnedDatabases).filter(x => x.name != unref(data)!.name || x.connection?._id != unref(data)!.connection?._id) as []
-          )
-        } : null}
+        pin={isPinned.value ? null : () => localeStore.updatePinnedDatabases(list => uniqWith([...list, data.value], isEqual))}
+        unpin={isPinned.value ?
+          () => localeStore.updatePinnedDatabases(list => list.filter(x => x.name != data.value!.name || x.connection?._id != data.value!.connection?._id))
+          : null}
       />
     )
   }

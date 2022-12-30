@@ -414,17 +414,12 @@ export default defineComponent({
     return () => <AppObjectCore
       {...attrs}
       data={data.value}
-      title={unref(data)!.schemaName ? `${unref(data)!.schemaName}.${unref(data)!.pureName}` : unref(data)!.pureName}
+      title={data.value!.schemaName ? `${data.value!.schemaName}.${data.value!.pureName}` : data.value!.pureName}
       icon={databaseObjectIcons[data.value!.objectTypeField]}
       showPinnedInsteadOfUnpin={passProps.value?.showPinnedInsteadOfUnpin}
-      pin={unref(isPinned) ? null : () => localeStore.setPinnedTables([
-        ...unref(pinnedTables),
-        unref(data)!
-      ])}
-      unpin={unref(isPinned) ? () => localeStore.setPinnedTables(
-        unref(pinnedTables).filter(x => !testEqual(x, data.value))
-      ) : null}
-      extInfo={unref(data)!.tableRowCount != null ? `${formatRowCount(unref(data)!.tableRowCount)} rows` : null}
+      pin={isPinned.value ? null : () => localeStore.updatePinnedTables(list => [...list, data.value])}
+      unpin={isPinned.value ? () => localeStore.updatePinnedTables(list => list.filter(x => !testEqual(x, data.value))) : null}
+      extInfo={data.value!.tableRowCount != null ? `${formatRowCount(data.value!.tableRowCount)} rows` : null}
       onClick={() => handleClick()}
       onMiddleclick={() => handleClick(true)}
     />

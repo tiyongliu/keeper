@@ -85,13 +85,8 @@ export const useBootstrapStore = defineStore({
     }
   },
   actions: {
-    setOpenedConnections(value: string[]) {
-      this.openedConnections = value
-    },
-    removeCurrentDatabase(deleteId) {
-      if (this.currentDatabase && this.currentDatabase.connection._id == deleteId) {
-        this.setCurrentDatabase(null)
-      }
+    updateOpenedConnections(updater: (list: string[]) => string[]) {
+      this.openedConnections = updater(this.openedConnections)
     },
     setCurrentDatabase(value: Nullable<IPinnedDatabasesItem>) {
       this.currentDatabase = value

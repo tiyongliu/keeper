@@ -95,13 +95,13 @@ export const useLocaleStore = defineStore({
       this.selectedWidget = name
       setWithStorageVariableCache('selectedWidget', name)
     },
-    setPinnedDatabases(value: IPinnedDatabasesItem[]) {
-      this.pinnedDatabases = value
-      setWithStorageVariableCache('pinnedDatabases', value)
+    updatePinnedDatabases(updater: (list: IPinnedDatabasesItem[]) => IPinnedDatabasesItem[]) {
+      this.pinnedDatabases = updater(this.pinnedDatabases)
+      setWithStorageVariableCache('pinnedDatabases', this.pinnedDatabases)
     },
-    setPinnedTables(value: any[]) {
-      this.pinnedTables = value
-      setWithStorageVariableCache('pinnedTables', value)
+    updatePinnedTables(updater: (list: any[]) => any[]) {
+      this.pinnedTables = updater(this.pinnedTables)
+      setWithStorageVariableCache('pinnedTables', this.pinnedTables)
     },
     setLeftPanelWidth(value) {
       this.leftPanelWidth += value
@@ -121,13 +121,13 @@ export const useLocaleStore = defineStore({
     },
     updateOpenedTabs(updater) {
       this.openedTabs = updater(this.openedTabs)
-      localStorage.setItem('openedTabs', JSON.stringify(this.openedTabs))
+      setWithStorageVariableCache('openedTabs', this.openedTabs)
       openedTabsValue = this.openedTabs
       void invalidateCommands()
     },
     updateRecentDatabases(updater) {
       this.recentDatabases = updater(this.recentDatabases)
-      localStorage.setItem('recentDatabases', JSON.stringify(this.recentDatabases))
+      setWithStorageVariableCache('recentDatabases', this.recentDatabases)
     }
   },
 });

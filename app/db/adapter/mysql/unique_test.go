@@ -58,6 +58,24 @@ func TestTables(t *testing.T) {
 	})
 }
 
+func TestTablesNew(t *testing.T) {
+	getDevice(func(session db.Session) {
+		driver, ok := session.(*Source)
+		if !ok && driver == nil {
+			return
+		}
+		tables_, err := driver.Tables(`select
+		        TABLE_NAME as pureName,
+		        TABLE_ROWS as tableRowCount,
+		        case when ENGINE='InnoDB' then CREATE_TIME else coalesce(UPDATE_TIME, CREATE_TIME) end as modifyDate
+		from information_schema.tables
+		where TABLE_SCHEMA = 'crmeb' and TABLE_TYPE='BASE TABLE' and TABLE_NAME  is not null`)
+		fmt.Printf("RES: %s, err: [%v]", utility.ToJsonStr(tables_), err)
+	})
+}
+
+//and TABLE_NAME =OBJECT_ID_CONDITION
+
 func TestColumns(t *testing.T) {
 	getDevice(func(session db.Session) {
 		driver, ok := session.(*Source)

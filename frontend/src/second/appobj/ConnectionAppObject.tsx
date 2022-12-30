@@ -74,10 +74,10 @@ export default defineComponent({
           name: unref(data)!.defaultDatabase
         } as unknown as IPinnedDatabasesItem)
       } else {
-        bootstrap.setOpenedConnections(uniq([...bootstrap.getOpenedConnections, unref(data)!._id]))
+        bootstrap.updateOpenedConnections(x => uniq([...x, data.value!._id]))
         timerId = setTimeout(() => {
           void serverConnectionsRefreshApi({
-            conid: unref(data)!._id,
+            conid: data.value!._id,
             keepOpen: true,
           })
         })
