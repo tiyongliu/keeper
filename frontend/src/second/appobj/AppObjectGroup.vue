@@ -64,9 +64,9 @@
       Link
     },
     setup(props) {
-      const isExpanded = ref(true)
-
       const items = toRef(props, 'items')
+
+      const isExpanded = ref(true)
 
       const filtered = computed(() => items.value!.filter(x => x.isMatched))
 

@@ -51,14 +51,13 @@
             title="Columns"
             name="freeColumns"
             height="40%"
-            skip
             :show="freeTableColumn && !isDynamicStructure">
             <FreeTableColumnEditor
               v-bind="Object.assign({}, $props, $attrs)"
               :managerSize="managerSize"/>
           </WidgetColumnBarItem>
 
-          <WidgetColumnBarItem title="Filters" name="filters" height="30%" skip :show="isFormView">
+          <WidgetColumnBarItem title="Filters" name="filters" height="30%" :show="isFormView">
             <FormViewFilters
               v-bind="Object.assign({}, $props, $attrs)"
               :managerSize="managerSize"
@@ -70,7 +69,6 @@
             name="references"
             height="30%"
             :collapsed="isDetailView"
-            skip
             :show="showReferences && display?.hasReferences">
             <ReferenceManager
               v-bind="Object.assign({}, $props, $attrs)"
@@ -315,7 +313,6 @@ export default defineComponent({
       if (managerSize.value) setLocalStorage('dataGridManagerWidth', managerSize.value)
     })
 
-
     return {
       domColumnManager,
       gridCoreComponent,
@@ -327,7 +324,6 @@ export default defineComponent({
       collapsedLeftColumnStore,
       extractMacroValuesForMacro,
       handleExecuteMacro,
-      unref,
       jsonFiltersSkip,
       freeTableColumn,
       display,

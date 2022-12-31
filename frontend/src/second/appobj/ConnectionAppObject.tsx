@@ -187,17 +187,16 @@ export default defineComponent({
       const {...restProps} = attrs
       return <AppObjectCore
         {...restProps}
-        data={unref(data) as ConnectionsWithStatus}
-        title={getConnectionLabel(unref(data))}
-        icon={unref(data)!.singleDatabase ? 'img database' : 'img server'}
-        isBold={unref(data)!.singleDatabase
-          ? get(unref(currentDatabase), 'connection._id') == unref(data)!._id && get(unref(currentDatabase), 'name') == unref(data)!.defaultDatabase
-          : get(unref(currentDatabase), 'connection._id') == unref(data)!._id}
-
+        data={data.value as ConnectionsWithStatus}
+        title={getConnectionLabel(data.value)}
+        icon={data.value!.singleDatabase ? 'img database' : 'img server'}
+        isBold={data.value!.singleDatabase
+          ? get(currentDatabase.value, 'connection._id') == data.value!._id && get(currentDatabase.value, 'name') == data.value!.defaultDatabase
+          : get(currentDatabase.value, 'connection._id') == data.value!._id}
         statusIcon={statusIconRef.value || engineStatusIconRef.value}
         statusTitle={statusTitleRef.value || engineStatusTitleRef.value}
-        // statusIconBefore={data!.isReadOnly ? 'icon lock' : null}
-        extInfo={unref(extInfoRef)}
+        statusIconBefore={data.value && data.value.isReadOnly ? 'icon lock' : null}
+        extInfo={extInfoRef.value}
         menu={getContextMenu}
         onClick={handleClick}
         onDblclick={handleConnect}

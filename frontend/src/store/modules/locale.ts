@@ -1,16 +1,16 @@
-import type {LocaleSetting, LocaleType} from '/#/config';
-import {defineStore} from 'pinia';
-import {store} from '/@/store';
+import {reactive} from 'vue'
+import {defineStore} from 'pinia'
+import {isNumber} from 'lodash-es'
+import type {LocaleSetting, LocaleType} from '/#/config'
+import {store} from '/@/store'
 import invalidateCommands from '/@/second/commands/invalidateCommands'
-
-import {LOCALE_KEY} from '/@/enums/cacheEnum';
-import {createLocalStorage} from '/@/utils/cache';
-import {localeSetting} from '/@/settings/localeSetting';
-import {getWithStorageVariableCache, setWithStorageVariableCache} from "/@/second/utility/storage";
+import {LOCALE_KEY} from '/@/enums/cacheEnum'
+import {getWithStorageVariableCache, setWithStorageVariableCache} from '/@/second/utility/storage'
+import {TabDefinition} from '/@/store/modules/bootstrap'
+import {localeSetting} from '/@/settings/localeSetting'
 import {IPinnedDatabasesItem} from '/@/second/typings/types/standard.d'
-import {TabDefinition} from "/@/store/modules/bootstrap";
-import {isNumber} from "lodash-es";
-import {reactive} from "vue";
+import {createLocalStorage} from '/@/utils/cache'
+
 
 const ls = createLocalStorage();
 
@@ -23,7 +23,6 @@ interface LocaleState {
   pinnedDatabases: IPinnedDatabasesItem[]
   pinnedTables: any[]
   openedTabs: TabDefinition[]
-  currentDropDownMenu: null
   leftPanelWidth: number
   visibleTitleBar: number
   dynamicProps: {
@@ -45,7 +44,6 @@ export const useLocaleStore = defineStore({
     recentDatabases: getWithStorageVariableCache([], 'recentDatabases'),
     pinnedDatabases: getWithStorageVariableCache([], 'pinnedDatabases'),
     pinnedTables: getWithStorageVariableCache([], 'pinnedTables'),
-    currentDropDownMenu: null,
     visibleTitleBar: 0,
     leftPanelWidth: parseFloat(_leftPanelWidth).toString() !== 'NaN' ?
       parseFloat(_leftPanelWidth) : 300,
@@ -115,9 +113,6 @@ export const useLocaleStore = defineStore({
     },
     setDynamicProps(value: { splitterVisible: boolean }) {
       this.dynamicProps = value
-    },
-    setCurrentDropDownMenu() {
-
     },
     updateOpenedTabs(updater) {
       this.openedTabs = updater(this.openedTabs)

@@ -1,7 +1,7 @@
 import {Component, PropType} from 'vue'
 import {defineStore} from "pinia"
-import {store} from "/@/store"
 import {mapValues, uniq} from 'lodash-es'
+import {store} from "/@/store"
 import invalidateCommands from '/@/second/commands/invalidateCommands'
 import {IPinnedDatabasesItem} from '/@/second/typings/types/standard.d'
 import {ExtensionsDirectory} from '/@/second/typings/types/extensions.d'

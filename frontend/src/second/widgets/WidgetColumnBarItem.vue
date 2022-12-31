@@ -25,7 +25,8 @@ import {
   toRefs,
   reactive,
   unref,
-} from 'vue';
+  Ref
+} from 'vue'
 import {isString} from 'lodash-es'
 import {setLocalStorage, getLocalStorage} from '/@/second/utility/storageCache'
 import WidgetTitle from './WidgetTitle.vue'
@@ -61,21 +62,21 @@ export default defineComponent({
     }
   },
   setup(props) {
-    const show = ref(true)
-    const size = ref(0)
-    const visible = ref(false)
-
     const {
       skip,
       height,
       collapsed,
       storageName,
+      show,
     } = toRefs(props)
+
+    const size = ref(0)
+    const visible = ref(false)
 
     const dynamicProps = reactive({splitterVisible: false})
     const pushWidgetItemDefinition = inject('pushWidgetItemDefinition') as any
     const updateWidgetItemDefinition = inject('updateWidgetItemDefinition') as any
-    const widgetColumnBarHeight = inject('widgetColumnBarHeight') as any
+    const widgetColumnBarHeight = inject('widgetColumnBarHeight') as Ref<number>
     const widgetItemIndex = pushWidgetItemDefinition({
       collapsed: collapsed.value,
       height: height.value,
@@ -95,14 +96,14 @@ export default defineComponent({
 
     watch(
       () => unref(widgetColumnBarHeight),
-      () => setInitialSize(unref(height), unref(widgetColumnBarHeight)),
+      () => setInitialSize(height.value, unref(widgetColumnBarHeight)),
     )
 
     watch(
       () => [visible.value, size.value],
       () => {
-        if (unref(storageName) && unref(widgetColumnBarHeight) > 0) {
-          setLocalStorage(unref(storageName), {
+        if (storageName.value && unref(widgetColumnBarHeight) > 0) {
+          setLocalStorage(storageName.value, {
             relativeHeight: size.value / widgetColumnBarHeight.value,
             visible: visible.value
           })
@@ -111,22 +112,22 @@ export default defineComponent({
     )
 
     function setInitialSize(initialSize, parentHeight) {
-      if (unref(storageName)) {
-        const storage = getLocalStorage(unref(storageName))
+      if (storageName.value) {
+        const storage = getLocalStorage(storageName.value)
         if (storage) {
-          size.value = parentHeight * storage.relativeHeight;
+          size.value = parentHeight * storage.relativeHeight
           return;
         }
       }
-      if (isString(initialSize) && initialSize.endsWith('px')) size.value = parseInt(initialSize.slice(0, -2));
+      if (isString(initialSize) && initialSize.endsWith('px')) size.value = parseInt(initialSize.slice(0, -2))
       else if (isString(initialSize) && initialSize.endsWith('%'))
-        size.value = (parentHeight * parseFloat(initialSize.slice(0, -1))) / 100;
-      else size.value = parentHeight / 3;
+        size.value = (parentHeight * parseFloat(initialSize.slice(0, -1))) / 100
+      else size.value = parentHeight / 3
     }
 
     onMounted(() => {
-      if (unref(storageName) && getLocalStorage(unref(storageName)) && getLocalStorage(unref(storageName)).visible != null) {
-        visible.value = getLocalStorage(unref(storageName)).visible
+      if (storageName.value && getLocalStorage(storageName.value) && getLocalStorage(storageName.value).visible != null) {
+        visible.value = getLocalStorage(storageName.value).visible
       } else {
         visible.value = !collapsed.value
       }

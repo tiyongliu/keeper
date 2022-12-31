@@ -401,9 +401,10 @@ export default defineComponent({
   },
   emits: ['middleclick'],
   setup(props, {attrs}) {
+    const {data, passProps} = toRefs(props)
+
     const localeStore = useLocaleStore()
     const {pinnedTables} = storeToRefs(localeStore)
-    const {data, passProps} = toRefs(props)
 
     const isPinned = computed(() => !!unref(pinnedTables).find(x => testEqual(unref(data), unref(x))))
 

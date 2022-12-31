@@ -19,11 +19,12 @@ export default defineComponent({
     },
   },
   setup(props, {attrs}) {
+    const {data, passProps} = toRefs(props)
+
     const bootstrap = useBootstrapStore()
     const {getCurrentDatabase: currentDatabase} = storeToRefs(bootstrap)
     const localeStore = useLocaleStore()
     const {pinnedDatabases} = storeToRefs(localeStore)
-    const {data, passProps} = toRefs(props)
 
     const isPinned = computed(() =>
       !!unref(pinnedDatabases).find(x => unref(x).name == unref(data)!.name && unref(x).connection?._id == unref(data)!.connection?._id))

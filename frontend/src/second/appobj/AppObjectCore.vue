@@ -57,13 +57,16 @@ import {useContextMenu} from '/@/hooks/web/useContextMenu'
 import {handleContextMenu} from '/@/second/utility/contextMenu'
 
 export default defineComponent({
-  name: "AppObjectCore",
+  name: 'AppObjectCore',
+  components: {
+    FontIcon
+  },
   props: {
     data: {
       type: Object as PropType<unknown>
     },
     icon: {
-      type: String as PropType<string>,
+      type: String as PropType<Nullable<string>>,
     },
     isBold: {
       type: Boolean as PropType<boolean>,
@@ -77,7 +80,7 @@ export default defineComponent({
       type: String as PropType<string>,
     },
     statusIconBefore: {
-      type: String as PropType<string>,
+      type: String as PropType<Nullable<string>>,
     },
     statusTitle: {
       type: String as PropType<string>,
@@ -118,9 +121,6 @@ export default defineComponent({
     menu: {
       type: Function as PropType<null | Function>
     }
-  },
-  components: {
-    FontIcon
   },
   emits: ['click', 'expand', 'dblclick', 'middleclick'],
   setup(props, {emit}) {

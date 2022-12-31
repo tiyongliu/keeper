@@ -1,4 +1,4 @@
-import {defineComponent, inject, PropType, Ref, toRefs} from 'vue'
+import {defineComponent, inject, PropType, Ref, toRef} from 'vue'
 import {filterName} from '/@/second/keeper-tools'
 import AppObjectCore from '/@/second/appobj/AppObjectCore.vue'
 import {IPinnedDatabasesItem} from "/@/second/typings/types/standard";
@@ -13,7 +13,7 @@ export default defineComponent({
     },
   },
   setup(props, {attrs}) {
-    const {data} = toRefs(props)
+    const data = toRef(props, 'data')
     const selectedMacro = inject('selectedMacro') as Ref<IPinnedDatabasesItem>
     return () => (
       <AppObjectCore

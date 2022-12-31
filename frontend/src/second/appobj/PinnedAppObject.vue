@@ -10,10 +10,11 @@
 </template>
 
 <script lang="ts">
-import {defineComponent, PropType, toRefs} from 'vue'
+import {defineComponent, PropType, toRef} from 'vue'
 import DatabaseAppObject from './DatabaseAppObject'
 import DatabaseObjectAppObject from './DatabaseObjectAppObject'
 import {IPinnedDatabasesItem} from "/@/second/typings/types/standard.d";
+
 export default defineComponent({
   name: 'PinnedAppObject',
   props: {
@@ -27,7 +28,7 @@ export default defineComponent({
   },
   setup(props) {
     return {
-      ...toRefs(props)
+      data: toRef(props, 'data')
     }
   }
 })

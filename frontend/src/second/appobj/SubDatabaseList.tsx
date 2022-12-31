@@ -1,4 +1,4 @@
-import {defineComponent, PropType, toRefs, unref, onMounted, ref} from 'vue'
+import {defineComponent, onMounted, PropType, ref, toRefs} from 'vue'
 import {sortBy} from 'lodash-es'
 import {filterName} from '/@/second/keeper-tools'
 import AppObjectList from './AppObjectList'
@@ -34,11 +34,11 @@ export default defineComponent({
       <AppObjectList
         module={databaseAppObject}
         list={sortBy(
-          (unref(databases) || []).filter(x => filterName(filter.value, x.name)),
+          (databases.value || []).filter(x => filterName(filter.value, x.name)),
           x => x.sortOrder ?? x.name
         ).map(db => ({...db, connection: data.value})
         )}
-        passProps={unref(passProps)}
+        passProps={passProps.value}
       />
     )
   }

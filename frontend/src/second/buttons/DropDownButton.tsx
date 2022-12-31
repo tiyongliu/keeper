@@ -1,8 +1,7 @@
-import {defineComponent, nextTick, PropType, ref, toRefs, unref} from 'vue';
+import {defineComponent, nextTick, PropType, ref, toRefs, unref} from 'vue'
 import InlineButton from '/@/second/buttons/InlineButton.vue'
 import FontIcon from '/@/second/icons/FontIcon.vue'
-import {useLocaleStore} from '/@/store/modules/locale'
-import {useBootstrapStore} from "/@/store/modules/bootstrap";
+import {useBootstrapStore} from '/@/store/modules/bootstrap'
 
 export default defineComponent({
   name: 'DropDownButton',
@@ -20,7 +19,6 @@ export default defineComponent({
     },
   },
   setup(props) {
-    const locale = useLocaleStore()
     const bootstrap = useBootstrapStore()
     const {narrow, icon, menu} = toRefs(props)
     const domButton = ref<Nullable<HTMLElement>>(null)
@@ -31,8 +29,6 @@ export default defineComponent({
       const left = rect.left;
       const top = rect.bottom;
       bootstrap.setCurrentDropDownMenu({left, top, items: menu.value!});
-
-      locale.setCurrentDropDownMenu()
     }
 
     return () => (

@@ -1,6 +1,8 @@
 ## 0.0.2.2-alpha.2(2022-12-29)
 
 ### 🐛 Bug Fixes
+- 修复`WidgetColumnBarItem` props show属性
+- 修复`PrimaryKeyFilterEditor`主键名、主键值显示
 
 ## 0.0.2.2-alpha.1(2022-11-28)
 

@@ -1,4 +1,4 @@
-import {defineComponent, PropType, ref, toRefs} from 'vue'
+import {computed, defineComponent, PropType, ref, toRefs, watch} from 'vue'
 import {TableFormViewDisplay} from '/@/second/keeper-datalib'
 import FontIcon from '/@/second/icons/FontIcon.vue'
 import ColumnLabel from '/@/second/elements/ColumnLabel.vue'
@@ -25,8 +25,8 @@ export default defineComponent({
     const {column, baseTable, formDisplay} = toRefs(props)
     const domEditor = ref<Nullable<string>>(null)
 
-    // const value = computed(() => formDisplay.value && column.value
-    //   ? formDisplay.value.getKeyValue(column.value.columnName) : null)
+    const value = computed(() => formDisplay.value && column.value
+      ? formDisplay.value.getKeyValue(column.value.columnName) : null)
 
     const applyFilter = () => {
       (formDisplay.value && column.value) && formDisplay.value.requestKeyValue(column.value.columnName, domEditor.value)
@@ -45,6 +45,11 @@ export default defineComponent({
         cancelFilter();
       }
     }
+
+    watch(() => value.value, () => {
+      domEditor.value = value.value
+    }, {immediate: true})
+
     return () => (
       <div class="m-1">
         <div class="space-between">

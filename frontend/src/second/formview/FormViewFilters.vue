@@ -12,9 +12,10 @@
 
     <ManagerInnerContainer v-if="baseTable && baseTable?.primaryKey" :width="managerSize">
       <PrimaryKeyFilterEditor
-        v-for="(col, i) in baseTable.primaryKey.columns"
+        v-for="(col, index) in baseTable.primaryKey.columns"
+        :key="index"
         :column="col"
-        :key="i"
+        :baseTable="baseTable"
         :formDisplay="formDisplay"
       />
       <FormViewFilterColumn
