@@ -78,9 +78,8 @@ func (s *Source) ListDatabases() (interface{}, error) {
 }
 
 func (s *Source) Query(sql string) (interface{}, error) {
-	var rows []map[string]interface{}
-	err := s.sqlDB.Raw(sql).Scan(&rows).Error
-	return rows, err
+	rows := make([]map[string]interface{}, 0)
+	return rows, s.sqlDB.Raw(sql).Scan(&rows).Error
 }
 
 /*func (s *Source) Query(sql string) (interface{}, error) {

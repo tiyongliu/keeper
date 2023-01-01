@@ -1,10 +1,11 @@
 import {computed, defineComponent, PropType, ref, toRefs, watch} from 'vue'
+import {isNumber} from 'lodash-es'
 import {TableFormViewDisplay} from '/@/second/keeper-datalib'
 import FontIcon from '/@/second/icons/FontIcon.vue'
 import ColumnLabel from '/@/second/elements/ColumnLabel.vue'
-import InlineButton from '/@/second/buttons/InlineButton.vue'
 import keycodes from '/@/second/utility/keycodes'
 import {ColumnReference} from '/@/second/keeper-types'
+import {DeleteOutlined} from '@ant-design/icons-vue'
 
 export default defineComponent({
   name: 'PrimaryKeyFilterEditor',
@@ -29,7 +30,8 @@ export default defineComponent({
       ? formDisplay.value.getKeyValue(column.value.columnName) : null)
 
     const applyFilter = () => {
-      (formDisplay.value && column.value) && formDisplay.value.requestKeyValue(column.value.columnName, domEditor.value)
+      (formDisplay.value && column.value) && formDisplay.value.requestKeyValue(column.value.columnName, isNumber(value.value)
+        ? Number(domEditor.value) : domEditor.value)
     }
 
     const cancelFilter = () => {
@@ -52,7 +54,7 @@ export default defineComponent({
 
     return () => (
       <div class="m-1">
-        <div class="space-between">
+        <div class="space-between align-items-center">
           <div>
             <FontIcon icon="img primary-key"/>
             {(baseTable.value && column.value)
@@ -63,15 +65,13 @@ export default defineComponent({
           </div>
           {
             formDisplay.value && formDisplay.value.config.formViewKeyRequested &&
-            <InlineButton square onClick={cancelFilter}>
-              <FontIcon icon="icon delete"/>
-            </InlineButton>
+            <DeleteOutlined style={{"cursor": "pointer"}} onClick={cancelFilter}/>
           }
         </div>
         <div class="flex">
           <a-input
-            vModel:value={domEditor.value}
             size="small"
+            vModel:value={domEditor.value}
             onBlur={applyFilter}
             onKeydown={handleKeyDown}
           />

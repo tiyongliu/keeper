@@ -53,10 +53,11 @@ import {useBootstrapStore} from "/@/store/modules/bootstrap"
 import {useConnectionInfo, useDatabaseInfo, useDatabaseServerVersion} from '/@/api/bridge'
 import {getBoolSettingsValue} from '/@/second/settings/settingsTools'
 import {getDictionaryDescription} from '/@/second/utility/dictionaryDescriptionTools'
+import {ChangeCacheFunc, ChangeConfigFunc} from '/@/second/keeper-datalib/GridDisplay'
 import {
   createGridCache,
+  createGridConfig,
   FormViewDisplay,
-  GridCache,
   GridConfig,
   GridDisplay,
   runMacroOnChangeSet,
@@ -67,7 +68,7 @@ import {extendDatabaseInfoFromApps, findEngineDriver} from '/@/second/keeper-too
 import {getFilterValueExpression} from '/@/second/keeper-filterparser'
 import {DatabaseInfo, ExtensionsDirectory} from '/@/second/keeper-types'
 import {useClusterApiStore} from '/@/store/modules/clusterApi'
-import {createGridConfig} from '/@/second/keeper-datalib'
+
 export default defineComponent({
   name: 'TableDataGrid',
   props: {
@@ -84,10 +85,10 @@ export default defineComponent({
       type: String as PropType<string>
     },
     setConfig: {
-      type: Function as PropType<(target: any) => void>
+      type: Function as PropType<ChangeConfigFunc>
     },
     setCache: {
-      type: Function as PropType<(target: any) => void>
+      type: Function as PropType<ChangeCacheFunc>
     },
     config: {
       type: Object as PropType<GridConfig>,
@@ -160,26 +161,28 @@ export default defineComponent({
       {schemaName: schemaName.value, pureName: pureName.value!},
       findEngineDriver(connection.value, <ExtensionsDirectory>extensions.value!),
       config.value!,
-      setConfig.value as (changeFunc: (config: GridConfig) => GridConfig) => void,
+      setConfig.value as ChangeConfigFunc,
       cache.value!,
-      setCache.value as (changeFunc: (cache: GridCache) => GridCache) => void,
+      setCache.value as ChangeCacheFunc,
       extendedDbInfo.value,
       {showHintColumns: getBoolSettingsValue('dataGrid.showHintColumns', true)},
       serverVersion.value,
-      table => getDictionaryDescription(table, conid.value!, database.value!, apps.value, connections.value) as any
+      table => getDictionaryDescription(table, conid.value!, database.value!, apps.value, connections.value) as any,
+      connection.value?.isReadOnly,
     ) as GridDisplay : null)
 
     const formDisplay = computed(() => (connection.value && extensions.value && serverVersion.value) ? new TableFormViewDisplay(
       {schemaName: schemaName.value, pureName: pureName.value!},
       findEngineDriver(connection.value, <ExtensionsDirectory>extensions.value!),
       config.value!,
-      setConfig.value as (changeFunc: (config: GridConfig) => GridConfig) => void,
+      setConfig.value as ChangeConfigFunc,
       cache.value!,
-      setCache.value as (changeFunc: (cache: GridCache) => GridCache) => void,
+      setCache.value as ChangeCacheFunc,
       extendedDbInfo.value,
       {showHintColumns: getBoolSettingsValue('dataGrid.showHintColumns', true)},
       serverVersion.value,
-      table => getDictionaryDescription(table, conid.value!, database.value!, apps.value, connections.value) as any
+      table => getDictionaryDescription(table, conid.value!, database.value!, apps.value, connections.value) as any,
+      connection.value?.isReadOnly,
     ) as FormViewDisplay : null)
 
     const childCache = ref(createGridCache())

@@ -37,7 +37,6 @@
 <script lang="ts">
 import {computed, defineComponent, PropType, ref, toRefs} from 'vue'
 import {keys, union} from 'lodash-es'
-import {Input} from 'ant-design-vue'
 import ManagerInnerContainer from '/@/second/elements/ManagerInnerContainer.vue'
 import PrimaryKeyFilterEditor from '/@/second/formview/PrimaryKeyFilterEditor'
 import FormViewFilterColumn from './FormViewFilterColumn'
@@ -51,7 +50,6 @@ export default defineComponent({
     ManagerInnerContainer,
     PrimaryKeyFilterEditor,
     FormViewFilterColumn,
-    [Input.name]: Input
   },
   props: {
     managerSize: {
@@ -63,7 +61,6 @@ export default defineComponent({
     setConfig: {
       type: Function as PropType<(target: any) => void>
     },
-
     driver: {
       type: Object as PropType<EngineDriver>
     },

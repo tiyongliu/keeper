@@ -47,7 +47,7 @@ export default defineComponent({
     const loadedTime = ref(new Date().getTime())
     const allRowCount = ref<Nullable<number>>(null)
     const rowCountBefore = ref<Nullable<number>>(null)
-
+    const errorMessage = ref<Nullable<string>>(null)
 
     const former = computed(() => (rowData.value && formDisplay.value)
       ? new ChangeSetFormer(rowData.value, changeSetState.value, dispatchChangeSet.value, formDisplay.value!)
@@ -90,6 +90,18 @@ export default defineComponent({
       loadedTime.value = new Date().getTime()
     }
 
+    function reload() {
+      isLoadingData.value = false;
+      isLoadedData.value = false;
+      isLoadingCount.value = false;
+      isLoadedCount.value = false;
+      rowData.value = null;
+      loadedTime.value = new Date().getTime();
+      allRowCount.value = null;
+      rowCountBefore.value = null;
+      errorMessage.value = null;
+    }
+
     const handleLoadRowCount = async () => {
       isLoadingCount.value = true;
       const countRow = await loadRow(Object.assign({}, props, attrs), formDisplay.value!.getCountQuery());
@@ -108,6 +120,10 @@ export default defineComponent({
     })
 
     watchEffect(() => {
+      if (formDisplay.value && (formDisplay.value.cache.refreshTime > loadedTime.value)) {
+        reload()
+      }
+
       if (formDisplay.value && formDisplay.value.isLoadedCorrectly) {
         if (!isLoadedData.value && !isLoadingData.value) void handleLoadCurrentRow()
         if (isLoadedData.value && !isLoadingCount.value && !isLoadedCount.value) void handleLoadRowCount()
