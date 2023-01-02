@@ -7,6 +7,7 @@ import (
 
 func (s *Source) UniqueNames(sql string) (*modules.MysqlRowsResult, error) {
 	rows, err := s.sqlDB.Raw(sql).Rows()
+	defer rows.Close()
 	if err != nil {
 		return nil, err
 	}
@@ -32,6 +33,7 @@ func (s *Source) UniqueNames(sql string) (*modules.MysqlRowsResult, error) {
 
 func (s *Source) Indexes(sql string) (*modules.MysqlRowsResult, error) {
 	rows, err := s.sqlDB.Raw(sql).Rows()
+	defer rows.Close()
 	if err != nil {
 		return nil, err
 	}
@@ -63,7 +65,7 @@ func (s *Source) Indexes(sql string) (*modules.MysqlRowsResult, error) {
 
 func (s *Source) Tables(sql string) (*modules.MysqlRowsResult, error) {
 	rows, err := s.sqlDB.Raw(sql).Rows()
-
+	defer rows.Close()
 	if err != nil {
 		return nil, err
 	}
@@ -95,10 +97,10 @@ func (s *Source) Tables(sql string) (*modules.MysqlRowsResult, error) {
 
 func (s *Source) Columns(sql string) (*modules.MysqlRowsResult, error) {
 	sqlQuery, err := getSqlQuery(s.sqlDB, sql)
+	defer sqlQuery.Rows.Close()
 	if err != nil {
 		return nil, err
 	}
-
 	var pureName, columnName, isNullable, dataType, columnComment, columnType string
 	var charMaxLength, numericPrecision, numericScale *int
 	var defaultValue, extra interface{}
@@ -142,6 +144,7 @@ func getSqlColumns(rows *sql.Rows) (columns []*modules.Column) {
 
 func (s *Source) PrimaryKeys(sql string) (*modules.MysqlRowsResult, error) {
 	rows, err := s.sqlDB.Raw(sql).Rows()
+	defer rows.Close()
 	if err != nil {
 		return nil, err
 	}
@@ -168,6 +171,7 @@ func (s *Source) PrimaryKeys(sql string) (*modules.MysqlRowsResult, error) {
 
 func (s *Source) ForeignKeys(sql string) (*modules.MysqlRowsResult, error) {
 	sqlQuery, err := getSqlQuery(s.sqlDB, sql)
+	defer sqlQuery.Rows.Close()
 	if err != nil {
 		return nil, err
 	}
@@ -202,6 +206,7 @@ func (s *Source) ForeignKeys(sql string) (*modules.MysqlRowsResult, error) {
 
 func (s *Source) Views(sql string) (*modules.MysqlRowsResult, error) {
 	sqlQuery, err := getSqlQuery(s.sqlDB, sql)
+	defer sqlQuery.Rows.Close()
 	if err != nil {
 		return nil, err
 	}
@@ -225,6 +230,7 @@ func (s *Source) Views(sql string) (*modules.MysqlRowsResult, error) {
 
 func (s *Source) Programmables(sql string) (*modules.MysqlRowsResult, error) {
 	sqlQuery, err := getSqlQuery(s.sqlDB, sql)
+	defer sqlQuery.Rows.Close()
 	if err != nil {
 		return nil, err
 	}

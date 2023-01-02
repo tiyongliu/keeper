@@ -1,11 +1,11 @@
 <template>
   <div ref="node" class="main" @scroll="handleScroll">
-    <div :style="`width: ${contentSize}px`">&nbsp;</div>
+    <div :style="`height: ${contentSize}px`">&nbsp;</div>
   </div>
 </template>
 
 <script lang="ts">
-import {computed, defineComponent, nextTick, PropType, ref, toRefs, watch} from 'vue'
+import {computed, defineComponent, nextTick, PropType, ref, toRefs, unref, watch} from 'vue'
 
 export default defineComponent({
   name: 'VerticalScrollBar',
@@ -21,7 +21,7 @@ export default defineComponent({
       type: Number as PropType<number>
     }
   },
-  emits: ['dispatchScroll'],
+  emits: ['scroll'],
   setup(props, {emit}) {
     const {viewportRatio, minimum, maximum} = toRefs(props)
     const node = ref<Nullable<HTMLElement>>(null)
@@ -30,20 +30,19 @@ export default defineComponent({
 
     watch(() => [viewportRatio.value, minimum.value, maximum.value], async () => {
       await nextTick()
-      height.value = node.value ? node.value.clientWidth : 0
+      height.value = node.value ? node.value.clientHeight : 0
     })
 
     function handleScroll() {
-      height.value = node.value ? node.value.clientWidth : 0
-      const position = node.value ? node.value.scrollTop : 0
+      const position = node.value!.scrollTop
       const ratio = position / (contentSize.value - height.value);
       if (ratio < 0) return 0
       const res = ratio * (maximum.value! - minimum.value! + 1) + minimum.value!
-      emit('dispatchScroll', Math.floor(res + 0.3))
+      emit('scroll', Math.floor(res + 0.3))
     }
 
     function scroll(value) {
-      const position01 = (value - minimum.value!) / (maximum.value! - minimum.value! + 1);
+      const position01 = (unref(value) - minimum.value!) / (maximum.value! - minimum.value! + 1);
       const position = position01 * (contentSize.value - height.value);
       if (node.value) node.value.scrollTop = Math.floor(position)
     }
@@ -55,7 +54,7 @@ export default defineComponent({
       maximum,
       handleScroll,
       contentSize,
-      scroll
+      scroll,
     }
   }
 })

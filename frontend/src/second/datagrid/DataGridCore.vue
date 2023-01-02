@@ -129,14 +129,14 @@
       :minimum="0"
       :maximum="maxScrollColumn"
       :viewportRatio="(gridScrollAreaWidth && columnSizes) ? gridScrollAreaWidth / columnSizes.getVisibleScrollSizeSum() : null"
-      @dispatchScroll="e => firstVisibleColumnScrollIndex = e"
+      @scroll="updateHorizontalColumnIndex"
       ref="domHorizontalScroll"
     />
     <VerticalScrollBar
       :minimum="0"
-      :maximum="grider ? grider.rowCount - visibleRowCountUpperBound + 2 : null"
-      :viewportRatio="grider ? visibleRowCountUpperBound / grider.rowCount : null"
-      @dispatchScroll="e => firstVisibleRowScrollIndex = e"
+      :maximum="grider.rowCount - visibleRowCountUpperBound + 2"
+      :viewportRatio="visibleRowCountUpperBound / grider.rowCount"
+      @scroll="updateVerticalRowIndex"
       ref="domVerticalScroll"
     />
     <div v-if="selectedCellsInfo" class="row-count-label">{{ selectedCellsInfo }}</div>
@@ -164,6 +164,7 @@ import {
 import {
   compact,
   flatten,
+  get,
   isEqual,
   isNaN,
   isNumber,
@@ -172,8 +173,7 @@ import {
   pick,
   range,
   sumBy,
-  uniq,
-  get
+  uniq
 } from 'lodash-es'
 import ErrorInfo from '/@/second/elements/ErrorInfo.vue'
 import LoadingInfo from '/@/second/elements/LoadingInfo.vue'
@@ -291,7 +291,7 @@ export default defineComponent({
       type: String as PropType<string | null>,
     },
     collapsedLeftColumnStore: {
-      type: Boolean as PropType<boolean>,
+      type: Object as PropType<Ref<boolean>>,
       default: true
     },
     allowDefineVirtualReferences: {
@@ -327,9 +327,15 @@ export default defineComponent({
     },
     referenceClick: {
       type: Function as PropType<(value: any) => void>
+    },
+    selectedCellsPublished: {
+      type: Function as PropType<() => []>,
+      default: () => []
     }
   },
-  emits: ['selectedCellsPublished', 'loadNextData'],
+  emits: [
+    'update:selectedCellsPublished',
+    'loadNextData'],
   setup(props, {emit}) {
     const {
       conid,
@@ -351,8 +357,8 @@ export default defineComponent({
 
     const container = ref<Nullable<HTMLElement>>(null)
     const domFocusField = ref<Nullable<HTMLElement>>(null)
-    const domHorizontalScroll = ref<Nullable<{ scroll: (value: number) => void }>>(null)
-    const domVerticalScroll = ref<Nullable<{ scroll: (value: number) => void }>>(null)
+    const domHorizontalScroll = ref<Nullable<{ scroll: (value: number) => void, $el: HTMLElement }>>(null)
+    const domVerticalScroll = ref<Nullable<{ scroll: (value: number) => void, $el: HTMLElement }>>(null)
     const wheelRowCount = ref(5)
     const firstVisibleRowScrollIndex = ref(0)
     const firstVisibleColumnScrollIndex = ref(0)
@@ -410,6 +416,9 @@ export default defineComponent({
     watch(() => [
       // grider.value, columns.value,
       containerWidth.value, display.value], () => {
+    })
+
+    watchEffect(() => {
       columnSizes.value = countColumnSizes(grider.value!, columns.value, containerWidth.value, display.value!)
       updateWidgetStyle()
     })
@@ -418,20 +427,20 @@ export default defineComponent({
     //   updateWidgetStyle()
     // })
 
-    watch(() => [firstVisibleRowScrollIndex.value, visibleRowCountUpperBound.value, display.value], async () => {
-      if (grider.value && firstVisibleRowScrollIndex.value + visibleRowCountUpperBound.value >= grider.value!.rowCount && rowHeight.value > 0) {
-        emit('loadNextData')
-      }
-    })
-
     watch(() => selectedCells.value, () => {
       const stringified = stableStringify(selectedCells)
       if (lastPublishledSelectedCellsRef.get() != stringified) {
         lastPublishledSelectedCellsRef.set(stringified)
         const cellsValue = () => getCellsPublished(selectedCells.value)
-        emit('selectedCellsPublished', cellsValue)
+        emit('update:selectedCellsPublished', cellsValue)
         bootstrap.setSelectedCellsCallback(cellsValue)
         if (changeSelectedColumns.value) changeSelectedColumns.value(getSelectedColumns().map(x => x.columnName))
+      }
+    })
+
+    watch(() => [firstVisibleRowScrollIndex.value, visibleRowCountUpperBound.value, grider.value, rowHeight.value], async () => {
+      if (firstVisibleRowScrollIndex.value + visibleRowCountUpperBound.value >= grider.value!.rowCount && rowHeight.value > 0) {
+        emit('loadNextData')
       }
     })
 
@@ -708,7 +717,10 @@ export default defineComponent({
       }
 
       firstVisibleRowScrollIndex.value = newFirstVisibleRowScrollIndex;
-      domVerticalScroll.value && domVerticalScroll.value.scroll(newFirstVisibleRowScrollIndex);
+      domVerticalScroll.value && domVerticalScroll.value.scroll(newFirstVisibleRowScrollIndex)
+
+      // domVerticalScroll.value.node.dispatchEvent(new Event('scroll'))
+      domVerticalScroll.value && domVerticalScroll.value.$el.dispatchEvent(new MouseEvent('scroll'))
     }
 
     function scrollHorizontal(deltaX, deltaY) {
@@ -727,6 +739,7 @@ export default defineComponent({
       }
       firstVisibleColumnScrollIndex.value = newFirstVisibleColumnScrollIndex
       domHorizontalScroll.value!.scroll(newFirstVisibleColumnScrollIndex)
+      domHorizontalScroll.value && domHorizontalScroll.value.$el.dispatchEvent(new MouseEvent('scroll'))
     }
 
     function setCellValue(cell, value) {
@@ -898,6 +911,14 @@ export default defineComponent({
       }
     }
 
+    function updateHorizontalColumnIndex(x) {
+      firstVisibleColumnScrollIndex.value = x
+    }
+
+    function updateVerticalRowIndex(y) {
+      firstVisibleRowScrollIndex.value = y
+    }
+
     return {
       container,
       domFocusField,
@@ -935,6 +956,8 @@ export default defineComponent({
       handleGridMouseDown,
       handleGridMouseMove,
       handleGridMouseUp,
+      updateHorizontalColumnIndex,
+      updateVerticalRowIndex,
       range,
     }
   }

@@ -1,10 +1,9 @@
-import {defineComponent, PropType, ref, toRefs, watchEffect} from 'vue'
-//uniqWith, isEqual
+import {defineComponent, PropType, ref, toRefs, watchEffect, nextTick} from 'vue'
 import {getIntSettingsValue} from '/@/second/settings/settingsTools'
 import createRef from '/@/second/utility/createRef'
 import DataGridCore from './DataGridCore.vue'
 import {GridDisplay} from '/@/second/keeper-datalib'
-import {isFunction} from '/@/utils/is'
+import {isFunction,} from '/@/utils/is'
 import Grider from '/@/second/datagrid/Grider'
 
 export default defineComponent({
@@ -19,10 +18,6 @@ export default defineComponent({
     loadRowCount: {
       type: Function as PropType<(props: any) => Promise<number>>,
     },
-    isLoading: {
-      type: Boolean as PropType<boolean>,
-      default: false
-    },
     loadedRows: {
       type: Array as PropType<any[]>,
       default: []
@@ -35,19 +30,22 @@ export default defineComponent({
     },
     masterLoadedTime: {
       type: Number as PropType<number>,
+    },
+    rowCountLoaded: {
+      type: Number as PropType<number>,
     }
   },
   emits: ['selectedCellsPublished', 'update:loadedRows'],
   setup(props, {attrs, emit}) {
     const {
-      isLoading,
       loadDataPage,
       loadedRows,
       loadRowCount,
       display,
       dataPageAvailable,
       grider,
-      masterLoadedTime
+      masterLoadedTime,
+      rowCountLoaded
     } = toRefs(props)
 
     const isLoadedAll = ref<boolean>(false)
@@ -57,19 +55,19 @@ export default defineComponent({
     const domGrid = ref<Nullable<HTMLElement>>(null)
     const loadNextDataRef = createRef<boolean>(false)
     const loadedTimeRef = createRef<number | boolean | null>(null)
-    const loadedRowsRw = ref(loadedRows.value)
-    const isLoadingRw = ref(isLoading.value)
+    const isLoading = ref(false)
 
     const handleLoadRowCount = async () => {
       allRowCount.value = await loadRowCount.value!(Object.assign({}, props, attrs))
     }
 
     async function loadNextData() {
-      if (isLoadingRw.value) return
+      if (isLoading.value) return
       loadedTimeRef.set(false)
-      isLoadingRw.value = true
+      isLoading.value = true
 
       const loadStart = new Date().getTime()
+      await nextTick()
 
       loadedTimeRef.set(loadStart)
 
@@ -83,21 +81,21 @@ export default defineComponent({
         return
       }
 
-      isLoadingRw.value = false
+      isLoading.value = false
 
       if (nextRows.errorMessage) {
         errorMessage.value = nextRows.errorMessage
       } else {
         if (allRowCount.value == null) await handleLoadRowCount()
+        const newLoadedRows = [...loadedRows.value, ...nextRows]
+        emit('update:loadedRows', newLoadedRows)
+        isLoadedAll.value = nextRows.length === 0
       }
-      console.log(`loadedRows`, loadedRows.value)
-      console.log(`nextRows`, nextRows)
-      loadedRowsRw.value = [...loadedRows.value, ...nextRows]
-      isLoadedAll.value = nextRows.length === 0
+
       if (loadNextDataRef.get()) {
-         loadNextData()
+        loadNextData()
       }
-      emit('update:loadedRows', loadedRowsRw.value)
+
     }
 
     function handleLoadNextData() {
@@ -114,8 +112,9 @@ export default defineComponent({
 
     function reload() {
       allRowCount.value = null
-      isLoadingRw.value = false
-      loadedRowsRw.value = []
+      isLoading.value = false
+      emit('update:loadedRows', [])
+      isLoadedAll.value = false
       loadedTime.value = new Date().getTime()
       errorMessage.value = null
       loadNextDataRef.set(false)
@@ -125,7 +124,9 @@ export default defineComponent({
       if ((display.value! && display.value?.cache?.refreshTime) > loadedTime.value) {
         reload()
       }
+    })
 
+    watchEffect(() => {
       if (masterLoadedTime.value && masterLoadedTime.value > loadedTime.value && display.value) {
         display.value.reload()
       }
@@ -137,7 +138,8 @@ export default defineComponent({
       onSelectedCellsPublished={selectedCellsPublished}
       onLoadNextData={handleLoadNextData}
       errorMessage={errorMessage.value}
-      isLoading={isLoadingRw.value}
+      isLoading={isLoading.value}
+      allRowCount={(rowCountLoaded.value || allRowCount.value)!}
       isLoadedAll={isLoadedAll.value}
       loadedTime={loadedTime.value}
       grider={grider.value}

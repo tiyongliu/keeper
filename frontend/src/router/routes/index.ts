@@ -1,7 +1,5 @@
 import type { AppRouteRecordRaw } from '/@/router/types';
-export const LAYOUT = () => import('/@/layouts/default/index.vue');
-// import { PAGE_NOT_FOUND_ROUTE } from '/@/router/routes/basic';
-// import { PageEnum } from '/@/enums/pageEnum';
+import {LAYOUT} from '../constant'
 
 // 根路由
 export const RootRoute: AppRouteRecordRaw = {

@@ -5,7 +5,7 @@
 </template>
 
 <script lang="ts">
-import {computed, defineComponent, nextTick, PropType, ref, toRefs, watch} from 'vue'
+import {computed, defineComponent, nextTick, PropType, ref, toRefs, unref, watch} from 'vue'
 
 export default defineComponent({
   name: 'HorizontalScrollBar',
@@ -21,7 +21,7 @@ export default defineComponent({
       type: Number as PropType<number>
     }
   },
-  emits: ['dispatchScroll'],
+  emits: ['scroll'],
   setup(props, {emit}) {
     const {viewportRatio, minimum, maximum} = toRefs(props)
     const node = ref<Nullable<HTMLElement>>(null)
@@ -29,11 +29,11 @@ export default defineComponent({
     const contentSize = computed(() => Math.round(width.value / viewportRatio.value))
 
     function handleScroll() {
-      const position = node.value ? node.value.scrollLeft : 0
+      const position = node.value!.scrollLeft
       const ratio = position / (contentSize.value - width.value);
       if (ratio < 0) return 0
       const res = ratio * (maximum.value! - minimum.value! + 1) + minimum.value!
-      emit('dispatchScroll', Math.floor(res + 0.3))
+      emit('scroll', Math.floor(res + 0.3))
     }
 
     watch(() => [viewportRatio.value, minimum.value, maximum.value], async () => {
@@ -42,7 +42,7 @@ export default defineComponent({
     })
 
     function scroll(value) {
-      const position01 = (value - minimum.value!) / (maximum.value! - minimum.value! + 1);
+      const position01 = (unref(value) - minimum.value!) / (maximum.value! - minimum.value! + 1);
       const position = position01 * (contentSize.value - width.value);
       if (node.value) node.value.scrollLeft = Math.floor(position)
     }

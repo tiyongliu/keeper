@@ -1,5 +1,5 @@
 const apiLogging = false
-export async function apiCall<T>(url: string, params?: T): Promise<T | void> {
+export async function apiCall<T>(url: string, params?: any): Promise<T | void> {
   //读取环境变量
   if (apiLogging) {
     console.log('>>> API CALL', url, params)

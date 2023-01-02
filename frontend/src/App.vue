@@ -9,7 +9,6 @@
 <script lang="ts" setup>
 import {ConfigProvider} from 'ant-design-vue';
 import {AppProvider} from '/@/components/Application';
-import {useTitle} from '/@/hooks/web/useTitle';
 import {useLocale} from '/@/locales/useLocale';
 import {onMounted, ref, watchEffect} from 'vue'
 import {storeToRefs} from 'pinia'
@@ -27,9 +26,6 @@ let loadedApi = ref(false)
 
 // support Multi-language
 const {getAntdLocale} = useLocale();
-
-// Listening to page changes and dynamically changing site titles
-useTitle()
 
 initPluginsProvider()
 subscribeCurrentDbByTab()

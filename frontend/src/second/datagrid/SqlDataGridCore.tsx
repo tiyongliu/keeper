@@ -10,8 +10,6 @@ import {
   watchEffect
 } from 'vue'
 import LoadingDataGridCore from '/@/second/datagrid/LoadingDataGridCore'
-// import eb_system_config from '/@/second/tabs/eb_system_config.json'
-// import credential_count from '/@/second/tabs/credential_count.json'
 import {GridConfig, GridDisplay, MacroDefinition} from "/@/second/keeper-datalib";
 import ChangeSetGrider from './ChangeSetGrider'
 import {databaseConnectionsSqlSelectApi} from '/@/api/simpleApis'
@@ -34,12 +32,12 @@ async function loadRowCount(props) {
 
   const select = display.getCountQuery()
 
-  await databaseConnectionsSqlSelectApi({
+  const response = await databaseConnectionsSqlSelectApi<{ msgtype: string; rows: { count: number }[] }>({
     conid: unref(conid)!,
     database: unref(database)!,
     select,
   })
-  return parseInt("7")
+  return response.rows[0].count
 }
 
 export default defineComponent({
@@ -76,7 +74,7 @@ export default defineComponent({
       type: Object as PropType<any>
     },
   },
-  emits: ['selectedCellsPublished'],
+  emits: ['update:loadedRows', 'selectedCellsPublished'],
   setup(props, {attrs, emit}) {
     const {
       macroPreview,
@@ -102,7 +100,7 @@ export default defineComponent({
       }
     })
 
-    watch(() => [macroPreview.value, selectedCellsPublished.value, changeSetState.value, dispatchChangeSet.value], () => {
+    watchEffect(() => {
       if (macroPreview.value) {
         grider.value = new ChangeSetGrider(loadedRows.value, changeSetState.value, dispatchChangeSet.value, display.value!, macroPreview.value! as MacroDefinition, macroValues.value, selectedCellsPublished.value())
       }
@@ -114,18 +112,19 @@ export default defineComponent({
     }
 
     onBeforeUnmount(() => {
-      // loadedRows.value = []
-      // grider.value = null
+      loadedRows.value = []
+      grider.value = null
     })
 
-    // function handle(rows) {
-    //   loadedRows.value = rows
-    //   if (!macroPreview.value) {
-    //     grider.value = new ChangeSetGrider(loadedRows.value, changeSetState.value, dispatchChangeSet.value, display.value!)
-    //   }
-    // }
-
     //onLoadedRows={rows => loadedRows.value = rows}
+
+    //     onSelectedCellsPublished={handleSelectedCellsPublished}
+
+    watch(() => unref(loadedRows.value), () => {
+      // emit('update:loadedRows', unref(loadedRows.value))
+      // console.log(loadedRows.value, `len`)
+    })
+
     return () => (
       <LoadingDataGridCore
         {...Object.assign({}, props, attrs)}

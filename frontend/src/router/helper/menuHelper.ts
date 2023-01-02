@@ -1,10 +1,8 @@
-import { AppRouteModule } from '/@/router/types';
-import type { MenuModule, Menu, AppRouteRecordRaw } from '/@/router/types';
-import { findPath, treeMap } from '/@/utils/helper/treeHelper';
-import { cloneDeep } from 'lodash-es';
-import { isUrl } from '/@/utils/is';
-import { RouteParams } from 'vue-router';
-import { toRaw } from 'vue';
+import type {Menu, MenuModule} from '/@/router/types';
+import {findPath} from '/@/utils/helper/treeHelper';
+import {isUrl} from '/@/utils/is';
+import {RouteParams} from 'vue-router';
+import {toRaw} from 'vue';
 
 export function getAllParentPath<T = Recordable>(treeData: T[], path: string) {
   const menuList = findPath(treeData, (n) => n.path === path) as Menu[];
@@ -39,45 +37,6 @@ export function transformMenuModule(menuModule: MenuModule): Menu {
 
   joinParentPath(menuList);
   return menuList[0];
-}
-
-// 将路由转换成菜单
-export function transformRouteToMenu(routeModList: AppRouteModule[], routerMapping = false) {
-  // 借助 lodash 深拷贝
-  const cloneRouteModList = cloneDeep(routeModList);
-  const routeList: AppRouteRecordRaw[] = [];
-
-  // 对路由项进行修改
-  cloneRouteModList.forEach((item) => {
-    if (routerMapping && item.meta.hideChildrenInMenu && typeof item.redirect === 'string') {
-      item.path = item.redirect;
-    }
-
-    if (item.meta?.single) {
-      const realItem = item?.children?.[0];
-      realItem && routeList.push(realItem);
-    } else {
-      routeList.push(item);
-    }
-  });
-  // 提取树指定结构
-  const list = treeMap(routeList, {
-    conversion: (node: AppRouteRecordRaw) => {
-      const { meta: { title, hideMenu = false } = {} } = node;
-
-      return {
-        ...(node.meta || {}),
-        meta: node.meta,
-        name: title,
-        hideMenu,
-        path: node.path,
-        ...(node.redirect ? { redirect: node.redirect } : {}),
-      };
-    },
-  });
-  // 路径处理
-  joinParentPath(list);
-  return cloneDeep(list);
 }
 
 /**
