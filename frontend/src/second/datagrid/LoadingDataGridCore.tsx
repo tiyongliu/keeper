@@ -1,4 +1,5 @@
 import {defineComponent, PropType, ref, toRefs, watchEffect} from 'vue'
+//uniqWith, isEqual
 import {getIntSettingsValue} from '/@/second/settings/settingsTools'
 import createRef from '/@/second/utility/createRef'
 import DataGridCore from './DataGridCore.vue'
@@ -36,7 +37,7 @@ export default defineComponent({
       type: Number as PropType<number>,
     }
   },
-  emits: ['loadedRows', 'selectedCellsPublished'],
+  emits: ['selectedCellsPublished', 'update:loadedRows'],
   setup(props, {attrs, emit}) {
     const {
       isLoading,
@@ -89,19 +90,18 @@ export default defineComponent({
       } else {
         if (allRowCount.value == null) await handleLoadRowCount()
       }
-
+      console.log(`loadedRows`, loadedRows.value)
+      console.log(`nextRows`, nextRows)
       loadedRowsRw.value = [...loadedRows.value, ...nextRows]
       isLoadedAll.value = nextRows.length === 0
-
       if (loadNextDataRef.get()) {
-        void loadNextData()
+         loadNextData()
       }
-
-      emit('loadedRows', loadedRowsRw.value)
+      emit('update:loadedRows', loadedRowsRw.value)
     }
 
     function handleLoadNextData() {
-      if (!isLoadedAll.value && !errorMessage.value) {
+      if (!isLoadedAll.value && !errorMessage.value && (grider.value && !grider.value.disableLoadNextPage)) {
         if (isFunction(dataPageAvailable.value) && dataPageAvailable.value!(Object.assign({}, props, attrs))) {
           void loadNextData()
         }

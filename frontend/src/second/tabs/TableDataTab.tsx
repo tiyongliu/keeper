@@ -41,12 +41,12 @@ export default defineComponent({
     const config = useGridConfig(tabid.value!)
     const cache = ref(createGridCache())
 
-    function configUpdate(fn) {
-      if (fn) config.value = fn(config.value)
+    function configUpdate(updater) {
+      if (updater) config.value = updater(config.value)
     }
 
-    function cacheUpdate(fn) {
-      if (fn) cache.value = fn(cache.value)
+    function cacheUpdate(updater) {
+      if (updater) cache.value = updater(cache.value)
     }
 
     const collapsedLeftColumnStore = ref(getLocalStorage('dataGrid_collapsedLeftColumn', false))

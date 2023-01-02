@@ -1,5 +1,4 @@
 import {computed, defineComponent, PropType, ref, toRefs, watch} from 'vue'
-import {isNumber} from 'lodash-es'
 import {TableFormViewDisplay} from '/@/second/keeper-datalib'
 import FontIcon from '/@/second/icons/FontIcon.vue'
 import ColumnLabel from '/@/second/elements/ColumnLabel.vue'
@@ -30,8 +29,7 @@ export default defineComponent({
       ? formDisplay.value.getKeyValue(column.value.columnName) : null)
 
     const applyFilter = () => {
-      (formDisplay.value && column.value) && formDisplay.value.requestKeyValue(column.value.columnName, isNumber(value.value)
-        ? Number(domEditor.value) : domEditor.value)
+      (formDisplay.value && column.value) && formDisplay.value.requestKeyValue(column.value.columnName, domEditor.value)
     }
 
     const cancelFilter = () => {

@@ -1,4 +1,14 @@
-import {Component, defineComponent, PropType, ref, toRefs, unref, watch, onBeforeUnmount} from 'vue'
+import {
+  Component,
+  defineComponent,
+  onBeforeUnmount,
+  PropType,
+  ref,
+  toRefs,
+  unref,
+  watch,
+  watchEffect
+} from 'vue'
 import LoadingDataGridCore from '/@/second/datagrid/LoadingDataGridCore'
 // import eb_system_config from '/@/second/tabs/eb_system_config.json'
 // import credential_count from '/@/second/tabs/credential_count.json'
@@ -10,7 +20,6 @@ import {databaseConnectionsSqlSelectApi} from '/@/api/simpleApis'
 async function loadDataPage(props, offset, limit) {
   const {display, conid, database} = props
   const select = display.getPageQuery(offset, limit)
-
   const response = await databaseConnectionsSqlSelectApi({
     conid: unref(conid)!,
     database: unref(database)!,
@@ -87,15 +96,17 @@ export default defineComponent({
       return !!select;
     }
 
-    watch(() => [macroPreview.value, ...loadedRows.value, selectedCellsPublished.value, changeSetState.value, dispatchChangeSet.value], () => {
-      if (macroPreview.value) {
-        grider.value = new ChangeSetGrider(loadedRows.value, changeSetState.value, dispatchChangeSet.value, display.value!, macroPreview.value! as MacroDefinition, macroValues.value, selectedCellsPublished.value())
-      }
-
+    watchEffect(() => {
       if (!macroPreview.value) {
         grider.value = new ChangeSetGrider(loadedRows.value, changeSetState.value, dispatchChangeSet.value, display.value!)
       }
-    }, {immediate: true})
+    })
+
+    watch(() => [macroPreview.value, selectedCellsPublished.value, changeSetState.value, dispatchChangeSet.value], () => {
+      if (macroPreview.value) {
+        grider.value = new ChangeSetGrider(loadedRows.value, changeSetState.value, dispatchChangeSet.value, display.value!, macroPreview.value! as MacroDefinition, macroValues.value, selectedCellsPublished.value())
+      }
+    })
 
     function handleSelectedCellsPublished(data) {
       selectedCellsPublished.value = data
@@ -103,17 +114,25 @@ export default defineComponent({
     }
 
     onBeforeUnmount(() => {
-      loadedRows.value = []
-      grider.value = null
+      // loadedRows.value = []
+      // grider.value = null
     })
 
+    // function handle(rows) {
+    //   loadedRows.value = rows
+    //   if (!macroPreview.value) {
+    //     grider.value = new ChangeSetGrider(loadedRows.value, changeSetState.value, dispatchChangeSet.value, display.value!)
+    //   }
+    // }
+
+    //onLoadedRows={rows => loadedRows.value = rows}
     return () => (
       <LoadingDataGridCore
         {...Object.assign({}, props, attrs)}
         loadDataPage={loadDataPage}
         dataPageAvailable={dataPageAvailable}
         loadRowCount={loadRowCount}
-        onLoadedRows={rows => loadedRows.value = rows}
+        vModel:loadedRows={loadedRows.value}
         onSelectedCellsPublished={handleSelectedCellsPublished}
         frameSelection={!!macroPreview.value}
         grider={grider.value}

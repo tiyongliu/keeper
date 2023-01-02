@@ -291,15 +291,12 @@ export default defineComponent({
       type: String as PropType<string | null>,
     },
     collapsedLeftColumnStore: {
-      type: Object as PropType<Ref<boolean>>,
+      type: Boolean as PropType<boolean>,
       default: true
     },
     allowDefineVirtualReferences: {
       type: Boolean as PropType<boolean>,
       default: false
-    },
-    onLoadNextData: {
-      type: Function as PropType<() => void>
     },
     isDynamicStructure: {
       type: Boolean as PropType<boolean>,
@@ -332,7 +329,7 @@ export default defineComponent({
       type: Function as PropType<(value: any) => void>
     }
   },
-  emits: ['selectedCellsPublished'],
+  emits: ['selectedCellsPublished', 'loadNextData'],
   setup(props, {emit}) {
     const {
       conid,
@@ -340,7 +337,6 @@ export default defineComponent({
       errorMessage,
       grider,
       display,
-      onLoadNextData,
       collapsedLeftColumnStore,
       allRowCount,
       changeSelectedColumns,
@@ -418,13 +414,13 @@ export default defineComponent({
       updateWidgetStyle()
     })
 
-    // watch(() => [onLoadNextData.value, display.value], () => {
+    // watch(() => [display.value], () => {
     //   updateWidgetStyle()
     // })
 
-    watch(() => [firstVisibleRowScrollIndex.value, visibleRowCountUpperBound.value], async () => {
-      if (onLoadNextData.value && grider.value && firstVisibleRowScrollIndex.value + visibleRowCountUpperBound.value >= grider.value!.rowCount && rowHeight.value > 0) {
-        onLoadNextData.value()
+    watch(() => [firstVisibleRowScrollIndex.value, visibleRowCountUpperBound.value, display.value], async () => {
+      if (grider.value && firstVisibleRowScrollIndex.value + visibleRowCountUpperBound.value >= grider.value!.rowCount && rowHeight.value > 0) {
+        emit('loadNextData')
       }
     })
 
@@ -499,7 +495,7 @@ export default defineComponent({
               if (isRegularCell(currentCell.value)) {
                 switch (action.mode) {
                   case 'enter':
-                    moveCurrentCell(currentCell[0] + 1, currentCell[1]);
+                    moveCurrentCell(currentCell.value[0] + 1, currentCell.value[1]);
                     break
                   case 'tab':
                     moveCurrentCellWithTabKey(false)
@@ -757,16 +753,16 @@ export default defineComponent({
       if (!isRegularCell(currentCell.value)) return null
 
       if (isShift) {
-        if (currentCell[1] > 0) {
-          return moveCurrentCell(currentCell[0], currentCell[1] - 1, event);
+        if (currentCell.value[1] > 0) {
+          return moveCurrentCell(currentCell.value[0], currentCell.value[1] - 1, event);
         } else {
-          return moveCurrentCell(currentCell[0] - 1, columnSizes.value!.realCount - 1, event);
+          return moveCurrentCell(currentCell.value[0] - 1, columnSizes.value!.realCount - 1, event);
         }
       } else {
-        if (currentCell[1] < columnSizes.value!.realCount - 1) {
-          return moveCurrentCell(currentCell[0], currentCell[1] + 1, event);
+        if (currentCell.value[1] < columnSizes.value!.realCount - 1) {
+          return moveCurrentCell(currentCell.value[0], currentCell.value[1] + 1, event);
         } else {
-          return moveCurrentCell(currentCell[0] + 1, 0, event);
+          return moveCurrentCell(currentCell.value[0] + 1, 0, event);
         }
       }
     }
@@ -779,7 +775,7 @@ export default defineComponent({
         const rowCount = grider.value!.rowCount
         if (rowCount == 0) return
 
-        if (row < firstVisibleRowScrollIndex) newRow = row
+        if (row < firstVisibleRowScrollIndex.value) newRow = row
         else if (row + 1 >= firstVisibleRowScrollIndex.value + visibleRowCountLowerBound.value)
           newRow = row - visibleRowCountLowerBound.value + 2
 
