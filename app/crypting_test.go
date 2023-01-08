@@ -11,7 +11,7 @@ import (
 )
 
 func Test_EncryptPasswordField(t *testing.T) {
-	connection := map[string]string{
+	connection := map[string]interface{}{
 		"server":     "localhost",
 		"engine":     "mysql@dbgate-pluginMysql",
 		"sshMode":    "userPassword",
@@ -21,7 +21,7 @@ func Test_EncryptPasswordField(t *testing.T) {
 		"password":   "123456",
 	}
 
-	pwd := encryptPasswordField(connection, "password")["password"]
+	pwd := encryptPasswordField(utility.TransformStringMap(connection), "password")["password"]
 	fmt.Println(pwd)
 	connection["password"] = pwd
 	_ = decryptPasswordField(connection, "password")["password"]

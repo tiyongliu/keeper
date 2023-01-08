@@ -1,6 +1,7 @@
 package drivers
 
 import (
+	"errors"
 	"github.com/samber/lo"
 	"keeper/app/db"
 	"keeper/app/db/adapter/mongo"
@@ -8,6 +9,7 @@ import (
 	"keeper/app/internal"
 	"keeper/app/pkg/logger"
 	"keeper/app/utility"
+	"path/filepath"
 )
 
 const (
@@ -28,6 +30,9 @@ func NewCompatDriver() Driver {
 }
 
 func (s *sessionWithContext) Open(storedConnection map[string]interface{}) (db.Session, error) {
+	if !utility.IsExist(filepath.Join(utility.DataDir(), "connections.jsonl")) {
+		return nil, errors.New("connections file not exist")
+	}
 	return createSession(internal.DecryptConnection(loadConnection(storedConnection)))
 }
 

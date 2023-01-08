@@ -171,7 +171,7 @@ func (msg *DatabaseConnection) handleIncrementalRefresh(ch chan *containers.Echo
 
 func (msg *DatabaseConnection) HandleSqlSelect(
 	ctx context.Context, conn *containers.OpenedDatabaseConnection, selectParams interface{}) *containers.EchoMessage {
-	ch := make(chan *containers.EchoMessage, 1)
+	ch := make(chan *containers.EchoMessage, 2)
 	runtime.EventsEmit(ctx, "handleSqlSelect", selectParams)
 	runtime.EventsOnce(ctx, "handleSqlSelectReturn", func(sql ...interface{}) {
 		utility.WithRecover(func() {
