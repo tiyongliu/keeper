@@ -3,10 +3,8 @@ package internal
 import (
 	"encoding/json"
 	"github.com/samber/lo"
-	"io/ioutil"
 	"keeper/app/pkg/logger"
 	"keeper/app/utility"
-	"log"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -20,16 +18,16 @@ const (
 
 var _encryptionKey string
 
-func LoadEncryptionKey() string {
+func loadEncryptionKey() string {
 	if _encryptionKey != "" {
 		return _encryptionKey
 	}
 	defaultFile := utility.DataDirCore()
 	keyFile := filepath.Join(defaultFile, ".key")
-	encryptor := CreateEncryptor(defaultEncryptionKey)
+	encryptor := createEncryptor(defaultEncryptionKey)
 	if !utility.IsExist(keyFile) {
 		if err := os.MkdirAll(filepath.Dir(keyFile), os.ModePerm); err != nil {
-			log.Fatalf("os.MkdirAll failed err: %v\n", err)
+			logger.Fatalf("os.MkdirAll failed err: %v", err)
 			return ""
 		}
 
@@ -40,23 +38,27 @@ func LoadEncryptionKey() string {
 		}
 		encrypt := encryptor.encrypt(result)
 
-		if err := ioutil.WriteFile(keyFile, []byte(encrypt), os.ModePerm); err != nil {
-			log.Fatalf("ioutil.WriteFile failed err: %v\n", err)
+		if err := os.WriteFile(keyFile, []byte(encrypt), os.ModePerm); err != nil {
+			logger.Fatalf("os.WriteFile failed err: %v", err)
 			return ""
 		}
 	}
 
-	encryptedData, err := ioutil.ReadFile(keyFile)
+	encryptedData, err := os.ReadFile(keyFile)
 	if err != nil {
-		log.Fatalf("ioutil.ReadFile failed err: %v\n", err)
+		logger.Errorf("os.ReadFile failed err: %v", err)
 		return ""
 	}
 
 	decrypt := encryptor.decrypt(string(encryptedData))
+	if decrypt == "" {
+		return ""
+	}
+
 	data := map[string]string{}
 	err = json.Unmarshal([]byte(decrypt), &data)
 	if err != nil {
-		log.Fatalf("json.Unmarshal failed err: %v\n", err)
+		logger.Errorf("json.Unmarshal failed err: %v", err)
 		return ""
 	}
 	_encryptionKey = data[encryptionKeyKey]
@@ -70,7 +72,7 @@ func getEncryptor() *SimpleEncryptor {
 		return _encryptor
 	}
 
-	_encryptor = CreateEncryptor(LoadEncryptionKey())
+	_encryptor = createEncryptor(loadEncryptionKey())
 	return _encryptor
 }
 
@@ -84,25 +86,15 @@ func encryptPasswordField(connection map[string]string, field string) map[string
 	return connection
 }
 
-/*func decryptPasswordField(connection map[string]string, field string) map[string]string {
-	if connection != nil &&
-		connection[field] != "" &&
-		strings.HasPrefix(connection[field], "crypt:") {
-		decrypt := getEncryptor().decrypt(strings.Split(connection[field], "crypt:")[1])
-		//TODO "123456" 需要去掉前后的“”, 当前只是剔除前后空格
-		connection[field] = decrypt[1 : len(decrypt)-1]
-	}
-
-	return connection
-}*/
-
 func decryptPasswordField(connection map[string]interface{}, field string) map[string]interface{} {
 	if connection != nil && connection[field] != nil && reflect.ValueOf(connection[field]).Kind() == reflect.String {
 		logger.Infof("password.reflect: %s", connection[field])
 		value := connection[field].(string)
 		if field != "" && strings.HasPrefix(value, "crypt:") {
 			decrypt := getEncryptor().decrypt(strings.Split(value, "crypt:")[1])
-			connection[field] = strings.Trim(decrypt[1:len(decrypt)-1], "")
+			if decrypt != "" && len(decrypt) > 1 {
+				connection[field] = strings.Trim(decrypt[1:len(decrypt)-1], "")
+			}
 		}
 	}
 
@@ -130,7 +122,7 @@ func DecryptConnection(connection map[string]interface{}) map[string]interface{}
 	return connection
 }
 
-func PickSafeConnectionInfo(connection map[string]interface{}) map[string]interface{} {
+func pickSafeConnectionInfo(connection map[string]interface{}) map[string]interface{} {
 	return lo.MapValues(connection, func(v interface{}, k string) interface{} {
 		if k == "engine" || k == "port" || k == "authType" || k == "sshMode" || k == "passwordMode" {
 			return v

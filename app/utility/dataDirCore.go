@@ -1,7 +1,7 @@
 package utility
 
 import (
-	"log"
+	"keeper/app/pkg/logger"
 	"os"
 	"path"
 )
@@ -11,7 +11,7 @@ const MkDir = ".keeper"
 func ensureDirectory(dir string) {
 	if !IsExist(dir) {
 		if err := os.MkdirAll(dir, os.ModePerm); err != nil {
-			log.Fatalf("os.MkdirAll failed err: %v\n", err)
+			logger.Fatalf("os.MkdirAll failed err: %v\n", err)
 		}
 	}
 }

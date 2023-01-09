@@ -16,13 +16,16 @@ import (
 )
 
 var JsonLinesDatabase *utility.JsonLinesDatabase
+var dir string
+var filename string
 
 type Connections struct {
 }
 
 func init() {
-	dir := utility.DataDir()
-	JsonLinesDatabase = utility.NewJsonLinesDatabase(path.Join(dir, "connections.jsonl"))
+	dir = utility.DataDir()
+	filename = path.Join(dir, "connections.jsonl")
+	JsonLinesDatabase = utility.NewJsonLinesDatabase(filename)
 }
 
 func NewConnections() *Connections {
@@ -33,6 +36,8 @@ func getCore(conid string, mask bool) map[string]interface{} {
 	if conid == "" {
 		return nil
 	}
+	dir = utility.DataDir()
+	JsonLinesDatabase = utility.NewJsonLinesDatabase(filename)
 	return JsonLinesDatabase.Get(conid)
 }
 

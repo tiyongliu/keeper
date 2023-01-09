@@ -9,7 +9,7 @@ import (
 	json2 "encoding/json"
 	"fmt"
 	"github.com/Luzifer/go-openssl/v4"
-	"log"
+	"keeper/app/pkg/logger"
 	"math/rand"
 )
 
@@ -34,7 +34,7 @@ type SimpleEncryptor struct {
 	Opts      *Option
 }
 
-func CreateEncryptor(opts interface{}) *SimpleEncryptor {
+func createEncryptor(opts interface{}) *SimpleEncryptor {
 	var o *Option
 	switch opts.(type) {
 	case string:
@@ -46,14 +46,14 @@ func CreateEncryptor(opts interface{}) *SimpleEncryptor {
 	case Option:
 		o = opts.(*Option)
 	default:
-		log.Fatalln("invalid opts")
+		logger.Error("invalid opts")
 	}
 
 	if o == nil || o.Key == "" {
-		log.Fatalln("a string key must be specified")
+		logger.Error("a string key must be specified")
 	}
 	if len(o.Key) < min_key_length {
-		log.Fatalln("key must be at least ' + MIN_KEY_LENGTH + ' characters long")
+		logger.Error("key must be at least ' + MIN_KEY_LENGTH + ' characters long")
 	}
 
 	h := sha256.New()
@@ -88,6 +88,9 @@ func (simple *SimpleEncryptor) encrypt(obj interface{}) string {
 }
 
 func (simple *SimpleEncryptor) decrypt(opensslEncrypted string) string {
+	if opensslEncrypted == "" {
+		return ""
+	}
 	expectedHmac := opensslEncrypted[:64]
 
 	buffer := opensslEncrypted[64:]

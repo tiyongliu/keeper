@@ -122,6 +122,10 @@ func (sc *ServerConnections) ensureOpened(conid string) *containers.OpenedServer
 	}
 
 	connection := getCore(conid, false)
+	if connection == nil {
+		return nil
+	}
+
 	newOpened := &containers.OpenedServerConnection{
 		Conid:        conid,
 		Status:       &containers.OpenedStatus{Name: "pending"},
@@ -166,6 +170,9 @@ func (sc *ServerConnections) ListDatabases(request map[string]string) *serialize
 		return serializer.Fail(serializer.IdNotEmpty)
 	}
 	opened := sc.ensureOpened(request[conidkey])
+	if opened == nil {
+		return serializer.SuccessData(serializer.SUCCESS, nil)
+	}
 	return serializer.SuccessData(serializer.SUCCESS, opened.Databases)
 }
 

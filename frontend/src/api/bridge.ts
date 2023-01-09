@@ -112,6 +112,7 @@ async function getCore(loader, args) {
 
   async function doLoad() {
     const resp = await apiCall(url, params);
+    // @ts-ignore
     if (resp?.errorMessage && errorValue !== undefined) {
       if (onLoaded) onLoaded(errorValue)
       return errorValue;

@@ -29,7 +29,7 @@ func Test_EncryptPasswordField(t *testing.T) {
 }
 
 func Test_LoadEncryptionKey(t *testing.T) {
-	key2 := LoadEncryptionKey()
+	key2 := loadEncryptionKey()
 	fmt.Println(key2)
 }
 
@@ -53,7 +53,7 @@ func Test_PickSafeConnectionInfo(t *testing.T) {
 
 	fmt.Println(utility.DataDir())
 
-	fmt.Println(PickSafeConnectionInfo(map[string]interface{}{
+	fmt.Println(pickSafeConnectionInfo(map[string]interface{}{
 		"server":     "localhost",
 		"engine":     "mysql@dbgate-pluginMysql",
 		"sshMode":    "userPassword",
