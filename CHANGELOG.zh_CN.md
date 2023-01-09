@@ -5,6 +5,7 @@
 - 修复`PrimaryKeyFilterEditor`主键名、主键值显示
 - 修复`VerticalScrollBar`组件初始化高度不正确，列表过滤scroll值不正确
 - 修复wheel方法没被动触发到`VerticalScrollBar`的handleScroll方法
+- 修复`DataGridCore.vue`wheel滚轮事件转发到子组件scroll，通过`dispatchEvent(new MouseEvent('scroll'))`
 
 ## 0.0.2.2-alpha.1(2022-11-28)
 
