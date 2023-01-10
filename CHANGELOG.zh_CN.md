@@ -1,5 +1,8 @@
 ## 0.0.2.2-alpha.2(2022-12-29)
 
+- **其它**
+- 替换`vben admin`自带解决白屏的loading动画，删除相loading图片资源 
+
 ### 🐛 Bug Fixes
 - 修复`WidgetColumnBarItem` props show属性
 - 修复`PrimaryKeyFilterEditor`主键名、主键值显示

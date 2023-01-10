@@ -7,7 +7,6 @@ import windiCSS from 'vite-plugin-windicss';
 import VitePluginCertificate from 'vite-plugin-mkcert';
 import vueSetupExtend from 'vite-plugin-vue-setup-extend';
 import { configHtmlPlugin } from './html';
-import { configPwaConfig } from './pwa';
 import { configMockPlugin } from './mock';
 import { configCompressPlugin } from './compress';
 import { configStyleImportPlugin } from './styleImport';
@@ -73,9 +72,6 @@ export function createVitePlugins(viteEnv: ViteEnv, isBuild: boolean) {
     vitePlugins.push(
       configCompressPlugin(VITE_BUILD_COMPRESS, VITE_BUILD_COMPRESS_DELETE_ORIGIN_FILE),
     );
-
-    // vite-plugin-pwa
-    vitePlugins.push(configPwaConfig(viteEnv));
   }
 
   return vitePlugins;

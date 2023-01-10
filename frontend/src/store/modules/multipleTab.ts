@@ -123,10 +123,9 @@ export const useMultipleTabStore = defineStore({
       handleGotoPage(router);
     },
 
-    async closeAllTab(router: Router) {
+    async closeAllTab(_: Router) {
       this.tabList = this.tabList.filter((item) => item?.meta?.affix ?? false);
       this.clearCacheTabs();
-      this.goToPage(router);
     },
 
     /**

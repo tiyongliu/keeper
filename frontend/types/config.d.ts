@@ -147,8 +147,6 @@ export interface GlobConfig {
   urlPrefix?: string;
   // Project abbreviation
   shortName: string;
-  drivers: 'windows' | 'maxOS' | 'linux';
-  environment: 'web' | 'native';
 }
 export interface GlobEnvConfig {
   // Site title
