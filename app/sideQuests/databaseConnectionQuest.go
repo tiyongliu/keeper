@@ -90,7 +90,9 @@ func (msg *DatabaseConnection) Connect(ch chan *containers.EchoMessage, newOpene
 func (msg *DatabaseConnection) setStatus(ch chan *containers.EchoMessage, data func() (*containers.OpenedStatus, error)) {
 	status, err := data()
 	if err != nil {
-		ch <- &containers.EchoMessage{Err: err}
+		setStatus(ch, func() (*containers.OpenedStatus, error) {
+			return &containers.OpenedStatus{Name: "error", Message: err.Error()}, nil
+		})
 		return
 	}
 	statusString := utility.ToJsonStr(status)
@@ -104,6 +106,9 @@ func (msg *DatabaseConnection) setStatus(ch chan *containers.EchoMessage, data f
 func (msg *DatabaseConnection) readVersion(ch chan *containers.EchoMessage, driver db.Session) error {
 	version, err := driver.Version()
 	if err != nil {
+		setStatus(ch, func() (*containers.OpenedStatus, error) {
+			return &containers.OpenedStatus{Name: "error", Message: err.Error()}, nil
+		})
 		return err
 	}
 

@@ -3,7 +3,7 @@
     <div class="container">
       <template v-if="databaseName">
         <div class="item">
-          <FontIcon icon="icon lock" padRight v-if="connection.isReadOnly"/>
+          <FontIcon icon="icon lock" padRight v-if="connection && connection.isReadOnly"/>
           <FontIcon icon="icon database" padRight v-else/>
           {{ databaseName }}
         </div>

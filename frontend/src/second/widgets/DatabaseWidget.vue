@@ -82,7 +82,9 @@ export default defineComponent({
     const {connection} = storeToRefs(clusterApi)
 
     const database = computed(() => unref(currentDatabase)?.name)
-    const conid = computed(() => unref(currentDatabase)?.connection._id)
+    const conid = computed(() =>
+      (unref(currentDatabase) && unref(currentDatabase)!.connection)
+      ? unref(currentDatabase)?.connection._id : null)
     const driver = computed(() => extensions.value ? findEngineDriver(connection.value, extensions.value) : null)
     const singleDatabase = computed(() => unref(currentDatabase)?.connection?.singleDatabase)
 

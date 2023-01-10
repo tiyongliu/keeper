@@ -88,7 +88,6 @@ func encryptPasswordField(connection map[string]string, field string) map[string
 
 func decryptPasswordField(connection map[string]interface{}, field string) map[string]interface{} {
 	if connection != nil && connection[field] != nil && reflect.ValueOf(connection[field]).Kind() == reflect.String {
-		logger.Infof("password.reflect: %s", connection[field])
 		value := connection[field].(string)
 		if field != "" && strings.HasPrefix(value, "crypt:") {
 			decrypt := getEncryptor().decrypt(strings.Split(value, "crypt:")[1])
@@ -112,6 +111,7 @@ func MaskConnection(connection map[string]string) map[string]string {
 	if len(connection) == 0 {
 		return connection
 	}
+
 	return utility.MapOmit(connection, []string{"password", "sshPassword", "sshKeyfilePassword"})
 }
 
