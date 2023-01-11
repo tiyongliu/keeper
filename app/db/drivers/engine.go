@@ -49,7 +49,6 @@ func createSession(storedConnection map[string]interface{}) (db.Session, error) 
 	if storedConnection != nil && storedConnection[driverName].(string) != "" {
 		switch storedConnection[driverName] {
 		case mysql.Adapter:
-			logger.Infof("setting = %s", utility.ToJsonStr(storedConnection))
 			parseSetting, err := mysql.ParseSetting(storedConnection)
 			if err != nil {
 				logger.Errorf("setting parse failed %v", err)

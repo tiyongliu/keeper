@@ -18,5 +18,5 @@ export function subscribeRecentDatabaseSwitch() {
         ...compact(list).filter(x => x.name != value.name || x.connection?._id != value.connection?._id)
       ].slice(0, 10)
     })
-  })
+  }, {immediate: true})
 }

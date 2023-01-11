@@ -10,6 +10,7 @@
 - 修复wheel方法没被动触发到`VerticalScrollBar`的handleScroll方法
 - 修复`DataGridCore.vue`wheel滚轮事件转发到子组件scroll，通过`dispatchEvent(new MouseEvent('scroll'))`
 - 修复数据库查询错误处理方法(`setStatus`)，前端页面显示错误消息及图标
+- 修复前端加载完毕后触发`doDatabasePing`、`doDatabasePing`、`subscribeRecentDatabaseSwitch`方法
 
 ## 0.0.2.2-alpha.1(2022-11-28)
 

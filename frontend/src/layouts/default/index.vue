@@ -37,6 +37,8 @@
 import {defineComponent, watch, ref, onMounted} from 'vue'
 import {storeToRefs} from "pinia"
 import {useLocaleStore} from '/@/store/modules/locale'
+import {subscribeRecentDatabaseSwitch} from '/@/api/recentDatabaseSwitch'
+import {subscribeCurrentDbByTab} from '/@/api/changeCurrentDbByTab'
 import WidgetContainer from '/@/second/widgets/WidgetContainer.vue'
 import TabsPanel from '/@/second/widgets/TabsPanel.vue'
 import TabRegister from './TabRegister'
@@ -80,6 +82,9 @@ export default defineComponent({
     watch(() => visibleTitleBar.value, () => {
       localeStore.setCssVariable(visibleTitleBar.value, x => (x ? 1 : 0), '--dim-visible-titlebar')
     }, {immediate: true})
+
+    subscribeCurrentDbByTab()
+    subscribeRecentDatabaseSwitch()
 
     return {
       selectedWidget,

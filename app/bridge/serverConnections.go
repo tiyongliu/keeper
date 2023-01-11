@@ -200,8 +200,12 @@ func (sc *ServerConnections) ServerStatus() interface{} {
 	return serializer.SuccessData("", values)
 }
 
-func (sc *ServerConnections) Ping(connections []string) *serializer.Response {
-	for _, conid := range lo.Uniq[string](connections) {
+type ServerPingRequest struct {
+	Connections []string `json:"connections"`
+}
+
+func (sc *ServerConnections) Ping(req *ServerPingRequest) *serializer.Response {
+	for _, conid := range lo.Uniq[string](req.Connections) {
 		last := sc.LastPinged[conid]
 <<<<<<< HEAD
 		if pool, err := internal.GetDriverPool(conid); err == nil {

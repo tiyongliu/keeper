@@ -8,7 +8,7 @@ let openedConnectionsHandle: null | number = null
 let currentDatabaseHandle: null | number = null
 
 const doServerPing = value => {
-  void apiCall('bridge.ServerConnections.Ping', value)
+  void apiCall('bridge.ServerConnections.Ping', {connections: value})
 }
 
 const doDatabasePing = value => {
@@ -26,11 +26,11 @@ export function subscribeConnectionPingers() {
     doServerPing(openedConnections.value)
     if (openedConnectionsHandle) window.clearInterval(openedConnectionsHandle)
     openedConnectionsHandle = window.setInterval(() => doServerPing(openedConnections.value), 30 * 1000)
-  })
+  }, {immediate: true})
 
   watch(() => currentDatabase.value, () => {
     doDatabasePing(currentDatabase.value)
     if (currentDatabaseHandle) window.clearInterval(currentDatabaseHandle)
     currentDatabaseHandle = window.setInterval(() => doDatabasePing(currentDatabase.value), 30 * 1000)
-  })
+  }, {immediate: true})
 }
