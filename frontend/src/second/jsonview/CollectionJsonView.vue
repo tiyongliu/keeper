@@ -8,12 +8,18 @@
 </template>
 
 <script lang="ts">
-import {defineComponent, ref} from 'vue'
+import {defineComponent, PropType, ref} from 'vue'
 import Pager from '/@/second/elements/Pager.vue'
 export default defineComponent({
   name: "CollectionJsonView",
   components: {
     Pager
+  },
+  props: {
+    loadedRows: {
+      type: Array as PropType<any[]>,
+      default: []
+    },
   },
   setup() {
     const skip = ref(0)

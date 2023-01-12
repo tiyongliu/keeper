@@ -333,9 +333,7 @@ export default defineComponent({
       default: () => []
     }
   },
-  emits: [
-    'update:selectedCellsPublished',
-    'loadNextData'],
+  emits: ['update:selectedCellsPublished', 'loadNextData'],
   setup(props, {emit}) {
     const {
       conid,

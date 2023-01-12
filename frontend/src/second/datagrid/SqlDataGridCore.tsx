@@ -73,8 +73,16 @@ export default defineComponent({
     macroValues: {
       type: Object as PropType<any>
     },
+    loadedRows: {
+      type: Array as PropType<any[]>,
+      default: []
+    },
+    selectedCellsPublished: {
+      type: Function as PropType<() => []>,
+      default: () => []
+    }
   },
-  emits: ['update:loadedRows', 'selectedCellsPublished'],
+  emits: ['update:loadedRows', 'update:selectedCellsPublished'],
   setup(props, {attrs, emit}) {
     const {
       macroPreview,
@@ -82,11 +90,13 @@ export default defineComponent({
       dispatchChangeSet,
       display,
       macroValues,
+      loadedRows,
+      selectedCellsPublished,
     } = toRefs(props)
 
     const grider = ref()
-    const loadedRows = ref([])
-    const selectedCellsPublished = ref<() => any[]>(() => [])
+    const loadedRowsRw = ref(loadedRows.value)
+    const selectedCellsPublishedRw = ref(selectedCellsPublished.value)
 
     function dataPageAvailable(props) {
       const {display} = props;
@@ -96,33 +106,27 @@ export default defineComponent({
 
     watchEffect(() => {
       if (!macroPreview.value) {
-        grider.value = new ChangeSetGrider(loadedRows.value, changeSetState.value, dispatchChangeSet.value, display.value!)
+        grider.value = new ChangeSetGrider(loadedRowsRw.value, changeSetState.value, dispatchChangeSet.value, display.value!)
       }
     })
 
     watchEffect(() => {
       if (macroPreview.value) {
-        grider.value = new ChangeSetGrider(loadedRows.value, changeSetState.value, dispatchChangeSet.value, display.value!, macroPreview.value! as MacroDefinition, macroValues.value, selectedCellsPublished.value())
+        grider.value = new ChangeSetGrider(loadedRowsRw.value, changeSetState.value, dispatchChangeSet.value, display.value!, macroPreview.value! as MacroDefinition, macroValues.value, selectedCellsPublished.value())
       }
     })
 
-    function handleSelectedCellsPublished(data) {
-      selectedCellsPublished.value = data
-      emit('selectedCellsPublished', data)
-    }
-
     onBeforeUnmount(() => {
-      loadedRows.value = []
+      loadedRowsRw.value = []
       grider.value = null
     })
 
-    //onLoadedRows={rows => loadedRows.value = rows}
+    watch(() => [...loadedRowsRw.value], () => {
+      emit('update:loadedRows', unref(loadedRowsRw.value))
+    })
 
-    //     onSelectedCellsPublished={handleSelectedCellsPublished}
-
-    watch(() => unref(loadedRows.value), () => {
-      // emit('update:loadedRows', unref(loadedRows.value))
-      // console.log(loadedRows.value, `len`)
+    watch(() => selectedCellsPublishedRw.value, () => {
+      emit('update:selectedCellsPublished', selectedCellsPublishedRw.value)
     })
 
     return () => (
@@ -131,8 +135,8 @@ export default defineComponent({
         loadDataPage={loadDataPage}
         dataPageAvailable={dataPageAvailable}
         loadRowCount={loadRowCount}
-        vModel:loadedRows={loadedRows.value}
-        onSelectedCellsPublished={handleSelectedCellsPublished}
+        vModel:loadedRows={loadedRowsRw.value}
+        vModel:selectedCellsPublished={selectedCellsPublishedRw.value}
         frameSelection={!!macroPreview.value}
         grider={grider.value}
         display={display.value}

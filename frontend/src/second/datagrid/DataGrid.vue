@@ -96,7 +96,8 @@
           <component
             v-else-if="isJsonView"
             :is="jsonViewComponent"
-            v-bind="Object.assign({}, $props, $attrs)"/>
+            v-bind="Object.assign({}, $props, $attrs)"
+            v-model:loadedRows="loadedRowsRw"/>
           <component
             v-else
             :is="gridCoreComponent"
@@ -105,6 +106,8 @@
             :formViewAvailable="!!formViewComponent && !!formDisplay"
             :macroValues="extractMacroValuesForMacro(macroValues, selectedMacro)"
             :macroPreview="selectedMacro"
+            v-model:loadedRows="loadedRowsRw"
+            v-model:selectedCellsPublished="selectedCellsPublished"
             :changeSelectedColumns="handleChangeSelectedColumns"
           />
         </template>
@@ -235,9 +238,14 @@ export default defineComponent({
     },
     runMacro: {
       type: Function as PropType<(macro: MacroDefinition, params: {}, cells: MacroSelectedCell[]) => void>
-    }
+    },
+    loadedRows: {
+      type: Array as PropType<any[]>,
+      default: []
+    },
   },
-  setup(props) {
+  emits: ['update:loadedRows'],
+  setup(props, {emit}) {
     const {
       config,
       formDisplay,
@@ -247,15 +255,17 @@ export default defineComponent({
       isDynamicStructure,
       runMacro,
       setConfig,
+      loadedRows,
     } = toRefs(props)
 
-    const domColumnManager = ref<Nullable<{ setSelectedColumns: (value: unknown[]) => void }>>(null)
     const gridCoreComponent = toRaw(props.gridCoreComponent)
     const formViewComponent = toRaw(props.formViewComponent)
     const jsonViewComponent = toRaw(props.jsonViewComponent)
 
+    const loadedRowsRw = ref(loadedRows.value)
+    const selectedCellsPublished = ref(() => [])
+    const domColumnManager = ref<Nullable<{ setSelectedColumns: (value: unknown[]) => void }>>(null)
     const managerSize = ref(0)
-
     const selectedMacro = ref<Nullable<MacroDefinition>>(null)
     provide('selectedMacro', selectedMacro)
     const macroValues = ref({})
@@ -275,7 +285,6 @@ export default defineComponent({
     const isFormView = computed(() => !!(formDisplay.value && formDisplay.value.config && formDisplay.value.config.isFormView))
     const isJsonView = computed(() => !!(config.value && config.value['isJsonView']))
     const jsonFiltersSkip = computed(() => !isDynamicStructure.value || !(display.value && display.value?.filterable))
-    const selectedCellsPublished = ref(() => [])
 
     const handleExecuteMacro = () => {
       runMacro.value && runMacro.value(selectedMacro.value!, extractMacroValuesForMacro(macroValues.value, selectedMacro.value), selectedCellsPublished.value())
@@ -313,6 +322,10 @@ export default defineComponent({
       if (managerSize.value) setLocalStorage('dataGridManagerWidth', managerSize.value)
     })
 
+    watch(() => [...loadedRowsRw.value], () => {
+      emit('update:loadedRows', loadedRowsRw.value)
+    })
+
     return {
       domColumnManager,
       gridCoreComponent,
@@ -333,7 +346,9 @@ export default defineComponent({
       isFormView,
       isJsonView,
       isDynamicStructure,
-      useEvalFilters
+      useEvalFilters,
+      loadedRowsRw,
+      selectedCellsPublished
     }
   }
 })

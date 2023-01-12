@@ -1,4 +1,4 @@
-import {defineComponent, PropType, ref, toRefs, watchEffect, nextTick} from 'vue'
+import {defineComponent, PropType, ref, toRefs, watchEffect, nextTick, watch} from 'vue'
 import {getIntSettingsValue} from '/@/second/settings/settingsTools'
 import createRef from '/@/second/utility/createRef'
 import DataGridCore from './DataGridCore.vue'
@@ -33,13 +33,18 @@ export default defineComponent({
     },
     rowCountLoaded: {
       type: Number as PropType<number>,
+    },
+    selectedCellsPublished: {
+      type: Function as PropType<() => []>,
+      default: () => []
     }
   },
-  emits: ['selectedCellsPublished', 'update:loadedRows'],
+  emits: ['update:selectedCellsPublished', 'update:loadedRows'],
   setup(props, {attrs, emit}) {
     const {
       loadDataPage,
       loadedRows,
+      selectedCellsPublished,
       loadRowCount,
       display,
       dataPageAvailable,
@@ -48,6 +53,7 @@ export default defineComponent({
       rowCountLoaded
     } = toRefs(props)
 
+    const selectedCellsPublishedRw = ref(selectedCellsPublished.value)
     const isLoadedAll = ref<boolean>(false)
     const allRowCount = ref<Nullable<number>>(null)
     const errorMessage = ref<Nullable<string>>(null)
@@ -106,10 +112,6 @@ export default defineComponent({
       }
     }
 
-    function selectedCellsPublished(data) {
-      emit('selectedCellsPublished', data)
-    }
-
     function reload() {
       allRowCount.value = null
       isLoading.value = false
@@ -132,10 +134,14 @@ export default defineComponent({
       }
     })
 
+    watch(() => selectedCellsPublishedRw.value, () => {
+      emit('update:selectedCellsPublished', selectedCellsPublishedRw.value)
+    })
+
     return () => <DataGridCore
       {...Object.assign({}, props, attrs)}
       ref={domGrid}
-      onSelectedCellsPublished={selectedCellsPublished}
+      vModel:selectedCellsPublished={selectedCellsPublishedRw.value}
       onLoadNextData={handleLoadNextData}
       errorMessage={errorMessage.value}
       isLoading={isLoading.value}

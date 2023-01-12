@@ -4,9 +4,7 @@
       <WarningOutlined/>
     </div>
     <div class="m-3">Sorry, DbGate is not supported on mobile devices.</div>
-    <div class="m-3">Please visit <a href="https://github.com/tiyongliu/keeper">keeper
-      web</a> for more info.
-    </div>
+    <div class="m-3">Please visit <a href="https://github.com/tiyongliu/keeper">keeper web</a> for more info.</div>
   </div>
   <div>
     <div class="iconbar">
