@@ -1,9 +1,9 @@
 <template>
   <ul class="dropDownMenuMarker" :style="style" ref="element">
-    <template v-for="(item, index) in preparedItems" :key="index">
+    <template v-for="item in preparedItems">
       <li v-if="item.divider" class="divider"/>
       <li v-else>
-        <a @click="$event => handleClick($event, item)">
+        <a @click="e => handleClick(e, item)">
           {{ item.text || item.label }}
           <span v-if="item.keyText" class="keyText">{{ formatKeyText(item.keyText) }}</span>
           <div v-if="item.submenu" class="menu-right">

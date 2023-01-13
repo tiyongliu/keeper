@@ -1,7 +1,7 @@
 <template>
   <div class="main">
     <div class="wrapper" :class="{'selected':item.name === selectedWidget}"
-         v-for="(item, index) in widgets" :key="index"
+         v-for="item in widgets"
          @click="handleChangeWidget(item.name)">
       <FontIcon :icon="item.icon" :title="item.title"/>
     </div>

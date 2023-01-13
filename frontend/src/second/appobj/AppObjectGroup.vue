@@ -14,8 +14,7 @@
       <Link @click="handleCheckAll(false)">Uncheck all</Link>
     </div>
     <AppObjectListItem
-      :key="index"
-      v-for="(item, index) in items"
+      v-for="item in items"
       :isHidden="!item.isMatched"
       v-bind="$attrs"
       :module="module"

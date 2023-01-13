@@ -1,10 +1,10 @@
 <template>
   <div class="main" :class="flex1 && 'flex1'">
     <div class="tabs">
-      <div class="tab-item" v-for="(tab, index) in tabs" :key="index">
+      <div class="tab-item" v-for="(tab, index) in tabs">
         <div class="tab-item" :class="value == index && 'selected'" @click="targetIndex(index)">
           <span class="ml-2">
-            {{tab.label}}
+            {{ tab.label }}
           </span>
         </div>
       </div>
@@ -16,27 +16,30 @@
       <div
         class="container"
         v-for="(tab, index) in tabs"
-        :key="index"
         :class="[isInline && 'isInline', index == value && 'tabVisible']"
         :style="`max-width: ${containerMaxWidth}`">
-        <component :is="tab.component" v-bing="{...tab.props}" :tabControlHiddenTab="index != value"/>
+        <component :is="tab.component" v-bing="{...tab.props}"
+                   :tabControlHiddenTab="index != value"/>
       </div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import {Component, defineComponent, PropType, toRef} from "vue"
+import {Component, defineComponent, PropType, toRefs} from "vue"
 import DropDownButton from '/@/second/buttons/DropDownButton'
-import {compact, omit} from "lodash-es";
-import { Tabs} from "ant-design-vue";
+import {compact} from "lodash-es";
+import {Tabs} from "ant-design-vue";
+
 const TabPane = Tabs.TabPane
+
 interface TabDef {
   label: string;
   slot?: number;
   component?: string | Component;
   props?: any;
 }
+
 export default defineComponent({
   name: 'TabControl',
   components: {
@@ -68,13 +71,18 @@ export default defineComponent({
     }
   },
   setup(props) {
-    const value = toRef(props, 'value')
+    const {isInline, tabs, value, menu, containerMaxWidth, flex1} = toRefs(props)
+
     function targetIndex(index: number) {
       value.value = index
     }
+
     return {
-      ...omit(props, ['tabs', 'value']),
-      tabs: compact(props.tabs),
+      isInline,
+      menu,
+      containerMaxWidth,
+      flex1,
+      tabs: compact(tabs.value),
       targetIndex,
     }
   }
@@ -136,10 +144,6 @@ export default defineComponent({
   display: none;
 }
 </style>
-
-
-
-
 
 
 <!--<template>-->

@@ -8,8 +8,7 @@
       <div class="bold nowrap ml-1">References tables ({{ foreignKeys.length }}})</div>
       <div
         class="link"
-        v-for="(fk, index) in foreignKeys.filter(fk => filterName(filter, fk.refTableName))"
-        :key="index"
+        v-for="fk in foreignKeys.filter(f => filterName(filter, f.refTableName))"
         @click="() => handleRoreignKeys(fk)">
         <FontIcon icon="img link"/>
         <div class="ml-1 nowrap">
@@ -23,8 +22,7 @@
       <div class="bold nowrap ml-1">Dependend tables ({{ dependencies.length }})</div>
       <div
         class="link"
-        v-for="(fk, index) in dependencies.filter(fk => filterName(filter, fk.pureName))"
-        :key="index"
+        v-for="fk in dependencies.filter(f => filterName(filter, f.pureName))"
         @click="() => handleDependencies(fk)">
         <FontIcon icon="img reference"/>
         <div class="ml-1 nowrap">

@@ -12,15 +12,13 @@
 
     <ManagerInnerContainer v-if="baseTable && baseTable?.primaryKey" :width="managerSize">
       <PrimaryKeyFilterEditor
-        v-for="(col, index) in baseTable.primaryKey.columns"
-        :key="index"
+        v-for="col in baseTable.primaryKey.columns"
         :column="col"
         :baseTable="baseTable"
         :formDisplay="formDisplay"
       />
       <FormViewFilterColumn
-        v-for="(uniqueName, index) in allFilterNames"
-        :key="index"
+        v-for="uniqueName in allFilterNames"
         :column="formDisplay ? formDisplay.columns.find(x => x.uniqueName == uniqueName) : null"
         :formDisplay="formDisplay"
         :filters="filters"

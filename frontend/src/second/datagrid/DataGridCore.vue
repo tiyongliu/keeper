@@ -17,7 +17,7 @@
   </div>
 
   <div v-else-if="grider && grider.errors && grider.errors.length > 0">
-    <ErrorInfo v-for="(err, key) in grider.errors" :key="key" :message="err" isSmall/>
+    <ErrorInfo v-for="err in grider.errors" :message="err" isSmall/>
   </div>
 
   <div v-else class="container" ref="container" @wheel="handleGridWheel">
@@ -40,8 +40,8 @@
             @click="updateCollapsedLeftColumn"/>
         </td>
         <td
-          v-for="(col, index) in visibleRealColumns"
-          :key="index"
+          v-for="col in visibleRealColumns"
+          :key="col.uniqueName"
           class="header-cell"
           data-row="header"
           :data-col="`${col.colIndex}`"
@@ -75,8 +75,8 @@
         </td>
 
         <td
-          v-for="(col, index) in visibleRealColumns"
-          :key="index"
+          v-for="col in visibleRealColumns"
+          :key="col.uniqueName"
           class="filter-cell"
           data-row="filter"
           :data-col="`${col.colIndex}`"
@@ -103,9 +103,9 @@
 
       <tbody>
       <DataGridRow
-        v-for="(rowIndex, i) in
+        v-for="rowIndex in
         (grider ? range(firstVisibleRowScrollIndex, Math.min(firstVisibleRowScrollIndex + visibleRowCountUpperBound, grider.rowCount)) : [])"
-        :key="i"
+        :key="rowIndex"
         :rowIndex="rowIndex"
         :grider="grider"
         :conid="conid"

@@ -1,7 +1,7 @@
 <template>
   <div class="root">
     <div class="tabs" ref="domTabs" @wheel.prevent="handleTabsWheel">
-      <div class="db-wrapper" v-for="(tabGroup, index) in groupedTabs" :key="index">
+      <div class="db-wrapper" v-for="tabGroup in groupedTabs">
         <div class="db-name"
              :class="{selected: draggingDbGroup ? tabGroup.grpid == draggingDbGroupTarget?.grpid : tabGroup.tabDbKey == currentDbKey}"
              @mouseup="e => {
@@ -34,8 +34,7 @@
         </div>
         <div class="db-group">
           <div class="file-tab-item"
-               v-for="(tab, i) in tabGroup.tabs"
-               :key="i"
+               v-for="tab in tabGroup.tabs"
                :id="`file-tab-item-${tab.tabid}`"
                :class="{selected: draggingTab || draggingDbGroup ? tab.tabid == draggingTabTarget?.tabid : tab.selected}"
                @click="handleTabClick($event, tab.tabid)"

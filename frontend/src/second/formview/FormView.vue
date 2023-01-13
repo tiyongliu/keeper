@@ -1,8 +1,8 @@
 <template>
   <div class="outer">
     <div class="wrapper" ref="container">
-      <table v-for="(chunk, chunkIndex) in columnChunks" :key="chunkIndex">
-        <tr v-for="(col, rowIndex) in chunk" :key="rowIndex">
+      <table v-for="(chunk, chunkIndex) in columnChunks">
+        <tr v-for="(col, rowIndex) in chunk">
           <td
             class="header-cell"
             :data-row="`${rowIndex}`"

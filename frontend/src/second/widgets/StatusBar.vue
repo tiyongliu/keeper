@@ -69,7 +69,7 @@
         </div>
       </div>
     </div>
-    <div class="container" v-for="(item, index) in contextItems" :key="index">
+    <div class="container" v-for="item in contextItems">
       <div class="item">
         <FontIcon :icon="item.icon" padRight/>
         {{ item.text }}}

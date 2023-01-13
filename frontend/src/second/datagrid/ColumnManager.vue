@@ -13,8 +13,7 @@
       @keydown="handleKeyDown"
       @copy="copyToClipboard"/>
     <ColumnManagerRow
-      v-for="(column, index) in items"
-      :key="index"
+      v-for="column in items"
       :display="display"
       :column="column"
       :isJsonView="isJsonView"

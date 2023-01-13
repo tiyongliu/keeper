@@ -3,7 +3,7 @@
     <RowHeaderCell
       :rowIndex="rowIndex"
       :showForm="setFormView ? () => setFormView(rowData, null) : null"/>
-    <template v-for="(col, index) in  visibleRealColumns" :key="index">
+    <template v-for="col in visibleRealColumns" :key="col.uniqueName">
       <td class="editor"
           v-if="inplaceEditorState
           && inplaceEditorState.cell &&
