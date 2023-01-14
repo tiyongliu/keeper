@@ -103,8 +103,7 @@
 
       <tbody>
       <DataGridRow
-        v-for="rowIndex in
-        (grider ? range(firstVisibleRowScrollIndex, Math.min(firstVisibleRowScrollIndex + visibleRowCountUpperBound, grider.rowCount)) : [])"
+        v-for="rowIndex in griders"
         :key="rowIndex"
         :rowIndex="rowIndex"
         :grider="grider"
@@ -396,6 +395,12 @@ export default defineComponent({
     ))
     const maxScrollColumn = computed(() => (columns.value && columnSizes.value) ?
       columnSizes.value?.scrollInView(0, columns.value.length - 1 - columnSizes.value.frozenCount, gridScrollAreaWidth.value) : 0)
+
+    const griders = computed(() => {
+      return grider.value
+        ? range(firstVisibleRowScrollIndex.value, Math.min(firstVisibleRowScrollIndex.value + visibleRowCountUpperBound.value, grider.value.rowCount))
+        : []
+    })
 
     const tabVisible = inject<Ref<Nullable<boolean>>>('tabVisible')
     // const tabid = inject('tabid')
@@ -956,7 +961,7 @@ export default defineComponent({
       handleGridMouseUp,
       updateHorizontalColumnIndex,
       updateVerticalRowIndex,
-      range,
+      griders,
     }
   }
 })

@@ -66,23 +66,19 @@ export default defineComponent({
     onBeforeUnmount(() => closeRefreshTimer())
 
     return () => (
-      <>
-        <ToolStripContainer>
-          <TableDataGrid
-            {...Object.assign({}, props, attrs)}
-            config={config.value}
-            setConfig={configUpdate}
-            cache={cache.value}
-            setCache={cacheUpdate}
-            focusOnVisible
-            changeSetState={changeSetStore.value}
-            dispatchChangeSet={dispatchChangeSet}
-          />
-        </ToolStripContainer>
-      </>
+      <ToolStripContainer>
+        <TableDataGrid
+          {...Object.assign({}, props, attrs)}
+          config={config.value}
+          setConfig={configUpdate}
+          cache={cache.value}
+          setCache={cacheUpdate}
+          focusOnVisible
+          changeSetState={changeSetStore.value}
+          dispatchChangeSet={dispatchChangeSet}
+        />
+      </ToolStripContainer>
     )
   }
 })
 
-export const matchingProps = ['conid', 'database', 'schemaName', 'pureName'];
-export const allowAddToFavorites = _ => true;

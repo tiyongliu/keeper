@@ -12,7 +12,7 @@
   <WidgetsInnerContainer>
     <AppObjectList
       v-if="Array.isArray(connectionsWithStatus) && connectionsWithStatus.length > 0"
-      :list="sortBy(connectionsWithStatus, connection => (getConnectionLabel(connection) || '').toUpperCase())"
+      :list="connectionsWithStatusList"
       :filter="filter"
       :module="connectionAppObject"
       :subItemsComponent="SubDatabaseList"
@@ -36,7 +36,7 @@
 </template>
 
 <script lang="ts">
-import {defineComponent, onMounted, ref, unref, watch} from 'vue'
+import {computed, defineComponent, onMounted, ref, unref, watch} from 'vue'
 import {storeToRefs} from 'pinia'
 import {sortBy} from 'lodash-es'
 import SearchBoxWrapper from '/@/second/widgets/SearchBoxWrapper.vue'
@@ -97,6 +97,11 @@ export default defineComponent({
       deep: true
     })
 
+    const connectionsWithStatusList = computed(() =>
+      sortBy(connectionsWithStatus.value,
+        connection => (getConnectionLabel(unref(connection)) || '').toUpperCase())
+    )
+
     const handleRefreshConnections = async () => {
       try {
         if (flag.value) {
@@ -111,11 +116,12 @@ export default defineComponent({
     }
 
     const [register, {openModal, closeModal}] = useModal()
+
     return {
       hidden,
       filter,
       connectionsWithStatus,
-      sortBy,
+      connectionsWithStatusList,
       getConnectionLabel,
       connectionAppObject: ConnectionAppObject,
       SubDatabaseList,

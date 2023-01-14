@@ -1,5 +1,5 @@
 import {defineComponent, PropType, toRef} from 'vue'
-import AppObjectList from './AppObjectList'
+import AppObjectList from '/@/second/appobj/AppObjectList'
 import {findForeignKeyForColumn} from '/@/second/keeper-tools'
 import ColumnAppObject from '/@/second/appobj/ColumnAppObject'
 export default defineComponent({

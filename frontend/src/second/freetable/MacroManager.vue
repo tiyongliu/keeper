@@ -5,14 +5,14 @@
       <CloseSearchButton :filter="filter" @filter="filter = ''"/>
     </SearchBoxWrapper>
     <AppObjectList
-      :list="sortBy(macros, 'title').filter(x => (macroCondition ? macroCondition(x) : true))"
+      :list="macrosList"
       :filter="filter"
       :groupFunc="data => data.group"/>
   </ManagerInnerContainer>
 </template>
 
 <script lang="ts">
-import {defineComponent, PropType, ref, toRefs} from 'vue'
+import {defineComponent, PropType, ref, toRefs, computed} from 'vue'
 import {sortBy} from 'lodash-es'
 import ManagerInnerContainer from '/@/second/elements/ManagerInnerContainer.vue'
 import MacroAppObject from '/@/second/appobj/MacroAppObject'
@@ -44,12 +44,17 @@ export default defineComponent({
     }
   },
   setup(props) {
+    const {managerSize, display, macroCondition} = toRefs(props)
+
     const filter = ref('')
+
+    const macrosList = computed(() => sortBy(macros, 'title').filter(x => (macroCondition.value ? macroCondition.value(x) : true)))
     return {
       filter,
-      sortBy,
-      ...toRefs(props),
-      macros
+      managerSize,
+      display,
+      macroCondition,
+      macrosList
     }
   }
 })
