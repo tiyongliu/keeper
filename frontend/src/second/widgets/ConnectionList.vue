@@ -1,6 +1,6 @@
 <template>
   <SearchBoxWrapper>
-    <SearchInput placeholder="Search connection or database" v-model:searchValue="filter"/>
+    <SearchInput placeholder="Search connection or database" v-model:value="filter"/>
     <CloseSearchButton :filter="filter" @filter="filter = ''"/>
     <InlineButton title="Add new connection" @click="openModal">
       <FontIcon icon="icon plus-thick"/>

@@ -1,6 +1,6 @@
 <template>
   <SearchBoxWrapper>
-    <SearchInput placeholder="Search connection or database" v-model:searchValue="filter"/>
+    <SearchInput placeholder="Search connection or database" v-model:value="filter"/>
     <CloseSearchButton :filter="filter" @filter="filter = ''"/>
     <InlineButton v-if="isDynamicStructure && !isJsonView" @click="showModal">Add</InlineButton>
     <InlineButton @click="() => hideAllColumns()">Hide</InlineButton>

@@ -25,7 +25,7 @@
   </WidgetsInnerContainer>
 
   <SearchBoxWrapper v-else>
-    <SearchInput placeholder="Search connection or database" v-model:searchValue="filter"/>
+    <SearchInput placeholder="Search connection or database" v-model:value="filter"/>
     <CloseSearchButton :filter="filter" @filter="filter = ''"/>
     <DropDownButton icon="icon plus-thick"/>
     <InlineButton

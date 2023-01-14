@@ -1,5 +1,10 @@
 import _compact from 'lodash-es/compact';
-import {isString} from 'lodash-es';
+import _isString from 'lodash-es/isString';
+
+export interface FilterNameDefinition {
+  childName: string;
+}
+
 // original C# variant
 // public bool Match(string value)
 // {
@@ -54,7 +59,7 @@ function fuzzysearch(needle, haystack) {
   return true;
 }
 
-export function filterName(filter: string, ...names: string[]) {
+export function filterName(filter: string, ...names: (string | FilterNameDefinition)[]) {
   if (!filter) return true;
 
   // const camelVariants = [name.replace(/[^A-Z]/g, '')]
@@ -63,7 +68,7 @@ export function filterName(filter: string, ...names: string[]) {
   const namesCompacted = _compact(names);
 
   // @ts-ignore
-  const namesOwn: string[] = namesCompacted.filter(x => isString(x));
+  const namesOwn: string[] = namesCompacted.filter(x => _isString(x));
   // @ts-ignore
   const namesChild: string[] = namesCompacted.filter(x => x.childName).map(x => x.childName);
 
@@ -78,8 +83,6 @@ export function filterName(filter: string, ...names: string[]) {
       if (!found) return false;
     }
   }
-
-  return true;
 
   return true;
 }

@@ -1,6 +1,6 @@
 <template>
   <SearchBoxWrapper>
-    <SearchInput placeholder="Search references" v-model:searchValue="filter"/>
+    <SearchInput placeholder="Search references" v-model:value="filter"/>
     <CloseSearchButton :filter="filter" @filter="filter = ''"/>
   </SearchBoxWrapper>
   <ManagerInnerContainer :width="managerSize">

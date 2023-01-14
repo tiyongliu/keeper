@@ -1,12 +1,13 @@
 <template>
   <ManagerInnerContainer :width="managerSize">
     <SearchBoxWrapper>
-      <SearchInput placeholder="Search macros" v-model:searchValue="filter"/>
+      <SearchInput placeholder="Search macros" v-model:value="filter"/>
       <CloseSearchButton :filter="filter" @filter="filter = ''"/>
     </SearchBoxWrapper>
     <AppObjectList
       :list="macrosList"
       :filter="filter"
+      :module="macroAppObject"
       :groupFunc="data => data.group"/>
   </ManagerInnerContainer>
 </template>
@@ -48,13 +49,16 @@ export default defineComponent({
 
     const filter = ref('')
 
-    const macrosList = computed(() => sortBy(macros, 'title').filter(x => (macroCondition.value ? macroCondition.value(x) : true)))
+    const macrosList = computed(() =>
+      sortBy(macros, 'title').filter(x => (macroCondition.value ? macroCondition.value(x) : true)))
+
     return {
       filter,
       managerSize,
       display,
       macroCondition,
-      macrosList
+      macrosList,
+      macroAppObject: MacroAppObject
     }
   }
 })

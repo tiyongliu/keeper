@@ -134,7 +134,12 @@ export default defineComponent({
     })
 
     return {
-      ...toRefs(props),
+      title: props.title,
+      name: props.name,
+      skip,
+      height,
+      collapsed,
+      storageName,
       show,
       size,
       visible,

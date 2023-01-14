@@ -1,6 +1,7 @@
 <template>
   <a-input
     size="small"
+    autoComplete="off"
     :placeholder="placeholder"
     v-model:value="searchValue"
     @input="handleInput"
@@ -9,12 +10,12 @@
 </template>
 
 <script lang="ts">
-  import {defineComponent, ref, unref, watch, onBeforeUnmount, toRef} from 'vue'
+  import {defineComponent, ref, unref, watch, toRef} from 'vue'
   import {debounce} from 'lodash-es'
   import keycodes from '/@/second/utility/keycodes'
 
   export default defineComponent({
-    name: "SearchInput",
+    name: 'SearchInput',
     props: {
       placeholder: {
         type: String as PropType<string>,
@@ -22,27 +23,22 @@
       isDebounced: {
         type: Boolean as PropType<boolean>,
       },
-      searchValue: {
-        type: String as PropType<string>,
-      },
       value: {
         type: String as PropType<string>,
       }
     },
-    emits: ['update:searchValue'],
+    emits: ['update:value'],
     setup(props, {emit}) {
-      const searchValue = ref<string>('');
-      const value = ref<string>('');
       const isDebounced = toRef(props, 'isDebounced')
+      const value = toRef(props, 'value')
 
-
-
-      const debouncedSet = debounce(x => (value.value = x), 500)
+      const searchValue = ref<string>('')
+      const debouncedSet = debounce(x => {emit('update:value', unref(x))}, 500)
 
       function handleKeyDown(e) {
         if (e.keyCode == keycodes.escape) {
           searchValue.value = ''
-          value.value = ''
+          emit('update:value', '')
         }
       }
 
@@ -50,23 +46,12 @@
         if (unref(isDebounced)) {
           debouncedSet(searchValue.value)
         } else {
-          value.value = searchValue.value
+          emit('update:value', searchValue.value)
         }
       }
 
-      watch(() => unref(value), () => {
-        emit('update:searchValue', unref(value))
-      })
-
-      watch(() => unref(props.searchValue), () => {
-        if (props.searchValue === '') {
-          searchValue.value = ''
-        }
-      })
-
-      onBeforeUnmount(() => {
-        searchValue.value = ''
-        value.value = ''
+      watch(() => value.value, () => {
+        if (value.value === '') searchValue.value = ''
       })
 
       return {
@@ -80,12 +65,3 @@
     }
   })
 </script>
-
-<style scoped>
-  input {
-    flex: 1;
-    min-width: 10px;
-    width: 10px;
-    border: none;
-  }
-</style>
