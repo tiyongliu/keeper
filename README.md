@@ -1,62 +1,68 @@
-# keeper
+![Go reference](https://img.shields.io/badge/go-v1.18-blue?logo=go&logoColor=white)
+[![wails](https://img.shields.io/badge/wails-v2.3.1-brightgreen.svg)](https://wails.io)
+[![vue3](https://img.shields.io/badge/vue-v3.2.0-7289da.svg?logo=v&logoColor=42b883)](https://vuejs.org/)
+[![MIT license](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![dagate](https://img.shields.io/badge/dbgate-reference-brightgreen?&logoColor=white)](https://github.com/dbgate/dbgate)
+[![styled with prettier](https://img.shields.io/badge/vben_admin-reference-ff69b4.svg)](https://vvbin.cn/doc-next/)
+ 
+# keeper [构建漂亮的跨平台桌面应用](https://wails.io)
+仿照`dbgate`，改用使用`go`、`wails`、`vue3`重写。目前只开发开发桌面端，目前仅支持`mysql`、`mongodb`、后续会持续更新其他数据库的支持，会兼容`window`、`macOs`、`linux`，由于我有正常的工作，都是利用空闲时间晚上跟周末开发。
 
-## About
-<<<<<<< HEAD
-正在用项目使用vue3 + go 开发数据库可视化，目前只准备做桌面端，目前支持mysql、mongdb、后续会持续更新其他数据库的支持，会兼容window、macox、linux，由于我有正常的工作，都是在晚上跟周末开发。
+## 预览版
+![](https://cdn.jsdelivr.net/gh/422720735/easy_go@master/keeper.png)
+![](https://cdn.jsdelivr.net/gh/422720735/easy_go@master/keeper-2.png)
 
-[使用 Go + HTML + CSS + JS 构建漂亮的跨平台桌面应用](https://wails.io/zh-Hans/#)
+目前版本0.0.2.2-alpha.2，很多功能是不完善，并不能作为生成环境使用，如果你正准备用`wails`架构自己的桌面程序，本项目可作为一个参考，可以下载发新预览版尝鲜。[0.0.2.2-alpha.2](https://github.com/tiyongliu/keeper/releases/tag/0.0.2.2-alpha.2)
 
-## Progress
-![keeper-1](./example/assets/keeper-1.png)
-![keeper-2](./example/assets/keeper-2.png)
-![keeper-3](./example/assets/keeper-3.png)
+## 功能
+- 使用`go`、`wails`、`vue3`构建桌面数据库可视化工具
+- 使用wails提供事件系统go和Javascript之间的通信
+- 目前仅支持`mongodb`、`mysql`的使用
+- `windows` `macOs` `lunux` 发行版
 
-## update wails version
-`wails update -pre`
-=======
-正在用项目使用vue3 + go 开发数据库客户端，目前只准备做桌面端，会兼容window、macox、linux，由于我有正常的工作，都是在晚上跟周末开发。
+# 开发环境安装
 
-[使用 Go + HTML + CSS + JS 构建漂亮的跨平台桌面应用](https://wails.io/zh-Hans/#)
+## 1.安装[go](https://go.dev/dl/)最低版本要求1.18，安装完成请验证环境正确
 
-## Progress
-![keeper-1](./example/assets/keeper-1.png)
-![keeper-2](./example/assets/keeper-2.png)
-![keeper-3](./example/assets/keeper-3.png)
->>>>>>> 35a8c6f (临时编写了readme)
+### 验证是否配置成功和请您是否已安装 Go 1.18+
+```shell
+go version
+go env
+```
 
-## Live Development
+## 2.安装[wails](https://wails.io/zh-Hans/docs/gettingstarted/installation)
+```shell
+go install github.com/wailsapp/wails/v2/cmd/wails@latest
+```
 
-To run in live development mode, run `wails dev` in the project directory. In another terminal, go into the `frontend`
-directory and run `npm run dev`. The frontend dev server will run on http://localhost:34115. Connect to this in your
-browser and connect to your application.
+### 验证是否配置成功
+```shell
+wails doctor
+```
 
-## Building
-To build a redistributable, production mode package, use `wails build`.
+## 3.node安装
+### 安装[node.js](https://nodejs.org/en/)最低版本要求16，安装完成请验证环境正确
 
-> It's designed to be simple to use and effective, when working with more databases simultaneously.
-But there are also many advanced features like schema compare, visual query designer, chart visualisation or batch export and import.
+### 请检查您是否已安装node.js 16+
+```shell
+node -v
+```
 
-> version:  0.0.1
-
-> Author:  tiyongliu
-
-> Technology stack:  Vue3 + Vite + vben admin + Golang + Wails v2
-<<<<<<< HEAD
-
-### web install 请按顺序执行
-```sh
-pnpm install -g  
-
-
-cd ./packages/tools
-pnpm install
-pnpm build
+## 4.frontend 安装
+```shell
+pnpm install -g #安装了pnpm请跳过这一步  
 
 cd ./frontend
 pnpm install
 pnpm build
 ```
 
-[wails install](https://wails.io/zh-Hans/docs/gettingstarted/installation)
-=======
->>>>>>> 35a8c6f (临时编写了readme)
+### 5. run app
+```shell
+wails dev #keeper同级目录下运行
+```
+
+## License
+© tiyongliu, 2022-03.14~time.Now
+
+Released under the [MIT License](./LICENSE)

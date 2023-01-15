@@ -28,11 +28,10 @@ pnpm-debug.log*
 *.sln
 *.sw?
 
-build/bin/*exe
-build/bin/*exe~
-build/**
+build/bin
 
 wails.exe
+frontend/src/wailsjs/go/
+frontend/dist/**
+frontend/*.yaml
 
-wails
-build/bin/

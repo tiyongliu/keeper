@@ -132,9 +132,3 @@ func (j *JsonLinesDatabase) EnsureOpened(conid string) {
 		return
 	}
 }
-
-func (j *JsonLinesDatabase) EnsureOpened(conid string) {
-	if conid == "" {
-		return
-	}
-}
