@@ -110,11 +110,9 @@ export default defineComponent({
 
     const handleTabsWheel = async (e) => {
       if (!e.shiftKey) {
-        await nextTick()
         domTabs.value!.scrollBy({top: 0, left: e.deltaY < 0 ? -150 : 150, behavior: 'smooth'})
       }
     }
-
 
     const currentDbKey = computed(() => {
       return currentDatabase.value && currentDatabase.value.name && currentDatabase.value.connection
@@ -241,6 +239,7 @@ export default defineComponent({
     }
 
     return {
+      domTabs,
       connectionList,
       currentDbKey,
       groupedTabs,

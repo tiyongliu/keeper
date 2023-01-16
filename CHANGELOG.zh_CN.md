@@ -1,7 +1,8 @@
-## 0.0.2.2-alpha.2(2022-12-29)
+## 0.0.2.2(2022-12-29)
 
 - **其它**
 - 替换`vben admin`自带解决白屏的loading动画，删除相loading图片资源 
+- 前端基础库`vben admin`升级到2023/1/7的版本
 
 ### 🐛 Bug Fixes
 - 修复`WidgetColumnBarItem` props show属性
@@ -12,6 +13,7 @@
 - 修复数据库查询错误处理方法(`setStatus`)，前端页面显示错误消息及图标
 - 修复前端加载完毕后触发`doDatabasePing`、`doDatabasePing`、`subscribeRecentDatabaseSwitch`方法
 - 修复前端加载完毕后如果当前显示`SqlFormView.tsx`点击标签页的关闭，需要点击2次
+- 修复`TabsPanel`wheel事件 scrollBy偏移量不生效，标签页没有去重
 
 ## 0.0.2.2-alpha.1(2022-11-28)
 

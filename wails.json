@@ -1,6 +1,6 @@
 {
   "name": "keeper",
-  "version": "0.0.2.2-alpha.2",
+  "version": "0.0.2.2",
   "outputfilename": "keeper",
   "frontend:dev:watcher": "npm run dev",
   "frontend:dev:serverUrl": "http://localhost:3100",
