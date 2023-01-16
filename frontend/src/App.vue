@@ -1,7 +1,7 @@
 <template>
   <ConfigProvider :locale="getAntdLocale">
     <AppProvider>
-      <RouterView/>
+      <RouterView />
     </AppProvider>
   </ConfigProvider>
 </template>
@@ -18,7 +18,22 @@ import initPluginsProvider from '/@/second/plugins/PluginsProvider'
 import {subscribeConnectionPingers} from '/@/api/connectionsPinger'
 import {setAppLoaded} from '/@/second/utility/appLoadManager'
 import {useBootstrapStore} from "/@/store/modules/bootstrap"
-import 'dayjs/locale/zh-cn';
+// import 'dayjs/locale/zh-cn';
+
+import 'ant-design-vue/es/input/style/css'
+import 'ant-design-vue/es/modal/style/css'
+import 'ant-design-vue/es/menu/style/css'
+import 'ant-design-vue/es/tag/style/css'
+import 'ant-design-vue/es/table/style/css'
+import 'ant-design-vue/es/checkbox/style/css'
+import 'ant-design-vue/es/select/style/css'
+import 'ant-design-vue/es/form/style/css'
+import 'ant-design-vue/es/row/style/css'
+import 'ant-design-vue/es/col/style/css'
+import 'ant-design-vue/es/radio/style/css'
+import 'ant-design-vue/es/input-number/style/css'
+
+// import 'ant-design-vue/es/icon/style/css'
 
 let loadedApi = ref(false)
 

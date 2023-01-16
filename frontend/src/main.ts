@@ -4,23 +4,19 @@ import 'virtual:windi-components.css';
 
 //utilities 引入这个css库，默认有媒体查询@media样式，需要注释
 // import 'virtual:windi-utilities.css';
-
 //vben admin 添加的样式，我们不需要，所以注释掉。
 // import '/@/design/index.less';
-
 import '/@/design/keeper.less'
 // Register icon sprite
 import 'virtual:svg-icons-register';
 import App from './App.vue';
-import { createApp } from 'vue';
-import { initAppConfigStore } from '/@/logics/initAppConfig';
-import { setupRouter } from '/@/router';
-// import { router, setupRouter } from '/@/router';
-// import { setupRouterGuard } from '/@/router/guard';
-import { setupStore } from '/@/store';
-import { setupGlobDirectives } from '/@/directives';
-import { setupI18n } from '/@/locales/setupI18n';
-import { registerGlobComp } from '/@/components/registerGlobComp';
+import {createApp} from 'vue';
+import {initAppConfigStore} from '/@/logics/initAppConfig';
+import {setupRouter} from '/@/router';
+import {setupStore} from '/@/store';
+import {setupGlobDirectives} from '/@/directives';
+import {setupI18n} from '/@/locales/setupI18n';
+import {registerGlobComp} from '/@/components/registerGlobComp';
 
 async function bootstrap() {
   const app = createApp(App);
@@ -46,10 +42,6 @@ async function bootstrap() {
   // Configure routing
   // 配置路由
   setupRouter(app);
-
-  // router-guard
-  // 路由守卫
-  // setupRouterGuard(router);
 
   // Register global directive
   // 注册全局指令
