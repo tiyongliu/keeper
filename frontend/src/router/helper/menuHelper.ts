@@ -1,8 +1,8 @@
-import type {Menu, MenuModule} from '/@/router/types';
-import {findPath} from '/@/utils/helper/treeHelper';
-import {isUrl} from '/@/utils/is';
-import {RouteParams} from 'vue-router';
-import {toRaw} from 'vue';
+import type { MenuModule, Menu } from '/@/router/types';
+import { findPath } from '/@/utils/helper/treeHelper';
+import { isUrl } from '/@/utils/is';
+import { RouteParams } from 'vue-router';
+import { toRaw } from 'vue';
 
 export function getAllParentPath<T = Recordable>(treeData: T[], path: string) {
   const menuList = findPath(treeData, (n) => n.path === path) as Menu[];

@@ -6,6 +6,8 @@ import TableDataGrid from '/@/second/datagrid/TableDataGrid.vue'
 import createUndoReducer from '/@/second/utility/createUndoReducer'
 import useGridConfig from '/@/second/utility/useGridConfig'
 
+export const matchingProps = ['conid', 'database', 'schemaName', 'pureName']
+export const allowAddToFavorites = _ => true
 export default defineComponent({
   name: 'TableDataTab',
   props: {
