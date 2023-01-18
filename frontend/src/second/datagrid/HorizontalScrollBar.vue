@@ -5,7 +5,7 @@
 </template>
 
 <script lang="ts">
-import {computed, defineComponent, nextTick, PropType, ref, toRefs, unref, watch} from 'vue'
+import {computed, defineComponent, PropType, ref, toRefs, unref, watch} from 'vue'
 
 export default defineComponent({
   name: 'HorizontalScrollBar',
@@ -36,8 +36,7 @@ export default defineComponent({
       emit('scroll', Math.floor(res + 0.3))
     }
 
-    watch(() => [viewportRatio.value, minimum.value, maximum.value], async () => {
-      await nextTick()
+    watch(() => [viewportRatio.value, minimum.value, maximum.value], () => {
       width.value = node.value ? node.value.clientWidth : 0
     })
 

@@ -151,7 +151,6 @@ import {
   computed,
   defineComponent,
   inject,
-  nextTick,
   PropType,
   ref,
   Ref,
@@ -408,10 +407,8 @@ export default defineComponent({
     bus.emitter.on(bus.resize, updateWidgetStyle)
 
     function updateWidgetStyle() {
-      nextTick(() => {
-        if (container.value && container.value!.clientWidth) containerWidth.value = container.value!.clientWidth
-        if (container.value && container.value!.clientHeight) containerHeight.value = container.value!.clientHeight
-      })
+      if (container.value && container.value!.clientWidth) containerWidth.value = container.value!.clientWidth
+      if (container.value && container.value!.clientHeight) containerHeight.value = container.value!.clientHeight
     }
 
     watch(() => [collapsedLeftColumnStore.value], updateWidgetStyle)

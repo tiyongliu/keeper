@@ -101,9 +101,9 @@ export const useLocaleStore = defineStore({
       this.pinnedTables = updater(this.pinnedTables)
       setWithStorageVariableCache('pinnedTables', this.pinnedTables)
     },
-    setLeftPanelWidth(value) {
-      this.leftPanelWidth += value
-      document.documentElement.style.setProperty("--dim-left-panel-width", `${this.leftPanelWidth}px`);
+    updateLeftPanelWidth(updater) {
+      this.leftPanelWidth = updater(this.leftPanelWidth)
+      document.documentElement.style.setProperty('--dim-left-panel-width', `${this.leftPanelWidth}px`);
       if (isNumber(this.leftPanelWidth)) {
         setWithStorageVariableCache(LEFTPANELWIDTH, String(this.leftPanelWidth));
       }

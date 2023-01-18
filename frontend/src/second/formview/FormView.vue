@@ -78,7 +78,6 @@ import {
   computed,
   defineComponent,
   inject,
-  nextTick,
   onMounted,
   PropType,
   reactive,
@@ -99,7 +98,8 @@ import InplaceEditor from '/@/second/datagrid/InplaceEditor.vue'
 import {plusExpandIcon} from '/@/second/icons/expandIcons'
 import createReducer from '/@/second/utility/createReducer'
 import ChangeSetFormer from './ChangeSetFormer'
-import {extractRowCopiedValue, copyTextToClipboard} from '/@/second/utility/clipboard'
+import {copyTextToClipboard, extractRowCopiedValue} from '/@/second/utility/clipboard'
+
 export default defineComponent({
   name: 'FormView',
   components: {
@@ -183,10 +183,8 @@ export default defineComponent({
     }
 
     function updateWidgetStyle() {
-      nextTick(() => {
-        if (container.value && container.value!.clientWidth) wrapperWidth.value = container.value!.clientWidth
-        if (container.value && container.value!.clientHeight) wrapperHeight.value = container.value!.clientHeight
-      })
+      if (container.value && container.value!.clientWidth) wrapperWidth.value = container.value!.clientWidth
+      if (container.value && container.value!.clientHeight) wrapperHeight.value = container.value!.clientHeight
     }
 
     onMounted(() => {
@@ -262,6 +260,7 @@ export default defineComponent({
     function handleKeyDown(event) {
 
     }
+
     return {
       container,
       domCells,

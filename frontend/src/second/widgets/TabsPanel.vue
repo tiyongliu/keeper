@@ -70,7 +70,7 @@
 </template>
 
 <script lang="ts">
-import {computed, defineComponent, nextTick, ref, unref} from 'vue'
+import {computed, defineComponent, ref, unref} from 'vue'
 import {findIndex, max, min} from 'lodash-es'
 import {storeToRefs} from 'pinia'
 import FontIcon from '/@/second/icons/FontIcon.vue'
@@ -88,7 +88,7 @@ import {
   getTabDbName
 } from './TabsPanel_'
 import {useClusterApiStore} from '/@/store/modules/clusterApi'
-import {IPinnedDatabasesItem} from "/@/second/typings/types/standard";
+import {IPinnedDatabasesItem} from '/@/second/typings/types/standard'
 
 export default defineComponent({
   name: "TabsPanel",
@@ -185,7 +185,6 @@ export default defineComponent({
 
     async function handleDragstart(tab) {
       draggingTab.value = tab
-      await nextTick()
       setSelectedTab(tab.tabid)
     }
 

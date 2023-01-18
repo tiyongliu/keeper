@@ -87,7 +87,7 @@
       </div>
     </template>
     <template #2>
-      <VerticalSplitter initialValue="70%" :isSplitter="false">
+      <VerticalSplitter initialValue="70%" :isSplitter="!!selectedMacro && !isFormView && showMacros">
         <template #1>
           <component
             v-if="isFormView"

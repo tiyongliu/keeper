@@ -47,7 +47,7 @@
 </template>
 
 <script lang="ts">
-import {defineComponent, nextTick, PropType, ref, toRef, toRefs, watch} from 'vue'
+import {defineComponent, onMounted, PropType, ref, toRef, toRefs, watch} from 'vue'
 import {isString} from 'lodash-es'
 import FontIcon from '/@/second/icons/FontIcon.vue'
 import bus from '/@/second/utility/bus'
@@ -103,14 +103,11 @@ export default defineComponent({
 
     bus.emitter.on(bus.resize, updateWidgetStyle)
 
-    watch(() => [initialValue.value, container.value],  updateWidgetStyle)
+    watch(() => initialValue.value, updateWidgetStyle)
 
     function updateWidgetStyle() {
       if (container.value) {
-        nextTick(() => {
-          sizeRw.value = computeSplitterSize(initialValue.value, container.value!.clientWidth)
-          emit('update:size', sizeRw.value)
-        })
+        sizeRw.value = computeSplitterSize(initialValue.value, container.value.clientWidth)
       }
     }
 
@@ -118,6 +115,11 @@ export default defineComponent({
       sizeRw.value += e
       emit('update:size', sizeRw.value)
     }
+
+    onMounted(async () => {
+      await updateWidgetStyle()
+      emit('update:size', sizeRw.value)
+    })
 
     return {
       container,

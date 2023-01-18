@@ -1,5 +1,5 @@
 <template>
-  <div class="container" ref="clientHeight">
+  <div class="container" ref="container">
     <div
       class="child1"
       :style="isSplitter
@@ -48,7 +48,7 @@
 </template>
 
 <script lang="ts">
-import {defineComponent, nextTick, ref, toRef, toRefs, watch} from 'vue'
+import {defineComponent, onMounted, ref, toRef, toRefs, watch} from 'vue'
 import FontIcon from '/@/second/icons/FontIcon.vue'
 import {computeSplitterSize} from '/@/second/elements/HorizontalSplitter.vue'
 import bus from "/@/second/utility/bus";
@@ -76,7 +76,7 @@ export default defineComponent({
     }
   },
   setup(props) {
-    const clientHeight = ref<Nullable<HTMLElement>>(null)
+    const container = ref<Nullable<HTMLElement>>(null)
     const collapsed1 = ref(false)
     const collapsed2 = ref(false)
     const initialValue = toRef(props, 'initialValue')
@@ -84,20 +84,24 @@ export default defineComponent({
 
     bus.emitter.on(bus.resize, updateWidgetStyle)
 
-    watch(() => [initialValue.value, clientHeight.value], updateWidgetStyle)
+    watch(() => initialValue.value, updateWidgetStyle)
 
     function updateWidgetStyle() {
-      nextTick(() => {
-        size.value = computeSplitterSize(initialValue.value, clientHeight.value)
-      })
+      if (container.value) {
+        size.value = computeSplitterSize(initialValue.value, container.value.clientHeight)
+      }
     }
 
     function updateSize(e: number) {
       size.value += e
     }
 
+    onMounted(async () => {
+      await updateWidgetStyle()
+    })
+
     return {
-      clientHeight,
+      container,
       ...toRefs(props),
       collapsed1,
       collapsed2,

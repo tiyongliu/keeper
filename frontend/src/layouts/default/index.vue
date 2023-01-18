@@ -24,7 +24,7 @@
     </div>
     <div v-if="selectedWidget" class="horizontal-split-handle splitter"
          v-splitterDrag="'clientX'"
-         :resizeSplitter="(e) => localeStore.setLeftPanelWidth(e.detail)">
+         :resizeSplitter="(e) => localeStore.updateLeftPanelWidth(x => x + e.detail)">
     </div>
     <CurrentDropDownMenu/>
     <div class="snackbar-container">snackbar-container</div>

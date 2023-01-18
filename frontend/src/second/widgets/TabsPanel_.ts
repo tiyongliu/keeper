@@ -1,4 +1,3 @@
-import {nextTick} from 'vue'
 import {findLastIndex, get} from 'lodash-es'
 import {useLocaleStore} from "/@/store/modules/locale"
 import getConnectionLabel from '/@/second/utility/getConnectionLabel'
@@ -76,7 +75,6 @@ export function getTabDbName(tab, connectionList) {
 }
 
 export async function scrollInViewTab(tabid) {
-  await nextTick()
   const element = document.getElementById(`file-tab-item-${tabid}`);
   if (element) {
     element.scrollIntoView({block: 'nearest', inline: 'nearest'});
