@@ -5,7 +5,7 @@ import 'virtual:windi-components.css';
 //utilities 引入这个css库，默认有媒体查询@media样式，需要注释
 // import 'virtual:windi-utilities.css';
 //vben admin 添加的样式，我们不需要，所以注释掉。
-// import '/@/design/index.less';
+import '/@/design/index.less';
 import '/@/design/keeper.less'
 // Register icon sprite
 import 'virtual:svg-icons-register';
@@ -17,6 +17,11 @@ import {setupStore} from '/@/store';
 import {setupGlobDirectives} from '/@/directives';
 import {setupI18n} from '/@/locales/setupI18n';
 import {registerGlobComp} from '/@/components/registerGlobComp';
+import {isDevMode} from './utils/env'
+
+if (isDevMode()) {
+  import('ant-design-vue/es/style')
+}
 
 async function bootstrap() {
   const app = createApp(App);

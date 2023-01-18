@@ -1,5 +1,5 @@
-import { darkCssIsReady, loadDarkThemeCss } from 'vite-plugin-theme/es/client';
-import { addClass, hasClass, removeClass } from '/@/utils/domUtils';
+import {darkCssIsReady, loadDarkThemeCss} from 'vite-plugin-theme/es/client';
+import {addClass, hasClass, removeClass} from '/@/utils/domUtils';
 
 export async function updateDarkTheme(mode: string | null = 'light') {
   const htmlRoot = document.getElementById('htmlRoot');
@@ -21,4 +21,6 @@ export async function updateDarkTheme(mode: string | null = 'light') {
       removeClass(htmlRoot, 'dark');
     }
   }
+
+  mode === 'dark' ? addClass(htmlRoot, 'theme-type-dark') : addClass(htmlRoot, 'theme-type-light')
 }

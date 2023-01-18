@@ -95,8 +95,8 @@ export default defineComponent({
     } = toRefs(props)
 
     const grider = ref()
-    const loadedRowsRw = ref(loadedRows.value)
-    const selectedCellsPublishedRw = ref(selectedCellsPublished.value)
+    const loadedRowsRW = ref(loadedRows.value)
+    const selectedCellsPublishedRW = ref(selectedCellsPublished.value)
 
     function dataPageAvailable(props) {
       const {display} = props;
@@ -106,27 +106,27 @@ export default defineComponent({
 
     watchEffect(() => {
       if (!macroPreview.value) {
-        grider.value = new ChangeSetGrider(loadedRowsRw.value, changeSetState.value, dispatchChangeSet.value, display.value!)
+        grider.value = new ChangeSetGrider(loadedRowsRW.value, changeSetState.value, dispatchChangeSet.value, display.value!)
       }
     })
 
     watchEffect(() => {
       if (macroPreview.value) {
-        grider.value = new ChangeSetGrider(loadedRowsRw.value, changeSetState.value, dispatchChangeSet.value, display.value!, macroPreview.value! as MacroDefinition, macroValues.value, selectedCellsPublished.value())
+        grider.value = new ChangeSetGrider(loadedRowsRW.value, changeSetState.value, dispatchChangeSet.value, display.value!, macroPreview.value! as MacroDefinition, macroValues.value, selectedCellsPublished.value())
       }
     })
 
     onBeforeUnmount(() => {
-      loadedRowsRw.value = []
+      loadedRowsRW.value = []
       grider.value = null
     })
 
-    watch(() => [...loadedRowsRw.value], () => {
-      emit('update:loadedRows', unref(loadedRowsRw.value))
+    watch(() => [...loadedRowsRW.value], () => {
+      emit('update:loadedRows', unref(loadedRowsRW.value))
     })
 
-    watch(() => selectedCellsPublishedRw.value, () => {
-      emit('update:selectedCellsPublished', selectedCellsPublishedRw.value)
+    watch(() => selectedCellsPublishedRW.value, () => {
+      emit('update:selectedCellsPublished', selectedCellsPublishedRW.value)
     })
 
     return () => (
@@ -135,8 +135,8 @@ export default defineComponent({
         loadDataPage={loadDataPage}
         dataPageAvailable={dataPageAvailable}
         loadRowCount={loadRowCount}
-        vModel:loadedRows={loadedRowsRw.value}
-        vModel:selectedCellsPublished={selectedCellsPublishedRw.value}
+        vModel:loadedRows={loadedRowsRW.value}
+        vModel:selectedCellsPublished={selectedCellsPublishedRW.value}
         frameSelection={!!macroPreview.value}
         grider={grider.value}
         display={display.value}

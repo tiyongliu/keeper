@@ -53,7 +53,7 @@ export default defineComponent({
       rowCountLoaded
     } = toRefs(props)
 
-    const selectedCellsPublishedRw = ref(selectedCellsPublished.value)
+    const selectedCellsPublishedRW = ref(selectedCellsPublished.value)
     const isLoadedAll = ref<boolean>(false)
     const allRowCount = ref<Nullable<number>>(null)
     const errorMessage = ref<Nullable<string>>(null)
@@ -93,15 +93,14 @@ export default defineComponent({
         errorMessage.value = nextRows.errorMessage
       } else {
         if (allRowCount.value == null) await handleLoadRowCount()
-        const newLoadedRows = [...loadedRows.value, ...nextRows]
-        emit('update:loadedRows', newLoadedRows)
+        const loadedRowsRW = [...loadedRows.value, ...nextRows]
+        emit('update:loadedRows', loadedRowsRW)
         isLoadedAll.value = nextRows.length === 0
       }
 
       if (loadNextDataRef.get()) {
         loadNextData()
       }
-
     }
 
     function handleLoadNextData() {
@@ -134,14 +133,14 @@ export default defineComponent({
       }
     })
 
-    watch(() => selectedCellsPublishedRw.value, () => {
-      emit('update:selectedCellsPublished', selectedCellsPublishedRw.value)
+    watch(() => selectedCellsPublishedRW.value, () => {
+      emit('update:selectedCellsPublished', selectedCellsPublishedRW.value)
     })
 
     return () => <DataGridCore
       {...Object.assign({}, props, attrs)}
       ref={domGrid}
-      vModel:selectedCellsPublished={selectedCellsPublishedRw.value}
+      vModel:selectedCellsPublished={selectedCellsPublishedRW.value}
       onLoadNextData={handleLoadNextData}
       errorMessage={errorMessage.value}
       isLoading={isLoading.value}

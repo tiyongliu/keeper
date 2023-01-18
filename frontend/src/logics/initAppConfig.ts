@@ -9,10 +9,12 @@ import {useAppStore} from '/@/store/modules/app';
 import {getCommonStoragePrefix, getStorageShortName} from '/@/utils/env';
 import {Persistent} from '/@/utils/cache/persistent';
 import {deepMerge} from '/@/utils';
+import {ThemeEnum} from '/@/enums/appEnum'
 
 // Initial project configuration
 export function initAppConfigStore() {
   const appStore = useAppStore();
+  appStore.setDarkMode(ThemeEnum.LIGHT) // todo 主题色切换核心
   let projCfg: ProjectConfig = Persistent.getLocal(PROJ_CFG_KEY) as ProjectConfig;
   projCfg = deepMerge(projectSetting, projCfg || {});
   const darkMode = appStore.getDarkMode;

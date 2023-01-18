@@ -6,7 +6,7 @@
     <div class="m-3">Sorry, DbGate is not supported on mobile devices.</div>
     <div class="m-3">Please visit <a href="https://github.com/tiyongliu/keeper">keeper web</a> for more info.</div>
   </div>
-  <div>
+  <div class="root keeper-screen">
     <div class="iconbar">
       <WidgetIconPanel/>
     </div>
@@ -187,7 +187,7 @@ export default defineComponent({
 }
 
 @media only screen and (max-width: 600px) {
-  .dbgate-screen:not(.isElectron) {
+  .keeper-screen:not(.isElectron) {
     display: none;
   }
 

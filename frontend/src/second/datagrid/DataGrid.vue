@@ -97,7 +97,7 @@
             v-else-if="isJsonView"
             :is="jsonViewComponent"
             v-bind="Object.assign({}, $props, $attrs)"
-            v-model:loadedRows="loadedRowsRw"/>
+            v-model:loadedRows="loadedRowsRW"/>
           <component
             v-else
             :is="gridCoreComponent"
@@ -106,7 +106,7 @@
             :formViewAvailable="!!formViewComponent && !!formDisplay"
             :macroValues="extractMacroValuesForMacro(macroValues, selectedMacro)"
             :macroPreview="selectedMacro"
-            v-model:loadedRows="loadedRowsRw"
+            v-model:loadedRows="loadedRowsRW"
             v-model:selectedCellsPublished="selectedCellsPublished"
             :changeSelectedColumns="handleChangeSelectedColumns"
           />
@@ -262,7 +262,7 @@ export default defineComponent({
     const formViewComponent = toRaw(props.formViewComponent)
     const jsonViewComponent = toRaw(props.jsonViewComponent)
 
-    const loadedRowsRw = ref(loadedRows.value)
+    const loadedRowsRW = ref(loadedRows.value)
     const selectedCellsPublished = ref(() => [])
     const domColumnManager = ref<Nullable<{ setSelectedColumns: (value: unknown[]) => void }>>(null)
     const managerSize = ref(0)
@@ -322,8 +322,8 @@ export default defineComponent({
       if (managerSize.value) setLocalStorage('dataGridManagerWidth', managerSize.value)
     })
 
-    watch(() => [...loadedRowsRw.value], () => {
-      emit('update:loadedRows', loadedRowsRw.value)
+    watch(() => [...loadedRowsRW.value], () => {
+      emit('update:loadedRows', loadedRowsRW.value)
     })
 
     return {
@@ -347,7 +347,7 @@ export default defineComponent({
       isJsonView,
       isDynamicStructure,
       useEvalFilters,
-      loadedRowsRw,
+      loadedRowsRW,
       selectedCellsPublished
     }
   }
