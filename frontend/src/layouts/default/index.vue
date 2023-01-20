@@ -33,7 +33,8 @@
 
 <script lang="ts">
 import {defineComponent, watch, ref, onMounted} from 'vue'
-import {storeToRefs} from "pinia"
+import {storeToRefs} from 'pinia'
+import {debounce} from 'lodash-es'
 import {useLocaleStore} from '/@/store/modules/locale'
 import {subscribeRecentDatabaseSwitch} from '/@/api/recentDatabaseSwitch'
 import {subscribeCurrentDbByTab} from '/@/api/changeCurrentDbByTab'
@@ -44,7 +45,6 @@ import StatusBar from '/@/second/widgets/StatusBar.vue'
 import {WarningOutlined} from '@ant-design/icons-vue'
 import WidgetIconPanel from '/@/second/widgets/WidgetIconPanel.vue'
 import CurrentDropDownMenu from '/@/second/modals/CurrentDropDownMenu'
-import {debounce} from "lodash-es"
 import bus from '/@/second/utility/bus'
 export default defineComponent({
   name: 'DefaultLayout',

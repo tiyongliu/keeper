@@ -191,7 +191,7 @@ import {
   filterCellsForRow
 } from '/@/second/datagrid/gridutil'
 import {useStatusBarTabItem} from '/@/second/widgets/useStatusBarTabItem'
-// import {dataGridRowHeight} from './DataGridRowHeightMeter.vue'
+import {dataGridRowHeight} from './DataGridRowHeightMeter.vue'
 import {GridDisplay} from '/@/second/keeper-datalib'
 import Grider from '/@/second/datagrid/Grider'
 import {SeriesSizes} from '/@/second/datagrid/SeriesSizes'
@@ -373,7 +373,7 @@ export default defineComponent({
     const containerHeight = ref(container.value ? container.value.clientWidth : 0)
 
     const columns = computed(() => display.value?.allColumns || [])
-    const rowHeight = computed(() => 25) //todo  $: rowHeight = $dataGridRowHeight;
+    const rowHeight = computed(() => dataGridRowHeight.value)
     const autofillMarkerCell = computed(() => selectedCells.value && selectedCells.value.length > 0 && uniq(selectedCells.value.map(x => x[0])).length == 1
       ? [max(selectedCells.value.map(x => x[0])), max(selectedCells.value.map(x => x[1]))]
       : null)

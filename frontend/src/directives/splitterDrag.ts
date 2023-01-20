@@ -35,7 +35,7 @@ const splitterDrag: Directive = {
       document.removeEventListener('mouseup', node.handleResizeEnd, true)
     }
 
-    node.addEventListener("mousedown", node.handleResizeDown)
+    node.addEventListener('mousedown', node.handleResizeDown)
   },
   // 在更新包含组件的 VNode 之前调用
   beforeUpdate() {

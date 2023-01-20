@@ -2,7 +2,7 @@
   <div>
     <table>
       <tr>
-        <td>
+        <td v-resizeObserver="true" :resize="changeGridRowHeight">
           title
           <InlineButton square>
             <FontIcon icon="icon chevron-down"/>
@@ -17,7 +17,7 @@
 import {defineComponent, ref} from 'vue'
 import InlineButton from '/@/second/buttons/InlineButton.vue'
 import FontIcon from '/@/second/icons/FontIcon.vue'
-
+import {isNumber} from '/@/utils/is'
 export const dataGridRowHeight = ref(0)
 
 export default defineComponent({
@@ -27,7 +27,15 @@ export default defineComponent({
     FontIcon,
   },
   setup() {
+    function changeGridRowHeight(e) {
+      if (isNumber(e.detail.height)) {
+        dataGridRowHeight.value = e.detail.height + 1
+      }
+    }
 
+    return {
+      changeGridRowHeight
+    }
   }
 })
 </script>

@@ -1,6 +1,7 @@
 <template>
   <ConfigProvider :locale="getAntdLocale">
     <AppProvider>
+      <DataGridRowHeightMeter />
       <RouterView />
     </AppProvider>
   </ConfigProvider>
@@ -19,6 +20,7 @@ import {subscribeConnectionPingers} from '/@/api/connectionsPinger'
 import {setAppLoaded} from '/@/second/utility/appLoadManager'
 import {useBootstrapStore} from "/@/store/modules/bootstrap"
 import {useAppStore} from '/@/store/modules/app'
+import DataGridRowHeightMeter from '/@/second/datagrid/DataGridRowHeightMeter.vue'
 import {ThemeEnum} from '/@/enums/appEnum'
 // import 'dayjs/locale/zh-cn';
 
