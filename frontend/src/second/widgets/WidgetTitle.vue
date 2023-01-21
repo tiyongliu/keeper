@@ -6,7 +6,7 @@
 
 <style>
 .widgetTitle {
-  padding: 5px;
+  padding: 3px 5px;
   font-weight: bold;
   text-transform: uppercase;
   background-color: var(--theme-bg-1);

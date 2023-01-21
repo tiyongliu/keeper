@@ -64,7 +64,7 @@
   }
   .box {
     background-color: var(--theme-bg-2);
-    padding: 10px;
+    padding: 8px 10px;
     border: 1px solid var(--theme-border);
   }
 </style>

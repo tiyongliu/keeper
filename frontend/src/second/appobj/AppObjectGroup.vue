@@ -89,7 +89,7 @@
 <style scoped>
   .group {
     user-select: none;
-    padding: 5px;
+    padding: 3px 5px;
     cursor: pointer;
     white-space: nowrap;
     font-weight: bold;

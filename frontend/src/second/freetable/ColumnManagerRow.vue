@@ -58,7 +58,7 @@ export default defineComponent({
 .icon {
   position: relative;
   top: 5px;
-  padding: 5px;
+  padding: 3px 5px;
 }
 
 .icon:hover {

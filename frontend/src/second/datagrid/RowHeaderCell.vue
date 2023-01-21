@@ -39,7 +39,7 @@ export default defineComponent({
 td {
   border: 1px solid var(--theme-border);
   text-align: left;
-  padding: 2px;
+  padding: 0 2px;
   background-color: var(--theme-bg-1);
   overflow: hidden;
   position: relative;

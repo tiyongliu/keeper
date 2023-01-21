@@ -165,7 +165,7 @@ export default defineComponent({
 td {
   font-weight: normal;
   border: 1px solid var(--theme-border);
-  padding: 2px;
+  padding: 0 2px;
   white-space: nowrap;
   position: relative;
   overflow: hidden;

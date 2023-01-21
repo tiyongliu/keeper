@@ -185,7 +185,7 @@ export default defineComponent({
 
 <style scoped>
 .main {
-  padding: 5px;
+  padding: 3px 5px;
   cursor: pointer;
   white-space: nowrap;
   font-weight: normal;

@@ -118,7 +118,7 @@ export default defineComponent({
   .label {
     flex: 1;
     min-width: 10px;
-    padding: 2px;
+    padding: 0 2px;
     margin: auto;
     white-space: nowrap;
   }
