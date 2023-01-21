@@ -141,7 +141,7 @@ export default defineComponent({
     })
 
     const hintFieldsAllowed = computed(() => {
-      visibleRealColumns.value ? visibleRealColumns.value?.filter(col => {
+      return visibleRealColumns.value ? visibleRealColumns.value?.filter(col => {
         if (!col.hintColumnNames) return false
         if (rowStatus.value && rowStatus.value.modifiedFields && rowStatus.value.modifiedFields.has(col.uniqueName)) return false
         return true;

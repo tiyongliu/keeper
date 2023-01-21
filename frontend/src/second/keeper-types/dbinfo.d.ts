@@ -33,7 +33,8 @@ export interface ForeignKeyInfo extends ColumnsConstraintInfo {
 
 export interface IndexInfo extends ColumnsConstraintInfo {
   isUnique: boolean;
-  indexType: 'normal' | 'clustered' | 'xml' | 'spatial' | 'fulltext';
+  // indexType: 'normal' | 'clustered' | 'xml' | 'spatial' | 'fulltext';
+  indexType: string;
 }
 
 export interface UniqueInfo extends ColumnsConstraintInfo {}
@@ -121,7 +122,7 @@ export interface DatabaseInfoObjects {
 }
 
 export interface DatabaseInfo extends DatabaseInfoObjects {
-  schemas: SchemaInfo[];
+  schemas?: SchemaInfo[];
   engine?: string;
   defaultSchema?: string;
 }

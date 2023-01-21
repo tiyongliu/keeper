@@ -4,25 +4,26 @@ import (
 	"fmt"
 	"github.com/samber/lo"
 	"keeper/app/db/standard/modules"
-	"keeper/app/pkg/containers"
+	"keeper/app/internal/explorer"
 	"keeper/app/pkg/logger"
 	"keeper/app/pkg/serializer"
 	"keeper/app/plugins"
 	"keeper/app/sideQuests"
 	"keeper/app/utility"
+	"sync"
 )
 
 const databaseKey = "database"
 
 type DatabaseConnections struct {
-	Opened             []*containers.OpenedDatabaseConnection
-	Closed             map[string]*containers.DatabaseConnectionClosed
+	Opened             []*explorer.OpenedDatabaseConnection
+	Closed             map[string]*explorer.DatabaseConnectionClosed
 	DatabaseConnection *sideQuests.DatabaseConnection
 }
 
 func NewDatabaseConnections() *DatabaseConnections {
 	return &DatabaseConnections{
-		Closed:             make(map[string]*containers.DatabaseConnectionClosed),
+		Closed:             make(map[string]*explorer.DatabaseConnectionClosed),
 		DatabaseConnection: sideQuests.NewDatabaseConnection(),
 	}
 }
@@ -63,7 +64,7 @@ func (dc *DatabaseConnections) handleError(conid, database string, err error) {
 	logger.Errorf("Error in database connection [%s], database [%d]: [%v]", conid, database, err)
 }
 
-func (dc *DatabaseConnections) handleStatus(conid, database string, status *containers.OpenedStatus) {
+func (dc *DatabaseConnections) handleStatus(conid, database string, status *explorer.OpenedStatus) {
 	existing := findByDatabaseConnection(dc.Opened, conid, database)
 	if existing == nil {
 		return
@@ -79,7 +80,7 @@ func (dc *DatabaseConnections) handlePing() {
 
 }
 
-func (dc *DatabaseConnections) ensureOpened(conid, database string) *containers.OpenedDatabaseConnection {
+func (dc *DatabaseConnections) ensureOpened(conid, database string) *explorer.OpenedDatabaseConnection {
 	existing := findByDatabaseConnection(dc.Opened, conid, database)
 
 	if existing != nil {
@@ -93,9 +94,9 @@ func (dc *DatabaseConnections) ensureOpened(conid, database string) *containers.
 
 	lastClosed := dc.Closed[fmt.Sprintf("%s/%s", conid, database)]
 
-	newOpened := &containers.OpenedDatabaseConnection{
+	newOpened := &explorer.OpenedDatabaseConnection{
 		Conid:         conid,
-		Status:        &containers.OpenedStatus{Name: "pending"},
+		Status:        &explorer.OpenedStatus{Name: "pending"},
 		Database:      database,
 		Connection:    connection,
 		ServerVersion: nil,
@@ -114,11 +115,16 @@ func (dc *DatabaseConnections) ensureOpened(conid, database string) *containers.
 		structure = nil
 	}
 
-	ch := make(chan *containers.EchoMessage)
+	ch := make(chan *explorer.EchoMessage)
 	dc.DatabaseConnection.ResetVars()
-
+	wg := sync.WaitGroup{}
+	wg.Add(1)
 	go dc.DatabaseConnection.Connect(ch, newOpened, structure)
-	go dc.receiver(ch, conid, database)
+	go func() {
+		dc.receiver(ch, conid, database)
+		wg.Done()
+	}()
+	wg.Wait()
 	return newOpened
 }
 
@@ -181,10 +187,10 @@ func (dc *DatabaseConnections) Structure(req *DatabaseRequest) *serializer.Respo
 	if opened != nil {
 		return serializer.SuccessData(serializer.SUCCESS, opened.Structure)
 	}
-	return serializer.Fail(serializer.ErrNil)
+	return serializer.Fail(serializer.NilRecord)
 }
 
-func (dc *DatabaseConnections) receiver(chData <-chan *containers.EchoMessage, conid, database string) {
+func (dc *DatabaseConnections) receiver(chData <-chan *explorer.EchoMessage, conid, database string) {
 	for {
 		message, ok := <-chData
 		if message != nil {
@@ -195,7 +201,7 @@ func (dc *DatabaseConnections) receiver(chData <-chan *containers.EchoMessage, c
 			}
 			switch message.MsgType {
 			case "status":
-				dc.handleStatus(conid, database, message.Payload.(*containers.OpenedStatus))
+				dc.handleStatus(conid, database, message.Payload.(*explorer.OpenedStatus))
 			case "structure":
 				dc.handleStructure(conid, database, message.Payload.(map[string]interface{}))
 			case "structureTime":
@@ -246,7 +252,7 @@ func (dc *DatabaseConnections) Status(req *DatabaseRequest) *serializer.Response
 	})
 }
 
-func (dc *DatabaseConnections) sendRequest(conn *containers.OpenedDatabaseConnection, message *containers.EchoMessage) (res *containers.EchoMessage) {
+func (dc *DatabaseConnections) sendRequest(conn *explorer.OpenedDatabaseConnection, message *explorer.EchoMessage) (res *explorer.EchoMessage) {
 	if message == nil {
 		return nil
 	}
@@ -254,6 +260,8 @@ func (dc *DatabaseConnections) sendRequest(conn *containers.OpenedDatabaseConnec
 	switch message.MsgType {
 	case "sqlSelect":
 		res = dc.DatabaseConnection.HandleSqlSelect(Application.ctx, conn, message.Payload)
+	case "collectionData":
+		res = dc.DatabaseConnection.HandleCollectionData(conn, message.Payload.(*modules.CollectionDataOptions))
 	default:
 		res = nil
 	}
@@ -273,14 +281,14 @@ func (dc *DatabaseConnections) close(conid, database string, kill bool) {
 		if kill {
 
 		}
-		dc.Opened = lo.Filter[*containers.OpenedDatabaseConnection](dc.Opened, func(item *containers.OpenedDatabaseConnection, _ int) bool {
+		dc.Opened = lo.Filter[*explorer.OpenedDatabaseConnection](dc.Opened, func(item *explorer.OpenedDatabaseConnection, _ int) bool {
 			return item.Conid != conid || item.Database != database
 		})
 
-		dc.Closed[fmt.Sprintf("%s/%s", conid, database)] = &containers.DatabaseConnectionClosed{
+		dc.Closed[fmt.Sprintf("%s/%s", conid, database)] = &explorer.DatabaseConnectionClosed{
 			Structure:    existing.Structure,
 			AnalysedTime: existing.AnalysedTime,
-			Status: &containers.OpenedStatus{
+			Status: &explorer.OpenedStatus{
 				Name:    "error",
 				Message: existing.Status.Message,
 				Counter: existing.Status.Counter,
@@ -292,7 +300,7 @@ func (dc *DatabaseConnections) close(conid, database string, kill bool) {
 }
 
 func (dc *DatabaseConnections) closeAll(conid string, kill bool) {
-	list := lo.Filter[*containers.OpenedDatabaseConnection](dc.Opened, func(item *containers.OpenedDatabaseConnection, _ int) bool {
+	list := lo.Filter[*explorer.OpenedDatabaseConnection](dc.Opened, func(item *explorer.OpenedDatabaseConnection, _ int) bool {
 		return item.Conid == conid
 	})
 
@@ -303,11 +311,11 @@ func (dc *DatabaseConnections) closeAll(conid string, kill bool) {
 
 func (dc *DatabaseConnections) Disconnect(req *DatabaseRequest) *serializer.Response {
 	dc.close(req.Conid, req.Database, true)
-	return serializer.SuccessData(serializer.SUCCESS, &containers.OpenedStatus{Name: "ok"})
+	return serializer.SuccessData(serializer.SUCCESS, &explorer.OpenedStatus{Name: "ok"})
 }
 
-func findByDatabaseConnection(s []*containers.OpenedDatabaseConnection, conid, database string) *containers.OpenedDatabaseConnection {
-	existing, ok := lo.Find[*containers.OpenedDatabaseConnection](s, func(item *containers.OpenedDatabaseConnection) bool {
+func findByDatabaseConnection(s []*explorer.OpenedDatabaseConnection, conid, database string) *explorer.OpenedDatabaseConnection {
+	existing, ok := lo.Find[*explorer.OpenedDatabaseConnection](s, func(item *explorer.OpenedDatabaseConnection) bool {
 		return item != nil && item.Conid != "" && item.Conid == conid && item.Database != "" && item.Database == database
 	})
 
@@ -327,7 +335,7 @@ func (dc *DatabaseConnections) SqlSelect(req *SqlSelectRequest) *serializer.Resp
 	if opened == nil {
 		return serializer.SuccessData(serializer.SUCCESS, map[string]interface{}{"msgtype": "response"})
 	}
-	response := dc.sendRequest(opened, &containers.EchoMessage{Payload: req.Select, MsgType: "sqlSelect"})
+	response := dc.sendRequest(opened, &explorer.EchoMessage{Payload: req.Select, MsgType: "sqlSelect"})
 	if response == nil {
 		return serializer.Fail("Error executing SQL script")
 	}
@@ -346,5 +354,41 @@ func (dc *DatabaseConnections) SqlSelect(req *SqlSelectRequest) *serializer.Resp
 		})
 	}
 
-	return serializer.Fail(serializer.ErrNil)
+	return serializer.Fail(serializer.NilRecord)
+}
+
+type CollectionDataRequest struct {
+	databaseConnections
+	Options *modules.CollectionDataOptions
+}
+
+func (dc *DatabaseConnections) CollectionData(req *CollectionDataRequest) *serializer.Response {
+	if req.Options == nil || req.Options.PureName == "" {
+		return serializer.Fail("messing query params")
+	}
+	opened := dc.ensureOpened(req.Conid, req.Database)
+	if opened == nil {
+		logger.Error("load collection opened nil")
+		return serializer.SuccessData(serializer.SUCCESS, map[string]interface{}{"msgtype": "response"})
+	}
+
+	response := dc.sendRequest(opened, &explorer.EchoMessage{Payload: req.Options, MsgType: "collectionData"})
+	if response == nil {
+		logger.Error("get response nil")
+		return serializer.Fail("Error executing SQL script")
+	}
+
+	if response.Err != nil {
+		if existing := findByDatabaseConnection(dc.Opened, req.Conid, req.Database); existing != nil && !existing.Disconnected {
+			dc.close(req.Conid, req.Database, false)
+		}
+		logger.Errorf("findByDatabaseConnection response failed %v", response.Err)
+		return serializer.Fail(response.Err.Error())
+	}
+
+	if response.Payload != nil {
+		return serializer.SuccessData(serializer.SUCCESS, response.Payload)
+	}
+
+	return serializer.Fail(serializer.NilRecord)
 }

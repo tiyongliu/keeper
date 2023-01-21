@@ -42,7 +42,7 @@ export default defineComponent({
       type: Function as PropType<(action: any) => void>
     },
     cellValue: {
-      type: [String, Boolean, Number] as PropType<boolean | string | number>
+      type: [String, Boolean, Number, Object, Array] as PropType<boolean | string | number | object | any[]>
     }
   },
   emits: ['setValue'],

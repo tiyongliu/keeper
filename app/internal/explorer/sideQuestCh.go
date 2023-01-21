@@ -1,4 +1,4 @@
-package containers
+package explorer
 
 import (
 	"keeper/app/db/standard/modules"

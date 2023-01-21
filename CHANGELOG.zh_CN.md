@@ -3,9 +3,13 @@
 - **其它**
 - 前端基础库`vben admin`升级到2023/1/18的版本
 
-``### 🐛 Bug Fixes
+### ✨ Features
+- 新增`mongodb`动态展示和查询`CollectionDataGridCore`、`CollectionJsonView`组件
+
+### 🐛 Bug Fixes
 - v-splitterDrag自定义拖拽组件优化
 - 修复theme`dark`、`light`切换html现实对应theme
+- 修复标准盒子模型下高度超过预期，在原有高度-多余的高度，不改变原有盒子模型
 
 
 
@@ -30,6 +34,10 @@
 
   
 ## 0.0.2.2-alpha.1(2022-11-28)
+
+### ✨ Refactor
+
+- 数据库连接池重构
 
 ### ✨ Features
 - 新增数据库展示单行`SqlFormView.tsx`组件的开发

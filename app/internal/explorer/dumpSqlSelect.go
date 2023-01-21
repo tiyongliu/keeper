@@ -1,4 +1,4 @@
-package containers
+package explorer
 
 type CommandTypeEnum string
 

@@ -1,23 +1,38 @@
 <template>
   <div class="wrapper">
-    <InlineButton>
-      <FontIcon icon="icon arrow-left" />
+    <InlineButton @click="handleSkipMinus">
+      <FontIcon icon="icon arrow-left"/>
     </InlineButton>
     <span class="label">Start:</span>
-    <TextField type="number" />
+    <TextField
+      size="small"
+      type="number"
+      v-model:value="skipRW"
+      @blur="handleLoad"
+      @keydown="handleKeyDown"
+    />
     <span class="label">Rows:</span>
-    <TextField type="number" />
-    <InlineButton>
-      <FontIcon icon="icon arrow-right" />
+    <TextField
+      size="small"
+      type="number"
+      v-model:value="limitRW"
+      @blur="handleLoad"
+      @keydown="handleKeyDown"
+    />
+    <InlineButton @click="handleSkipPlus">
+      <FontIcon icon="icon arrow-right"/>
     </InlineButton>
   </div>
 </template>
 
 <script lang="ts">
-import {defineComponent, PropType} from 'vue'
+import {defineComponent, PropType, ref, toRefs, watch} from 'vue'
+import {isNumber} from '/@/utils/is'
 import FontIcon from '/@/second/icons/FontIcon.vue'
 import InlineButton from '/@/second/buttons/InlineButton.vue'
 import TextField from '/@/second/forms/TextField'
+import keycodes from '/@/second/utility/keycodes'
+
 export default defineComponent({
   name: "Pager",
   components: {
@@ -33,8 +48,56 @@ export default defineComponent({
       type: Number as PropType<number>,
     }
   },
-  setup() {
+  emits: ['update:skip', 'update:limit', 'load'],
+  setup(props, {emit}) {
+    const {skip, limit} = toRefs(props)
 
+    const skipRW = ref(skip)
+    const limitRW = ref(limit)
+
+
+    function handleSkipPlus() {
+      if (isNumber(skipRW.value) && isNumber(limitRW.value)) {
+        skipRW.value = parseInt(skipRW.value) + parseInt(limitRW.value)
+        if (skipRW.value < 0) skipRW.value = 0
+        emit('load')
+      }
+    }
+
+    function handleSkipMinus() {
+      if (isNumber(skipRW.value) && isNumber(limitRW.value)) {
+        skipRW.value = parseInt(skipRW.value) - parseInt(limitRW.value)
+        emit('load')
+      }
+    }
+
+    function handleKeyDown(e) {
+      if (e.keyCode == keycodes.enter) {
+        e.preventDefault();
+        e.stopPropagation();
+        emit('load')
+      }
+    }
+
+    watch(() => skipRW.value, () => {
+      if (isNumber(skipRW.value) && skipRW.value >= 0) emit('update:skip', skipRW.value)
+    })
+    watch(() => limitRW.value, () => {
+      if (isNumber(limitRW.value) && limitRW.value >= 0) emit('update:limit', limitRW.value)
+    })
+
+    function handleLoad() {
+      emit('load')
+    }
+
+    return {
+      skipRW,
+      limitRW,
+      handleLoad,
+      handleSkipPlus,
+      handleSkipMinus,
+      handleKeyDown
+    }
   }
 })
 </script>
@@ -43,10 +106,12 @@ export default defineComponent({
 .wrapper :global(input) {
   width: 100px;
 }
+
 .wrapper {
   display: flex;
   align-items: center;
 }
+
 .label {
   margin-left: 5px;
   margin-right: 5px;

@@ -6,3 +6,4 @@ export * from './TableGridDisplay';
 export * from './FormViewDisplay';
 export * from './TableFormViewDisplay';
 export * from './runMacro';
+export * from './CollectionGridDisplay'

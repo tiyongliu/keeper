@@ -16,3 +16,13 @@ type MongoDBCollection struct {
 	PureName string `json:"pureName"`
 	//Engine   string `json:"engine"`
 }
+
+type CollectionDataOptions struct {
+	PureName       string                 `json:"pureName"`
+	CountDocuments bool                   `json:"countDocuments"`
+	Limit          int64                  `json:"limit"`
+	Skip           int64                  `json:"skip"`
+	Aggregate      interface{}            `json:"aggregate"`
+	Condition      map[string]interface{} `json:"condition"`
+	Sort           map[string]int         `json:"sort"`
+}

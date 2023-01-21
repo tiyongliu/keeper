@@ -39,7 +39,7 @@
       v-if="showResizeSplitter"
       class="horizontal-split-handle resizeHandleControl"
       v-splitterDrag="'clientX'"
-      :resizeSplitter="(e) => dispatchResizeSplitter(e)"/>
+      :resizeSplitter="(e) => doDispatchResizeSplitter(e)"/>
   </div>
 </template>
 
@@ -129,7 +129,7 @@ export default defineComponent({
     const isOk = ref<boolean>(false)
     const isError = ref<boolean>(false)
 
-    function dispatchResizeSplitter(e) {
+    function doDispatchResizeSplitter(e) {
       emit('dispatchResizeSplitter', e)
     }
 
@@ -168,7 +168,7 @@ export default defineComponent({
     }
 
     watch(() => filter.value, () => {
-      value.value = <string>filter.value
+      value.value = filter.value!
     }, {immediate: true})
 
     watch(() => value.value, () => {
@@ -196,7 +196,7 @@ export default defineComponent({
       isOk,
       isError,
       ...toRefs(props),
-      dispatchResizeSplitter,
+      doDispatchResizeSplitter,
       handleKeyDown,
       applyFilter,
       handlePaste,

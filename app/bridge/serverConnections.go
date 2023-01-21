@@ -5,7 +5,7 @@ import (
 	"github.com/samber/lo"
 	"keeper/app/db/persist"
 	"keeper/app/db/standard/modules"
-	"keeper/app/pkg/containers"
+	"keeper/app/internal/explorer"
 	"keeper/app/pkg/serializer"
 	"keeper/app/sideQuests"
 	"keeper/app/utility"
@@ -18,7 +18,7 @@ const conidkey = "conid"
 
 type ServerConnections struct {
 	Closed                  map[string]interface{}
-	Opened                  []*containers.OpenedServerConnection
+	Opened                  []*explorer.OpenedServerConnection
 	LastPinged              map[string]utility.UnixTime
 	ServerConnectionChannel *sideQuests.ServerConnection
 }
@@ -54,7 +54,7 @@ func (sc *ServerConnections) handleVersion(conid string, version *modules.Versio
 	utility.EmitChanged(Application.ctx, fmt.Sprintf("server-version-changed-%s", conid))
 }
 
-func (sc *ServerConnections) handleStatus(conid string, status *containers.OpenedStatus) {
+func (sc *ServerConnections) handleStatus(conid string, status *explorer.OpenedStatus) {
 	existing := findByServerConnection(sc.Opened, conid)
 
 	if existing == nil {
@@ -68,7 +68,7 @@ func (sc *ServerConnections) handleStatus(conid string, status *containers.Opene
 
 func (sc *ServerConnections) handlePing() {}
 
-func (sc *ServerConnections) ensureOpened(conid string) *containers.OpenedServerConnection {
+func (sc *ServerConnections) ensureOpened(conid string) *explorer.OpenedServerConnection {
 	lock.Lock()
 	defer lock.Unlock()
 	existing := findByServerConnection(sc.Opened, conid)
@@ -82,9 +82,9 @@ func (sc *ServerConnections) ensureOpened(conid string) *containers.OpenedServer
 		return nil
 	}
 
-	newOpened := &containers.OpenedServerConnection{
+	newOpened := &explorer.OpenedServerConnection{
 		Conid:        conid,
-		Status:       &containers.OpenedStatus{Name: "pending"},
+		Status:       &explorer.OpenedStatus{Name: "pending"},
 		Databases:    nil,
 		Connection:   connection,
 		Disconnected: false,
@@ -98,7 +98,7 @@ func (sc *ServerConnections) ensureOpened(conid string) *containers.OpenedServer
 	}
 	utility.EmitChanged(Application.ctx, "server-status-changed")
 
-	ch := make(chan *containers.EchoMessage)
+	ch := make(chan *explorer.EchoMessage)
 	defer func() {
 		sc.ServerConnectionChannel.ResetVars()
 		go sc.ServerConnectionChannel.Connect(ch, connection)
@@ -162,7 +162,7 @@ func (sc *ServerConnections) Close(conid string, kill bool) {
 		existing.Disconnected = true
 		if kill {
 		}
-		sc.Opened = lo.Filter[*containers.OpenedServerConnection](sc.Opened, func(x *containers.OpenedServerConnection, _ int) bool {
+		sc.Opened = lo.Filter[*explorer.OpenedServerConnection](sc.Opened, func(x *explorer.OpenedServerConnection, _ int) bool {
 			return x.Conid != conid
 		})
 		sc.Closed[conid] = map[string]interface{}{
@@ -190,7 +190,7 @@ func (sc *ServerConnections) Refresh(req *ServerRefreshRequest) *serializer.Resp
 	})
 }
 
-func (sc *ServerConnections) receiver(chData <-chan *containers.EchoMessage, conid string) {
+func (sc *ServerConnections) receiver(chData <-chan *explorer.EchoMessage, conid string) {
 	for {
 		message, ok := <-chData
 		if message != nil {
@@ -201,7 +201,7 @@ func (sc *ServerConnections) receiver(chData <-chan *containers.EchoMessage, con
 			}
 			switch message.MsgType {
 			case "status":
-				sc.handleStatus(conid, message.Payload.(*containers.OpenedStatus))
+				sc.handleStatus(conid, message.Payload.(*explorer.OpenedStatus))
 			case "version":
 				sc.handleVersion(conid, message.Payload.(*modules.Version))
 			case "databases":
@@ -216,8 +216,8 @@ func (sc *ServerConnections) receiver(chData <-chan *containers.EchoMessage, con
 	}
 }
 
-func findByServerConnection(s []*containers.OpenedServerConnection, conid string) *containers.OpenedServerConnection {
-	existing, ok := lo.Find[*containers.OpenedServerConnection](s, func(x *containers.OpenedServerConnection) bool {
+func findByServerConnection(s []*explorer.OpenedServerConnection, conid string) *explorer.OpenedServerConnection {
+	existing, ok := lo.Find[*explorer.OpenedServerConnection](s, func(x *explorer.OpenedServerConnection) bool {
 		return x.Conid == conid
 	})
 
