@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <div class="arrow" :class="expanded && 'expanded'">{{'\u25B6'}}</div>
+    <div class="arrow" :class="expanded && 'expanded'">{{ '\u25B6' }}</div>
   </div>
 </template>
 
@@ -24,7 +24,8 @@ const expanded = toRef(props, 'expanded')
   top: 50%;
   padding-right: 100%;
 }
- .arrow {
+
+.arrow {
   transform-origin: 25% 50%;
   position: relative;
   line-height: 1.1em;

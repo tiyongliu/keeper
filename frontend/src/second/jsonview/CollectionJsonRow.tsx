@@ -2,6 +2,7 @@ import {computed, defineComponent, PropType, toRefs} from 'vue'
 import {isNumber} from 'lodash-es'
 import JSONTree from '/@/second/jsontree/JSONTree.vue'
 import Grider from '/@/second/datagrid/Grider'
+
 export default defineComponent({
   name: 'CollectionJsonRow',
   props: {
@@ -13,7 +14,7 @@ export default defineComponent({
     },
   },
   setup(props) {
-    const {rowIndex,grider} = toRefs(props)
+    const {rowIndex, grider} = toRefs(props)
     const rowData = computed(() => {
       if (grider.value && isNumber(rowIndex.value)) {
         return grider.value.getRowData(rowIndex.value)
