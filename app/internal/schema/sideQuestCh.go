@@ -1,4 +1,4 @@
-package explorer
+package schema
 
 import (
 	"keeper/app/db/standard/modules"

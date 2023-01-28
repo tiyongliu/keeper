@@ -1,9 +1,9 @@
-package persist
+package stash
 
 import (
 	"errors"
 	"keeper/app/db"
-	"keeper/app/db/drivers"
+	"keeper/app/db/adapter"
 	"keeper/app/pkg/logger"
 	"keeper/app/pkg/serializer"
 	"keeper/app/utility"
@@ -46,7 +46,7 @@ func (s *StorageSession) Scanner(conid string, connection map[string]interface{}
 			return nil, db.ErrNotConnected
 		}
 
-		session, err = drivers.NewCompatDriver().Open(connection)
+		session, err = adapter.NewCompatDriver().Open(connection)
 		if err != nil {
 			return nil, err
 		}

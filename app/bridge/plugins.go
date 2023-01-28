@@ -16,7 +16,6 @@ func NewPlugins() *Plugins {
 }
 
 func (p *Plugins) Installed() *serializer.Response {
-
 	return serializer.SuccessData(serializer.SUCCESS, []map[string]string{
 		{"name": mongo.Adapter},
 		{"name": mysql.Adapter},

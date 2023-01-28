@@ -1,4 +1,4 @@
-package explorer
+package schema
 
 type CommandTypeEnum string
 

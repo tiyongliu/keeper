@@ -3,7 +3,7 @@ package bridge
 import (
 	"fmt"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
-	"keeper/app/db/drivers"
+	"keeper/app/db/adapter"
 	"keeper/app/internal"
 	"keeper/app/pkg/serializer"
 	"keeper/app/utility"
@@ -50,7 +50,7 @@ func (conn *Connections) Test(connection map[string]interface{}) *serializer.Res
 		return serializer.Fail(serializer.ParamsErr)
 	}
 
-	driver, err := drivers.NewCompatDriver().Open(connection)
+	driver, err := adapter.NewCompatDriver().Open(connection)
 	if err != nil {
 		runtime.MessageDialog(Application.ctx, runtime.MessageDialogOptions{
 			Type:          runtime.ErrorDialog,

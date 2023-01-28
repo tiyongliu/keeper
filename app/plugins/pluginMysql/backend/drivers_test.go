@@ -2,12 +2,12 @@ package backend
 
 import (
 	"fmt"
-	"keeper/app/db/drivers"
+	"keeper/app/db/adapter"
 	"testing"
 )
 
 func TestNewAnalyser(t *testing.T) {
-	driver, err := drivers.NewCompatDriver().Open(map[string]interface{}{
+	driver, err := adapter.NewCompatDriver().Open(map[string]interface{}{
 		"username": "root",
 		"password": "123456",
 		"port":     "3306",

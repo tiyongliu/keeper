@@ -11,7 +11,7 @@ type Query struct {
 	Columns []*modules.Column `json:"columns"`
 }
 
-func getSqlQuery(db *gorm.DB, sql string) (*Query, error) {
+func execute(db *gorm.DB, sql string) (*Query, error) {
 	rows, err := db.Raw(sql).Rows()
 	if err != nil {
 		return nil, err

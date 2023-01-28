@@ -2,8 +2,8 @@ package sideQuests
 
 import (
 	"keeper/app/db"
-	"keeper/app/db/drivers"
-	"keeper/app/internal/explorer"
+	"keeper/app/db/adapter"
+	"keeper/app/internal/schema"
 	"keeper/app/utility"
 	"time"
 )
@@ -49,17 +49,17 @@ func setInterval(fn func()) {
 	}(ticker)
 }
 
-func setStatus(ch chan *explorer.EchoMessage, data func() (*explorer.OpenedStatus, error)) {
+func setStatus(ch chan *schema.EchoMessage, data func() (*schema.OpenedStatus, error)) {
 	status, err := data()
 	if err != nil {
-		ch <- &explorer.EchoMessage{
+		ch <- &schema.EchoMessage{
 			Err: err,
 		}
 		return
 	}
 	statusString := utility.ToJsonStr(status)
 	if serverLastStatus != statusString {
-		ch <- &explorer.EchoMessage{Payload: status, MsgType: "status"}
+		ch <- &schema.EchoMessage{Payload: status, MsgType: "status"}
 		serverLastStatus = statusString
 	}
 }
@@ -69,18 +69,18 @@ func (msg *ServerConnection) ResetVars() {
 	serverLastDatabases = ""
 }
 
-func (msg *ServerConnection) Connect(ch chan *explorer.EchoMessage, connection map[string]interface{}) {
+func (msg *ServerConnection) Connect(ch chan *schema.EchoMessage, connection map[string]interface{}) {
 	storedConnection = connection
 	defer close(ch)
 
-	setStatus(ch, func() (*explorer.OpenedStatus, error) {
-		return &explorer.OpenedStatus{Name: "pending"}, nil
+	setStatus(ch, func() (*schema.OpenedStatus, error) {
+		return &schema.OpenedStatus{Name: "pending"}, nil
 	})
 
-	driver, err := drivers.NewCompatDriver().Open(connection)
+	driver, err := adapter.NewCompatDriver().Open(connection)
 	if err != nil {
-		setStatus(ch, func() (*explorer.OpenedStatus, error) {
-			return &explorer.OpenedStatus{Name: "error", Message: err.Error()}, err
+		setStatus(ch, func() (*schema.OpenedStatus, error) {
+			return &schema.OpenedStatus{Name: "error", Message: err.Error()}, err
 		})
 		return
 	}
@@ -94,8 +94,8 @@ func (msg *ServerConnection) Connect(ch chan *explorer.EchoMessage, connection m
 	//connectUtility
 
 	if err != nil {
-		setStatus(ch, func() (*explorer.OpenedStatus, error) {
-			return &explorer.OpenedStatus{Name: "error", Message: err.Error()}, err
+		setStatus(ch, func() (*schema.OpenedStatus, error) {
+			return &schema.OpenedStatus{Name: "error", Message: err.Error()}, err
 		})
 		return
 	}
@@ -133,16 +133,16 @@ func (msg *ServerConnection) CreateDatabase() {
 
 }
 
-func (msg *ServerConnection) readVersion(ch chan *explorer.EchoMessage, driver db.Session) error {
+func (msg *ServerConnection) readVersion(ch chan *schema.EchoMessage, driver db.Session) error {
 	version, err := driver.Version()
 	if err != nil {
-		setStatus(ch, func() (*explorer.OpenedStatus, error) {
-			return &explorer.OpenedStatus{Name: "error", Message: err.Error()}, err
+		setStatus(ch, func() (*schema.OpenedStatus, error) {
+			return &schema.OpenedStatus{Name: "error", Message: err.Error()}, err
 		})
 		return err
 	}
 
-	ch <- &explorer.EchoMessage{
+	ch <- &schema.EchoMessage{
 		Payload: version,
 		MsgType: "version",
 	}
@@ -150,22 +150,22 @@ func (msg *ServerConnection) readVersion(ch chan *explorer.EchoMessage, driver d
 	return nil
 }
 
-func (msg *ServerConnection) handleRefresh(ch chan *explorer.EchoMessage, driver db.Session) error {
+func (msg *ServerConnection) handleRefresh(ch chan *schema.EchoMessage, driver db.Session) error {
 	databases, err := driver.ListDatabases()
 	if err != nil {
-		setStatus(ch, func() (*explorer.OpenedStatus, error) {
-			return &explorer.OpenedStatus{Name: "error", Message: err.Error()}, err
+		setStatus(ch, func() (*schema.OpenedStatus, error) {
+			return &schema.OpenedStatus{Name: "error", Message: err.Error()}, err
 		})
 		return err
 	}
 
-	setStatus(ch, func() (*explorer.OpenedStatus, error) {
-		return &explorer.OpenedStatus{Name: "ok"}, nil
+	setStatus(ch, func() (*schema.OpenedStatus, error) {
+		return &schema.OpenedStatus{Name: "ok"}, nil
 	})
 
 	databasesString := utility.ToJsonStr(databases)
 	if serverLastDatabases != databasesString {
-		ch <- &explorer.EchoMessage{
+		ch <- &schema.EchoMessage{
 			Payload: databases,
 			MsgType: "databases",
 			Dialect: driver.Dialect(),

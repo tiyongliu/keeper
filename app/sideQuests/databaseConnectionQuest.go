@@ -8,9 +8,9 @@ import (
 	"keeper/app/db"
 	"keeper/app/db/adapter"
 	"keeper/app/db/adapter/mongo"
-	"keeper/app/db/persist"
 	"keeper/app/db/standard/modules"
-	"keeper/app/internal/explorer"
+	"keeper/app/db/stash"
+	"keeper/app/internal/schema"
 	"keeper/app/pkg/serializer"
 	"keeper/app/utility"
 )
@@ -40,22 +40,22 @@ func (msg *DatabaseConnection) ResetVars() {
 	lastStatusString = ""
 }
 
-func (msg *DatabaseConnection) Connect(ch chan *explorer.EchoMessage, newOpened *explorer.OpenedDatabaseConnection, structure interface{}) {
+func (msg *DatabaseConnection) Connect(ch chan *schema.EchoMessage, newOpened *schema.OpenedDatabaseConnection, structure interface{}) {
 	defer close(ch)
 	databaseLast = utility.NewUnixTime()
 	if structure == nil {
-		msg.setStatus(ch, func() (*explorer.OpenedStatus, error) {
-			return &explorer.OpenedStatus{Name: "pending"}, nil
+		msg.setStatus(ch, func() (*schema.OpenedStatus, error) {
+			return &schema.OpenedStatus{Name: "pending"}, nil
 		})
 	}
-	driver, err := persist.GetStorageSession().Scanner(
+	driver, err := stash.GetStorageSession().Scanner(
 		newOpened.Conid,
 		lo.Assign(newOpened.Connection, map[string]interface{}{"database": newOpened.Database}),
 	)
 
 	if err != nil {
-		msg.setStatus(ch, func() (*explorer.OpenedStatus, error) {
-			return &explorer.OpenedStatus{Name: "error", Message: err.Error()}, err
+		msg.setStatus(ch, func() (*schema.OpenedStatus, error) {
+			return &schema.OpenedStatus{Name: "error", Message: err.Error()}, err
 		})
 		return
 	}
@@ -63,12 +63,12 @@ func (msg *DatabaseConnection) Connect(ch chan *explorer.EchoMessage, newOpened 
 	version, err := readVersion(driver)
 
 	if err != nil {
-		msg.setStatus(ch, func() (*explorer.OpenedStatus, error) {
-			return &explorer.OpenedStatus{Name: "error", Message: err.Error()}, err
+		msg.setStatus(ch, func() (*schema.OpenedStatus, error) {
+			return &schema.OpenedStatus{Name: "error", Message: err.Error()}, err
 		})
 		return
 	} else {
-		ch <- &explorer.EchoMessage{
+		ch <- &schema.EchoMessage{
 			Payload: version,
 			MsgType: "version",
 		}
@@ -82,32 +82,32 @@ func (msg *DatabaseConnection) Connect(ch chan *explorer.EchoMessage, newOpened 
 	msg.handleFullRefresh(ch, driver, newOpened.Database)
 }
 
-func (msg *DatabaseConnection) setStatus(ch chan *explorer.EchoMessage, data func() (*explorer.OpenedStatus, error)) {
+func (msg *DatabaseConnection) setStatus(ch chan *schema.EchoMessage, data func() (*schema.OpenedStatus, error)) {
 	status, err := data()
 	if err != nil {
-		setStatus(ch, func() (*explorer.OpenedStatus, error) {
-			return &explorer.OpenedStatus{Name: "error", Message: err.Error()}, nil
+		setStatus(ch, func() (*schema.OpenedStatus, error) {
+			return &schema.OpenedStatus{Name: "error", Message: err.Error()}, nil
 		})
 		return
 	}
 	statusString := utility.ToJsonStr(status)
 	if lastStatusString != statusString {
 		status.Counter = getStatusCounter()
-		ch <- &explorer.EchoMessage{MsgType: "status", Payload: status}
+		ch <- &schema.EchoMessage{MsgType: "status", Payload: status}
 		lastStatusString = statusString
 	}
 }
 
-func (msg *DatabaseConnection) readVersion(ch chan *explorer.EchoMessage, driver db.Session) error {
+func (msg *DatabaseConnection) readVersion(ch chan *schema.EchoMessage, driver db.Session) error {
 	version, err := driver.Version()
 	if err != nil {
-		setStatus(ch, func() (*explorer.OpenedStatus, error) {
-			return &explorer.OpenedStatus{Name: "error", Message: err.Error()}, nil
+		setStatus(ch, func() (*schema.OpenedStatus, error) {
+			return &schema.OpenedStatus{Name: "error", Message: err.Error()}, nil
 		})
 		return err
 	}
 
-	ch <- &explorer.EchoMessage{
+	ch <- &schema.EchoMessage{
 		Payload: version,
 		MsgType: "version",
 		Dialect: driver.Dialect(),
@@ -116,25 +116,25 @@ func (msg *DatabaseConnection) readVersion(ch chan *explorer.EchoMessage, driver
 	return nil
 }
 
-func (msg *DatabaseConnection) handleFullRefresh(ch chan *explorer.EchoMessage, driver db.Session, database string) {
+func (msg *DatabaseConnection) handleFullRefresh(ch chan *schema.EchoMessage, driver db.Session, database string) {
 	loadingModel = true
 
-	msg.setStatus(ch, func() (*explorer.OpenedStatus, error) {
-		return &explorer.OpenedStatus{Name: "loadStructure"}, nil
+	msg.setStatus(ch, func() (*schema.OpenedStatus, error) {
+		return &schema.OpenedStatus{Name: "loadStructure"}, nil
 	})
 
 	analysedStructure = adapter.AnalyseFull(driver, database)
 	analysedTime = utility.NewUnixTime()
-	ch <- &explorer.EchoMessage{MsgType: "structure", Payload: analysedStructure}
-	ch <- &explorer.EchoMessage{MsgType: "structureTime", Payload: analysedTime}
-	msg.setStatus(ch, func() (*explorer.OpenedStatus, error) {
-		return &explorer.OpenedStatus{Name: "ok"}, nil
+	ch <- &schema.EchoMessage{MsgType: "structure", Payload: analysedStructure}
+	ch <- &schema.EchoMessage{MsgType: "structureTime", Payload: analysedTime}
+	msg.setStatus(ch, func() (*schema.OpenedStatus, error) {
+		return &schema.OpenedStatus{Name: "ok"}, nil
 	})
 
 	loadingModel = false
 }
 
-func (msg *DatabaseConnection) handleIncrementalRefresh(ch chan *explorer.EchoMessage, forceSend bool, pool db.Session, database string) {
+func (msg *DatabaseConnection) handleIncrementalRefresh(ch chan *schema.EchoMessage, forceSend bool, pool db.Session, database string) {
 	/*loadingModel = true
 	msg.setStatus(ch, func() (*containers.OpenedStatus, error) {
 		return &containers.OpenedStatus{Name: "checkStructure", Counter: getStatusCounter()}, nil
@@ -170,14 +170,14 @@ func (msg *DatabaseConnection) handleIncrementalRefresh(ch chan *explorer.EchoMe
 }
 
 func (msg *DatabaseConnection) HandleSqlSelect(
-	ctx context.Context, conn *explorer.OpenedDatabaseConnection, selectParams interface{}) *explorer.EchoMessage {
-	ch := make(chan *explorer.EchoMessage, 2)
+	ctx context.Context, conn *schema.OpenedDatabaseConnection, selectParams interface{}) *schema.EchoMessage {
+	ch := make(chan *schema.EchoMessage, 2)
 	runtime.EventsEmit(ctx, "handleSqlSelect", selectParams)
 	runtime.EventsOnce(ctx, "handleSqlSelectReturn", func(sql ...interface{}) {
 		utility.WithRecover(func() {
-			driver, err := persist.GetStorageSession().GetItem(conn.Conid, conn.Database)
+			driver, err := stash.GetStorageSession().GetItem(conn.Conid, conn.Database)
 			if err != nil {
-				ch <- &explorer.EchoMessage{
+				ch <- &schema.EchoMessage{
 					MsgType: "response",
 					Err:     err,
 				}
@@ -185,7 +185,7 @@ func (msg *DatabaseConnection) HandleSqlSelect(
 			}
 			ch <- msg.handleQueryData(driver, sql[0].(string), true)
 		}, func(err error) {
-			ch <- &explorer.EchoMessage{
+			ch <- &schema.EchoMessage{
 				MsgType: "response",
 				Err:     errors.New(serializer.ErrNil),
 			}
@@ -195,20 +195,20 @@ func (msg *DatabaseConnection) HandleSqlSelect(
 	return <-ch
 }
 
-func (msg *DatabaseConnection) handleQueryData(driver db.Session, sql string, skipReadonlyCheck bool) *explorer.EchoMessage {
+func (msg *DatabaseConnection) handleQueryData(driver db.Session, sql string, skipReadonlyCheck bool) *schema.EchoMessage {
 	res, err := driver.Query(sql)
-	return &explorer.EchoMessage{
+	return &schema.EchoMessage{
 		Payload: res,
 		MsgType: "response",
 		Err:     err,
 	}
 }
 
-func (msg *DatabaseConnection) HandleCollectionData(conn *explorer.OpenedDatabaseConnection,
-	options *modules.CollectionDataOptions) *explorer.EchoMessage {
-	driver, err := persist.GetStorageSession().GetItem(conn.Conid, conn.Database)
+func (msg *DatabaseConnection) HandleCollectionData(conn *schema.OpenedDatabaseConnection,
+	options *modules.CollectionDataOptions) *schema.EchoMessage {
+	driver, err := stash.GetStorageSession().GetItem(conn.Conid, conn.Database)
 	if err != nil {
-		return &explorer.EchoMessage{
+		return &schema.EchoMessage{
 			MsgType: "response",
 			Err:     err,
 		}
@@ -216,32 +216,32 @@ func (msg *DatabaseConnection) HandleCollectionData(conn *explorer.OpenedDatabas
 
 	collection, err := driver.(*mongo.Source).ReadCollection(conn.Database, options)
 	if err != nil {
-		return &explorer.EchoMessage{
+		return &schema.EchoMessage{
 			MsgType: "response",
 			Err:     err,
 		}
 	}
 
 	if options != nil && options.CountDocuments {
-		return &explorer.EchoMessage{
+		return &schema.EchoMessage{
 			Payload: map[string]interface{}{"count": collection},
 			MsgType: "response",
 		}
 	} else {
-		return &explorer.EchoMessage{
+		return &schema.EchoMessage{
 			Payload: map[string]interface{}{"rows": collection},
 			MsgType: "response",
 		}
 	}
 }
 
-func (msg *DatabaseConnection) ReadVersion(ch chan *explorer.EchoMessage, driver db.Session) error {
+func (msg *DatabaseConnection) ReadVersion(ch chan *schema.EchoMessage, driver db.Session) error {
 	version, err := driver.Version()
 	if err != nil {
 		return err
 	}
 
-	ch <- &explorer.EchoMessage{
+	ch <- &schema.EchoMessage{
 		Payload: version,
 		MsgType: "version",
 	}

@@ -3,9 +3,9 @@ package bridge
 import (
 	"fmt"
 	"github.com/samber/lo"
-	"keeper/app/db/persist"
 	"keeper/app/db/standard/modules"
-	"keeper/app/internal/explorer"
+	"keeper/app/db/stash"
+	"keeper/app/internal/schema"
 	"keeper/app/pkg/serializer"
 	"keeper/app/sideQuests"
 	"keeper/app/utility"
@@ -18,7 +18,7 @@ const conidkey = "conid"
 
 type ServerConnections struct {
 	Closed                  map[string]interface{}
-	Opened                  []*explorer.OpenedServerConnection
+	Opened                  []*schema.OpenedServerConnection
 	LastPinged              map[string]utility.UnixTime
 	ServerConnectionChannel *sideQuests.ServerConnection
 }
@@ -54,7 +54,7 @@ func (sc *ServerConnections) handleVersion(conid string, version *modules.Versio
 	utility.EmitChanged(Application.ctx, fmt.Sprintf("server-version-changed-%s", conid))
 }
 
-func (sc *ServerConnections) handleStatus(conid string, status *explorer.OpenedStatus) {
+func (sc *ServerConnections) handleStatus(conid string, status *schema.OpenedStatus) {
 	existing := findByServerConnection(sc.Opened, conid)
 
 	if existing == nil {
@@ -68,7 +68,7 @@ func (sc *ServerConnections) handleStatus(conid string, status *explorer.OpenedS
 
 func (sc *ServerConnections) handlePing() {}
 
-func (sc *ServerConnections) ensureOpened(conid string) *explorer.OpenedServerConnection {
+func (sc *ServerConnections) ensureOpened(conid string) *schema.OpenedServerConnection {
 	lock.Lock()
 	defer lock.Unlock()
 	existing := findByServerConnection(sc.Opened, conid)
@@ -82,9 +82,9 @@ func (sc *ServerConnections) ensureOpened(conid string) *explorer.OpenedServerCo
 		return nil
 	}
 
-	newOpened := &explorer.OpenedServerConnection{
+	newOpened := &schema.OpenedServerConnection{
 		Conid:        conid,
-		Status:       &explorer.OpenedStatus{Name: "pending"},
+		Status:       &schema.OpenedStatus{Name: "pending"},
 		Databases:    nil,
 		Connection:   connection,
 		Disconnected: false,
@@ -98,7 +98,7 @@ func (sc *ServerConnections) ensureOpened(conid string) *explorer.OpenedServerCo
 	}
 	utility.EmitChanged(Application.ctx, "server-status-changed")
 
-	ch := make(chan *explorer.EchoMessage)
+	ch := make(chan *schema.EchoMessage)
 	defer func() {
 		sc.ServerConnectionChannel.ResetVars()
 		go sc.ServerConnectionChannel.Connect(ch, connection)
@@ -137,7 +137,7 @@ type ServerPingRequest struct {
 func (sc *ServerConnections) Ping(req *ServerPingRequest) *serializer.Response {
 	for _, conid := range lo.Uniq[string](req.Connections) {
 		last := sc.LastPinged[conid]
-		//if driver, err := persist.GetStorageSession().GetItem(conid); err == nil {
+		//if driver, err := stash.GetStorageSession().GetItem(conid); err == nil {
 		//	if err = driver.Ping(); err != nil {
 		//		sc.Close(conid, true)
 		//		continue
@@ -162,7 +162,7 @@ func (sc *ServerConnections) Close(conid string, kill bool) {
 		existing.Disconnected = true
 		if kill {
 		}
-		sc.Opened = lo.Filter[*explorer.OpenedServerConnection](sc.Opened, func(x *explorer.OpenedServerConnection, _ int) bool {
+		sc.Opened = lo.Filter[*schema.OpenedServerConnection](sc.Opened, func(x *schema.OpenedServerConnection, _ int) bool {
 			return x.Conid != conid
 		})
 		sc.Closed[conid] = map[string]interface{}{
@@ -170,7 +170,7 @@ func (sc *ServerConnections) Close(conid string, kill bool) {
 			"status": existing.Status,
 		}
 		sc.LastPinged[conid] = 0
-		_ = persist.GetStorageSession().RemoveItem(conid)
+		_ = stash.GetStorageSession().RemoveItem(conid)
 		utility.EmitChanged(Application.ctx, "server-status-changed")
 	}
 }
@@ -190,7 +190,7 @@ func (sc *ServerConnections) Refresh(req *ServerRefreshRequest) *serializer.Resp
 	})
 }
 
-func (sc *ServerConnections) receiver(chData <-chan *explorer.EchoMessage, conid string) {
+func (sc *ServerConnections) receiver(chData <-chan *schema.EchoMessage, conid string) {
 	for {
 		message, ok := <-chData
 		if message != nil {
@@ -201,7 +201,7 @@ func (sc *ServerConnections) receiver(chData <-chan *explorer.EchoMessage, conid
 			}
 			switch message.MsgType {
 			case "status":
-				sc.handleStatus(conid, message.Payload.(*explorer.OpenedStatus))
+				sc.handleStatus(conid, message.Payload.(*schema.OpenedStatus))
 			case "version":
 				sc.handleVersion(conid, message.Payload.(*modules.Version))
 			case "databases":
@@ -216,8 +216,8 @@ func (sc *ServerConnections) receiver(chData <-chan *explorer.EchoMessage, conid
 	}
 }
 
-func findByServerConnection(s []*explorer.OpenedServerConnection, conid string) *explorer.OpenedServerConnection {
-	existing, ok := lo.Find[*explorer.OpenedServerConnection](s, func(x *explorer.OpenedServerConnection) bool {
+func findByServerConnection(s []*schema.OpenedServerConnection, conid string) *schema.OpenedServerConnection {
+	existing, ok := lo.Find[*schema.OpenedServerConnection](s, func(x *schema.OpenedServerConnection) bool {
 		return x.Conid == conid
 	})
 
