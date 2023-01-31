@@ -1,6 +1,6 @@
 import {defineComponent} from 'vue'
 import DropDownMenu from './DropDownMenu.vue'
-import {useBootstrapStore} from "/@/store/modules/bootstrap";
+import {useBootstrapStore} from '/@/store/modules/bootstrap'
 
 export default defineComponent({
   name: 'CurrentDropDownMenu',

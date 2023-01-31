@@ -396,9 +396,6 @@ export default defineComponent({
       }>,
     },
   },
-  components: {
-    AppObjectCore
-  },
   emits: ['middleclick'],
   setup(props, {attrs}) {
     const {data, passProps} = toRefs(props)

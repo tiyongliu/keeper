@@ -21,7 +21,7 @@ function findFreeNumber(numbers: number[]) {
 
 export function getTabDbKey(tab) {
   if (tab.props && tab.props.conid && tab.props.database) {
-    return `database://${tab.props.data}-${tab.props.conid}`;
+    return `database://${tab.props.database}-${tab.props.conid}`;
   }
   if (tab.props && tab.props.conid) {
     return `server://${tab.props.conid}`;

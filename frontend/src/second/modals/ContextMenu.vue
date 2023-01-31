@@ -1,37 +1,61 @@
 <template>
   <ul
-    rel="element"
-    class="dropDownMenuMarker"
-    v-for="item in preparedItems"
-    style="`left: ${left}px; top: ${top}px`">
-    <li v-if="item.divider" class="divider"></li>
-    <li
-      v-else
-      @mouseenter="e => handleMouseenter(e, item)">
-      <a @click="e => handleClick(e, item)">
-        {{ item.text || item.label }}
-        <span v-if="item.keyText" class="keyText">{{ formatKeyText(item.keyText) }}</span>
-        <div v-if="item.submenu" class="menu-right">
-          <FontIcon icon="icon menu-right"/>
-        </div>
-      </a>
-    </li>
+    class="dropDownMenuMarker" ref="wrapRef" :style="getStyle">
+    <template v-for="item in preparedItems">
+      <li v-if="item.divider" class="divider"/>
+      <li v-else @mouseenter="e => handleMouseenter(e, item)">
+        <a @click="handleClick($event, item)">
+          {{ item.text || item.label }}
+          <span v-if="item.keyText" class="keyText">{{formatKeyText(item.keyText)}}</span>
+          <div v-if="item.submenu" class="menu-right">
+            <FontIcon icon="icon menu-right"/>
+          </div>
+        </a>
+      </li>
+    </template>
+
   </ul>
-  <DropDownMenu
+  <ContextMenu
     v-if="submenuItem && submenuItem?.submenu"
-    :item="submenuItem?.submenu"
+    :items="submenuItem?.submenu"
     v-bind="{...submenuOffset}"
     :closeParent="handleCloseParent"
   />
 </template>
-
 <script lang="ts">
-import {computed, defineComponent, onBeforeUnmount, onMounted, PropType, ref, toRefs, nextTick} from 'vue'
-import {formatKeyText} from '/@/second/utility/common'
+import type {ContextMenuItem} from './typing';
+import type {CSSProperties, PropType} from 'vue';
+import {computed, defineComponent, nextTick, onMounted, onUnmounted, ref, unref} from 'vue';
+import { prepareMenuItems } from '/@/second/utility/contextMenu'
+import { formatKeyText } from '/@/second/utility/common'
+import Icon from '/@/components/Icon';
 import FontIcon from '/@/second/icons/FontIcon.vue'
-import {ContextMenuItem, submenuMenuContext} from "/@/components/ContextMenu";
+import {submenuMenuContext} from "/@/components/ContextMenu";
 import {throttle} from "lodash-es";
-import {prepareMenuItems} from '/@/second/utility/contextMenu'
+
+const props = {
+  styles: { type: Object as PropType<CSSProperties> },
+  left: {
+    type: Number as PropType<number>,
+    default: 0,
+  },
+  top: {
+    type: Number as PropType<number>
+  },
+  items: {
+    // The most important list, if not, will not be displayed
+    type: Array as PropType<ContextMenuItem[]>,
+    default() {
+      return [];
+    },
+  },
+  closeParent: {
+    type: Function as PropType<() => void>
+  },
+  targetElement: {
+    type: [String, Object, Array]
+  }
+};
 
 function getElementOffset(element, side: Nullable<string> = null) {
   var de = document.documentElement;
@@ -43,7 +67,7 @@ function getElementOffset(element, side: Nullable<string> = null) {
 }
 
 function fixPopupPlacement(element) {
-  const {width, height} = element.getBoundingClientRect();
+  const { width, height } = element.getBoundingClientRect();
   let offset = getElementOffset(element);
 
   let newLeft: Nullable<number> = null;
@@ -67,42 +91,19 @@ function fixPopupPlacement(element) {
   if (newLeft != null) element.style.left = `${newLeft}px`;
   if (newTop != null) element.style.top = `${newTop}px`;
 }
-
 export default defineComponent({
-  name: 'DropDownMenu',
+  name: 'ContextMenu',
   components: {
+    Icon,
     FontIcon
   },
-  props: {
-    items: {
-      type: Array as PropType<ContextMenuItem[]>,
-      default: () => []
-    },
-    left: {
-      type: Number as PropType<number>,
-      default: 0,
-    },
-    top: {
-      type: Number as PropType<number>
-    },
-    closeParent: {
-      type: Function as PropType<() => void>
-    },
-    targetElement: {
-      type: Object
-    }
-  },
+  props,
   emits: ['close'],
   setup(props, {emit}) {
-    const {
-      items,
-      left,
-      top,
-      closeParent,
-      targetElement
-    } = toRefs(props)
+    const {items, targetElement, styles, closeParent, left, top} = props
 
-    const element = ref<Nullable<HTMLElement>>(null)
+    const wrapRef = ref<Nullable<HTMLElement>>(null)
+
     const hoverItem = ref<Nullable<submenuMenuContext>>(null)
     const hoverOffset = ref<Nullable<{ top: number, left: number }>>(null)
 
@@ -110,6 +111,26 @@ export default defineComponent({
     const submenuOffset = ref<Nullable<{ top: number, left: number }>>(null)
 
     let closeHandlers: Function[] = []
+
+    const showRef = ref(false);
+
+    const getStyle = computed((): CSSProperties => {
+      return {
+        ...styles,
+        left: `${left}px`,
+        top: `${top}px`,
+      }
+    });
+
+    onMounted(() => {
+      nextTick(() => (showRef.value = true));
+      fixPopupPlacement(wrapRef.value)
+    });
+
+    onUnmounted(() => {
+      const el = unref(wrapRef);
+      el && document.body.removeChild(el);
+    });
 
     function dispatchClose() {
       emit('close')
@@ -132,8 +153,6 @@ export default defineComponent({
         submenuItem.value = item
         submenuOffset.value = hoverOffset.value
       }
-      dispatchClose()
-      if (closeParent.value) closeParent.value()
       if (item.onClick) item.onClick()
     }
 
@@ -144,7 +163,7 @@ export default defineComponent({
     }
 
     function handleCloseParent() {
-      if (closeParent.value) closeParent.value()
+      if (closeParent) closeParent()
       dispatchClose()
     }
 
@@ -153,54 +172,27 @@ export default defineComponent({
       submenuOffset.value = hoverOffset.value;
     }, 500)
 
+
     const preparedItems = computed<ContextMenuItem[]>(() => prepareMenuItems(items, {
-      targetElement: targetElement.value,
+      targetElement: targetElement,
       registerCloseHandler
     }, null))
 
-    const handleClickOutside = event => {
-      // if (element && !element.contains(event.target) && !event.defaultPrevented) {
-      if (event.target.closest('ul.dropDownMenuMarker')) return;
-
-      dispatchClose();
-    }
-
-    onMounted(async () => {
-      await nextTick()
-      fixPopupPlacement(element.value)
-      document.addEventListener('mousedown', handleClickOutside, true)
-    })
-
-    onBeforeUnmount(() => {
-      document.removeEventListener('mousedown', handleClickOutside, true)
-    })
-
     return {
-      formatKeyText,
-      left,
-      top,
-      items,
-      targetElement,
-
-      element,
+      wrapRef,
+      getStyle,
       preparedItems,
-
-      hoverItem,
-      hoverOffset,
-      submenuItem,
-      submenuOffset,
+      formatKeyText,
       handleClick,
       handleMouseenter,
-      handleCloseParent
+
+      submenuItem,
+      submenuOffset,
+      handleCloseParent,
     }
-  }
-
-})
-
-
+  },
+});
 </script>
-
-
 <style scoped>
 ul {
   position: absolute;
@@ -257,4 +249,3 @@ a:hover:not(.disabled) {
   left: 15px;
 }
 </style>
-

@@ -33,6 +33,7 @@ export interface TabDefinition {
   tabid: string;
   tabComponent: PropType<string | Component>;
   tabOrder?: number;
+  unsaved?: string
 }
 
 export interface ICurrentDropDownMenu {
@@ -133,6 +134,9 @@ export const useBootstrapStore = defineStore({
     },
     updateExpandedConnections(updater) {
       this.expandedConnections = updater(this.expandedConnections)
+    },
+    updateOpenedSingleDatabaseConnections(updater) {
+      this.openedSingleDatabaseConnections = updater(this.openedSingleDatabaseConnections)
     }
   }
 });

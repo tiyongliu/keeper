@@ -75,5 +75,6 @@ module.exports = {
     ],
     'vue/multi-word-component-names': 'off',
     'vue/no-unused-components': 'off',
+    'vue/require-v-for-key': 'off',
   },
 };

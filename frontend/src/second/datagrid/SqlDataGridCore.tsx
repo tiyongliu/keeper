@@ -75,7 +75,7 @@ export default defineComponent({
     },
     loadedRows: {
       type: Array as PropType<any[]>,
-      default: []
+      default: () => []
     },
     selectedCellsPublished: {
       type: Function as PropType<() => []>,

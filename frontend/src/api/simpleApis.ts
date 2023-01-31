@@ -22,7 +22,7 @@ export async function connectionDeleteApi(params) {
 /**
  * @description databaseConnections
  */
-export async function databaseConnectionsRefreshApi(params: { conid: string, database: string }) {
+export async function databaseConnectionsRefreshApi(params: { conid: string, database: string, keepOpen?: boolean }) {
   return await apiCall('bridge.DatabaseConnections.Refresh', params)
 }
 

@@ -1,6 +1,12 @@
 import {findLastIndex, get} from 'lodash-es'
 import {useLocaleStore} from "/@/store/modules/locale"
 import getConnectionLabel from '/@/second/utility/getConnectionLabel'
+import {getOpenedTabs} from '/@/store/modules/locale'
+
+function allowCloseTabs(tabs) {
+  if (tabs.length == 0) return Promise.resolve(true);
+  return new Promise(_ => {});
+}
 
 const locale = useLocaleStore()
 
@@ -50,6 +56,20 @@ export const closeMultipleTabs = (closeCondition, deleteFromHistory = false) => 
 
 export const closeTab = closeTabFunc((x, active) => x.tabid == active.tabid);
 
+export const closeAll = async () => {
+  const closeCandidates = getOpenedTabs()!.filter(x => x.unsaved && x.closedTime == null)
+  if (!(await allowCloseTabs(closeCandidates))) return;
+
+  const closedTime = new Date().getTime()
+  locale.updateOpenedTabs(tabs => {
+    tabs.map(tab => ({
+      ...tab,
+      closedTime: tab.closedTime || closedTime,
+      selected: false,
+    }))
+  })
+}
+
 export const closeWithSameDb = closeTabFunc(
   (x, active) =>
     get(x, 'props.conid') == get(active, 'props.conid') &&
@@ -61,6 +81,8 @@ export const closeWithOtherDb = closeTabFunc(
     get(x, 'props.conid') != get(active, 'props.conid') ||
     get(x, 'props.database') != get(active, 'props.database')
 )
+
+export const closeOthers = closeTabFunc((x, active) => x.tabid != active.tabid)
 
 export function getTabDbName(tab, connectionList) {
   if (tab.tabComponent == 'ConnectionTab') return 'Connections';

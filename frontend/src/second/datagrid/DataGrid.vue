@@ -241,7 +241,7 @@ export default defineComponent({
     },
     loadedRows: {
       type: Array as PropType<any[]>,
-      default: []
+      default: () => []
     },
   },
   emits: ['update:loadedRows'],

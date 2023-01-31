@@ -1,9 +1,7 @@
-// import contextMenuVue from './ContextMenu.vue';
 import contextMenuVue from '/@/second/modals/ContextMenu.vue'
 import { isClient } from '/@/utils/is';
 import { CreateContextOptions, ContextMenuProps } from './typing';
 import { createVNode, render } from 'vue';
-
 const menuManager: {
   domList: Element[];
   resolve: Fn;
@@ -31,11 +29,16 @@ export const createContextMenu = function (options: CreateContextOptions) {
 
     if (options.items) {
       propsData.items = options.items;
+
+      const left = event.pageX;
+      const top = event.pageY;
+      propsData.left = left
+      propsData.top = top
     }
 
     if (options.event) {
-      propsData.customEvent = event;
-      propsData.axis = { x: event.clientX, y: event.clientY };
+      // @ts-ignore
+      propsData.targetElement = event.target;
     }
 
     const vm = createVNode(contextMenuVue, propsData);

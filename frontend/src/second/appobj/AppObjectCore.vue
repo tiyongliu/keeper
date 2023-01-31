@@ -149,6 +149,7 @@ export default defineComponent({
     const [createContextMenu] = useContextMenu()
 
     function handleContext(e: MouseEvent) {
+      console.log(props.menu, `props.menu`)
       if (props.menu) {
         createContextMenu({
           event: e,

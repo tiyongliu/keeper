@@ -11,6 +11,7 @@
                   handleSetDb(tabGroup.tabs[0].props);
                }
              }"
+             @contextmenu="handleContextTabs($event, tabGroup.tabs)"
              :draggable="true"
              @dragstart="(e) => draggingDbGroup = tabGroup"
              @dragenter="(e) => draggingDbGroupTarget = tabGroup"
@@ -19,7 +20,7 @@
                draggingDbGroup = null
                draggingDbGroupTarget = null
              }"
-        >
+            >
           <div class="db-name-inner">
             <FontIcon :icon="getDbIcon(tabGroup.tabDbKey)"/>
             {{ tabGroup.tabDbName }}
@@ -39,6 +40,7 @@
                :class="{selected: draggingTab || draggingDbGroup ? tab.tabid == draggingTabTarget?.tabid : tab.selected}"
                @click="handleTabClick($event, tab.tabid)"
                @mouseup="handleMouseUp($event, tab.tabid)"
+               @contextmenu="handleContextTab($event, tab)"
                :draggable="true"
                @dragstart="handleDragstart(tab)"
                @dragenter="(e) => draggingTabTarget = tab"
@@ -79,9 +81,12 @@ import {useBootstrapStore} from '/@/store/modules/bootstrap'
 import {getConnectionInfo} from '/@/api/bridge'
 import {getTabDbKey, groupTabs, sortTabs} from '/@/second/utility/openNewTab'
 import {setSelectedTab} from '/@/second/utility/common'
+import {useContextMenu} from '/@/hooks/web/useContextMenu'
 import {
   closeMultipleTabs,
   closeTab,
+  closeAll,
+  closeOthers,
   closeWithOtherDb,
   closeWithSameDb,
   getDbIcon,
@@ -164,6 +169,15 @@ export default defineComponent({
       bootstrap.setCurrentDatabase(null)
     }
 
+    const [createContextMenu] = useContextMenu()
+
+    function handleContextTabs(e: MouseEvent, tabs: any[]) {
+      createContextMenu({
+        event: e,
+        items: getDatabaseContextMenu(tabs),
+      });
+    }
+
     function getDatabaseContextMenu(tabs) {
       const {tabid, props} = tabs[0];
       const {conid, database} = props || {};
@@ -180,6 +194,44 @@ export default defineComponent({
             onClick: () => closeWithOtherDb(tabid),
           },
         ],
+      ];
+    }
+
+    function handleContextTab(e: MouseEvent, tab: any) {
+      createContextMenu({
+        event: e,
+        items: getContextMenu(tab),
+      })
+    }
+    
+    function getContextMenu(tab: any) {
+      const { tabid, props, tabComponent, appObject, appObjectData } = tab;
+
+
+      return [
+        {
+          text: 'Close',
+          onClick: () => closeTab(tabid),
+        },
+        {
+          text: 'Close all',
+          onClick: closeAll,
+        },
+        {
+          text: 'Close others',
+          onClick: () => closeOthers(tabid),
+        },
+        {
+          text: 'Duplicate',
+        },
+        [
+          { divider: true },
+          {
+            text: 'Add to favorites',
+            onClick: () => {},
+          },
+        ],
+        { divider: true },
       ];
     }
 
@@ -256,6 +308,9 @@ export default defineComponent({
       dragDropTabs,
       handleDragstart,
       handleDrop,
+
+      handleContextTabs,
+      handleContextTab,
       getDatabaseContextMenu,
       closeTab,
     }

@@ -1,14 +1,4 @@
-import {
-  createVNode,
-  defineComponent,
-  onBeforeUnmount,
-  onMounted,
-  PropType,
-  ref,
-  toRefs,
-  unref,
-  watch
-} from 'vue'
+import {createVNode, defineComponent, onMounted, PropType, ref, toRefs, unref, watch} from 'vue'
 import {storeToRefs} from 'pinia'
 import {filterName} from '/@/second/keeper-tools'
 import {Modal} from "ant-design-vue";
@@ -20,8 +10,12 @@ import AppObjectCore from '/@/second/appobj/AppObjectCore.vue'
 import getConnectionLabel from '/@/second/utility/getConnectionLabel'
 import {ConnectionsWithStatus} from '/@/second/typings/mysql'
 import {IPinnedDatabasesItem} from '/@/second/typings/types/standard.d'
-import {connectionDeleteApi} from '/@/api/simpleApis'
-import {serverConnectionsRefreshApi} from '/@/api/simpleApis'
+import {
+  connectionDeleteApi,
+  databaseConnectionsRefreshApi,
+  serverConnectionsRefreshApi
+} from '/@/api/simpleApis'
+import openNewTab from '/@/second/utility/openNewTab'
 
 export default defineComponent({
   name: 'ConnectionAppObject',
@@ -31,7 +25,9 @@ export default defineComponent({
     },
     passProps: {
       type: Object as PropType<{ showPinnedInsteadOfUnpin: boolean }>,
-      default: {showPinnedInsteadOfUnpin: true}
+      default: () => {
+        return {showPinnedInsteadOfUnpin: true}
+      }
     },
     statusIcon: {
       type: String as PropType<string>
@@ -65,23 +61,10 @@ export default defineComponent({
     const engineStatusTitleRef = ref()
     const bootstrap = useBootstrapStore()
     const {extensions, openedConnections, currentDatabase} = storeToRefs(bootstrap)
-    let timerId: ReturnType<typeof setTimeout> | null
+    // let timerId: ReturnType<typeof setTimeout> | null
 
     const handleConnect = () => {
-      if (unref(data)!.singleDatabase) {
-        bootstrap.setCurrentDatabase({
-          connection: unref(data)!,
-          name: unref(data)!.defaultDatabase
-        } as unknown as IPinnedDatabasesItem)
-      } else {
-        bootstrap.updateOpenedConnections(x => uniq([...x, data.value!._id]))
-        timerId = setTimeout(() => {
-          void serverConnectionsRefreshApi({
-            conid: data.value!._id,
-            keepOpen: true,
-          })
-        })
-      }
+      openConnection(data.value, bootstrap)
     }
 
     watch(() => [data.value, extensions.value], () => {
@@ -126,10 +109,6 @@ export default defineComponent({
       engineStatusTitleRef.value = unref(engineStatusTitle)
     })
 
-    onBeforeUnmount(() => {
-      timerId && clearTimeout(timerId)
-    })
-
     const handleDelete = async () => {
       const r = Modal.confirm({
         title: 'Confirm',
@@ -162,23 +141,92 @@ export default defineComponent({
       // handleConnect()
     }
 
+    const handleSqlRestore = () => {
+
+    }
+
     const getContextMenu = () => {
+      const driver = extensions.value && extensions.value?.drivers.find(x => x.engine == data.value?.engine);
+      const handleRefresh = () => {
+        void serverConnectionsRefreshApi({conid: data.value?._id})
+      }
+      const handleDisconnect = () => {
+        disconnectServerConnection(data.value?._id);
+      }
+
+      const handleCreateDatabase = () => {
+
+      }
+
+      const handleServerSummary = () => {
+        void openNewTab({
+          title: getConnectionLabel(data.value),
+          icon: 'img server',
+          tabComponent: 'ServerSummaryTab',
+          props: {
+            conid: data.value?._id,
+          },
+        });
+      }
+      const handleNewQuery = () => {
+        const tooltip = `${getConnectionLabel(data.value)}`;
+        openNewTab({
+          title: 'Query #',
+          icon: 'img sql-file',
+          tooltip,
+          tabComponent: 'QueryTab',
+          props: {
+            conid: data.value?._id,
+          },
+        });
+      }
+
       return [
-        {
-          label: 'Edit',
-          handler: () => {
-            console.log('click delete')
+        [
+          {
+            label: data.value && bootstrap.getOpenedConnections.includes(data.value?._id) ? 'View details' : 'Edit',
+            onClick: () => {
+              console.log('click delete')
+            },
           },
-        },
-        {
-          label: 'Delete',
-          handler: handleDelete,
-        },
-        {
-          label: 'Duplicate',
-          handler: () => {
-            console.log('click open');
+          !(data.value && bootstrap.getOpenedConnections.includes(data.value?._id)) && {
+            label: 'Delete',
+            onClick: handleDelete,
           },
+          {
+            label: 'Duplicate',
+            onClick: () => {
+              console.log('click open');
+            }
+          },
+          {onClick: handleNewQuery, text: 'New query', isNewQuery: true},
+          {
+            text: 'Connect',
+            onClick: handleConnect,
+          },
+          (data.value && bootstrap.getOpenedConnections.includes(data.value?._id) && data.value?.status) && {
+            text: 'Refresh',
+            onClick: handleRefresh,
+          },
+          data.value && bootstrap.getOpenedConnections.includes(data.value?._id) && {
+            text: 'Disconnect',
+            onClick: handleDisconnect,
+          },
+          {
+            text: 'Create database',
+            onClick: handleCreateDatabase,
+          },
+          {
+            text: 'Server summary',
+            onClick: handleServerSummary,
+          }
+        ],
+        data.value?.singleDatabase && [
+          {divider: true},
+        ],
+        (driver && driver?.databaseEngineTypes?.includes('sql')) && {
+          onClick: handleSqlRestore,
+          text: 'Restore/import SQL dump'
         }
       ]
     }
@@ -216,3 +264,31 @@ export default defineComponent({
     return filterName(unref(filter), ...databases.map(x => x.name));
   }
 })
+
+
+export function disconnectServerConnection(conid, showConfirmation = true) {
+
+}
+
+export function openConnection(connection, bootstrap) {
+
+  if (connection!.singleDatabase) {
+    bootstrap.setCurrentDatabase({
+      connection: connection!,
+      name: connection!.defaultDatabase
+    } as unknown as IPinnedDatabasesItem)
+    void databaseConnectionsRefreshApi({
+      conid: connection._id!,
+      database: connection.defaultDatabase!,
+      keepOpen: true
+    })
+    bootstrap.updateOpenedSingleDatabaseConnections(x => uniq([...x, connection._id]))
+  } else {
+    bootstrap.updateOpenedConnections(x => uniq([...x, connection!._id]))
+    void serverConnectionsRefreshApi({
+      conid: connection!._id,
+      keepOpen: true,
+    })
+    bootstrap.updateExpandedConnections(x => uniq([...x, connection._id]))
+  }
+}

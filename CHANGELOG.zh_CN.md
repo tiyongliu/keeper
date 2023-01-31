@@ -5,6 +5,10 @@
 
 ### ✨ Features
 - 新增`mongodb`动态展示和查询`CollectionDataGridCore`、`CollectionJsonView`组件
+- 新增鼠标右键菜单`ContextMenu.vue`组件，完全第一个版本的右键功能的封装
+- 新增半自动化安装开发环境脚本
+
+
 
 ### 🐛 Bug Fixes
 - v-splitterDrag自定义拖拽组件优化

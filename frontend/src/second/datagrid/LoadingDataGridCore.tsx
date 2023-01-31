@@ -20,7 +20,7 @@ export default defineComponent({
     },
     loadedRows: {
       type: Array as PropType<any[]>,
-      default: []
+      default: () => []
     },
     grider: {
       type: Object as PropType<Grider>
