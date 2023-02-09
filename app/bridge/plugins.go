@@ -1,11 +1,10 @@
 package bridge
 
 import (
+	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"keeper/app/db/adapter/mongo"
 	"keeper/app/db/adapter/mysql"
 	"keeper/app/pkg/serializer"
-	MongoDBFrontend "keeper/app/plugins/pluginMongdb/frontend"
-	MysqlFrontend "keeper/app/plugins/pluginMysql/frontend"
 )
 
 type Plugins struct {
@@ -27,12 +26,13 @@ type ScriptRequest struct {
 }
 
 func (p *Plugins) Script(req *ScriptRequest) *serializer.Response {
-	switch req.PackageName {
-	case mongo.Adapter:
-		return serializer.SuccessData(serializer.SUCCESS, map[string]interface{}{"drivers": MongoDBFrontend.Driver()})
-	case mysql.Adapter:
-		return serializer.SuccessData(serializer.SUCCESS, map[string]interface{}{"drivers": MysqlFrontend.Driver()})
-	default:
-		return serializer.SuccessData(serializer.SUCCESS, nil)
-	}
+	module := make(chan interface{}, 2)
+	runtime.EventsEmit(Application.ctx, "pullEventPluginsScript", req.PackageName)
+	runtime.EventsOnce(Application.ctx, "loadPlugins", func(resp ...interface{}) {
+		if resp != nil {
+			module <- resp[0]
+		}
+	})
+	defer close(module)
+	return serializer.SuccessData(serializer.SUCCESS, <-module)
 }

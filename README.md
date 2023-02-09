@@ -14,7 +14,7 @@
 ![](https://cdn.jsdelivr.net/gh/422720735/easy_go@master/keeper-2.png)
 ![](https://cdn.jsdelivr.net/gh/422720735/easy_go@master/dark.png)
 
-一个人的时间是有限的，作者正在尽最大努力开发功能，如果你正准备用`wails`架构自己的桌面程序，本项目可作为一个参考，可以下载预览版尝鲜。[0.0.2.2](https://github.com/tiyongliu/keeper/releases/tag/0.0.2.2)
+一个人的时间是有限的，作者正在尽最大努力开发功能，如果你正准备用`wails`架构自己的桌面程序，本项目可作为一个参考，可以下载预览版尝鲜。[0.0.2.3-alpha.1](https://github.com/tiyongliu/keeper/releases/tag/0.0.2.3-alpha.1)
 
 ## 功能
 - 使用`go`、`wails`、`vue3`构建桌面数据库可视化工具

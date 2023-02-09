@@ -1,12 +1,11 @@
 package adapter
 
 import (
+	"keeper/app/analyser/mongoAnalyser"
+	"keeper/app/analyser/mysqlAnalyser"
 	"keeper/app/db"
 	"keeper/app/db/adapter/mongo"
 	"keeper/app/db/adapter/mysql"
-
-	mongoAnalyser "keeper/app/plugins/pluginMongdb/backend"
-	mysqlAnalyser "keeper/app/plugins/pluginMysql/backend"
 )
 
 func AnalyseFull(driver db.Session, database string) map[string]interface{} {

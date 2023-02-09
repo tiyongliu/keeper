@@ -14,7 +14,6 @@ import (
 var assets embed.FS
 
 func main() {
-	//go app.RunApplication()
 	app := bridge.NewApp()
 	bridge.Application = app
 

@@ -3,11 +3,11 @@ package bridge
 import (
 	"fmt"
 	"github.com/samber/lo"
+	"keeper/app/analyser"
 	"keeper/app/db/standard/modules"
 	"keeper/app/internal/schema"
 	"keeper/app/pkg/logger"
 	"keeper/app/pkg/serializer"
-	"keeper/app/plugins"
 	"keeper/app/sideQuests"
 	"keeper/app/utility"
 	"sync"
@@ -103,7 +103,7 @@ func (dc *DatabaseConnections) ensureOpened(conid, database string) *schema.Open
 	}
 
 	if lastClosed == nil || lastClosed.Structure == nil {
-		newOpened.Structure = plugins.CreateEmptyStructure()
+		newOpened.Structure = analyser.CreateEmptyStructure()
 	}
 
 	dc.Opened = append(dc.Opened, newOpened)

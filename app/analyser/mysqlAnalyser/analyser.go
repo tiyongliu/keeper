@@ -1,14 +1,14 @@
-package backend
+package mysqlAnalyser
 
 import (
 	"fmt"
 	"github.com/samber/lo"
+	"keeper/app/analyser"
+	sql2 "keeper/app/analyser/mysqlAnalyser/sql"
 	"keeper/app/db"
 	"keeper/app/db/adapter/mysql"
 	"keeper/app/db/standard/modules"
 	"keeper/app/pkg/logger"
-	"keeper/app/plugins"
-	staticSql "keeper/app/plugins/pluginMysql/backend/sql"
 	"keeper/app/utility"
 	"reflect"
 	"strconv"
@@ -19,31 +19,31 @@ var sql map[string]string
 
 func init() {
 	sql = map[string]string{
-		"columns":                staticSql.ColumnsSQL(),
-		"tables":                 staticSql.TablesSQL(),
-		"primaryKeys":            staticSql.PrimaryKeysSQL(),
-		"foreignKeys":            staticSql.ForeignKeysSQL(),
-		"tableModifications":     staticSql.TableModificationsSQL(),
-		"views":                  staticSql.ViewsSQL(),
-		"programmables":          staticSql.ProgrammablesSQL(),
-		"procedureModifications": staticSql.ProcedureModificationsSQL(),
-		"functionModifications":  staticSql.FunctionModificationsSQL(),
-		"indexes":                staticSql.IndexesSQL(),
-		"uniqueNames":            staticSql.UniqueNamesSQL(),
+		"columns":                sql2.ColumnsSQL(),
+		"tables":                 sql2.TablesSQL(),
+		"primaryKeys":            sql2.PrimaryKeysSQL(),
+		"foreignKeys":            sql2.ForeignKeysSQL(),
+		"tableModifications":     sql2.TableModificationsSQL(),
+		"views":                  sql2.ViewsSQL(),
+		"programmables":          sql2.ProgrammablesSQL(),
+		"procedureModifications": sql2.ProcedureModificationsSQL(),
+		"functionModifications":  sql2.FunctionModificationsSQL(),
+		"indexes":                sql2.IndexesSQL(),
+		"uniqueNames":            sql2.UniqueNamesSQL(),
 	}
 }
 
 type Analyser struct {
 	Driver           db.Session
 	DatabaseName     string
-	DatabaseAnalyser *plugins.DatabaseAnalyser
+	DatabaseAnalyser *analyser.DatabaseAnalyser
 }
 
 func NewAnalyser(driver db.Session, database string) *Analyser {
 	return &Analyser{
 		Driver:           driver,
 		DatabaseName:     database,
-		DatabaseAnalyser: plugins.NewDatabaseAnalyser(driver),
+		DatabaseAnalyser: analyser.NewDatabaseAnalyser(driver),
 	}
 }
 
@@ -51,7 +51,7 @@ func (as *Analyser) CreateQuery(resFileName string, typeFields []string) string 
 	res := sql[resFileName]
 	res = strings.Replace(res, "#DATABASE#", as.DatabaseName, -1)
 
-	return plugins.NewDatabaseAnalyser(as.Driver).CreateQuery(res, typeFields)
+	return analyser.NewDatabaseAnalyser(as.Driver).CreateQuery(res, typeFields)
 }
 
 func (as *Analyser) RunAnalysis() map[string]interface{} {
@@ -111,8 +111,8 @@ func (as *Analyser) RunAnalysis() map[string]interface{} {
 				"objectId":      table.PureName,
 				"contentHash":   table.ModifyDate,
 				"columns":       transformTablesColumns(table, columns.Rows.([]*modules.TableColumn)),
-				"primaryKey":    plugins.ExtractPrimaryKeys(table, pkColumns.Rows.([]*modules.PrimaryKey)),
-				"foreignKeys":   plugins.ExtractForeignKeys(table, fkColumns.Rows.([]*modules.ForeignKeys)),
+				"primaryKey":    analyser.ExtractPrimaryKeys(table, pkColumns.Rows.([]*modules.PrimaryKey)),
+				"foreignKeys":   analyser.ExtractForeignKeys(table, fkColumns.Rows.([]*modules.ForeignKeys)),
 				"indexes":       transformTablesIndexes(table, indexes.Rows.([]*modules.Indexe), uniqueNames.Rows.([]*modules.UniqueName)),
 				"uniques":       transformTablesUniques(table, indexes.Rows.([]*modules.Indexe), uniqueNames.Rows.([]*modules.UniqueName)),
 			}

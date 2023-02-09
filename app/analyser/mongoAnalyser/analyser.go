@@ -1,16 +1,16 @@
-package backend
+package mongoAnalyser
 
 import (
 	"github.com/samber/lo"
+	"keeper/app/analyser"
 	"keeper/app/db"
 	"keeper/app/db/adapter/mongo"
 	"keeper/app/db/standard/modules"
-	"keeper/app/plugins"
 )
 
 type Analyser struct {
 	Driver           db.Session
-	DatabaseAnalyser *plugins.DatabaseAnalyser
+	DatabaseAnalyser *analyser.DatabaseAnalyser
 	DatabaseName     string
 }
 
@@ -18,7 +18,7 @@ func NewAnalyser(driver db.Session, database string) *Analyser {
 	return &Analyser{
 		Driver:           driver,
 		DatabaseName:     database,
-		DatabaseAnalyser: plugins.NewDatabaseAnalyser(driver),
+		DatabaseAnalyser: analyser.NewDatabaseAnalyser(driver),
 	}
 }
 

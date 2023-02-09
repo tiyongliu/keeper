@@ -38,7 +38,6 @@ func NewApp() *App {
 // so we can call the runtime methods
 func (a *App) Startup(ctx context.Context) {
 	a.ctx = ctx
-	Application.ctx = ctx
 	logger.Infof("%s", fmt.Sprintf(`
   _                             
  | |                            

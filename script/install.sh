@@ -34,9 +34,8 @@ if ! type go >/dev/null 2>&1; then
   exec
 else
   go_home=1
-  go_version=$(bash -c "go version" | grep -Po '([1-9]\d*\.+?\d*)|(0\.\d*[1-9])') #非贪婪匹配
+  go_version=`go version | { read _ _ v _; echo ${v#go}; }`
 fi
-
 
 if [ $go_home -eq 1 ] && version_ge $go_version 1.18; then
    echo "check go env success"

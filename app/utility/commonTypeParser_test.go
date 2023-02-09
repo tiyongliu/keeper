@@ -3,8 +3,8 @@ package utility
 import (
 	"fmt"
 	"github.com/samber/lo"
+	"keeper/app/db/standard/modules"
 	"keeper/app/pkg/logger"
-	"keeper/app/plugins/modules"
 	"regexp"
 	"testing"
 )
@@ -14,7 +14,7 @@ func TestIsTypeString(t *testing.T) {
 	fmt.Println(reg.MatchString(" 报告字符 bInary"))
 
 	array := []*modules.ForeignKeys{
-		&modules.ForeignKeys{
+		{
 			ConstraintName: "qrtz_simple_triggers_ibfk_1",
 			PureName:       "qrtz_simple_triggers",
 			UpdateAction:   "NO ACTION",
