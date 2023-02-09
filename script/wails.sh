@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 cd $(pwd)/../frontend/
 echo
 echo "check pnpm package manager"
