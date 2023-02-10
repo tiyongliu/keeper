@@ -1,7 +1,7 @@
 import {createVNode, defineComponent, onMounted, PropType, ref, toRefs, unref, watch} from 'vue'
 import {storeToRefs} from 'pinia'
 import {filterName} from '/@/second/keeper-tools'
-import {Modal} from "ant-design-vue";
+import {Modal, message} from "ant-design-vue";
 import {ExclamationCircleOutlined} from "@ant-design/icons-vue";
 import {getLocalStorage} from '/@/second/utility/storageCache'
 import {useBootstrapStore} from "/@/store/modules/bootstrap"
@@ -114,8 +114,8 @@ export default defineComponent({
         title: 'Confirm',
         icon: createVNode(ExclamationCircleOutlined),
         content: `Really delete connection ${getConnectionLabel(data.value)}${data.value?.port ? '_' + data.value?.port : ''}?`,
-        okText: '确认',
-        cancelText: '取消',
+        okText: 'Ok',
+        cancelText: 'Cancel',
         onOk: async () => {
           try {
             await connectionDeleteApi({_id: data.value?._id})
@@ -186,24 +186,25 @@ export default defineComponent({
           {
             label: data.value && bootstrap.getOpenedConnections.includes(data.value?._id) ? 'View details' : 'Edit',
             onClick: () => {
-              console.log('click delete')
+              message.warning('developing')
             },
           },
-          !(data.value && bootstrap.getOpenedConnections.includes(data.value?._id)) && {
+          // !(data.value && bootstrap.getOpenedConnections.includes(data.value?._id)) && {
+          {
             label: 'Delete',
             onClick: handleDelete,
           },
           {
             label: 'Duplicate',
             onClick: () => {
-              console.log('click open');
+              message.warning('developing')
             }
           },
-          {onClick: handleNewQuery, text: 'New query', isNewQuery: true},
-          {
-            text: 'Connect',
-            onClick: handleConnect,
-          },
+          // {onClick: handleNewQuery, text: 'New query', isNewQuery: true},
+          // {
+          //   text: 'Connect',
+          //   onClick: handleConnect,
+          // },
           (data.value && bootstrap.getOpenedConnections.includes(data.value?._id) && data.value?.status) && {
             text: 'Refresh',
             onClick: handleRefresh,
