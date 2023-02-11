@@ -8,7 +8,7 @@
 </template>
 
 <script lang="ts">
-import {defineComponent, PropType, toRef} from 'vue'
+import {defineComponent, PropType, toRef, toRefs} from 'vue'
 import FontIcon from '/@/second/icons/FontIcon.vue'
 
 export default defineComponent({
@@ -24,6 +24,9 @@ export default defineComponent({
       type: Boolean as PropType<boolean>,
       default: false
     },
+    icon: {
+      type: String as PropType<string>
+    }
   },
   emits: ['click'],
   setup(props, {emit}) {
@@ -35,7 +38,7 @@ export default defineComponent({
     }
 
     return {
-      ...props,
+      ...toRefs(props),
       handleClick
     }
   }

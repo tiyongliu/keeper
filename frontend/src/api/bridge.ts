@@ -5,7 +5,6 @@ import stableStringify from 'json-stable-stringify'
 import {extendDatabaseInfo} from '/@/second/keeper-tools'
 import {setLocalStorage} from '/@/second/utility/storageCache'
 import {EventsOn} from '/@/wailsjs/runtime/runtime'
-import getAsArray from '/@/second/utility/getAsArray'
 import {apiCall} from '/@/second/utility/api'
 import {loadCachedValue} from '/@/second/utility/cache'
 
@@ -147,15 +146,13 @@ function useCore<T>(loader, args, dbStore: Ref<T | null | undefined> | Function)
     }
   }
 
-  if (reloadTrigger) {
-    for (const item of getAsArray(reloadTrigger)) {
-      try {
-        EventsOn(item, () => {
-          void handleReload()
-        })
-      } catch (e) {
-        console.error(`listener event ${reloadTrigger} failed ${e}`)
-      }
+  if (!!reloadTrigger) {
+    try {
+      EventsOn(reloadTrigger, () => {
+        void handleReload()
+      })
+    } catch (e) {
+      console.error(`listener event ${reloadTrigger} failed ${e}`)
     }
   }
 

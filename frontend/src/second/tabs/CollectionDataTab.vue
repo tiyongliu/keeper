@@ -1,3 +1,35 @@
+<template>
+  <ToolStripContainer>
+    <DataGrid
+      v-model:loaded-rows="loadedRows"
+      v-bind="Object.assign({}, $props, $attrs)"
+      :config="config"
+      :setConfig="configUpdate"
+      :cache="cache"
+      :setCache="cacheUpdate"
+      focusOnVisible
+      :display="display"
+      :changeSetState="changeSetStore"
+      :dispatchChangeSet="dispatchChangeSet"
+      :gridCoreComponent="CollectionDataGridCore"
+      :jsonViewComponent="CollectionJsonView"
+      isDynamicStructure
+      showMacros
+      :macroCondition="macro => macro.type && macro.type == 'transformValue'"
+      :runMacro="handleRunMacro"/>
+    <template #toolstrip>
+      <ToolStripCommandButton command="dataGrid.refresh" hideDisabled />
+      <ToolStripCommandButton command="dataForm.refresh" hideDisabled />
+      <ToolStripCommandButton command="collectionTable.save" />
+      <ToolStripCommandButton command="dataGrid.insertNewRow" hideDisabled />
+      <ToolStripCommandButton command="dataGrid.deleteSelectedRows" hideDisabled />
+      <ToolStripCommandButton command="dataGrid.switchToJson" hideDisabled />
+      <ToolStripCommandButton command="dataGrid.switchToTable" hideDisabled />
+    </template>
+  </ToolStripContainer>
+</template>
+
+<script lang="ts">
 import {
   computed,
   defineComponent,
@@ -10,6 +42,7 @@ import {
   watch
 } from 'vue'
 import {storeToRefs} from 'pinia'
+import ToolStripCommandButton from '/@/second/buttons/ToolStripCommandButton.vue'
 import ToolStripContainer from '/@/second/buttons/ToolStripContainer.vue'
 import DataGrid from '/@/second/datagrid/DataGrid.vue'
 import CollectionDataGridCore from '/@/second/datagrid/CollectionDataGridCore'
@@ -27,8 +60,17 @@ import {useBootstrapStore} from '/@/store/modules/bootstrap'
 import createUndoReducer from '/@/second/utility/createUndoReducer'
 import {getLocalStorage, setLocalStorage} from '/@/second/utility/storageCache'
 
+export const matchingProps = ['conid', 'database', 'schemaName', 'pureName'];
+export const allowAddToFavorites = _ => true
 export default defineComponent({
-  name: 'CollectionDataTab',
+  name: "CollectionDataTab",
+  components: {
+    ToolStripCommandButton,
+    ToolStripContainer,
+    DataGrid,
+    CollectionDataGridCore,
+    CollectionJsonView
+  },
   props: {
     tabid: {
       type: String as PropType<string>
@@ -46,7 +88,7 @@ export default defineComponent({
       type: String as PropType<string>
     }
   },
-  setup(props, {attrs}) {
+  setup(props) {
     const {tabid, conid, database, schemaName, pureName} = toRefs(props)
     const connection = ref()
     const collectionInfo = ref()
@@ -115,30 +157,19 @@ export default defineComponent({
       setLocalStorage('collection_collapsedLeftColumn', unref(newValue))
     })
 
-    return () => (
-      <ToolStripContainer>
-        <DataGrid
-          vModel:loadedRows={loadedRows.value}
-          {...Object.assign({}, props, attrs)}
-          config={config.value}
-          setConfig={configUpdate}
-          cache={cache.value}
-          setCache={cacheUpdate}
-          focusOnVisible
-          display={display.value!}
-          changeSetState={changeSetStore.value}
-          dispatchChangeSet={dispatchChangeSet}
-          gridCoreComponent={CollectionDataGridCore}
-          jsonViewComponent={CollectionJsonView}
-          isDynamicStructure
-          showMacros
-          macroCondition={macro => macro.type == 'transformValue'}
-          runMacro={handleRunMacro}
-        />
-      </ToolStripContainer>
-    )
-  },
+    return {
+      loadedRows,
+      config,
+      configUpdate,
+      cache,
+      cacheUpdate,
+      display,
+      changeSetStore,
+      dispatchChangeSet,
+      CollectionDataGridCore,
+      CollectionJsonView,
+      handleRunMacro,
+    }
+  }
 })
-
-export const matchingProps = ['conid', 'database', 'schemaName', 'pureName'];
-export const allowAddToFavorites = _ => true
+</script>

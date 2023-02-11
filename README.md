@@ -13,7 +13,7 @@
 ![](https://cdn.jsdelivr.net/gh/422720735/easy_go@master/keeper-2.png)
 ![](https://cdn.jsdelivr.net/gh/422720735/easy_go@master/dark.png)
 
-一个人的时间是有限的，作者正在尽最大努力开发功能，距离第一个发行版还有一些时日。`wails`将它看作为 Go 的快并且轻量的 Electron 替代品。 您可以使用 Go 的灵活性和强大功能，结合丰富的现代前端，轻松的构建应用程序。
+一个人的时间是有限的，作者正在尽最大努力开发功能，距离第一个发行版还有一些时日。`wails`将它看作为 Go 的快并且轻量的 `Electron` 替代品。 您可以使用 Go 的灵活性和强大功能，结合丰富的现代前端，轻松的构建应用程序。
 
 ### 预览版
 [0.0.2.3-alpha.1](https://github.com/tiyongliu/keeper/releases/tag/0.0.2.3-alpha.1)
