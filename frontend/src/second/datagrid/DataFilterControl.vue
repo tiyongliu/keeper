@@ -34,7 +34,7 @@
         <FontIcon icon="icon dots-vertical" />
       </InlineButton>
     </template>
-    <DropDownButton icon="icon filter" narrow />
+    <DropDownButton icon="icon filter" :menu="createMenu" narrow />
     <div
       v-if="showResizeSplitter"
       class="horizontal-split-handle resizeHandleControl"
@@ -45,7 +45,7 @@
 
 <script lang="ts">
 import {defineComponent, PropType, ref, toRef, toRefs, watch} from 'vue'
-import {Input} from 'ant-design-vue'
+import {Input, message} from 'ant-design-vue'
 import InlineButton from '/@/second/buttons/InlineButton.vue'
 import FontIcon from '/@/second/icons/FontIcon.vue'
 import {EngineDriver} from '/@/second/keeper-types'
@@ -118,16 +118,176 @@ export default defineComponent({
   },
   emits: ['dispatchResizeSplitter', 'update:filter'],
   setup(props, {emit}) {
-    const filterType = toRef(props, 'filterType')
-    const isReadOnly = toRef(props, 'isReadOnly')
-    const setFilter = toRef(props, 'setFilter')
-    const filter = toRef(props, 'filter')
-    const FocusGrid = toRef(props, 'FocusGrid')
+    const {filterType,isReadOnly,setFilter,filter,FocusGrid} = toRefs(props)
 
     const domInput = ref<Nullable<HTMLElement>>(null)
     const value = ref<Nullable<string>>(null)
     const isOk = ref<boolean>(false)
     const isError = ref<boolean>(false)
+
+    function openFilterWindow(condition1) {
+      message.warning(condition1)
+    }
+    
+    function filterMultipleValues() {
+      message.warning(`filterMultipleValues`)
+    }
+    
+    function createMenu() {
+      switch (filterType.value) {
+        case 'number':
+          return [
+            { onClick: () => setFilter.value!(''), text: 'Clear Filter' },
+            { onClick: () => {message.warning('filterMultipleValues')}, text: 'Filter multiple values' },
+            { onClick: () => openFilterWindow('='), text: 'Equals...' },
+            { onClick: () => openFilterWindow('<>'), text: 'Does Not Equal...' },
+            { onClick: () => setFilter.value!('NULL'), text: 'Is Null' },
+            { onClick: () => setFilter.value!('NOT NULL'), text: 'Is Not Null' },
+            { onClick: () => openFilterWindow('>'), text: 'Greater Than...' },
+            { onClick: () => openFilterWindow('>='), text: 'Greater Than Or Equal To...' },
+            { onClick: () => openFilterWindow('<'), text: 'Less Than...' },
+            { onClick: () => openFilterWindow('<='), text: 'Less Than Or Equal To...' },
+
+            { divider: true },
+
+            { onClick: () => openFilterWindow('sql'), text: 'SQL condition ...' },
+            { onClick: () => openFilterWindow('sqlRight'), text: 'SQL condition - right side ...' },
+          ]
+        case 'logical':
+          return [
+            { onClick: () => setFilter.value!(''), text: 'Clear Filter' },
+            { onClick: () => filterMultipleValues(), text: 'Filter multiple values' },
+            { onClick: () => setFilter.value!('NULL'), text: 'Is Null' },
+            { onClick: () => setFilter.value!('NOT NULL'), text: 'Is Not Null' },
+            { onClick: () => setFilter.value!('TRUE'), text: 'Is True' },
+            { onClick: () => setFilter.value!('FALSE'), text: 'Is False' },
+            { onClick: () => setFilter.value!('TRUE, NULL'), text: 'Is True or NULL' },
+            { onClick: () => setFilter.value!('FALSE, NULL'), text: 'Is False or NULL' },
+
+            { divider: true },
+
+            { onClick: () => openFilterWindow('sql'), text: 'SQL condition ...' },
+            { onClick: () => openFilterWindow('sqlRight'), text: 'SQL condition - right side ...' },
+          ]
+        case 'datetime':
+          return [
+            { onClick: () => setFilter.value!(''), text: 'Clear Filter' },
+            { onClick: () => filterMultipleValues(), text: 'Filter multiple values' },
+            { onClick: () => setFilter.value!('NULL'), text: 'Is Null' },
+            { onClick: () => setFilter.value!('NOT NULL'), text: 'Is Not Null' },
+
+            { divider: true },
+
+            { onClick: () => openFilterWindow('<='), text: 'Before...' },
+            { onClick: () => openFilterWindow('>='), text: 'After...' },
+            { onClick: () => openFilterWindow('>=;<='), text: 'Between...' },
+
+            { divider: true },
+
+            { onClick: () => setFilter.value!('TOMORROW'), text: 'Tomorrow' },
+            { onClick: () => setFilter.value!('TODAY'), text: 'Today' },
+            { onClick: () => setFilter.value!('YESTERDAY'), text: 'Yesterday' },
+
+            { divider: true },
+
+            { onClick: () => setFilter.value!('NEXT WEEK'), text: 'Next Week' },
+            { onClick: () => setFilter.value!('THIS WEEK'), text: 'This Week' },
+            { onClick: () => setFilter.value!('LAST WEEK'), text: 'Last Week' },
+
+            { divider: true },
+
+            { onClick: () => setFilter.value!('NEXT MONTH'), text: 'Next Month' },
+            { onClick: () => setFilter.value!('THIS MONTH'), text: 'This Month' },
+            { onClick: () => setFilter.value!('LAST MONTH'), text: 'Last Month' },
+
+            { divider: true },
+
+            { onClick: () => setFilter.value!('NEXT YEAR'), text: 'Next Year' },
+            { onClick: () => setFilter.value!('THIS YEAR'), text: 'This Year' },
+            { onClick: () => setFilter.value!('LAST YEAR'), text: 'Last Year' },
+
+            { divider: true },
+
+            { onClick: () => openFilterWindow('sql'), text: 'SQL condition ...' },
+            { onClick: () => openFilterWindow('sqlRight'), text: 'SQL condition - right side ...' },
+          ]
+        case 'string':
+          return [
+            { onClick: () => setFilter.value!(''), text: 'Clear Filter' },
+            { onClick: () => filterMultipleValues(), text: 'Filter multiple values' },
+
+            { onClick: () => openFilterWindow('='), text: 'Equals...' },
+            { onClick: () => openFilterWindow('<>'), text: 'Does Not Equal...' },
+            { onClick: () => setFilter.value!('NULL'), text: 'Is Null' },
+            { onClick: () => setFilter.value!('NOT NULL'), text: 'Is Not Null' },
+            { onClick: () => setFilter.value!('EMPTY, NULL'), text: 'Is Empty Or Null' },
+            { onClick: () => setFilter.value!('NOT EMPTY NOT NULL'), text: 'Has Not Empty Value' },
+
+            { divider: true },
+
+            { onClick: () => openFilterWindow('+'), text: 'Contains...' },
+            { onClick: () => openFilterWindow('~'), text: 'Does Not Contain...' },
+            { onClick: () => openFilterWindow('^'), text: 'Begins With...' },
+            { onClick: () => openFilterWindow('!^'), text: 'Does Not Begin With...' },
+            { onClick: () => openFilterWindow('$'), text: 'Ends With...' },
+            { onClick: () => openFilterWindow('!$'), text: 'Does Not End With...' },
+
+            { divider: true },
+
+            { onClick: () => openFilterWindow('sql'), text: 'SQL condition ...' },
+            { onClick: () => openFilterWindow('sqlRight'), text: 'SQL condition - right side ...' },
+          ]
+        case 'mongo':
+          return [
+            { onClick: () => setFilter.value!(''), text: 'Clear Filter' },
+            { onClick: () => filterMultipleValues(), text: 'Filter multiple values' },
+            { onClick: () => openFilterWindow('='), text: 'Equals...' },
+            { onClick: () => openFilterWindow('<>'), text: 'Does Not Equal...' },
+            { onClick: () => setFilter.value!('EXISTS'), text: 'Field exists' },
+            { onClick: () => setFilter.value!('NOT EXISTS'), text: 'Field does not exist' },
+            { onClick: () => openFilterWindow('>'), text: 'Greater Than...' },
+            { onClick: () => openFilterWindow('>='), text: 'Greater Than Or Equal To...' },
+            { onClick: () => openFilterWindow('<'), text: 'Less Than...' },
+            { onClick: () => openFilterWindow('<='), text: 'Less Than Or Equal To...' },
+            { divider: true },
+            { onClick: () => openFilterWindow('+'), text: 'Contains...' },
+            { onClick: () => openFilterWindow('~'), text: 'Does Not Contain...' },
+            { onClick: () => openFilterWindow('^'), text: 'Begins With...' },
+            { onClick: () => openFilterWindow('!^'), text: 'Does Not Begin With...' },
+            { onClick: () => openFilterWindow('$'), text: 'Ends With...' },
+            { onClick: () => openFilterWindow('!$'), text: 'Does Not End With...' },
+            { divider: true },
+            { onClick: () => setFilter.value!('TRUE'), text: 'Is True' },
+            { onClick: () => setFilter.value!('FALSE'), text: 'Is False' },
+          ]
+        case 'eval':
+          return [
+            { onClick: () => setFilter.value!(''), text: 'Clear Filter' },
+            { onClick: () => filterMultipleValues(), text: 'Filter multiple values' },
+
+            { onClick: () => openFilterWindow('='), text: 'Equals...' },
+            { onClick: () => openFilterWindow('<>'), text: 'Does Not Equal...' },
+            { onClick: () => setFilter.value!('NULL'), text: 'Is Null' },
+            { onClick: () => setFilter.value!('NOT NULL'), text: 'Is Not Null' },
+
+            { divider: true },
+
+            { onClick: () => openFilterWindow('>'), text: 'Greater Than...' },
+            { onClick: () => openFilterWindow('>='), text: 'Greater Than Or Equal To...' },
+            { onClick: () => openFilterWindow('<'), text: 'Less Than...' },
+            { onClick: () => openFilterWindow('<='), text: 'Less Than Or Equal To...' },
+
+            { divider: true },
+
+            { onClick: () => openFilterWindow('+'), text: 'Contains...' },
+            { onClick: () => openFilterWindow('~'), text: 'Does Not Contain...' },
+            { onClick: () => openFilterWindow('^'), text: 'Begins With...' },
+            { onClick: () => openFilterWindow('!^'), text: 'Does Not Begin With...' },
+            { onClick: () => openFilterWindow('$'), text: 'Ends With...' },
+            { onClick: () => openFilterWindow('!$'), text: 'Does Not End With...' },
+          ]
+      }
+    }
 
     function doDispatchResizeSplitter(e) {
       emit('dispatchResizeSplitter', e)
@@ -196,6 +356,7 @@ export default defineComponent({
       isOk,
       isError,
       ...toRefs(props),
+      createMenu,
       doDispatchResizeSplitter,
       handleKeyDown,
       applyFilter,

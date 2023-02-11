@@ -1,5 +1,3 @@
-
-
 export interface ContextMenuItem {
   divider?: boolean;
   text?: string
@@ -13,13 +11,13 @@ export interface CreateContextOptions {
   event: MouseEvent;
   icon?: string;
   styles?: any;
-  items?: ContextMenuItem[];
+  items?: ContextMenuItem[] | Fn;
 }
 
 export interface ContextMenuProps {
   event?: MouseEvent;
   styles?: any;
-  items: ContextMenuItem[];
+  items: ContextMenuItem[] | Fn;
   left?: number;
   top?: number;
   targetElement?: string | string[]

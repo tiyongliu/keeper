@@ -1,9 +1,18 @@
-import {isFunction, isPlainObject, isArray, intersection, compact} from 'lodash-es'
-import invalidateCommands from '/@/second/commands/invalidateCommands'
-import { useBootstrapStore } from '/@/store/modules/bootstrap'
+import {inject, provide, Ref, unref} from 'vue'
+import {compact, intersection, isArray, isFunction, isPlainObject} from 'lodash-es'
 import getAsArray from './getAsArray'
-const bootstrap = useBootstrapStore()
+import {ContextMenuItem} from "/@/second/modals/typing";
+import invalidateCommands from '/@/second/commands/invalidateCommands'
 
+export function registerMenu(originMenu, ...items) {
+  const parentMenu = inject('componentContextMenu') as any
+  originMenu.push(...[unref(parentMenu), ...unref(items)])
+  provide('componentContextMenu', originMenu)
+}
+
+export function getContextMenu() {
+  return inject('componentContextMenu') as Ref<ContextMenuItem[]>
+}
 
 export async function handleContextMenu(e, items: any = []) {
   e.preventDefault()
@@ -12,12 +21,9 @@ export async function handleContextMenu(e, items: any = []) {
   await invalidateCommands()
 
   if (items) {
-    const left = e.pageX
-    const top = e.pageY
-
-    console.log(`targetElement`, e.target)
-    console.log(items, `console----------items-----------`)
-    bootstrap.setCurrentDropDownMenu({left, top, items, targetElement: e.target})
+    // const left = e.pageX
+    // const top = e.pageY
+    // bootstrap.setCurrentDropDownMenu({left, top, items, targetElement: e.target})
   }
 
   if (items === '__no_menu') return
@@ -54,7 +60,7 @@ function processTags(items) {
   for (const menu of items.filter(x => !x.tag)) {
     if (menu.placeTag) {
       const placeTags = getAsArray(menu.placeTag);
-      for (let index = 0; index < tagged.length; ) {
+      for (let index = 0; index < tagged.length;) {
         const current = tagged[index];
         // @ts-ignore
         if (intersection(placeTags, current.tags).length > 0) {
@@ -88,7 +94,7 @@ function filterMenuItems(items) {
     } else {
       if (wasDivider) {
         // @ts-ignore
-        res.push({ divider: true });
+        res.push({divider: true});
       }
       wasDivider = false;
       wasItem = true;
@@ -99,7 +105,8 @@ function filterMenuItems(items) {
   return res;
 }
 
-function mapItem(item, commands) {
+function mapItem(item, bootstrap) {
+  const commands = bootstrap.getCommandsCustomized
   if (item.command) {
     const command = commands[item.command];
     if (command) {
@@ -119,8 +126,8 @@ function mapItem(item, commands) {
   return item
 }
 
-export function prepareMenuItems(items, options, commandsCustomized) {
+export function prepareMenuItems(items, options, bootstrap) {
   const extracted = extractMenuItems(items, options);
-  const compacted = compact(extracted.map(x => mapItem(x, commandsCustomized)))
+  const compacted = compact(extracted.map(x => mapItem(x, bootstrap)))
   return filterMenuItems(compacted);
 }

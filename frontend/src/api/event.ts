@@ -17,10 +17,10 @@ export default function dispatchRuntimeEvent() {
   //获取数据库基本配置信息
   EventsOn('pullEventPluginsScript', (adapter: 'mongo' | 'mysql') => {
     switch (adapter) {
-      case "mysql":
+      case 'mysql':
         EventsEmit('loadPlugins', Mysql)
         break
-      case "mongo":
+      case 'mongo':
         EventsEmit('loadPlugins', Mongo)
         break
       default:

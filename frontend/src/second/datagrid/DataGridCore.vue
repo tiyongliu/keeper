@@ -20,6 +20,7 @@
     <ErrorInfo v-for="err in grider.errors" :message="err" isSmall/>
   </div>
 
+  <!--@contextmenu="handleContext"-->
   <div v-else class="container" ref="container" @wheel="handleGridWheel">
     <!--  todo 现在还不清楚具体使用场景，暂时注释，如果我们点页面Hide按钮，把列表的所有column隐藏了，就会显示出来  -->
     <input ref="domFocusField" v-if="false"/>
@@ -157,7 +158,8 @@ import {
   toRefs,
   unref,
   watch,
-  watchEffect
+  watchEffect,
+  reactive,
 } from 'vue'
 import {
   compact,
@@ -171,8 +173,10 @@ import {
   pick,
   range,
   sumBy,
-  uniq
+  uniq,
+  keys
 } from 'lodash-es'
+import {storeToRefs} from 'pinia'
 import ErrorInfo from '/@/second/elements/ErrorInfo.vue'
 import LoadingInfo from '/@/second/elements/LoadingInfo.vue'
 import CollapseButton from '/@/second/datagrid/CollapseButton.vue'
@@ -192,6 +196,7 @@ import {
 } from '/@/second/datagrid/gridutil'
 import {useStatusBarTabItem} from '/@/second/widgets/useStatusBarTabItem'
 import {dataGridRowHeight} from './DataGridRowHeightMeter.vue'
+import registerCommand from '/@/second/commands/registerCommand'
 import {GridDisplay} from '/@/second/keeper-datalib'
 import Grider from '/@/second/datagrid/Grider'
 import {SeriesSizes} from '/@/second/datagrid/SeriesSizes'
@@ -204,6 +209,9 @@ import {
   nullCell,
   topLeftCell
 } from './selection'
+import {registerMenu} from '/@/second/utility/contextMenu'
+import {message} from 'ant-design-vue'
+import {copyRowsFormatDefs} from '/@/second/utility/clipboard'
 import {getFilterType} from '/@/second/keeper-filterparser'
 import createRef from '/@/second/utility/createRef'
 import {isCtrlOrCommandKey} from '/@/second/utility/common'
@@ -213,7 +221,18 @@ import stableStringify from 'json-stable-stringify'
 import {useBootstrapStore} from '/@/store/modules/bootstrap'
 import keycodes from '/@/second/utility/keycodes'
 import bus from '/@/second/utility/bus'
-
+import {useContextMenu} from "/@/hooks/web/useContextMenu";
+import {useLocaleStore} from "/@/store/modules/locale";
+import {ContextMenuItem} from "/@/second/modals/typing"
+registerCommand({
+  id: 'dataGrid.refresh',
+  category: 'Data grid',
+  name: 'Refresh',
+  keyText: 'F5 | CtrlOrCommand+R',
+  toolbar: true,
+  isRelatedToTab: true,
+  icon: 'icon reload',
+})
 function getSelectedCellsInfo(selectedCells, grider: Grider, realColumnUniqueNames, selectedRowData) {
   if (selectedCells.length > 1 && selectedCells.every(x => isNumber(x[0]) && isNumber(x[1]))) {
     let sum = sumBy(selectedCells, (cell: string[]) => {
@@ -290,7 +309,7 @@ export default defineComponent({
     },
     collapsedLeftColumnStore: {
       type: Object as PropType<Ref<boolean>>,
-      default: true
+      default: ref(true)
     },
     allowDefineVirtualReferences: {
       type: Boolean as PropType<boolean>,
@@ -347,6 +366,8 @@ export default defineComponent({
     } = toRefs(props)
 
     const bootstrap = useBootstrapStore()
+    const locale = useLocaleStore()
+    const {copyRowsFormat} = storeToRefs(locale)
 
     //StatusBarTabItem hooks
     useStatusBarTabItem(allRowCount)
@@ -631,6 +652,85 @@ export default defineComponent({
       return ['filter', columnRealIndex]
     }
 
+    const originMenu = reactive([])
+    registerMenu(
+      originMenu,
+      { command: 'dataGrid.refresh' },
+      { placeTag: 'copy' },
+      {
+        text: 'Copy advanced',
+        submenu: [
+          keys(copyRowsFormatDefs).map(format => ({
+            text: copyRowsFormatDefs[format].label,
+            onClick: () => message.warning('copyToClipboardCore'),
+          })),
+          { divider: true },
+          keys(copyRowsFormatDefs).map(format => ({
+            text: `Set format: ${copyRowsFormatDefs[format].name}`,
+            onClick: () => locale.setCopyRowsFormat(format),
+          })),
+
+          // { text: 'Copy as text', onClick: () => copyToClipboardCore('text') },
+          // { text: 'Copy as CSV', onClick: () => copyToClipboardCore('csv') },
+          // { text: 'Copy as JSON', onClick: () => copyToClipboardCore('json') },
+        ],
+      },
+      { placeTag: 'switch' },
+      { divider: true },
+      { placeTag: 'save' },
+      { command: 'dataGrid.revertRowChanges', hideDisabled: true },
+      { command: 'dataGrid.revertAllChanges', hideDisabled: true },
+      { command: 'dataGrid.deleteSelectedRows' },
+      { command: 'dataGrid.insertNewRow' },
+      { command: 'dataGrid.cloneRows' },
+      { command: 'dataGrid.setNull' },
+      { placeTag: 'edit' },
+      { divider: true },
+      { command: 'dataGrid.findColumn' },
+      { command: 'dataGrid.hideColumn' },
+      { command: 'dataGrid.filterSelected' },
+      { command: 'dataGrid.clearFilter' },
+      { command: 'dataGrid.undo', hideDisabled: true },
+      { command: 'dataGrid.redo', hideDisabled: true },
+      { divider: true },
+      { command: 'dataGrid.editCellValue', hideDisabled: true },
+      { command: 'dataGrid.newJson', hideDisabled: true },
+      { command: 'dataGrid.editJsonDocument', hideDisabled: true },
+      { command: 'dataGrid.viewJsonDocument', hideDisabled: true },
+      { command: 'dataGrid.viewJsonValue', hideDisabled: true },
+      { command: 'dataGrid.openJsonArrayInSheet', hideDisabled: true },
+      { command: 'dataGrid.saveCellToFile', hideDisabled: true },
+      { command: 'dataGrid.loadCellFromFile', hideDisabled: true },
+      // { command: 'dataGrid.copyJsonDocument', hideDisabled: true },
+      { divider: true },
+      { placeTag: 'export' },
+      { command: 'dataGrid.generateSqlFromData' },
+      { command: 'dataGrid.openFreeTable' },
+      { command: 'dataGrid.openChartFromSelection' },
+      { command: 'dataGrid.openSelectionInMap', hideDisabled: true },
+      { placeTag: 'chart' }
+    )
+
+    function buildMenu(): Array<ContextMenuItem[] | ContextMenuItem> {
+      return [
+        unref(originMenu),
+        {
+          text: copyRowsFormatDefs[copyRowsFormat.value].label,
+          onClick: () => message.warning('copyToClipboardCore'),
+          keyText: 'CtrlOrCommand+C',
+          tag: 'copy',
+        },
+      ];
+    }
+
+    const [createContextMenu] = useContextMenu()
+    function handleContext(e: MouseEvent) {
+      createContextMenu({
+        event: e,
+        items: buildMenu as () => ContextMenuItem[],
+      });
+    }
+
     function updateCollapsedLeftColumn() {
       void updateWidgetStyle()
       collapsedLeftColumnStore.value = !collapsedLeftColumnStore.value
@@ -834,7 +934,7 @@ export default defineComponent({
       if (domFocusField.value) domFocusField.value.focus();
       const cell = cellFromEvent(event);
       if (event.button == 2) {
-        if (cell && !cellIsSelected(cell[0], cell[1], selectedCells)) {
+        if (cell && !cellIsSelected(cell[0], cell[1], selectedCells.value)) {
           selectedCells.value = [cell];
         }
         return;
@@ -959,6 +1059,7 @@ export default defineComponent({
       updateHorizontalColumnIndex,
       updateVerticalRowIndex,
       griders,
+      handleContext,
     }
   }
 })

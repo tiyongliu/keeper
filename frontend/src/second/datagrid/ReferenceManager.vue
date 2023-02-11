@@ -41,12 +41,13 @@ import SearchBoxWrapper from '/@/second/widgets/SearchBoxWrapper.vue'
 import SearchInput from '/@/second/elements/SearchInput.vue'
 import CloseSearchButton from '/@/second/buttons/CloseSearchButton'
 import ManagerInnerContainer from '/@/second/elements/ManagerInnerContainer.vue'
-
+import FontIcon from '/@/second/icons/FontIcon.vue'
 import {filterName} from '/@/second/keeper-tools'
 
 export default defineComponent({
   name: 'ReferenceManager',
   components: {
+    FontIcon,
     SearchBoxWrapper,
     SearchInput,
     CloseSearchButton,

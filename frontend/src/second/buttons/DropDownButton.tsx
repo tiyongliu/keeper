@@ -1,8 +1,8 @@
-import {defineComponent, nextTick, PropType, ref, toRefs, unref} from 'vue'
+import {defineComponent, PropType, ref, toRefs, unref} from 'vue'
 import InlineButton from '/@/second/buttons/InlineButton.vue'
 import FontIcon from '/@/second/icons/FontIcon.vue'
-import {useBootstrapStore} from '/@/store/modules/bootstrap'
-
+import {ContextMenuItem} from '/@/components/ContextMenu'
+import {useContextMenu} from '/@/hooks/web/useContextMenu'
 export default defineComponent({
   name: 'DropDownButton',
   props: {
@@ -11,7 +11,7 @@ export default defineComponent({
       default: 'icon chevron-down'
     },
     menu: {
-      type: Array as unknown as PropType<[]>,
+      type: [Function, Array] as unknown as PropType<() => ContextMenuItem[]>,
     },
     narrow: {
       type: Boolean as PropType<boolean>,
@@ -19,20 +19,20 @@ export default defineComponent({
     },
   },
   setup(props) {
-    const bootstrap = useBootstrapStore()
-    const {narrow, icon, menu} = toRefs(props)
+    const {narrow, icon} = toRefs(props)
+    const {menu} = props
     const domButton = ref<Nullable<HTMLElement>>(null)
 
-    async function handleClick() {
-      await nextTick()
-      const rect = domButton.value!.getBoundingClientRect();
-      const left = rect.left;
-      const top = rect.bottom;
-      bootstrap.setCurrentDropDownMenu({left, top, items: menu.value!});
+    const [createContextMenu] = useContextMenu()
+    async function handleClick(e) {
+      e.preventDefault()
+      e.stopPropagation()
+      // @ts-ignore
+      createContextMenu({event: e, items: menu})
     }
 
     return () => (
-      <InlineButton square narrow={unref(narrow)} onClick={handleClick} ref={domButton}>
+      <InlineButton square narrow={unref(narrow)} onClick={e => handleClick(e)} ref={domButton}>
         <FontIcon icon={unref(icon)}/>
       </InlineButton>
     )

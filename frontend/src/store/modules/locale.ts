@@ -27,7 +27,8 @@ interface LocaleState {
   visibleTitleBar: number
   dynamicProps: {
     splitterVisible: boolean
-  }
+  },
+  copyRowsFormat: string
 }
 
 const LEFTPANELWIDTH = "leftPanelWidth"
@@ -49,7 +50,8 @@ export const useLocaleStore = defineStore({
       parseFloat(_leftPanelWidth) : 300,
     dynamicProps: {
       splitterVisible: false
-    }
+    },
+    copyRowsFormat: getWithStorageVariableCache('textWithoutHeaders', 'copyRowsFormat')
   }),
   getters: {
     getShowPicker(): boolean {
@@ -107,6 +109,10 @@ export const useLocaleStore = defineStore({
       if (isNumber(this.leftPanelWidth)) {
         setWithStorageVariableCache(LEFTPANELWIDTH, String(this.leftPanelWidth));
       }
+    },
+    setCopyRowsFormat(value: string) {
+      this.copyRowsFormat = value
+      setWithStorageVariableCache('copyRowsFormat', value)
     },
     setCssVariable(value, transform, cssVariable) {
       document.documentElement.style.setProperty(cssVariable, transform(value));

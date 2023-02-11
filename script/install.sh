@@ -53,8 +53,8 @@ if ! type wails >/dev/null 2>&1; then
     case $input in
         [yY][eE][sS]|[yY])
     		echo "Yes"
-    		export GO111MODULE=on
-    		export GOPROXY=https://goproxy.cn,direct
+    		go env -w GO111MODULE=on
+    		go env -w GOPROXY=https://goproxy.cn,direct
     		;;
         [nN][oO]|[nN])
     		echo "No"

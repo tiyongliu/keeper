@@ -2,6 +2,7 @@ import contextMenuVue from '/@/second/modals/ContextMenu.vue'
 import { isClient } from '/@/utils/is';
 import { CreateContextOptions, ContextMenuProps } from './typing';
 import { createVNode, render } from 'vue';
+import invalidateCommands from '/@/second/commands/invalidateCommands'
 const menuManager: {
   domList: Element[];
   resolve: Fn;
@@ -11,14 +12,16 @@ const menuManager: {
 };
 
 export const createContextMenu = function (options: CreateContextOptions) {
-  const { event } = options || {};
+  const {event} = options || {};
 
   event && event?.preventDefault();
 
   if (!isClient) {
     return;
   }
-  return new Promise((resolve) => {
+  return new Promise(async (resolve) => {
+    await invalidateCommands()
+
     const body = document.body;
 
     const container = document.createElement('div');
@@ -41,7 +44,14 @@ export const createContextMenu = function (options: CreateContextOptions) {
       propsData.targetElement = event.target;
     }
 
-    const vm = createVNode(contextMenuVue, propsData);
+    // @ts-ignore
+    const vm = createVNode(contextMenuVue, {
+      ...propsData,
+      onClose: () => {
+        //废弃
+        // bootstrap.setCurrentDropDownMenu(null)
+      }
+    });
     render(vm, container);
 
     const handleClick = function () {

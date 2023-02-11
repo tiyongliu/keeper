@@ -1,6 +1,9 @@
 <template>
-  <div class="outer buttonLike" :title="title"
-       :class="[disabled && 'disabled', square && 'square', narrow && 'narrow']">
+  <div
+    class="outer buttonLike"
+    :title="title"
+    :class="[disabled && 'disabled', square && 'square', narrow && 'narrow']"
+    ref="domButton">
     <div class="inner">
       <slot></slot>
     </div>
@@ -29,11 +32,18 @@
       }
     },
     setup(props) {
+      const domButton = ref<Nullable<HTMLElement>>(null)
       const hidden = ref(false)
 
+      function getBoundingClientRect() {
+        return domButton.value!.getBoundingClientRect()
+      }
+
       return {
+        domButton,
         hidden,
-        ...props
+        ...props,
+        getBoundingClientRect,
       }
     }
   })

@@ -4,7 +4,9 @@
       <WarningOutlined/>
     </div>
     <div class="m-3">Sorry, keeper is not supported on mobile devices.</div>
-    <div class="m-3">Please visit <a href="https://github.com/tiyongliu/keeper">keeper</a> for more info.</div>
+    <div class="m-3">Please visit <a href="https://github.com/tiyongliu/keeper">keeper</a> for more
+      info.
+    </div>
   </div>
   <div class="root keeper-screen">
     <div class="iconbar">
@@ -26,13 +28,12 @@
          v-splitterDrag="'clientX'"
          :resizeSplitter="(e) => localeStore.updateLeftPanelWidth(x => x + e.detail)">
     </div>
-    <CurrentDropDownMenu/>
     <div class="snackbar-container">snackbar-container</div>
   </div>
 </template>
 
 <script lang="ts">
-import {defineComponent, watch, ref, onMounted} from 'vue'
+import {defineComponent, onMounted, ref, watch} from 'vue'
 import {storeToRefs} from 'pinia'
 import {debounce} from 'lodash-es'
 import {useLocaleStore} from '/@/store/modules/locale'
@@ -44,15 +45,14 @@ import TabRegister from './TabRegister.vue'
 import StatusBar from '/@/second/widgets/StatusBar.vue'
 import {WarningOutlined} from '@ant-design/icons-vue'
 import WidgetIconPanel from '/@/second/widgets/WidgetIconPanel.vue'
-import CurrentDropDownMenu from '/@/second/modals/CurrentDropDownMenu'
 import bus from '/@/second/utility/bus'
+
 export default defineComponent({
   name: 'DefaultLayout',
   components: {
     WidgetContainer,
     WarningOutlined,
     WidgetIconPanel,
-    CurrentDropDownMenu,
     StatusBar,
     TabsPanel,
     TabRegister,

@@ -5,13 +5,14 @@ import {store} from "/@/store"
 import invalidateCommands from '/@/second/commands/invalidateCommands'
 import {IPinnedDatabasesItem} from '/@/second/typings/types/standard.d'
 import {ExtensionsDirectory} from '/@/second/typings/types/extensions.d'
+import {ContextMenuItem} from "/@/components/ContextMenu";
 
 interface IVariableBasic {
   openedConnections: string[]
   currentDatabase: Nullable<IPinnedDatabasesItem>,
   extensions: Nullable<ExtensionsDirectory>
   currentDropDownMenu: Nullable<ICurrentDropDownMenu>
-  commands: object
+  commands: {[key in string]: any}
   commandsSettings: object
   visibleCommandPalette: Nullable<unknown>
   commandsCustomized: object
@@ -39,7 +40,7 @@ export interface TabDefinition {
 export interface ICurrentDropDownMenu {
   left: number
   top: number
-  items: any[]
+  items: () => ContextMenuItem[]
   targetElement?: HTMLElement
 }
 
@@ -118,6 +119,9 @@ export const useBootstrapStore = defineStore({
     setCommands(value: object) {
       this.commands = value
       this.commandsCustomized = derived(this.commands, this.commandsSettings)
+    },
+    updateCommands(updater) {
+      this.commands = updater(this.commands)
     },
     setCommandsSettings(value: object) {
       this.commandsSettings = value

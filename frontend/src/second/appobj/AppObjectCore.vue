@@ -5,9 +5,6 @@
     @click="handleClick"
     @mouseup="handleMouseUp"
     @contextmenu="handleContext">
-<!--
-@contextmenu="$event => handleContextMenu($event, disableContextMenu ? null : menu)">
--->
     <span v-if="expandIcon" class="expand-icon" @click.stop="handleExpand">
       <FontIcon :icon="expandIcon"/>
     </span>
@@ -54,7 +51,6 @@
 import {defineComponent, PropType, toRefs} from 'vue'
 import FontIcon from '/@/second/icons/FontIcon.vue'
 import {useContextMenu} from '/@/hooks/web/useContextMenu'
-import {handleContextMenu} from '/@/second/utility/contextMenu'
 
 export default defineComponent({
   name: 'AppObjectCore',
@@ -149,7 +145,6 @@ export default defineComponent({
     const [createContextMenu] = useContextMenu()
 
     function handleContext(e: MouseEvent) {
-      console.log(props.menu, `props.menu`)
       if (props.menu) {
         createContextMenu({
           event: e,
@@ -176,7 +171,6 @@ export default defineComponent({
       handleClick,
       handleMouseUp,
       handleContext,
-      handleContextMenu,
       handlePin,
       handleUnpin
     }

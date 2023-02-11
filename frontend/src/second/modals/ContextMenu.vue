@@ -6,14 +6,13 @@
       <li v-else @mouseenter="e => handleMouseenter(e, item)">
         <a @click="handleClick($event, item)">
           {{ item.text || item.label }}
-          <span v-if="item.keyText" class="keyText">{{formatKeyText(item.keyText)}}</span>
+          <span v-if="item.keyText" class="keyText">{{ formatKeyText(item.keyText) }}</span>
           <div v-if="item.submenu" class="menu-right">
             <FontIcon icon="icon menu-right"/>
           </div>
         </a>
       </li>
     </template>
-
   </ul>
   <ContextMenu
     v-if="submenuItem && submenuItem?.submenu"
@@ -23,18 +22,18 @@
   />
 </template>
 <script lang="ts">
-import type {ContextMenuItem} from './typing';
 import type {CSSProperties, PropType} from 'vue';
-import {computed, defineComponent, nextTick, onMounted, onUnmounted, ref, unref} from 'vue';
-import { prepareMenuItems } from '/@/second/utility/contextMenu'
-import { formatKeyText } from '/@/second/utility/common'
+import {computed, defineComponent, nextTick, onMounted, onUnmounted, ref, toRefs, unref} from 'vue'
+import {throttle} from "lodash-es";
+import type {ContextMenuItem} from './typing';
+import {prepareMenuItems} from '/@/second/utility/contextMenu'
+import {formatKeyText} from '/@/second/utility/common'
 import Icon from '/@/components/Icon';
 import FontIcon from '/@/second/icons/FontIcon.vue'
-import {submenuMenuContext} from "/@/components/ContextMenu";
-import {throttle} from "lodash-es";
+import {useBootstrapStoreWithOut} from "/@/store/modules/bootstrap";
 
 const props = {
-  styles: { type: Object as PropType<CSSProperties> },
+  styles: {type: Object as PropType<CSSProperties>},
   left: {
     type: Number as PropType<number>,
     default: 0,
@@ -44,7 +43,7 @@ const props = {
   },
   items: {
     // The most important list, if not, will not be displayed
-    type: Array as PropType<ContextMenuItem[]>,
+    type: [Array, Function] as PropType<ContextMenuItem[]>,
     default() {
       return [];
     },
@@ -67,7 +66,7 @@ function getElementOffset(element, side: Nullable<string> = null) {
 }
 
 function fixPopupPlacement(element) {
-  const { width, height } = element.getBoundingClientRect();
+  const {width, height} = element.getBoundingClientRect();
   let offset = getElementOffset(element);
 
   let newLeft: Nullable<number> = null;
@@ -91,6 +90,7 @@ function fixPopupPlacement(element) {
   if (newLeft != null) element.style.left = `${newLeft}px`;
   if (newTop != null) element.style.top = `${newTop}px`;
 }
+
 export default defineComponent({
   name: 'ContextMenu',
   components: {
@@ -100,14 +100,15 @@ export default defineComponent({
   props,
   emits: ['close'],
   setup(props, {emit}) {
-    const {items, targetElement, styles, closeParent, left, top} = props
+    const {targetElement, styles, closeParent, left, top} = props
+    const {items} = toRefs(props)
 
     const wrapRef = ref<Nullable<HTMLElement>>(null)
 
-    const hoverItem = ref<Nullable<submenuMenuContext>>(null)
+    const hoverItem = ref<Nullable<ContextMenuItem>>(null)
     const hoverOffset = ref<Nullable<{ top: number, left: number }>>(null)
 
-    const submenuItem = ref<Nullable<submenuMenuContext>>(null)
+    const submenuItem = ref<Nullable<ContextMenuItem>>(null)
     const submenuOffset = ref<Nullable<{ top: number, left: number }>>(null)
 
     let closeHandlers: Function[] = []
@@ -120,7 +121,7 @@ export default defineComponent({
         left: `${left}px`,
         top: `${top}px`,
       }
-    });
+    })
 
     onMounted(() => {
       nextTick(() => (showRef.value = true));
@@ -172,11 +173,11 @@ export default defineComponent({
       submenuOffset.value = hoverOffset.value;
     }, 500)
 
-
-    const preparedItems = computed<ContextMenuItem[]>(() => prepareMenuItems(items, {
+    const bootstrap = useBootstrapStoreWithOut()
+    const preparedItems = computed<ContextMenuItem[]>(() => prepareMenuItems(items.value, {
       targetElement: targetElement,
       registerCloseHandler
-    }, null))
+    }, bootstrap))
 
     return {
       wrapRef,
@@ -185,7 +186,6 @@ export default defineComponent({
       formatKeyText,
       handleClick,
       handleMouseenter,
-
       submenuItem,
       submenuOffset,
       handleCloseParent,
